@@ -1,95 +1,110 @@
-/**
- * Cloudflare Pages Advanced Mode Worker
- * Gemini API Reverse Proxy
- *
- * Browser request:  /api/gemini/v1beta/models/gemini-2.5-flash:generateContent?key=xxx
- * Forwards to:      https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=xxx
- *
- * Cloudflare edge nodes run on overseas IPs, so Google won't block them.
- * The browser accesses a same-origin URL (/api/gemini/...) so no CORS issues.
- */
+// Cloudflare Pages _worker.js (Advanced Mode) - Gemini Proxy v4
+// Place at deployment root.
+
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "*",
+  "Access-Control-Max-Age": "86400",
+};
+
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     try {
       const url = new URL(request.url);
 
-      // Handle OPTIONS preflight
-      if (request.method === 'OPTIONS') {
-        return new Response(null, {
-          status: 204,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-goog-api-key',
-            'Access-Control-Max-Age': '86400',
-          },
-        });
+      // Gemini API proxy
+      if (url.pathname.indexOf("/api/gemini") === 0) {
+        return await proxyGemini(request, url);
       }
 
-      // Route: /api/gemini/* -> proxy to Google Generative Language API
-      if (url.pathname.startsWith('/api/gemini')) {
-        const upstreamPath = url.pathname.replace(/^\/api\/gemini/, '');
-        if (!upstreamPath) {
-          return new Response(JSON.stringify({ error: { message: 'Bad path' } }), {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' },
-          });
-        }
-
-        const upstreamUrl = `https://generativelanguage.googleapis.com${upstreamPath}${url.search}`;
-
-        const init = {
-          method: request.method,
-          headers: {
-            'Content-Type': request.headers.get('Content-Type') || 'application/json',
-          },
-        };
-
-        if (request.method !== 'GET' && request.method !== 'HEAD') {
-          init.body = await request.text();
-        }
-
-        let upstream;
-        try {
-          upstream = await fetch(upstreamUrl, init);
-        } catch (e) {
-          return new Response(JSON.stringify({
-            error: { message: 'Proxy upstream fetch failed: ' + e.message }
-          }), {
-            status: 502,
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-            },
-          });
-        }
-
-        const responseHeaders = new Headers();
-        responseHeaders.set('Content-Type', upstream.headers.get('Content-Type') || 'application/json');
-        responseHeaders.set('Access-Control-Allow-Origin', '*');
-        responseHeaders.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-goog-api-key');
-
-        return new Response(upstream.body, {
-          status: upstream.status,
-          headers: responseHeaders,
-        });
+      // Static assets
+      if (env && env.ASSETS && typeof env.ASSETS.fetch === "function") {
+        return await env.ASSETS.fetch(request);
       }
 
-      // All other requests: serve static assets (index.html, etc.)
-      if (env.ASSETS) {
-        return env.ASSETS.fetch(request);
-      }
+      const envKeys = env ? Object.keys(env).join(", ") : "no env";
+      return errResp(
+        "ASSETS binding not found. env keys: [" + envKeys + "].",
+        500
+      );
+    } catch (e) {
+      return errResp(
+        "Top-level worker error: " + (e && e.message ? e.message : String(e)),
+        500
+      );
+    }
+  },
+};
 
-      return new Response('Not found', { status: 404 });
+async function proxyGemini(request, url) {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: CORS });
+  }
 
-    } catch (err) {
-      return new Response(JSON.stringify({
-        error: { message: 'Worker error: ' + err.message }
-      }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
+  const upstreamPath = url.pathname.replace(/^\/api\/gemini/, "");
+  if (!upstreamPath || upstreamPath === "/") {
+    return jsonResp({ error: { message: "Path required after /api/gemini" } }, 400);
+  }
+
+  const target = "https://generativelanguage.googleapis.com" + upstreamPath + url.search;
+
+  const init = {
+    method: request.method,
+    headers: {
+      "Content-Type": request.headers.get("Content-Type") || "application/json",
+      "Accept": "application/json",
+      "Accept-Language": "en-US,en;q=0.9",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    },
+  };
+
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    try {
+      init.body = await request.text();
+    } catch (e) {
+      return jsonResp(
+        { error: { message: "Body read failed: " + (e && e.message ? e.message : String(e)) } },
+        400
+      );
     }
   }
-};
+
+  let upstream;
+  try {
+    upstream = await fetch(target, init);
+  } catch (e) {
+    return jsonResp(
+      { error: { message: "Upstream Google fetch failed: " + (e && e.message ? e.message : String(e)) } },
+      502
+    );
+  }
+
+  const respHeaders = new Headers();
+  respHeaders.set(
+    "Content-Type",
+    upstream.headers.get("Content-Type") || "application/json"
+  );
+  for (const k in CORS) {
+    respHeaders.set(k, CORS[k]);
+  }
+
+  return new Response(upstream.body, {
+    status: upstream.status,
+    headers: respHeaders,
+  });
+}
+
+function errResp(message, status) {
+  return new Response(message, {
+    status: status,
+    headers: { "Content-Type": "text/plain; charset=utf-8", ...CORS },
+  });
+}
+
+function jsonResp(obj, status) {
+  return new Response(JSON.stringify(obj, null, 2), {
+    status: status,
+    headers: { "Content-Type": "application/json", ...CORS },
+  });
+}
