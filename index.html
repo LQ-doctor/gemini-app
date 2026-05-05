@@ -1119,6 +1119,9 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
     </div>
     <div class="sm-body">
       <div class="prov-tabs" id="provTabs"></div>
+
+      <!-- ═══ 视图 A:主供应商 / 已保存的自定义供应商 ═══ -->
+      <div id="provNormalView">
       <div class="key-row">
         <input class="key-inp" id="keyInp" type="password" placeholder="粘贴 API Key …" autocomplete="off">
         <button class="key-save" onclick="saveKey()">保存</button>
@@ -1137,7 +1140,7 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
           <input class="key-inp" id="modelCustom" placeholder="或输入自定义模型名…" style="font-family:'SF Mono',monospace;font-size:12px;flex:1;min-width:200px" oninput="onModelCustomInput()">
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:10.5px;color:var(--g3);line-height:1.5">
-          <span>✅ 推荐</span><span>☑️ 备选</span><span>⚡ 更快</span><span>💎 最强</span><span>💰 付费</span><span>⚠️ 可能失败</span>
+          <span>🆓 免费</span><span>✅ 推荐</span><span>☑️ 备选</span><span>⚡ 更快</span><span>💎 最强</span><span>🔍 OCR专精</span><span>🧩 思考模式</span><span>💰 付费</span><span>⚠️ 可能失败</span>
         </div>
         <div id="modelHint" style="display:none;margin-top:8px;padding:8px 12px;background:rgba(255,204,0,.1);border:1px solid rgba(255,204,0,.25);border-radius:8px;font-size:11px;color:#665100;line-height:1.55">
           ⚠️ <strong>自定义模型格式提醒</strong>：OpenRouter 模型 ID 格式为 <code>provider/model-name:free</code>（如 <code>qwen/qwen3-vl-30b:free</code>），不是网页上显示的名称。请在 <a href="https://openrouter.ai/models" target="_blank">openrouter.ai/models</a> 查看准确的 model ID。
@@ -1145,32 +1148,52 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
       </div>
 
       <div class="guide-box" id="guideBox"></div>
+      </div><!-- /provNormalView -->
 
-      <!-- Custom Provider Section -->
-      <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--hairline)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <span style="font-size:13px;font-weight:700;color:var(--g1);letter-spacing:-.2px">🔧 自定义供应商</span>
-          <button onclick="toggleCustomForm()" id="customToggleBtn" class="hbtn hbtn-gray" style="height:30px">+ 添加</button>
+      <!-- ═══ 视图 B:自定义供应商管理 ═══ -->
+      <div id="provCustomView" hidden>
+        <!-- 已保存的自定义供应商列表 -->
+        <div style="margin-bottom:14px">
+          <div style="font-size:13px;font-weight:700;color:var(--g1);letter-spacing:-.2px;margin-bottom:8px">📚 我已保存的自定义供应商</div>
+          <div id="customSavedList" style="display:flex;flex-direction:column;gap:6px"></div>
         </div>
-        <div id="customProvList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
-        <div id="customForm" hidden style="background:rgba(118,118,128,.08);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;backdrop-filter:blur(8px);border:1px solid var(--hairline)">
+
+        <!-- + 添加新的自定义供应商(默认显示) -->
+        <button onclick="toggleCustomForm()" id="customToggleBtn" class="action-btn primary" style="height:42px;font-size:13px;width:100%">+ 添加新的自定义供应商</button>
+
+        <!-- 添加表单(默认隐藏) -->
+        <div id="customForm" hidden style="margin-top:12px;background:rgba(118,118,128,.08);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;backdrop-filter:blur(8px);border:1px solid var(--hairline)">
           
           <!-- Preset shortcuts -->
           <div>
             <label style="font-size:11px;color:var(--g4);font-weight:700;display:block;margin-bottom:6px">⚡ 快速预设（点击自动填充）</label>
+
+            <div style="font-size:10px;color:var(--g4);margin:4px 0 4px;font-weight:600">🇨🇳 国内直连（无需翻墙）</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+              <button type="button" onclick="applyCustomPreset('qwen_direct')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">🧠 通义千问</button>
+              <button type="button" onclick="applyCustomPreset('doubao_direct')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">🫘 豆包</button>
+              <button type="button" onclick="applyCustomPreset('hunyuan_direct')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">🐧 腾讯混元</button>
+              <button type="button" onclick="applyCustomPreset('baidu_direct')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">🐻 百度文心</button>
+              <button type="button" onclick="applyCustomPreset('kimi_direct')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">🌙 Kimi</button>
+              <button type="button" onclick="applyCustomPreset('deepseek_direct')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">🌊 DeepSeek</button>
+            </div>
+
+            <div style="font-size:10px;color:var(--g4);margin:4px 0 4px;font-weight:600">🌍 海外（同域 Pages Functions 中转）</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+              <button type="button" onclick="applyCustomPreset('hf_deepinfra')" class="hbtn hbtn-gray" style="height:28px;font-size:11px;background:linear-gradient(90deg,rgba(255,193,7,.18),rgba(255,87,34,.18))">🔥 HF · DeepInfra</button>
+              <button type="button" onclick="applyCustomPreset('deepinfra_direct')" class="hbtn hbtn-gray" style="height:28px;font-size:11px;background:linear-gradient(90deg,rgba(0,200,150,.18),rgba(0,150,255,.18))">💎 DeepInfra</button>
+              <button type="button" onclick="applyCustomPreset('claude_proxy')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">🔮 Claude</button>
+            </div>
+
+            <div style="font-size:10px;color:var(--g4);margin:4px 0 4px;font-weight:600">🔄 网关 / 自定义</div>
             <div style="display:flex;flex-wrap:wrap;gap:6px">
-              <button type="button" onclick="applyCustomPreset('groq_proxy')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">⚡ Groq（中转）</button>
-              <button type="button" onclick="applyCustomPreset('nvidia_proxy')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">🟢 NVIDIA（中转）</button>
-              <button type="button" onclick="applyCustomPreset('github_proxy')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">🐙 GitHub（中转）</button>
-              <button type="button" onclick="applyCustomPreset('hunyuan_proxy')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">🐧 混元（中转）</button>
               <button type="button" onclick="applyCustomPreset('oneapi')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">🔄 OneAPI/NewAPI</button>
-              <button type="button" onclick="applyCustomPreset('claude_proxy')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">🔮 Claude 中转</button>
               <button type="button" onclick="applyCustomPreset('blank')" class="hbtn hbtn-gray" style="height:28px;font-size:11px">📝 空白</button>
             </div>
           </div>
           
           <input class="key-inp" id="cpName" placeholder="名称（如：Groq中转 / OneAPI / 我的私服）" style="font-size:13px">
-          <input class="key-inp" id="cpEndpoint" placeholder="API 基础地址（如 https://my-ai-proxy.liuqin199513.workers.dev/groq 或 http://你的服务器:3000）" style="font-size:12px;font-family:'SF Mono',monospace">
+          <input class="key-inp" id="cpEndpoint" placeholder="API 基础地址（同域 Pages Functions：/api/groq；或自建网关：http://你的服务器:3000）" style="font-size:12px;font-family:'SF Mono',monospace">
           <div style="display:flex;gap:8px;align-items:center">
             <label style="font-size:11px;color:var(--g4);font-weight:700;white-space:nowrap">API 格式</label>
             <select class="key-inp" id="cpApiType" style="font-family:inherit;flex:1" onchange="onCpApiTypeChange()">
@@ -1180,8 +1203,16 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
             </select>
           </div>
           <div id="cpModelsArea">
-            <label style="font-size:11px;color:var(--g4);font-weight:700;display:block;margin-bottom:6px">模型列表（每行一个：模型ID|显示名|是否视觉）</label>
-            <textarea class="key-inp" id="cpModels" rows="4" placeholder="meta-llama/llama-4-scout-17b-16e-instruct|Llama 4 Scout|vision&#10;openai/gpt-oss-120b|GPT-OSS 120B" style="font-size:11px;font-family:'SF Mono',monospace;min-height:80px;resize:vertical;line-height:1.6;padding:8px"></textarea>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px;flex-wrap:wrap">
+              <label style="font-size:11px;color:var(--g4);font-weight:700">模型列表（每行：模型ID|显示名|vision）</label>
+              <div style="display:flex;gap:6px">
+                <button type="button" onclick="fetchCustomModelsFromEndpoint()" class="hbtn hbtn-gray" style="height:24px;font-size:10px;padding:0 8px">🔄 获取最新视觉模型</button>
+                <button type="button" onclick="toggleCpModelsView()" id="cpModelsViewBtn" class="hbtn hbtn-gray" style="height:24px;font-size:10px;padding:0 8px">📝 切换为文本编辑</button>
+              </div>
+            </div>
+            <div id="cpModelsGrid" style="display:none;background:rgba(255,255,255,.5);border:1px solid var(--hairline);border-radius:10px;padding:8px;max-height:280px;overflow-y:auto"></div>
+            <textarea class="key-inp" id="cpModels" rows="4" placeholder="meta-llama/llama-4-scout-17b-16e-instruct|✅ Llama 4 Scout|vision&#10;模型ID|💎 显示名|vision" style="font-size:11px;font-family:'SF Mono',monospace;min-height:80px;resize:vertical;line-height:1.6;padding:8px"></textarea>
+            <div id="cpFetchResult" style="margin-top:6px;font-size:11px;line-height:1.5"></div>
           </div>
           <input class="key-inp" id="cpKey" type="password" placeholder="API Key（gsk-xxx / nvapi-xxx / sk-xxx 等）" style="font-size:12px;font-family:'SF Mono',monospace">
           <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--g2)">
@@ -1295,97 +1326,7 @@ const PROVIDERS = {
 <div id="providerFetchResult_zhipu" style="margin-top:6px;font-size:11px"></div>
 <a href="https://docs.bigmodel.cn/cn/guide/models/free/glm-4.6v-flash" target="_blank">📖 官方文档</a>`
   },
-  qwen: {
-    name: '通义千问', fullName: '通义千问 Qwen-VL',
-    emoji: '🧠', badges: ['100万Token','国内'],
-    model: 'qwen3-vl-plus',
-    fallbackModels: ['qwen-vl-plus', 'qwen-vl-max-latest', 'qwen3-vl-flash'],
-    altModels: [
-      { id: 'qwen3-vl-plus',             tag: '✅', desc: '默认 · Qwen3-VL Plus · 最新视觉旗舰' },
-      { id: 'qwen3-vl-flash',            tag: '⚡', desc: 'Qwen3-VL Flash · 速度快、成本低' },
-      { id: 'qwen3-vl-235b-a22b-instruct', tag: '💎', desc: 'Qwen3-VL 235B · 超大参数' },
-      { id: 'qwen3-vl-235b-a22b-thinking', tag: '🧩', desc: 'Qwen3-VL 235B 思考模式 · 复杂推理' },
-      { id: 'qwen3-vl-30b-a3b-instruct', tag: '☑️', desc: 'Qwen3-VL 30B · 性价比好' },
-      { id: 'qwen3-vl-8b-instruct',      tag: '⚡', desc: 'Qwen3-VL 8B · 最快' },
-      { id: 'qwen-vl-ocr',               tag: '🔍', desc: 'Qwen-VL OCR · 文字识别专精' },
-      { id: 'qwen-vl-plus',              tag: '☑️', desc: '老版 Qwen2.5-VL Plus · 实战稳定' },
-      { id: 'qwen-vl-max-latest',        tag: '💎', desc: '最强视觉 · 限额更少' },
-      { id: 'qwen2.5-vl-72b-instruct',   tag: '💰', desc: '付费 · 72B 旗舰开源' }
-    ],
-    endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
-    placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 6500, maxTokens: 4096, imageFirst: false,
-    extraBody: { enable_thinking: false },
-    guide: `<strong>🧠 通义千问 Qwen-VL（视觉系列）</strong>
-注册：<a href="https://bailian.console.aliyun.com" target="_blank">阿里云百炼</a> → 「API-KEY」→ 创建<br>
-新用户赠 <strong>100万 Token</strong>。<strong>Qwen3-VL Plus</strong> 是最新视觉旗舰（2025年9月发布），<strong>Qwen-VL-OCR</strong> 是文字识别专精模型。<br>
-⚠️ <strong>模型不可用？</strong>免费配额可能已用完或模型已下架，可切换到 <code>qwen-vl-plus</code> 或 <code>qwen3-vl-flash</code>。<br>
-<button onclick="fetchProviderModels('qwen')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表</button>
-<div id="providerFetchResult_qwen" style="margin-top:6px;font-size:11px"></div>
-<a href="https://help.aliyun.com/zh/model-studio/qwen-vl-compatible-with-openai" target="_blank">📖 官方文档</a> · <a href="https://help.aliyun.com/zh/model-studio/models" target="_blank">📋 完整模型列表</a>`
-  },
-  doubao: {
-    name: '豆包', fullName: '火山方舟 · 豆包大模型',
-    emoji: '🫘', badges: ['每天200万Token','国内'],
-    model: 'doubao-1.5-vision-pro-32k',
-    altModels: [
-      { id: 'doubao-1.5-vision-pro-32k',  tag: '✅', desc: '默认 · 1.5 Vision Pro · 视觉旗舰' },
-      { id: 'doubao-vision-pro-32k',      tag: '☑️', desc: 'Vision Pro · 稳定版' },
-      { id: 'doubao-1.5-pro-256k',        tag: '💎', desc: '1.5 Pro · 256K 超长上下文（无视觉）' },
-      { id: 'doubao-pro-32k',             tag: '☑️', desc: 'Pro 32K · 性价比' },
-      { id: 'doubao-lite-32k',            tag: '⚡', desc: 'Lite · 最快最省' }
-    ],
-    endpoint: 'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
-    placeholder: '直接填 API Key 或 Endpoint ID',
-    rateLimit: 4000, maxTokens: 4096, imageFirst: false,
-    guide: `<strong>🫘 豆包 · 火山方舟（字节跳动）· 每天 200 万 Token 免费</strong>
-注册：<a href="https://console.volcengine.com/ark" target="_blank">火山方舟控制台</a> → 实名认证 → API Key 管理 → 创建<br>
-<strong>⚠️ 重要步骤</strong>：需先在「模型推理」→「推理接入点」中创建接入点，获取 Endpoint ID（如 <code>ep-2024xxxx</code>）。<br>
-然后在上方「模型」下拉框中输入你的 <strong>Endpoint ID</strong> 作为模型名使用。<br>
-<strong>免费额度</strong>：每模型 50万 Token + 协作奖励每天 200万 Token（每日重置！）<br>
-<a href="https://www.volcengine.com/docs/82379/1339016" target="_blank">📖 官方文档</a> · <a href="https://console.volcengine.com/ark/region:ark+cn-beijing/endpoint" target="_blank">📋 创建接入点</a>`
-  },
-  hunyuan: {
-    name: '腾讯混元', fullName: '腾讯混元 Vision',
-    emoji: '🐧', badges: ['免费额度','国内'],
-    model: 'hunyuan-vision',
-    fallbackModels: ['hunyuan-turbos-vision', 'hunyuan-lite'],
-    altModels: [
-      { id: 'hunyuan-vision',         tag: '✅', desc: '默认 · 视觉理解 · 有免费额度' },
-      { id: 'hunyuan-turbos-vision',  tag: '⚡', desc: '加速版 · 更快 · 推荐' },
-      { id: 'hunyuan-t1-vision',      tag: '💎', desc: '推理增强版' },
-      { id: 'hunyuan-lite',           tag: '☑️', desc: '轻量版 · 完全免费' }
-    ],
-    endpoint: 'https://api.hunyuan.cloud.tencent.com/v1/chat/completions',
-    placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 4000, maxTokens: 4096, imageFirst: false,
-    guide: `<strong>🐧 腾讯混元 Vision</strong>
-注册：<a href="https://cloud.tencent.com/product/hunyuan" target="_blank">cloud.tencent.com/product/hunyuan</a> → 开通「在线推理」服务<br>
-进入 <a href="https://console.cloud.tencent.com/hunyuan/api-key" target="_blank">API Key 管理</a> → 创建 <code>sk-</code> 格式密钥（注意不是 SecretId/SecretKey）<br>
-⚠️ <strong>常见问题</strong>：<br>
-• 「网络错误」→ 检查是否已开通「在线推理」服务，且 API Key 为 <code>sk-</code> 格式<br>
-• 浏览器可能因 CORS 限制无法直接调用，如遇此问题请尝试使用其他服务（如智谱AI、硅基流动）<br>
-<a href="https://cloud.tencent.com/document/product/1729/111007" target="_blank">📖 官方文档</a>`
-  },
-  baidu: {
-    name: '百度文心', fullName: '百度 ERNIE-VL',
-    emoji: '🐻', badges: ['免费额度','国内'],
-    model: 'ernie-4.5-turbo-vl-32k',
-    altModels: [
-      { id: 'ernie-4.5-turbo-vl-32k', tag: '✅', desc: '默认 · 4.5 Turbo · 32K' },
-      { id: 'ernie-4.5-turbo-vl',     tag: '☑️', desc: '4.5 Turbo · 标准上下文' },
-      { id: 'ernie-4.5-vl-28b-a3b',   tag: '☑️', desc: '4.5 28B MoE 视觉版' }
-    ],
-    endpoint: 'https://qianfan.baidubce.com/v2/chat/completions',
-    placeholder: 'bce-v3/ALTAK-xxx',
-    rateLimit: 4000, maxTokens: 4096, imageFirst: false,
-    guide: `<strong>🐻 百度文心 ERNIE-4.5-VL</strong>
-注册：<a href="https://console.bce.baidu.com/iam/#/iam/apikey/list" target="_blank">百度智能云 IAM</a> → 创建 API Key（V2，<code>bce-v3/...</code>）<br>
-⚠️ <strong>常见错误</strong>：<br>
-• <code>account_overdue</code>（账户欠费）→ 需先在 <a href="https://console.bce.baidu.com/billing/#/account/index" target="_blank">费用中心</a> 充值或开通免费额度<br>
-• 即使有免费 Token 额度，<strong>账户余额也不能为负</strong>，需保证账户状态正常<br>
-<a href="https://cloud.baidu.com/doc/QIANFAN/s/wm7ltcvgc" target="_blank">📖 官方文档</a>`
-  },
+  /* 通义/豆包/混元/百度 4 个国内服务已移到「自定义供应商 → 快速预设」中。 */
   gemini: {
     name: 'Gemini', fullName: 'Google Gemini',
     emoji: '✨', badges: ['免费','需翻墙'],
@@ -1413,22 +1354,16 @@ const PROVIDERS = {
     model: 'meta-llama/llama-4-scout-17b-16e-instruct',
     fallbackModels: ['meta-llama/llama-4-maverick-17b-128e-instruct'],
     altModels: [
-      { id: 'meta-llama/llama-4-scout-17b-16e-instruct',     tag: '✅', desc: '默认 · Llama 4 Scout · 视觉 · 460+ t/s' },
-      { id: 'meta-llama/llama-4-maverick-17b-128e-instruct', tag: '💎', desc: 'Llama 4 Maverick · 400B/128专家 · 视觉旗舰' },
-      { id: 'openai/gpt-oss-120b',                       tag: '🧠', desc: 'GPT-OSS 120B · 最智能（无视觉）· 推理SOTA' },
-      { id: 'openai/gpt-oss-20b',                        tag: '⚡', desc: 'GPT-OSS 20B · 946 t/s 全球最快' },
-      { id: 'openai/gpt-oss-safeguard-20b',              tag: '🛡️', desc: 'GPT-OSS Safeguard · 内容审核' },
-      { id: 'llama-3.3-70b-versatile',                   tag: '☑️', desc: 'Llama 3.3 70B · 稳定（无视觉）' },
-      { id: 'qwen/qwen3-32b',                            tag: '☑️', desc: 'Qwen3 32B（无视觉）' },
-      { id: 'llama-3.1-8b-instant',                      tag: '⚡', desc: 'Llama 3.1 8B · 最便宜' }
+      { id: 'meta-llama/llama-4-scout-17b-16e-instruct',     tag: '✅', desc: '默认 · Llama 4 Scout 17B/16E · 109B · 460+ t/s' },
+      { id: 'meta-llama/llama-4-maverick-17b-128e-instruct', tag: '💎', desc: 'Llama 4 Maverick 17B/128E · 400B · 视觉旗舰' }
     ],
     endpoint: 'https://api.groq.com/openai/v1/chat/completions',
     placeholder: 'gsk_xxxxxxxxxxxxxxxx',
     rateLimit: 6000, maxTokens: 4096, imageFirst: false,
     guide: `<strong>⚡ Groq · 全球最快推理（免费）</strong>
 注册：<a href="https://console.groq.com" target="_blank">console.groq.com</a> → Google/GitHub 登录 → API Keys → 创建<br>
-<strong>视觉模型推荐</strong>：Llama 4 Scout（17B/16专家） 或 Llama 4 Maverick（17B/128专家），都支持图片识别。<br>
-免费版限 1000次/天（大部分模型），<strong>无需信用卡</strong>。<br>
+<strong>视觉模型</strong>：Groq 目前仅 <code>llama-4-scout</code>（推荐·更快）和 <code>llama-4-maverick</code>（更强·400B）支持视觉。其他文本模型（GPT-OSS 等）不能识别图片。<br>
+免费版限 1000次/天，<strong>无需信用卡</strong>。<br>
 ⚠️ <strong>国内需翻墙</strong>。浏览器可能因 CORS 限制无法直接调用，建议通过自定义中转或 OpenRouter 使用。<br>
 <button onclick="fetchProviderModels('groq')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
 <div id="providerFetchResult_groq" style="margin-top:6px;font-size:11px"></div>
@@ -1440,15 +1375,16 @@ const PROVIDERS = {
     model: 'openai/gpt-4o',
     fallbackModels: ['openai/gpt-4o-mini', 'openai/gpt-4.1-mini'],
     altModels: [
-      { id: 'openai/gpt-4o',             tag: '✅', desc: '默认 · GPT-4o · 强视觉理解' },
-      { id: 'openai/gpt-4.1',            tag: '💎', desc: 'GPT-4.1 · 更强（限额更少）' },
-      { id: 'openai/gpt-4.1-mini',       tag: '⚡', desc: 'GPT-4.1 Mini · 性价比' },
-      { id: 'openai/gpt-4o-mini',        tag: '⚡', desc: 'GPT-4o Mini · 更快' },
-      { id: 'openai/o4-mini',            tag: '🧩', desc: 'o4-mini · 推理模型（无视觉）' },
-      { id: 'meta/Llama-4-Scout-17B-16E-Instruct',     tag: '☑️', desc: 'Llama 4 Scout · 视觉' },
-      { id: 'meta/Llama-4-Maverick-17B-128E-Instruct', tag: '☑️', desc: 'Llama 4 Maverick · 视觉旗舰' },
-      { id: 'microsoft/Phi-4-multimodal-instruct',     tag: '☑️', desc: 'Phi-4 多模态 · 视觉+音频' },
-      { id: 'mistral/Mistral-Large-2411',              tag: '☑️', desc: 'Mistral Large · 文本' }
+      { id: 'openai/gpt-4o',                            tag: '✅', desc: '默认 · GPT-4o · OCR 最强' },
+      { id: 'openai/gpt-4.1',                           tag: '💎', desc: 'GPT-4.1 · 更强（限额更少）' },
+      { id: 'openai/gpt-4.1-mini',                      tag: '⚡', desc: 'GPT-4.1 Mini · 性价比' },
+      { id: 'openai/gpt-4o-mini',                       tag: '⚡', desc: 'GPT-4o Mini · 更快' },
+      { id: 'meta/Llama-4-Scout-17B-16E-Instruct',      tag: '☑️', desc: 'Llama 4 Scout · 109B' },
+      { id: 'meta/Llama-4-Maverick-17B-128E-Instruct',  tag: '☑️', desc: 'Llama 4 Maverick · 400B 旗舰' },
+      { id: 'meta/Llama-3.2-90B-Vision-Instruct',       tag: '☑️', desc: 'Llama 3.2 90B Vision' },
+      { id: 'meta/Llama-3.2-11B-Vision-Instruct',       tag: '⚡', desc: 'Llama 3.2 11B Vision' },
+      { id: 'microsoft/Phi-4-multimodal-instruct',      tag: '☑️', desc: 'Phi-4 多模态 · 视觉+音频' },
+      { id: 'microsoft/Phi-3.5-vision-instruct',        tag: '⚡', desc: 'Phi-3.5 Vision · 轻量' }
     ],
     endpoint: 'https://models.github.ai/inference/chat/completions',
     placeholder: 'github_pat_xxxxxxxx',
@@ -1472,17 +1408,18 @@ const PROVIDERS = {
       'nvidia/llama-3.1-nemotron-nano-vl-8b-v1'
     ],
     altModels: [
-      { id: 'meta/llama-4-scout-17b-16e-instruct',         tag: '✅', desc: '默认 · Llama 4 Scout · 视觉 · 109B' },
-      { id: 'meta/llama-4-maverick-17b-128e-instruct',     tag: '💎', desc: 'Llama 4 Maverick · 视觉 · 400B/128专家' },
-      { id: 'qwen/qwen2.5-vl-72b-instruct',                tag: '💎', desc: 'Qwen2.5-VL 72B · 视觉旗舰' },
-      { id: 'nvidia/llama-3.1-nemotron-nano-vl-8b-v1',     tag: '🔍', desc: 'Llama Nemotron Nano VL 8B · OCR专精（推荐）' },
+      { id: 'meta/llama-4-maverick-17b-128e-instruct',     tag: '💎', desc: 'Llama 4 Maverick · 400B/128专家 · 最强' },
+      { id: 'qwen/qwen2.5-vl-72b-instruct',                tag: '💎', desc: 'Qwen2.5-VL 72B · OCR 推荐' },
+      { id: 'meta/llama-4-scout-17b-16e-instruct',         tag: '✅', desc: '默认 · Llama 4 Scout · 109B · 更快' },
+      { id: 'nvidia/llama-3.1-nemotron-nano-vl-8b-v1',     tag: '🔍', desc: 'Llama Nemotron Nano VL 8B · OCR 专精（DocVQA SOTA）' },
       { id: 'nvidia/nemotron-nano-12b-v2-vl',              tag: '🔍', desc: 'Nemotron Nano 12B v2 VL · 多图理解' },
       { id: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning', tag: '🧩', desc: 'Nemotron 3 Nano Omni · 全模态推理' },
-      { id: 'microsoft/phi-3.5-vision-instruct',           tag: '⚡', desc: 'Phi-3.5 Vision · 轻量' },
-      { id: 'google/gemma-3-27b-it',                       tag: '☑️', desc: 'Gemma 3 27B · 视觉' },
+      { id: 'google/gemma-3-27b-it',                       tag: '☑️', desc: 'Gemma 3 27B · 谷歌开源' },
+      { id: 'google/gemma-3-12b-it',                       tag: '⚡', desc: 'Gemma 3 12B · 轻量' },
       { id: 'mistralai/pixtral-12b',                       tag: '☑️', desc: 'Pixtral 12B · Mistral 视觉' },
-      { id: 'nvidia/nemotron-3-super-120b-a12b',           tag: '🧠', desc: 'Nemotron 3 Super 120B · 推理（无视觉）' },
-      { id: 'deepseek-ai/deepseek-v4-flash',               tag: '⚡', desc: 'DeepSeek V4 Flash · 1M上下文（无视觉）' }
+      { id: 'mistralai/pixtral-large-instruct-2411',       tag: '💎', desc: 'Pixtral Large · 124B · Mistral 旗舰' },
+      { id: 'microsoft/phi-3.5-vision-instruct',           tag: '⚡', desc: 'Phi-3.5 Vision · 轻量' },
+      { id: 'microsoft/phi-4-multimodal-instruct',         tag: '☑️', desc: 'Phi-4 多模态' }
     ],
     endpoint: 'https://integrate.api.nvidia.com/v1/chat/completions',
     placeholder: 'nvapi-xxxxxxxxxxxxxxxx',
@@ -1768,7 +1705,9 @@ function renderProvTabs() {
   const el = document.getElementById('provTabs');
   if (!el) return;
   el.innerHTML = '';
+  // 仅渲染主供应商(自定义供应商收纳到 ➕ 自定义 tab 内)
   Object.entries(PROVIDERS).forEach(([id, p]) => {
+    if (p.isCustom) return;
     const div = document.createElement('div');
     div.className = 'prov-tab' + (cfg.prov === id ? ' active' : '');
     div.onclick = () => selectProv(id);
@@ -1782,12 +1721,46 @@ function renderProvTabs() {
       <div class="pt-badges">${badges}</div>`;
     el.appendChild(div);
   });
+
+  // ➕ 自定义 tab —— 当前 prov 是 'custom' 或某个已保存的自定义供应商时高亮
+  const isCustomActive = cfg.prov === 'custom' || PROVIDERS[cfg.prov]?.isCustom;
+  const customCount = Object.keys(cfg.customProviders || {}).length;
+  const div = document.createElement('div');
+  div.className = 'prov-tab' + (isCustomActive ? ' active' : '');
+  div.onclick = () => selectProv('custom');
+  div.innerHTML = `
+    <div class="pt-emoji">➕</div>
+    <div class="pt-name">自定义</div>
+    <div class="pt-badges">${customCount ? `<span class="pt-badge b-cn">已存 ${customCount}</span>` : '<span class="pt-badge b-free">添加</span>'}</div>`;
+  el.appendChild(div);
 }
 
 function selectProv(id) {
-  if (!PROVIDERS[id]) id = Object.keys(PROVIDERS)[0];
+  const normalView = document.getElementById('provNormalView');
+  const customView = document.getElementById('provCustomView');
+
+  // 'custom' 是特殊伪 ID -> 切到自定义管理视图
+  if (id === 'custom') {
+    cfg.prov = 'custom';  // 不持久化到 localStorage(下次打开仍回到上一次的具体供应商)
+    if (normalView) normalView.hidden = true;
+    if (customView) customView.hidden = false;
+    renderProvTabs();
+    renderCustomSavedList();
+    // 不打开表单(用户主动点 + 添加才打开)
+    const form = document.getElementById('customForm');
+    if (form) form.hidden = true;
+    const toggleBtn = document.getElementById('customToggleBtn');
+    if (toggleBtn) toggleBtn.textContent = '+ 添加新的自定义供应商';
+    return;
+  }
+
+  // 正常供应商或已保存的自定义供应商
+  if (!PROVIDERS[id]) id = Object.keys(PROVIDERS).find(k => !PROVIDERS[k].isCustom) || 'zhipu';
   cfg.prov = id;
   localStorage.setItem('phck_prov', id);
+  if (normalView) normalView.hidden = false;
+  if (customView) customView.hidden = true;
+
   renderProvTabs();
   const p = PROVIDERS[id];
   const keyInp = document.getElementById('keyInp');
@@ -1803,7 +1776,15 @@ function selectProv(id) {
     keyInp.disabled = false;
     if (keySave) keySave.style.display = '';
   }
-  document.getElementById('guideBox').innerHTML = p.guide;
+  // 自定义供应商:guide 顶部加一个「⬅ 返回自定义列表」按钮 + 删除按钮
+  let guideHtml = p.guide || '';
+  if (p.isCustom) {
+    guideHtml = `<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <button onclick="selectProv('custom')" class="hbtn hbtn-gray" style="height:30px;font-size:12px">⬅ 返回自定义列表</button>
+      <button onclick="deleteCustom('${id}')" class="hbtn hbtn-gray" style="height:30px;font-size:12px;color:var(--red)">🗑 删除此供应商</button>
+    </div>` + guideHtml;
+  }
+  document.getElementById('guideBox').innerHTML = guideHtml;
 
   // Refresh model selector — supports {id,tag,desc} objects
   const sel = document.getElementById('modelSelect');
@@ -1882,11 +1863,11 @@ function toggleCustomForm() {
   const btn = document.getElementById('customToggleBtn');
   if (f.hidden) {
     f.hidden = false;
-    btn.textContent = '✕ 收起';
+    btn.textContent = '✕ 收起表单';
     document.getElementById('cpName').focus();
   } else {
     f.hidden = true;
-    btn.textContent = '+ 添加';
+    btn.textContent = '+ 添加新的自定义供应商';
   }
 }
 function cancelCustom() {
@@ -1911,56 +1892,99 @@ function onCpApiTypeChange() {
   }
 }
 
-/* ════ 自定义供应商预设模板 ════ */
+/* ════ 自定义供应商预设模板 ════
+   分类：
+   ① 国内直连（无需翻墙、无需中转）
+   ② 海外（同域 Pages Functions 中转 / 自建中转）
+   ③ 网关聚合
+*/
 const CUSTOM_PRESETS = {
-  groq_proxy: {
-    name: 'Groq中转',
-    endpoint: 'https://my-ai-proxy.liuqin199513.workers.dev/groq',
+  /* ─────────────── ① 国内直连 ─────────────── */
+  qwen_direct: {
+    name: '通义千问 Qwen-VL',
+    endpoint: 'https://dashscope.aliyuncs.com/compatible-mode',
     apiType: 'openai',
-    models: 'meta-llama/llama-4-scout-17b-16e-instruct|✅ Llama 4 Scout（推荐·极速）|vision',
-    keyPlaceholder: 'gsk_xxxxxxxxxxxxxxxx',
-    note: '✅ 已内置代理。Groq 免费极速，目前仅 Llama 4 Scout 支持视觉（Maverick 已于 2026-02 下线）。Key 在 console.groq.com 注册获取。'
-  },
-  nvidia_proxy: {
-    name: 'NVIDIA中转',
-    endpoint: 'https://my-ai-proxy.liuqin199513.workers.dev/nvidia',
-    apiType: 'openai',
-    models: 'meta/llama-4-maverick-17b-128e-instruct|💎 Llama 4 Maverick（最强·400B）|vision\nqwen/qwen2.5-vl-72b-instruct|✅ Qwen2.5-VL 72B（OCR 推荐）|vision\nmeta/llama-4-scout-17b-16e-instruct|⚡ Llama 4 Scout（更快·109B）|vision\nnvidia/llama-3.1-nemotron-nano-vl-8b-v1|⚡ Nemotron Nano VL OCR（OCR 专用）|vision\nnvidia/nemotron-nano-12b-v2-vl|Nemotron Nano 12B VL|vision',
-    keyPlaceholder: 'nvapi-xxxxxxxxxxxxxxxx',
-    note: '✅ 已内置代理。NVIDIA NIM 全部免费（约 40 RPM 限速）。OCR 推荐 Qwen2.5-VL 72B 或 Nemotron Nano VL OCR。Key 在 build.nvidia.com 注册获取（nvapi- 开头）。'
-  },
-  github_proxy: {
-    name: 'GitHub中转',
-    endpoint: 'https://my-ai-proxy.liuqin199513.workers.dev/github',
-    apiType: 'openai',
-    models: 'openai/gpt-4o|💎 GPT-4o（OCR 最强）|vision\nopenai/gpt-4.1|✅ GPT-4.1（推荐）|vision\nopenai/gpt-4o-mini|⚡ GPT-4o Mini（更快）|vision\nmeta/Llama-4-Maverick-17B-128E-Instruct|Llama 4 Maverick|vision\nmeta/Llama-4-Scout-17B-16E-Instruct|Llama 4 Scout|vision\nmicrosoft/Phi-4-multimodal-instruct|Phi-4 Multimodal|vision',
-    keyPlaceholder: 'github_pat_xxxxxxxx',
-    note: '✅ 已内置代理。GitHub Models 免费但有速率限制（免费层每月限额，Pro 层更宽松）。Key 在 GitHub Settings → Developer settings → Personal access tokens 创建。'
-  },
-  hunyuan_proxy: {
-    name: '腾讯混元中转',
-    endpoint: 'https://my-ai-proxy.liuqin199513.workers.dev/hunyuan',
-    apiType: 'openai',
-    models: 'hunyuan-turbos-vision|💎 混元 Turbo Vision（旗舰·推荐）|vision\nhunyuan-t1-vision|混元 T1 Vision（深度思考）|vision\nhunyuan-vision|💰 混元 Vision（基础）|vision',
+    models: 'qwen3-vl-plus|🆓 ✅ Qwen3-VL Plus（推荐）|vision\nqwen3-vl-flash|🆓 ⚡ Qwen3-VL Flash（更快）|vision\nqwen3-vl-235b-a22b-instruct|💎 Qwen3-VL 235B（旗舰）|vision\nqwen3-vl-30b-a3b-instruct|🆓 ☑️ Qwen3-VL 30B|vision\nqwen3-vl-8b-instruct|🆓 ⚡ Qwen3-VL 8B（最快）|vision\nqwen-vl-ocr|🔍 Qwen-VL OCR（文字专精）|vision\nqwen-vl-plus|☑️ Qwen2.5-VL Plus（稳定）|vision\nqwen-vl-max-latest|💎 Qwen2.5-VL Max',
     keyPlaceholder: 'sk-xxxxxxxxxxxxxxxx',
-    note: '💰 混元视觉模型共享 100万 token/月免费额度，超出后按量计费。国内直连无需翻墙。Key 在 cloud.tencent.com 混元控制台获取。'
+    note: '🧠 <b>阿里通义千问</b>（国内直连，无需翻墙）。<br>🎁 <b>免费额度</b>：新用户赠 <b>100 万 Token</b>，每个模型独立配额。<br>🎯 <b>开通</b>：<a href="https://bailian.console.aliyun.com" target="_blank">阿里云百炼</a> → API-KEY → 创建。'
   },
-  oneapi: {
-    name: 'OneAPI/NewAPI',
-    endpoint: 'http://你的服务器:3000',
+  doubao_direct: {
+    name: '豆包 · 火山方舟',
+    endpoint: 'https://ark.cn-beijing.volces.com/api/v3',
     apiType: 'openai',
-    models: 'gpt-4o|💎 GPT-4o|vision\nclaude-sonnet-4-6|💎 Claude Sonnet 4.6|vision\ngemini-2.5-flash|⚡ Gemini Flash|vision\nglm-4.6v-flash|GLM-4.6V|vision\nqwen-vl-max|Qwen VL Max|vision',
+    models: 'doubao-1.5-vision-pro-32k|🆓 ✅ 1.5 Vision Pro（推荐）|vision\ndoubao-vision-pro-32k|🆓 ☑️ Vision Pro（稳定）|vision\ndoubao-1.5-vision-lite-32k|🆓 ⚡ 1.5 Vision Lite（更快）|vision',
+    keyPlaceholder: '直接填 API Key 或 Endpoint ID',
+    note: '🫘 <b>字节豆包</b>（国内直连）。<br>🎁 <b>免费额度</b>：每模型 50 万 Token + 协作奖励 <b>每天 200 万 Token</b>（每日重置）。<br>⚠️ <b>必须先创建接入点</b>：<a href="https://console.volcengine.com/ark/region:ark+cn-beijing/endpoint" target="_blank">推理接入点</a> → 把生成的 <code>ep-xxxx</code> 当作模型 ID 填入。'
+  },
+  hunyuan_direct: {
+    name: '腾讯混元 Vision',
+    endpoint: 'https://api.hunyuan.cloud.tencent.com',
+    apiType: 'openai',
+    models: 'hunyuan-turbos-vision|💎 TurboS Vision（旗舰·推荐）|vision\nhunyuan-t1-vision|🧩 T1 Vision（深度思考）|vision\nhunyuan-vision|☑️ Hunyuan Vision（基础）|vision',
     keyPlaceholder: 'sk-xxxxxxxxxxxxxxxx',
-    note: '💡 OneAPI / NewAPI 是常见的 API 中转网关。请把基础地址改成你的网关地址（不需要 /v1/chat/completions 后缀），模型 ID 改成网关里实际配置的模型名。'
+    note: '🐧 <b>腾讯混元</b>（国内直连）。<br>💰 <b>计费</b>：100 万 Token/月 共享免费额度，超出按量计费。<br>🎯 <b>开通</b>：<a href="https://console.cloud.tencent.com/hunyuan/api-key" target="_blank">混元控制台</a> → 开通在线推理 → 创建 <code>sk-</code> 格式密钥（不是 SecretId/SecretKey）。'
+  },
+  baidu_direct: {
+    name: '百度文心 ERNIE-VL',
+    endpoint: 'https://qianfan.baidubce.com/v2',
+    apiType: 'openai',
+    models: 'ernie-4.5-turbo-vl-32k|✅ ERNIE-4.5 Turbo VL 32K（推荐）|vision\nernie-4.5-turbo-vl|☑️ ERNIE-4.5 Turbo VL|vision\nernie-4.5-vl-28b-a3b|☑️ ERNIE-4.5 28B MoE|vision',
+    keyPlaceholder: 'bce-v3/ALTAK-xxx',
+    note: '🐻 <b>百度文心</b>（国内直连）。<br>🎁 部分模型免费额度，但<b>账户余额不能为负</b>，否则 <code>account_overdue</code>。<br>🎯 <b>开通</b>：<a href="https://console.bce.baidu.com/iam/#/iam/apikey/list" target="_blank">百度智能云 IAM</a> → 创建 V2 API Key（<code>bce-v3/...</code>）。'
+  },
+  deepseek_direct: {
+    name: 'DeepSeek',
+    endpoint: 'https://api.deepseek.com',
+    apiType: 'openai',
+    models: 'deepseek-chat|✅ DeepSeek-V3 Chat|\ndeepseek-reasoner|🧩 DeepSeek-R1 Reasoner|',
+    keyPlaceholder: 'sk-xxxxxxxxxxxxxxxx',
+    note: '🌊 <b>DeepSeek 官方</b>（国内直连）。<br>⚠️ <b>注意</b>：DeepSeek 主力模型 <b>暂不支持视觉</b>，仅适合纯文本场景。如需视觉用 V3-VL（如可用）请到官方文档确认模型 ID。<br>🎯 <b>开通</b>：<a href="https://platform.deepseek.com/api_keys" target="_blank">platform.deepseek.com</a>。'
+  },
+  kimi_direct: {
+    name: 'Kimi · 月之暗面',
+    endpoint: 'https://api.moonshot.cn',
+    apiType: 'openai',
+    models: 'moonshot-v1-8k-vision-preview|✅ Moonshot v1 8K Vision|vision\nmoonshot-v1-32k-vision-preview|☑️ Moonshot v1 32K Vision|vision\nmoonshot-v1-128k-vision-preview|💎 Moonshot v1 128K Vision（长上下文）|vision',
+    keyPlaceholder: 'sk-xxxxxxxxxxxxxxxx',
+    note: '🌙 <b>月之暗面 Kimi</b>（国内直连）。<br>🎁 新用户赠 ¥15 体验额度。<br>🎯 <b>开通</b>：<a href="https://platform.moonshot.cn/console/api-keys" target="_blank">platform.moonshot.cn</a>。'
+  },
+
+  /* ─────────────── ② 海外（Pages Functions 中转） ─────────────── */
+  hf_deepinfra: {
+    name: 'HF · DeepInfra（推荐）',
+    endpoint: '/api/hf',
+    apiType: 'openai',
+    models: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct|💎 Llama 4 Maverick · 400B（最强）|vision\nmeta-llama/Llama-4-Scout-17B-16E-Instruct|✅ Llama 4 Scout · 109B（推荐）|vision\nQwen/Qwen2.5-VL-72B-Instruct|💎 Qwen2.5-VL 72B（OCR 推荐）|vision\nQwen/Qwen2.5-VL-32B-Instruct|⚡ Qwen2.5-VL 32B（更快）|vision\nQwen/Qwen2.5-VL-7B-Instruct|⚡ Qwen2.5-VL 7B（最快）|vision\ngoogle/gemma-3-27b-it|☑️ Gemma 3 27B|vision\ngoogle/gemma-3-12b-it|⚡ Gemma 3 12B（轻量）|vision\nmistralai/Pixtral-Large-Instruct-2411|💎 Pixtral Large 124B|vision',
+    keyPlaceholder: 'hf_xxxxxxxx（HuggingFace Token）',
+    note: '🔥 通过 HuggingFace 推理路由调用 DeepInfra/Together/Fireworks 等。<br>💰 <b>计费</b>：HF 免费用户每月 $0.10 免费额度后按 token 计费。<br>🎯 <b>开通</b>：<a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a> → 务必勾选「Make calls to Inference Providers」。'
+  },
+  deepinfra_direct: {
+    name: 'DeepInfra（中转）',
+    endpoint: '/api/deepinfra',
+    apiType: 'openai',
+    models: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct|💎 Llama 4 Maverick · 400B|vision\nmeta-llama/Llama-4-Scout-17B-16E-Instruct|✅ Llama 4 Scout · 109B|vision\nQwen/Qwen2.5-VL-72B-Instruct|💎 Qwen2.5-VL 72B（OCR 推荐）|vision\nQwen/Qwen2.5-VL-32B-Instruct|⚡ Qwen2.5-VL 32B|vision\ngoogle/gemma-3-27b-it|☑️ Gemma 3 27B|vision\nmistralai/Pixtral-Large-Instruct-2411|💎 Pixtral Large 124B|vision',
+    keyPlaceholder: 'DeepInfra API Key',
+    note: '🔥 通过同域 Pages Functions 中转直连 DeepInfra（绕过 HF 抽成，更便宜）。<br>🎁 <b>免费额度</b>：注册赠 <b>$5</b>（无需信用卡），约 8000 万 tokens。<br>🎯 <a href="https://deepinfra.com/dash/api_keys" target="_blank">deepinfra.com</a> → API Keys → Create。'
   },
   claude_proxy: {
-    name: 'Claude中转',
+    name: 'Claude（自建中转）',
     endpoint: 'https://你的中转地址',
     apiType: 'anthropic',
     models: 'claude-opus-4-7|💎 Claude Opus 4.7（最强）|vision\nclaude-sonnet-4-6|✅ Claude Sonnet 4.6（推荐）|vision\nclaude-haiku-4-5|⚡ Claude Haiku 4.5（更快）|vision',
     keyPlaceholder: 'sk-ant-xxxxxxxx 或中转 Key',
-    note: '💰 Claude 全系列均为付费模型，按量计费。用于自建中转或官方 API（官方对 IP 有限制）。'
+    note: '💰 Claude 全系列付费、按量计费。<br>📌 用于自建中转或官方 API。官方 API 对国内 IP 严格限制，建议走自建中转。'
   },
+
+  /* ─────────────── ③ 网关聚合 ─────────────── */
+  oneapi: {
+    name: 'OneAPI / NewAPI',
+    endpoint: 'http://你的服务器:3000',
+    apiType: 'openai',
+    models: 'gpt-4o|💎 GPT-4o|vision\nclaude-sonnet-4-6|💎 Claude Sonnet 4.6|vision\ngemini-2.5-flash|⚡ Gemini Flash|vision\nglm-4.6v-flash|🆓 GLM-4.6V|vision\nqwen-vl-max|Qwen VL Max|vision',
+    keyPlaceholder: 'sk-xxxxxxxxxxxxxxxx',
+    note: '🔄 <b>OneAPI / NewAPI</b> 自建网关。基础地址填到端口或路径前缀（不要带 <code>/v1/chat/completions</code>），模型 ID 用网关里实际配置的名字。'
+  },
+
   blank: {
     name: '',
     endpoint: '',
@@ -1978,6 +2002,15 @@ function applyCustomPreset(presetId) {
   document.getElementById('cpEndpoint').value = preset.endpoint;
   document.getElementById('cpApiType').value = preset.apiType;
   document.getElementById('cpModels').value = preset.models;
+  // Reset views
+  const grid = document.getElementById('cpModelsGrid');
+  const ta = document.getElementById('cpModels');
+  const btn = document.getElementById('cpModelsViewBtn');
+  if (grid) grid.style.display = 'none';
+  if (ta) ta.style.display = '';
+  if (btn) btn.textContent = '👁 切换为列表视图';
+  const fr = document.getElementById('cpFetchResult');
+  if (fr) fr.innerHTML = '';
   document.getElementById('cpKey').value = '';
   document.getElementById('cpKey').placeholder = 'API Key（' + preset.keyPlaceholder + '）';
   document.getElementById('cpImageFirst').checked = false;
@@ -2224,7 +2257,7 @@ async function testCustom() {
     if (e.name === 'AbortError') {
       resultEl.innerHTML = '<span style="color:var(--red)">❌ 请求超时（15秒）。请检查基础地址是否可达。</span>';
     } else if (/fetch|network|net::|CORS/i.test(e.message)) {
-      resultEl.innerHTML = `<span style="color:var(--red)">❌ 网络/CORS 错误：${esc(e.message.slice(0,150))}<br>💡 国内调用 Groq/NVIDIA/GitHub 等海外服务可使用内置代理（https://my-ai-proxy.liuqin199513.workers.dev）。</span>`;
+      resultEl.innerHTML = `<span style="color:var(--red)">❌ 网络/CORS 错误：${esc(e.message.slice(0,150))}<br>💡 调用 Groq/NVIDIA/GitHub/混元/HF/DeepInfra 等海外服务请将基础地址改为同域 Pages Functions 路径（如 <code>/api/groq</code>、<code>/api/nvidia</code>），并把本项目部署到 Cloudflare Pages。</span>`;
     } else {
       resultEl.innerHTML = `<span style="color:var(--red)">❌ ${esc(e.message?.slice(0,150) || '未知错误')}</span>`;
     }
@@ -2241,6 +2274,203 @@ function parseModelsText(text) {
       vision: (parts[2] || '').toLowerCase().includes('vision')
     };
   }).filter(Boolean);
+}
+
+/* ════ Render parsed model list as interactive grid in custom preset ════ */
+function renderCpModelsGrid() {
+  const grid = document.getElementById('cpModelsGrid');
+  const text = document.getElementById('cpModels').value;
+  const models = parseModelsText(text);
+  if (!grid || !models.length) {
+    if (grid) grid.innerHTML = '<div style="color:var(--g4);font-size:11px;text-align:center;padding:14px">暂无模型，请点击「🔄 获取最新视觉模型」自动拉取，或在文本框手动添加</div>';
+    return;
+  }
+  // Sort: 💎 first, ✅, ⚡, 💰 last, others in middle
+  const order = (n) => {
+    if (/💎/.test(n)) return 1;
+    if (/✅/.test(n)) return 2;
+    if (/⚡/.test(n)) return 3;
+    if (/💰/.test(n)) return 9;
+    return 5;
+  };
+  models.sort((a, b) => order(a.name) - order(b.name));
+  let html = `<div style="font-size:10px;color:var(--g4);margin-bottom:6px">${models.length} 个模型 · 排序：💎最强 → ✅推荐 → ⚡更快 → 💰付费</div>`;
+  models.forEach((m, idx) => {
+    const isFirst = idx === 0;
+    const bg = isFirst ? 'rgba(0,122,255,.08)' : 'rgba(118,118,128,.04)';
+    const bc = isFirst ? 'var(--blue)' : 'transparent';
+    const nc = isFirst ? 'var(--blue)' : 'var(--g1)';
+    html += `<div style="display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:8px;border:1.5px solid ${bc};background:${bg};margin-bottom:3px">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;font-weight:600;color:${nc};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.name)}</div>
+        <div style="font-size:9px;color:var(--g4);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'SF Mono',monospace">${esc(m.id)}</div>
+      </div>
+      ${isFirst ? '<span style="font-size:9px;color:var(--blue);font-weight:700;padding:2px 6px;background:rgba(0,122,255,.12);border-radius:4px">默认</span>' : ''}
+      <button type="button" onclick="removeCpModel(${idx})" style="width:22px;height:22px;border-radius:50%;border:none;background:rgba(255,59,48,.12);color:var(--red);cursor:pointer;font-size:11px;font-weight:700">✕</button>
+    </div>`;
+  });
+  grid.innerHTML = html;
+  // Sync sorted result back to textarea
+  document.getElementById('cpModels').value = models.map(m => `${m.id}|${m.name}|${m.vision?'vision':''}`).join('\n');
+}
+
+function removeCpModel(idx) {
+  const ta = document.getElementById('cpModels');
+  const lines = ta.value.split('\n').filter(Boolean);
+  // Remove by parsed-and-sorted index — re-parse to match grid order
+  const models = parseModelsText(ta.value);
+  const order = (n) => { if (/💎/.test(n)) return 1; if (/✅/.test(n)) return 2; if (/⚡/.test(n)) return 3; if (/💰/.test(n)) return 9; return 5; };
+  models.sort((a, b) => order(a.name) - order(b.name));
+  models.splice(idx, 1);
+  ta.value = models.map(m => `${m.id}|${m.name}|${m.vision?'vision':''}`).join('\n');
+  renderCpModelsGrid();
+}
+
+function toggleCpModelsView() {
+  const grid = document.getElementById('cpModelsGrid');
+  const ta = document.getElementById('cpModels');
+  const btn = document.getElementById('cpModelsViewBtn');
+  if (grid.style.display === 'none') {
+    renderCpModelsGrid();
+    grid.style.display = 'block';
+    ta.style.display = 'none';
+    btn.textContent = '📝 切换为文本编辑';
+  } else {
+    grid.style.display = 'none';
+    ta.style.display = '';
+    btn.textContent = '👁 切换为列表视图';
+  }
+}
+
+/* ════ Fetch latest models from custom preset's endpoint ════ */
+async function fetchCustomModelsFromEndpoint() {
+  const resultEl = document.getElementById('cpFetchResult');
+  let baseUrl = document.getElementById('cpEndpoint').value.trim();
+  const key = document.getElementById('cpKey').value.trim();
+  const apiType = document.getElementById('cpApiType').value;
+  if (!baseUrl) {
+    resultEl.innerHTML = '<span style="color:var(--orange)">⚠️ 请先填写「API 基础地址」</span>';
+    return;
+  }
+  if (baseUrl.includes('你的') || baseUrl.includes('xxx')) {
+    resultEl.innerHTML = '<span style="color:var(--red)">❌ 基础地址中还有占位符，请先替换为真实地址</span>';
+    return;
+  }
+  // Normalize and build /v1/models URL
+  baseUrl = baseUrl.replace(/\/+$/, '').replace(/\/v1\/chat\/completions$/i, '').replace(/\/v1\/messages$/i, '').replace(/\/v1$/i, '');
+  let listUrl;
+  if (apiType === 'anthropic') {
+    listUrl = baseUrl + '/v1/models';
+  } else if (apiType === 'gemini') {
+    listUrl = baseUrl + '/v1beta/models' + (key ? '?key=' + encodeURIComponent(key) : '');
+  } else {
+    listUrl = baseUrl + '/v1/models';
+  }
+  resultEl.innerHTML = '<span style="color:var(--g4)">⏳ 正在从 <code>' + esc(listUrl) + '</code> 获取模型列表…</span>';
+  try {
+    const headers = { 'Accept': 'application/json' };
+    if (key && apiType !== 'gemini') {
+      if (apiType === 'anthropic') {
+        headers['x-api-key'] = key;
+        headers['anthropic-version'] = '2023-06-01';
+      } else {
+        headers['Authorization'] = 'Bearer ' + key;
+      }
+    }
+    const ctl = new AbortController();
+    const tid = setTimeout(() => ctl.abort(), 15000);
+    const res = await fetch(listUrl, { headers, signal: ctl.signal });
+    clearTimeout(tid);
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error('HTTP ' + res.status + ': ' + t.slice(0, 120));
+    }
+    const data = await res.json();
+    let raw = data.data || data.models || (Array.isArray(data) ? data : []);
+    if (!raw.length) {
+      resultEl.innerHTML = '<span style="color:var(--orange)">未获取到模型列表（接口返回为空）</span>';
+      return;
+    }
+    // Vision detection: ID/name keywords + explicit modality fields
+    const visionKw = /vision|vl[^a-z]|visual|multimodal|vlm|image|llama-?4|qwen.*vl|gpt-4o|gpt-4\.1|gemini|gemma-?[34]|phi-?[34]-vision|pixtral|llava|nemotron-nano-vl|hunyuan.*vision|claude/i;
+    const all = raw.map(m => ({
+      id: m.id || m.name || m.model || '',
+      ctx: m.context_length || m.context_window || 0,
+      modalities: (m.architecture?.input_modalities || []).join(','),
+      created: m.created || 0,
+      pricing: m.pricing,
+      raw: m
+    })).filter(m => m.id);
+    const visionList = all.filter(m => {
+      if (m.modalities && m.modalities.includes('image')) return true;
+      return visionKw.test(m.id);
+    });
+    if (!visionList.length) {
+      resultEl.innerHTML = '<span style="color:var(--orange)">未发现视觉模型（共 ' + all.length + ' 个，但都不含视觉能力）。可在文本框手动添加。</span>';
+      return;
+    }
+    // Tag: free / fast / new
+    const tagOf = (m) => {
+      const id = m.id.toLowerCase();
+      const isFree = (m.pricing && (m.pricing.prompt === '0' || m.pricing.prompt === 0)) || /:free$/.test(m.id);
+      const isFast = /flash|mini|nano|haiku|scout|turbo|lite|fast|small|tiny|8b|12b|7b|3b|4b/.test(id) && !/maverick|opus|72b|405b|large/.test(id);
+      const isStrong = /maverick|opus|72b|405b|large|pro|max|gpt-?4o|sonnet/.test(id);
+      const tags = [];
+      if (isFree) tags.push('🆓');
+      if (isStrong) tags.push('💎');
+      else if (isFast) tags.push('⚡');
+      return tags.join(' ');
+    };
+    // Sort: free first, then strong (💎), then fast (⚡), within each by context
+    visionList.sort((a, b) => {
+      const fa = (a.pricing && (a.pricing.prompt === '0' || a.pricing.prompt === 0 || /:free$/.test(a.id))) ? 0 : 1;
+      const fb = (b.pricing && (b.pricing.prompt === '0' || b.pricing.prompt === 0 || /:free$/.test(b.id))) ? 0 : 1;
+      if (fa !== fb) return fa - fb;
+      const sa = /maverick|opus|72b|405b|large|sonnet|max/.test(a.id.toLowerCase()) ? 0 : 1;
+      const sb = /maverick|opus|72b|405b|large|sonnet|max/.test(b.id.toLowerCase()) ? 0 : 1;
+      if (sa !== sb) return sa - sb;
+      return (b.ctx || 0) - (a.ctx || 0);
+    });
+    const slim = visionList.slice(0, 60);
+    let html = '<div style="color:var(--green);font-weight:600;margin-bottom:6px">✅ 找到 ' + visionList.length + ' 个视觉模型 · 已按「免费 → 💎最强 → ⚡更快」排序 · 点击勾选要使用的模型</div>';
+    html += '<div style="max-height:300px;overflow-y:auto;background:rgba(255,255,255,.5);border:1px solid var(--hairline);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:3px">';
+    slim.forEach((m, i) => {
+      const tag = tagOf(m);
+      const ctx = m.ctx ? (m.ctx >= 1e6 ? Math.floor(m.ctx/1e6)+'M' : Math.floor(m.ctx/1024)+'K') : '';
+      const checked = i < 6 ? 'checked' : '';
+      html += '<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;cursor:pointer;background:'+(i<6?'rgba(0,122,255,.04)':'transparent')+';transition:background .12s">'
+        + '<input type="checkbox" class="cp-fetched-model" data-id="'+esc(m.id)+'" data-tag="'+tag+'" ' + checked + ' style="cursor:pointer">'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-size:11px;font-weight:600;color:var(--g1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(tag?tag+' ':'')+esc(m.id)+'</div>'
+        + (ctx?'<div style="font-size:9px;color:var(--g4)">上下文 '+ctx+'</div>':'')
+        + '</div></label>';
+    });
+    html += '</div>';
+    html += '<div style="display:flex;gap:6px;margin-top:8px"><button type="button" onclick="applyCpFetchedModels()" class="hbtn hbtn-blue" style="height:30px;font-size:11px;flex:1">✅ 应用勾选的模型到列表</button><button type="button" onclick="document.getElementById(\'cpFetchResult\').innerHTML=\'\'" class="hbtn hbtn-gray" style="height:30px;font-size:11px">取消</button></div>';
+    resultEl.innerHTML = html;
+  } catch (e) {
+    resultEl.innerHTML = e.name === 'AbortError'
+      ? '<span style="color:var(--red)">❌ 请求超时（接口可能不通或被墙）</span>'
+      : '<span style="color:var(--red)">❌ 获取失败：' + esc(e.message?.slice(0, 200) || '未知错误') + '<br>💡 该接口可能不支持 GET /v1/models，可在文本框手动维护模型列表。</span>';
+  }
+}
+
+function applyCpFetchedModels() {
+  const checked = document.querySelectorAll('.cp-fetched-model:checked');
+  if (!checked.length) { toast('请至少勾选一个模型'); return; }
+  const lines = [];
+  checked.forEach(cb => {
+    const id = cb.dataset.id;
+    const tag = cb.dataset.tag || '';
+    const display = (tag ? tag + ' ' : '') + id.split('/').pop();
+    lines.push(id + '|' + display + '|vision');
+  });
+  document.getElementById('cpModels').value = lines.join('\n');
+  document.getElementById('cpFetchResult').innerHTML = '<span style="color:var(--green)">✅ 已应用 ' + lines.length + ' 个视觉模型到列表</span>';
+  // Auto-switch to grid view if currently shown
+  const grid = document.getElementById('cpModelsGrid');
+  if (grid && grid.style.display !== 'none') renderCpModelsGrid();
+  toast('✅ 已应用 ' + lines.length + ' 个模型');
 }
 function saveCustom() {
   const name = document.getElementById('cpName').value.trim();
@@ -2334,29 +2564,50 @@ function deleteCustom(id) {
     localStorage.setItem('phck_keys', JSON.stringify(cfg.keys));
     localStorage.setItem('phck_models', JSON.stringify(cfg.models));
     delete PROVIDERS[id];
-    if (cfg.prov === id) selectProv('zhipu');
-    renderProvTabs();
-    renderCustomList();
+    // 删的是当前激活供应商 → 留在自定义列表;否则保持原激活态
+    if (cfg.prov === id) selectProv('custom');
+    else { renderProvTabs(); renderCustomSavedList(); }
     toast('已删除');
   });
 }
-function renderCustomList() {
-  const el = document.getElementById('customProvList');
+function renderCustomSavedList() {
+  const el = document.getElementById('customSavedList');
   if (!el) return;
   el.innerHTML = '';
   const ids = Object.keys(cfg.customProviders || {});
   if (!ids.length) {
-    el.innerHTML = '<span style="font-size:11px;color:var(--g4);font-weight:500">还没有自定义供应商</span>';
+    el.innerHTML = '<div style="font-size:12px;color:var(--g4);text-align:center;padding:18px;background:rgba(118,118,128,.04);border:1px dashed var(--hairline);border-radius:12px">还没有自定义供应商<br><span style="font-size:11px;color:var(--g5)">点下方「+ 添加」按钮开始配置</span></div>';
     return;
   }
   ids.forEach(id => {
     const p = cfg.customProviders[id];
-    const chip = document.createElement('span');
-    chip.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:6px 6px 6px 12px;background:rgba(118,118,128,.10);border:1px solid var(--hairline);border-radius:18px;font-size:12px;color:var(--g2);font-weight:600;backdrop-filter:blur(6px)';
-    chip.innerHTML = `🔧 ${esc(p.fullName || p.name)} <button onclick="deleteCustom('${id}')" style="width:20px;height:20px;border-radius:50%;border:none;background:rgba(255,59,48,.15);color:var(--red);font-size:11px;cursor:pointer;font-weight:700">✕</button>`;
-    el.appendChild(chip);
+    const hasKey = !!cfg.keys[id];
+    const card = document.createElement('div');
+    const isActive = cfg.prov === id;
+    card.style.cssText = `display:flex;align-items:center;gap:10px;padding:10px 12px;background:${isActive?'rgba(0,122,255,.08)':'rgba(255,255,255,.6)'};border:1.5px solid ${isActive?'var(--blue)':'var(--hairline)'};border-radius:12px;cursor:pointer;transition:all .15s`;
+    card.onmouseenter = () => { if (!isActive) card.style.background = 'rgba(0,122,255,.04)'; };
+    card.onmouseleave = () => { if (!isActive) card.style.background = 'rgba(255,255,255,.6)'; };
+    card.onclick = (ev) => {
+      if (ev.target.tagName === 'BUTTON') return;
+      selectProv(id);
+    };
+    card.innerHTML = `
+      <div style="font-size:22px">${p.emoji || '🔧'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:${isActive?'var(--blue)':'var(--g1)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.fullName || p.name)}</div>
+        <div style="font-size:10.5px;color:var(--g4);margin-top:2px">
+          <span>${esc(p.endpoint || '')}</span>
+          ${hasKey ? '<span style="color:var(--green);margin-left:6px">✓ 已存 Key</span>' : '<span style="color:var(--orange);margin-left:6px">⚠ 缺 Key</span>'}
+        </div>
+      </div>
+      <button onclick="event.stopPropagation();deleteCustom('${id}')" style="width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,59,48,.12);color:var(--red);font-size:13px;cursor:pointer;font-weight:700;flex-shrink:0">✕</button>
+    `;
+    el.appendChild(card);
   });
 }
+
+// 兼容旧调用名
+function renderCustomList() { renderCustomSavedList(); }
 function saveKey() {
   const v = document.getElementById('keyInp').value.trim();
   if (!v || v.startsWith('●')) { toast('请粘贴 API Key'); return; }
@@ -2572,15 +2823,13 @@ async function fetchProviderModels(provId) {
   
   // Define list endpoints (where to GET /v1/models for each provider)
   const listEndpoints = {
-    qwen: 'https://dashscope.aliyuncs.com/compatible-mode/v1/models',
-    zhipu: null, // 智谱 没有公开的 /models 接口
+    zhipu: null, // 智谱无公开 /models 接口
+    siliconcloud: 'https://api.siliconflow.cn/v1/models',
     groq: 'https://api.groq.com/openai/v1/models',
     github: 'https://models.github.ai/inference/models',
     nvidia: 'https://integrate.api.nvidia.com/v1/models',
-    siliconcloud: 'https://api.siliconflow.cn/v1/models',
-    hunyuan: 'https://api.hunyuan.cloud.tencent.com/v1/models',
-    baidu: null,
-    doubao: null
+    gemini: null,    // Gemini 用专门的 generativelanguage.googleapis.com，路径不同
+    openrouter: null // OpenRouter 用专门的 fetchOpenRouterModels
   };
   
   const listUrl = listEndpoints[provId];
@@ -2589,8 +2838,8 @@ async function fetchProviderModels(provId) {
   if (!listUrl) {
     const docsLinks = {
       zhipu: 'https://docs.bigmodel.cn/cn/guide/start/model-overview',
-      doubao: 'https://www.volcengine.com/docs/82379/1330310',
-      baidu: 'https://cloud.baidu.com/doc/QIANFAN/s/Mlz7lfmu0'
+      gemini: 'https://ai.google.dev/gemini-api/docs/models',
+      openrouter: 'https://openrouter.ai/models?max_price=0&modality=text%2Bimage-%3Etext'
     };
     const link = docsLinks[provId] || '#';
     resultEl.innerHTML = `<span style="color:var(--orange)">该服务无公开模型列表接口，请到 <a href="${link}" target="_blank" style="color:var(--blue)">官方文档</a> 查询最新模型。</span>`;
@@ -2626,38 +2875,97 @@ async function fetchProviderModels(provId) {
       return;
     }
     
-    // Filter for vision-capable models when possible
-    const visionKeywords = /vision|vl|visual|multimodal|vlm|image|nemotron-nano-vl|llama-4|qwen.*vl|gpt-4o|gpt-4\.1|gemini|gemma-[34]|phi-[34]-vision|pixtral|llava/i;
-    const allIds = models.map(m => m.id || m.name || m.model || '').filter(Boolean);
-    const visionIds = allIds.filter(id => visionKeywords.test(id));
-    const otherIds = allIds.filter(id => !visionKeywords.test(id));
-    
-    let html = `<div style="color:var(--green);font-size:12px;font-weight:600;margin-bottom:8px">✅ 共 ${allIds.length} 个模型 · 视觉相关 ${visionIds.length} 个 · 点击切换</div>`;
-    html += `<div style="max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:3px;padding:2px">`;
-    
+    // Filter for vision-capable models — strict matching
+    const visionKw = /vision|vl[^a-z0-9]|visual|multimodal|vlm|image|nemotron-nano-vl|llama-?4|qwen.*vl|gpt-4o|gpt-4\.1|gemini|gemma-?[34]|phi-?[34]-(?:multimodal|vision)|pixtral|llava|hunyuan.*vision|claude/i;
+    const allModels = models.map(m => ({
+      id: m.id || m.name || m.model || '',
+      raw: m,
+      ctx: m.context_length || m.context_window || 0,
+      pricing: m.pricing,
+      created: m.created || 0
+    })).filter(m => m.id);
+    const visionList = allModels.filter(m => visionKw.test(m.id));
+    const otherList = allModels.filter(m => !visionKw.test(m.id));
+
+    // Detect "free" — covers OpenRouter (:free + pricing.prompt='0'), Groq/NVIDIA (provider-wide free quota), siliconcloud (no Pro/ prefix means free)
+    const PROVIDER_ALL_FREE = ['groq', 'nvidia', 'github']; // these providers' models are free up to a quota
+    const isFree = (m) => {
+      // Explicit free signals
+      if (m.pricing) {
+        const p = m.pricing.prompt;
+        if (p === '0' || p === 0 || p === '0.0' || p === '0.00') return true;
+      }
+      if (/:free$/i.test(m.id)) return true;
+      // Provider-wide free: applies unless model id explicitly says "pro"/"paid"
+      if (PROVIDER_ALL_FREE.includes(provId) && !/pro\/|paid|premium/i.test(m.id)) return true;
+      // SiliconCloud: only Pro/ prefixed models are paid
+      if (provId === 'siliconcloud' && !/^pro\//i.test(m.id)) return true;
+      return false;
+    };
+
+    // Tag: 🆓 (free) + 💎 (strong) / ⚡ (fast)
+    const tagOf = (m) => {
+      const lower = m.id.toLowerCase();
+      const isStrong = /maverick|opus|72b|405b|large|pro|max|gpt-?4o(?!-mini)|sonnet|claude-3-5/.test(lower);
+      const isFast = /flash|mini|nano|haiku|scout|turbo|lite|fast|small|tiny|\b[3-9]b\b|\b1[0-2]b\b/.test(lower) && !isStrong;
+      const tags = [];
+      if (isFree(m)) tags.push('🆓');
+      if (isStrong) tags.push('💎');
+      else if (isFast) tags.push('⚡');
+      return tags.join(' ');
+    };
+
+    // Tier: free 旗舰 → free 中档 → free 快速 → 付费旗舰 → 付费快速 → 其他
+    const tier = (m) => {
+      const lower = m.id.toLowerCase();
+      const free = isFree(m);
+      const isStrong = /maverick|opus|gpt-?4o(?!-mini)|claude-(?:opus|sonnet)|qwen.*72b|gemini.*pro|405b|large/.test(lower);
+      const isMid = /sonnet|gpt-4\.1|qwen.*32b|llama-4-scout|gemma-3-27b|24b|27b|32b/.test(lower);
+      const isFast = /flash|mini|haiku|gemma-3-12b|gemma-3-4b|nano|scout|7b|8b|9b|12b|lite/.test(lower);
+      let base;
+      if (isStrong) base = 0;
+      else if (isMid) base = 1;
+      else if (isFast) base = 2;
+      else base = 3;
+      // free models float to top: free 旗舰=0, free 中档=1, free 快速=2, 付费旗舰=4, 付费中档=5, 付费快速=6, 其他=7
+      return free ? base : base + 4;
+    };
+    visionList.sort((a, b) => {
+      const ta = tier(a), tb = tier(b);
+      if (ta !== tb) return ta - tb;
+      return (b.ctx || 0) - (a.ctx || 0);
+    });
+
+    const freeCount = visionList.filter(isFree).length;
+    let html = `<div style="color:var(--green);font-size:12px;font-weight:600;margin-bottom:8px">✅ ${visionList.length} 个视觉模型（共 ${allModels.length}，含 🆓 ${freeCount} 个免费）· 已按「🆓 免费 → 💎 最强 → ⚡ 更快」排序 · 点击切换</div>`;
+    html += `<div style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:3px;padding:2px">`;
+
     const cur = cfg.models?.[provId] || p.model;
-    
-    // Show vision models first
-    if (visionIds.length > 0) {
-      html += `<div style="font-size:10px;color:var(--blue);font-weight:700;padding:4px 0">📷 视觉模型（推荐）</div>`;
-      visionIds.forEach(mid => {
-        html += renderProvModelRow(provId, mid, cur === mid);
+
+    if (visionList.length > 0) {
+      html += `<div style="font-size:10px;color:var(--blue);font-weight:700;padding:4px 0">📷 视觉模型</div>`;
+      visionList.forEach(m => {
+        const tag = tagOf(m);
+        html += renderProvModelRow(provId, m.id, cur === m.id, tag);
       });
+    } else {
+      html += `<div style="font-size:11px;color:var(--orange);padding:8px;text-align:center">未识别到视觉模型，请到官方查询。</div>`;
     }
     
-    // Show other models (collapsed)
-    if (otherIds.length > 0) {
-      html += `<div style="font-size:10px;color:var(--g4);font-weight:700;padding:4px 0;margin-top:6px">📝 其他模型（多为纯文本）</div>`;
-      otherIds.slice(0, 30).forEach(mid => {
-        html += renderProvModelRow(provId, mid, cur === mid);
+    // Other models hidden behind a toggle, fully collapsible
+    if (otherList.length > 0) {
+      html += `<details style="margin-top:8px"><summary style="font-size:10px;color:var(--g4);font-weight:600;cursor:pointer;padding:4px 0;outline:none">📝 显示其他 ${otherList.length} 个非视觉模型（不推荐）</summary><div style="margin-top:4px">`;
+      otherList.slice(0, 30).forEach(m => {
+        html += renderProvModelRow(provId, m.id, cur === m.id, '');
       });
-      if (otherIds.length > 30) {
-        html += `<div style="font-size:10px;color:var(--g4);text-align:center;padding:6px">…还有 ${otherIds.length - 30} 个其他模型未显示</div>`;
+      if (otherList.length > 30) {
+        html += `<div style="font-size:10px;color:var(--g4);text-align:center;padding:6px">…还有 ${otherList.length - 30} 个未显示</div>`;
       }
+      html += `</div></details>`;
     }
     
     html += `</div>`;
-    html += `<div style="font-size:10px;color:var(--g4);margin-top:6px;line-height:1.5">💡 选择模型后，下方「使用的模型」会自动更新。如某模型识别失败，可在此切换其他视觉模型重试。</div>`;
+    html += `<div style="font-size:10px;color:var(--g4);margin-top:6px;line-height:1.5">💡 选择模型后会自动保存。识别失败可在此切换其他视觉模型重试。</div>`;
     resultEl.innerHTML = html;
   } catch (e) {
     resultEl.innerHTML = e.name === 'AbortError'
@@ -2666,12 +2974,14 @@ async function fetchProviderModels(provId) {
   }
 }
 
-function renderProvModelRow(provId, modelId, sel) {
+function renderProvModelRow(provId, modelId, sel, tag) {
   const bg = sel ? 'rgba(0,122,255,.06)' : 'rgba(118,118,128,.04)';
   const bc = sel ? 'var(--blue)' : 'transparent';
   const nc = sel ? 'var(--blue)' : 'var(--g1)';
   const ck = sel ? '\u2713' : '\u25CB';
+  const tagH = tag ? ('<span style="font-size:10px;padding:1px 5px;background:rgba(0,122,255,.1);border-radius:4px;margin-right:4px">' + tag + '</span>') : '';
   return '<div onclick="selectProvModel(\'' + provId + '\',\'' + esc(modelId).replace(/'/g, "\\'") + '\')" style="display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;cursor:pointer;border:1.5px solid ' + bc + ';background:' + bg + ';transition:all .12s">'
+    + tagH
     + '<div style="flex:1;min-width:0;font-size:11px;font-weight:600;color:' + nc + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:\'SF Mono\',monospace">' + esc(modelId) + '</div>'
     + '<span style="color:' + (sel ? 'var(--blue)' : 'var(--g5)') + ';font-weight:700;font-size:13px">' + ck + '</span>'
     + '</div>';
