@@ -1849,6 +1849,62 @@ const PRESET_TEMPLATES = [{
     { id:'c6', key:'consent_routine', label:'同意常规检查', type:'select', options:['1','0'], hint:'第1题：同意=1，不同意=0' },
     { id:'c7', key:'consent_blood', label:'同意采血检查', type:'select', options:['1','0'], hint:'第2题：同意=1，不同意=0' }
   ]
+},{
+  id: 'preset_blood_lipid',
+  name: '血脂五项检验报告（GLU/TC/TG/HDL-C/LDL-C）',
+  description: '样本汇总表或检验报告单，每个样本号提取 GLU、TC、TG、HDL-C、LDL-C 五项数值及异常标记，支持两种版式（汇总表/逐条明细）',
+  preset: true,
+  emoji: '🩸',
+  extractHint: `这是一份血液生化检验报告，可能是"样本汇总表"或逐条"检验报告单"两种格式之一。
+
+【格式一：样本汇总表（每行一个样本号，指标横排）】
+每个样本占两行：第一行为样本号、病历号、姓名、性别、年龄、样本类型、类别、盒号/位置；
+第二行为：GLU TC TG HDL-C LDL-C 依次排列，数值后可能带 ↑ 或 ↓ 异常符号。
+
+【格式二：检验报告明细（每项一行，竖排）】
+每个样本编号下列出 Glu / TC / TG / HDL-C / LDL-C 各一行，含数值、单位、结果提示（↑↓）、参考范围、测试时间。
+
+识别规则：
+- sample_no: 样本号/样本编号（如2001、1001）
+- GLU: 血糖值（Glu/GLU），单位 mmol/L，提取纯数字
+- GLU_flag: GLU异常标记，↑填"↑"，↓填"↓"，正常填""
+- TC: 总胆固醇，提取数值
+- TC_flag: TC异常标记
+- TG: 甘油三酯，提取数值
+- TG_flag: TG异常标记
+- HDL_C: 高密度脂蛋白胆固醇（HDL-C），提取数值
+- HDL_C_flag: HDL-C异常标记
+- LDL_C: 低密度脂蛋白胆固醇（LDL-C），提取数值
+- LDL_C_flag: LDL-C异常标记
+- test_date: 检测日期（如2026/5/20 或 2026/04/27），从报告头部或测试时间列提取
+- patient_id: 病历号（格式一有，格式二若无则留空）
+- patient_name: 姓名（如有）
+- gender: 性别（男=1 女=2，如无则留空）
+- age: 年龄（如有则填数字，否则留空）
+
+注意：
+- 每个样本输出一条记录
+- 数值只填数字，不含单位和箭头（箭头放在 _flag 字段）
+- 若某项数值缺失或无法识别，填空字符串 ""
+- 请逐样本仔细提取，不要跳过任何一条`,
+  fields: [
+    { id:'bl01', key:'sample_no',    label:'sample_no',   type:'text',   hint:'样本号' },
+    { id:'bl02', key:'patient_id',   label:'patient_id',  type:'text',   hint:'病历号（如有）' },
+    { id:'bl03', key:'patient_name', label:'patient_name',type:'text',   hint:'姓名（如有）' },
+    { id:'bl04', key:'gender',       label:'gender',      type:'select', options:['1','2'], hint:'1=男 2=女' },
+    { id:'bl05', key:'age',          label:'age',         type:'number', hint:'岁' },
+    { id:'bl06', key:'test_date',    label:'test_date',   type:'text',   hint:'检测日期' },
+    { id:'bl07', key:'GLU',          label:'GLU',         type:'number', hint:'血糖 mmol/L' },
+    { id:'bl08', key:'GLU_flag',     label:'GLU_flag',    type:'select', options:['↑','↓',''], hint:'↑高 ↓低 空=正常' },
+    { id:'bl09', key:'TC',           label:'TC',          type:'number', hint:'总胆固醇 mmol/L' },
+    { id:'bl10', key:'TC_flag',      label:'TC_flag',     type:'select', options:['↑','↓',''], hint:'↑高 ↓低 空=正常' },
+    { id:'bl11', key:'TG',           label:'TG',          type:'number', hint:'甘油三酯 mmol/L' },
+    { id:'bl12', key:'TG_flag',      label:'TG_flag',     type:'select', options:['↑','↓',''], hint:'↑高 ↓低 空=正常' },
+    { id:'bl13', key:'HDL_C',        label:'HDL-C',       type:'number', hint:'高密度脂蛋白 mmol/L' },
+    { id:'bl14', key:'HDL_C_flag',   label:'HDL-C_flag',  type:'select', options:['↑','↓',''], hint:'↑高 ↓低 空=正常' },
+    { id:'bl15', key:'LDL_C',        label:'LDL-C',       type:'number', hint:'低密度脂蛋白 mmol/L' },
+    { id:'bl16', key:'LDL_C_flag',   label:'LDL-C_flag',  type:'select', options:['↑','↓',''], hint:'↑高 ↓低 空=正常' }
+  ]
 }];
 
 /* ════════════════════════════════════════════════════════════════
