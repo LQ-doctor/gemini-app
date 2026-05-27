@@ -1855,14 +1855,28 @@ const PRESET_TEMPLATES = [{
   description: '检验报告单标准模板，每页批量提取所有样本的编号、Glu、TC、TG、HDL-C、LDL-C（通常每页8条，支持整页一次性识别）',
   preset: true,
   emoji: '🧪',
-  extractHint: `这是一份检验报告单（血清生化报告），每页通常包含8个样本（编号连续）。
-识别要点：
-- 每个样本有一个编号（如1001、1002…），位于最左列"样本编号"
-- 每个样本包含5项检验结果：Glu（血糖）、TC（总胆固醇）、TG（甘油三酯）、HDL-C、LDL-C，单位均为 mmol/L
-- sample_id：本页第1个样本的编号（字符串，如"1001"）
-- glu/tc/tg/hdl_c/ldl_c：本页第1个样本对应的5个数值（字符串，保留两位小数）
-- samples：JSON数组，包含本页全部样本，每条格式为 {"id":"1001","glu":"4.22","tc":"3.35","tg":"0.73","hdl_c":"1.58","ldl_c":"1.65"}，按页面从上到下顺序排列，共8条（若不足则实际有几条填几条）
-- 无法识别的字段填 null`,
+  extractHint: `【重要】你必须严格按照下方JSON格式输出，不得使用任何其他字段名。
+这是一份血清生化检验报告单，每页包含若干样本（通常8条）。
+
+报告结构：每个样本占多行，第一行有"样本编号"（如1001），随后5行依次是 Glu、TC、TG、HDL-C、LDL-C 的数值。
+
+你必须输出如下 JSON，字段名完全一致，不得改变大小写或添加后缀：
+{
+  "sample_id": "1001",
+  "glu": "4.22",
+  "tc": "3.35",
+  "tg": "0.73",
+  "hdl_c": "1.58",
+  "ldl_c": "1.65",
+  "samples": "[{\"id\":\"1001\",\"glu\":\"4.22\",\"tc\":\"3.35\",\"tg\":\"0.73\",\"hdl_c\":\"1.58\",\"ldl_c\":\"1.65\"},{\"id\":\"1002\",...}]"
+}
+
+规则：
+- sample_id：本页第1条样本编号（纯数字字符串，如"1001"）
+- glu、tc、tg、hdl_c、ldl_c：本页第1条样本的5个数值（字符串，保留两位小数）
+- samples：字符串，内容是本页所有样本的JSON数组（已转义为字符串值），每条含 id/glu/tc/tg/hdl_c/ldl_c
+- 无法识别的填 null
+- 禁止使用 sample_no、GLU、GLU_flag、patient_id、patient_name 等字段名`,
   fields: [
     { id:'lab01', key:'sample_id',  label:'编号（首条）',   type:'text',   hint:'本页第1个样本编号，如1001' },
     { id:'lab02', key:'glu',        label:'Glu',    type:'number', hint:'第1样本 血糖 mmol/L' },
@@ -1870,7 +1884,7 @@ const PRESET_TEMPLATES = [{
     { id:'lab04', key:'tg',         label:'TG',     type:'number', hint:'第1样本 甘油三酯 mmol/L' },
     { id:'lab05', key:'hdl_c',      label:'HDL-C',  type:'number', hint:'第1样本 高密度脂蛋白胆固醇 mmol/L' },
     { id:'lab06', key:'ldl_c',      label:'LDL-C',  type:'number', hint:'第1样本 低密度脂蛋白胆固醇 mmol/L' },
-    { id:'lab07', key:'samples',    label:'全部样本 JSON', type:'text', hint:'本页所有样本的完整JSON数组（含id/glu/tc/tg/hdl_c/ldl_c）' }
+    { id:'lab07', key:'samples',    label:'全部样本 JSON', type:'text', hint:'本页所有样本的完整JSON数组字符串（含id/glu/tc/tg/hdl_c/ldl_c）' }
   ]
 }];
 
