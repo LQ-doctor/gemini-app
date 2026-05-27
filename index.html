@@ -1852,39 +1852,33 @@ const PRESET_TEMPLATES = [{
 },{
   id: 'preset_lipid_report',
   name: '血糖血脂检验报告单',
-  description: '检验报告单标准模板，每页批量提取所有样本的编号、Glu、TC、TG、HDL-C、LDL-C（通常每页8条，支持整页一次性识别）',
+  description: '检验报告单标准模板，每页自动展开所有样本行（每条样本 = 一行）：编号、Glu、TC、TG、HDL-C、LDL-C',
   preset: true,
   emoji: '🧪',
-  extractHint: `【重要】你必须严格按照下方JSON格式输出，不得使用任何其他字段名。
-这是一份血清生化检验报告单，每页包含若干样本（通常8条）。
+  expandKey: 'rows',
+  extractHint: `【重要】这是一份血清检验报告单，每页含若干样本（通常8条）。
+你必须严格按以下JSON格式输出，不得添加任何额外字段：
 
-报告结构：每个样本占多行，第一行有"样本编号"（如1001），随后5行依次是 Glu、TC、TG、HDL-C、LDL-C 的数值。
-
-你必须输出如下 JSON，字段名完全一致，不得改变大小写或添加后缀：
 {
-  "sample_id": "1001",
-  "glu": "4.22",
-  "tc": "3.35",
-  "tg": "0.73",
-  "hdl_c": "1.58",
-  "ldl_c": "1.65",
-  "samples": "[{\"id\":\"1001\",\"glu\":\"4.22\",\"tc\":\"3.35\",\"tg\":\"0.73\",\"hdl_c\":\"1.58\",\"ldl_c\":\"1.65\"},{\"id\":\"1002\",...}]"
+  "rows": [
+    {"sample_id":"1001","glu":"4.22","tc":"3.35","tg":"0.73","hdl_c":"1.58","ldl_c":"1.65"},
+    {"sample_id":"1002","glu":"4.79","tc":"2.56","tg":"1.46","hdl_c":"1.06","ldl_c":"1.28"}
+  ]
 }
 
 规则：
-- sample_id：本页第1条样本编号（纯数字字符串，如"1001"）
-- glu、tc、tg、hdl_c、ldl_c：本页第1条样本的5个数值（字符串，保留两位小数）
-- samples：字符串，内容是本页所有样本的JSON数组（已转义为字符串值），每条含 id/glu/tc/tg/hdl_c/ldl_c
-- 无法识别的填 null
-- 禁止使用 sample_no、GLU、GLU_flag、patient_id、patient_name 等字段名`,
+- rows 是数组，包含本页全部样本，每条一个对象
+- 字段名：sample_id（编号）、glu（血糖）、tc（总胆固醇）、tg（甘油三酯）、hdl_c（HDL-C）、ldl_c（LDL-C）
+- 所有数值以字符串形式返回，保留原始小数位
+- 禁止使用 sample_no、GLU、TC_val、patient_id、patient_name 等字段名
+- 无法识别的值填 null`,
   fields: [
-    { id:'lab01', key:'sample_id',  label:'编号（首条）',   type:'text',   hint:'本页第1个样本编号，如1001' },
-    { id:'lab02', key:'glu',        label:'Glu',    type:'number', hint:'第1样本 血糖 mmol/L' },
-    { id:'lab03', key:'tc',         label:'TC',     type:'number', hint:'第1样本 总胆固醇 mmol/L' },
-    { id:'lab04', key:'tg',         label:'TG',     type:'number', hint:'第1样本 甘油三酯 mmol/L' },
-    { id:'lab05', key:'hdl_c',      label:'HDL-C',  type:'number', hint:'第1样本 高密度脂蛋白胆固醇 mmol/L' },
-    { id:'lab06', key:'ldl_c',      label:'LDL-C',  type:'number', hint:'第1样本 低密度脂蛋白胆固醇 mmol/L' },
-    { id:'lab07', key:'samples',    label:'全部样本 JSON', type:'text', hint:'本页所有样本的完整JSON数组字符串（含id/glu/tc/tg/hdl_c/ldl_c）' }
+    { id:'lab01', key:'sample_id', label:'编号',   type:'text',   hint:'样本编号' },
+    { id:'lab02', key:'glu',       label:'Glu',    type:'number', hint:'血糖 mmol/L' },
+    { id:'lab03', key:'tc',        label:'TC',     type:'number', hint:'总胆固醇 mmol/L' },
+    { id:'lab04', key:'tg',        label:'TG',     type:'number', hint:'甘油三酯 mmol/L' },
+    { id:'lab05', key:'hdl_c',     label:'HDL-C',  type:'number', hint:'高密度脂蛋白胆固醇 mmol/L' },
+    { id:'lab06', key:'ldl_c',     label:'LDL-C',  type:'number', hint:'低密度脂蛋白胆固醇 mmol/L' }
   ]
 }];
 
@@ -4601,6 +4595,30 @@ function appendResultRow(d, fname, itemId) {
   if (!tbody) return;
   if (tbody.querySelector('.empty')) tbody.innerHTML = '';
 
+  // Support expandKey: if template has expandKey and AI returned an array under that key,
+  // expand each element as a separate row instead of the top-level object.
+  const expandKey = activeTemplate?.expandKey;
+  if (expandKey && Array.isArray(d[expandKey])) {
+    d[expandKey].forEach((rowData, idx) => {
+      const synth = { ...rowData, _fname: fname, _itemId: itemId + '_' + idx };
+      appendSingleResultRow(synth, fname, itemId + '_' + idx);
+      results.push(synth);
+    });
+    // Remove the original non-expanded entry that was already pushed in runBatch
+    const origIdx = results.findIndex(r => r._itemId === itemId);
+    if (origIdx >= 0) results.splice(origIdx, 1);
+    document.getElementById('xlsBtn').disabled = false;
+    return;
+  }
+
+  appendSingleResultRow(d, fname, itemId);
+}
+
+function appendSingleResultRow(d, fname, itemId) {
+  const tbody = document.querySelector('#rt tbody');
+  if (!tbody) return;
+  if (tbody.querySelector('.empty')) tbody.innerHTML = '';
+
   const tr = document.createElement('tr');
   tr.className = 'fade';
   tr.dataset.itemId = itemId;
@@ -4618,7 +4636,7 @@ function appendResultRow(d, fname, itemId) {
       val = arr?.[col.rowIdx]?.[col.tableField.columns[col.colIdx].key];
       td.innerHTML = renderEditableCell(val, col, itemId);
     } else {
-      val = d[col.fieldRef.key];
+      val = d[col.fieldRef?.key];
       td.innerHTML = renderEditableCell(val, col, itemId);
     }
     tr.appendChild(td);
