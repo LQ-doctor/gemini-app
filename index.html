@@ -1180,9 +1180,18 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
             <option value="10000">超慢 10 秒（最稳）</option>
           </select>
         </div>
+        <div class="set-item" style="grid-column:1/-1">
+          <div class="set-label">多页 PDF 识别方式</div>
+          <select class="set-select" id="multiPageMode">
+            <option value="auto" selected>智能：≤2 页拼接 · ≥3 页逐页合并（推荐）</option>
+            <option value="perpage">总是逐页识别 → 自动合并（最稳·防超时/限额）</option>
+            <option value="stitch">总是拼接整页 → 单次调用（最省额度）</option>
+          </select>
+        </div>
       </div>
       <div style="padding:0 14px 12px;font-size:11px;color:var(--g4);line-height:1.6">
-        💡 遇到 <strong>429 限速</strong>会自动等待重试（最多4次，6→12→24→48秒）。频繁 429 时建议改用「保守」或「超慢」模式。
+        💡 遇到 <strong>429 限速</strong>会自动等待重试（最多4次，6→12→24→48秒）。频繁 429 时建议改用「保守」或「超慢」模式。<br>
+        📄 <strong>多页 PDF</strong>：荧屏表等多页大表「拼接整页」易超时/限额。<strong>逐页识别</strong>会把每一页单独发给模型（图更小、字段更少、更快更稳），识别完<strong>自动合并成「一个人」一条记录</strong>导出——同一份 PDF 仍只占 1 行。代价是一份 N 页 PDF 会发 N 次请求，更费额度。
       </div>
     </div>
 
@@ -4495,17 +4504,62 @@ async function runBatch() {
     const t0 = Date.now();
     try {
       const maxWidth = parseInt(document.getElementById('maxImgWidth').value)||1568;
-      // Multi-page PDF record → stitch all pages into one composite for a single AI call
-      let fileForAI = item.file;
-      if (item._pageBlobs && item._pageBlobs.length > 1) {
-        setProg(done, total, `第 ${done+1}/${total}：拼接 ${item._pageBlobs.length} 页…`);
-        fileForAI = await stitchPages(item._pageBlobs, maxWidth);
+      const pageMode = document.getElementById('multiPageMode')?.value || 'auto';
+      const pageCount = item._pageBlobs ? item._pageBlobs.length : 1;
+      // 是否逐页识别：多页 PDF 且（手动选逐页 / 智能模式下 ≥3 页）
+      const usePerPage = pageCount > 1 && (
+        pageMode === 'perpage' || (pageMode === 'auto' && pageCount >= 3)
+      );
+
+      let data;
+      item.warn = null;
+
+      if (usePerPage) {
+        // ── 逐页识别 → 合并为一条记录（防超时/限额）──
+        const pages = item._pageBlobs;
+        const partials = [];
+        const pageErrs = [];
+        for (let pi = 0; pi < pages.length; pi++) {
+          if (stopFlag) throw new Error('已停止');
+          const rInfo = adaptiveRateMul > 1 ? ` [限速 ${adaptiveRateMul.toFixed(1)}x]` : '';
+          setProg(done, total, `第 ${done+1}/${total}：${item.displayName} · 逐页 ${pi+1}/${pages.length}${rInfo}`);
+          const pageFile = new File([pages[pi].blob], `page_${pi+1}.jpg`, { type:'image/jpeg' });
+          try {
+            const pd = await recognizeWithTemplate(pageFile);
+            partials.push(pd);
+          } catch(pe) {
+            pageErrs.push(`第 ${pi+1} 页：${pe.message || pe}`);
+            partials.push(null);
+          }
+          // 每一页都是独立请求 → 页间也要按限速间隔，避免 429
+          if (pi < pages.length - 1 && !stopFlag) {
+            const wait = baseRate * adaptiveRateMul;
+            if (wait > 0) await sleep(wait);
+          }
+        }
+        const okPages = partials.filter(Boolean).length;
+        if (okPages === 0) {
+          throw new Error('所有页面识别均失败：\n' + pageErrs.join('\n'));
+        }
+        data = mergeRecords(partials, activeTemplate);   // ← 合并成「一个人」一条记录
+        if (pageErrs.length) {
+          item.warn = `${okPages}/${pages.length} 页成功，以下页失败（其余已合并）：\n` + pageErrs.join('\n');
+        }
+      } else {
+        // ── 默认：拼接整页 → 单次调用（省额度）──
+        let fileForAI = item.file;
+        if (pageCount > 1) {
+          setProg(done, total, `第 ${done+1}/${total}：拼接 ${pageCount} 页…`);
+          fileForAI = await stitchPages(item._pageBlobs, maxWidth);
+        }
+        data = await recognizeWithTemplate(fileForAI);
       }
-      const data = await recognizeWithTemplate(fileForAI);
+
       item.status = 'done';
       item.data = data;
       results.push({ ...data, _fname: item.displayName, _itemId: item.id });
       appendResultRow(data, item.displayName, item.id);
+      if (item.warn) toast('⚠️ ' + item.displayName + '：部分页未识别，已合并可用页');
     } catch(err) {
       item.status = 'error';
       item.err = err.message || String(err);
@@ -4659,6 +4713,67 @@ async function recognizeWithTemplate(file) {
     }
   }
   throw lastErr;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   逐页识别 → 合并为「一个人」一条记录
+   每一页单独识别后，模型对看不到的字段会填 null；
+   合并规则：标量字段取各页中第一个非空值；表格字段按「行×列」逐格取第一个非空值。
+   这样同一份多页 PDF 仍然只产出 1 条记录（1 行）。
+──────────────────────────────────────────────────────────────── */
+function _isBlank(v) {
+  return v === null || v === undefined || (typeof v === 'string' && v.trim() === '');
+}
+function mergeRecords(partials, template) {
+  const valid = partials.filter(p => p && typeof p === 'object');
+  if (valid.length === 0) return {};
+  if (valid.length === 1) return valid[0];
+
+  const tableKeys = new Set(
+    (template.fields || [])
+      .filter(f => f.type === 'table' && f.columns?.length && f.rows?.length)
+      .map(f => f.key)
+  );
+  const merged = {};
+
+  // 1) 普通字段：按页顺序取第一个非空值
+  (template.fields || []).forEach(f => {
+    if (tableKeys.has(f.key)) return;
+    let val = null;
+    for (const p of valid) {
+      if (!_isBlank(p[f.key])) { val = p[f.key]; break; }
+    }
+    merged[f.key] = val;
+  });
+
+  // 2) 表格字段：逐格(行 ri × 列 c.key)取第一个非空值
+  (template.fields || []).forEach(f => {
+    if (!tableKeys.has(f.key)) return;
+    const out = [];
+    for (let ri = 0; ri < f.rows.length; ri++) {
+      const row = {};
+      f.columns.forEach(c => {
+        let cell = null;
+        for (const p of valid) {
+          const arr = p[f.key];
+          const v = Array.isArray(arr) ? arr[ri]?.[c.key] : undefined;
+          if (!_isBlank(v)) { cell = v; break; }
+        }
+        row[c.key] = cell;
+      });
+      out.push(row);
+    }
+    merged[f.key] = out;
+  });
+
+  // 3) 兜底：保留模板未定义但页面里出现的额外键
+  valid.forEach(p => {
+    Object.keys(p).forEach(k => {
+      if (!(k in merged) && !_isBlank(p[k])) merged[k] = p[k];
+    });
+  });
+
+  return merged;
 }
 
 async function callAI(b64, mime, prompt) {
