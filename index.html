@@ -1356,16 +1356,17 @@ const PROVIDERS = {
     name: 'Groq', fullName: 'Groq · 极速推理',
     emoji: '⚡', badges: ['免费','极速','需翻墙/中转'],
     model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-    fallbackModels: [],
+    fallbackModels: ['meta-llama/llama-4-maverick-17b-128e-instruct'],
     altModels: [
-      { id: 'meta-llama/llama-4-scout-17b-16e-instruct',     tag: '✅', desc: '默认 · Llama 4 Scout 17B/16E · 当前 Groq 唯一视觉模型 · 460+ t/s' }
+      { id: 'meta-llama/llama-4-scout-17b-16e-instruct',     tag: '✅', desc: '默认 · Llama 4 Scout 17B/16E · 109B · 460+ t/s' },
+      { id: 'meta-llama/llama-4-maverick-17b-128e-instruct', tag: '💎', desc: 'Llama 4 Maverick 17B/128E · 400B · 视觉旗舰' }
     ],
     endpoint: 'https://api.groq.com/openai/v1/chat/completions',
     placeholder: 'gsk_xxxxxxxxxxxxxxxx',
     rateLimit: 6000, maxTokens: 4096, imageFirst: false,
     guide: `<strong>⚡ Groq · 全球最快推理（免费）</strong>
 注册：<a href="https://console.groq.com" target="_blank">console.groq.com</a> → Google/GitHub 登录 → API Keys → 创建<br>
-<strong>视觉模型</strong>：Groq 目前<strong>仅 <code>llama-4-scout</code> 支持视觉</strong>（Maverick 已于 2026/02 下架，GPT-OSS 等文本模型不能识别图片）。<br>
+<strong>视觉模型</strong>：Groq 目前仅 <code>llama-4-scout</code>（推荐·更快）和 <code>llama-4-maverick</code>（更强·400B）支持视觉。其他文本模型（GPT-OSS 等）不能识别图片。<br>
 免费版限 1000次/天，<strong>无需信用卡</strong>。<br>
 ⚠️ <strong>国内需翻墙</strong>。CORS 已通过同域 <code>/api/groq</code> 代理自动绕过（Pages 部署后生效）。<br>
 <button onclick="fetchProviderModels('groq')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
@@ -1441,18 +1442,22 @@ const PROVIDERS = {
     emoji: '🌐', badges: ['国内可用','免费视觉'],
     model: 'openrouter/free',
     fallbackModels: [
-      'google/gemma-4-31b-it:free',
-      'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
+      'google/gemma-4-31b:free',
+      'nvidia/nemotron-nano-omni-30b:free',
       'nvidia/nemotron-nano-12b-v2-vl:free',
-      'google/gemma-4-26b-a4b-it:free'
+      'qwen/qwen3-vl-235b-a22b-instruct:free'
     ],
     altModels: [
       { id: 'openrouter/free',                       tag: '✅', desc: '默认 · 自动路由 · 永不下线（强烈推荐，模型挂了自动换）' },
-      { id: 'google/gemma-4-31b-it:free',            tag: '💎', desc: 'Google Gemma 4 31B · 当前最佳免费视觉（2026/06）· 262K' },
-      { id: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free', tag: '🔍', desc: 'Nemotron Nano Omni 30B · 全模态 · OCR 强 · 256K' },
-      { id: 'nvidia/nemotron-nano-12b-v2-vl:free',   tag: '🔍', desc: 'Nemotron Nano 12B v2 VL · OCR/文档专精 · 128K' },
-      { id: 'google/gemma-4-26b-a4b-it:free',        tag: '☑️', desc: 'Google Gemma 4 26B MoE · 视觉 · 262K' },
-      { id: 'moonshotai/kimi-k2.6:free',             tag: '⚡', desc: 'Kimi K2.6 · 多模态 · 视觉+工具 · 262K' },
+      { id: 'google/gemma-4-31b:free',               tag: '💎', desc: 'Google Gemma 4 31B · 当前最佳免费视觉（2026/06）' },
+      { id: 'nvidia/nemotron-nano-omni-30b:free',    tag: '🔍', desc: 'Nemotron Nano Omni 30B · 全模态 · OCR 强' },
+      { id: 'nvidia/nemotron-nano-12b-v2-vl:free',   tag: '🔍', desc: 'Nemotron Nano 12B v2 VL · OCR/文档专精' },
+      { id: 'qwen/qwen3-vl-235b-a22b-instruct:free', tag: '⚡', desc: 'Qwen3-VL 235B · 大参数视觉' },
+      { id: 'qwen/qwen3-vl-30b-a3b-thinking:free',   tag: '☑️', desc: 'Qwen3-VL 30B · 思考模式 · 更准' },
+      { id: 'qwen/qwen3-vl-8b-instruct:free',        tag: '⚡', desc: 'Qwen3-VL 8B · 最快' },
+      { id: 'meta-llama/llama-4-maverick:free',      tag: '☑️', desc: 'Llama 4 Maverick · 视觉 · 1M 上下文' },
+      { id: 'meta-llama/llama-4-scout:free',         tag: '⚡', desc: 'Llama 4 Scout · 视觉 · 更快' },
+      { id: 'mistralai/mistral-small-3.2-24b-instruct:free', tag: '☑️', desc: 'Mistral Small 3.2 · 视觉' },
       { id: 'google/gemini-2.5-flash-lite',          tag: '💰', desc: 'Gemini 2.5 Flash Lite · 付费' },
       { id: 'google/gemini-2.5-flash',               tag: '💰', desc: 'Gemini 2.5 Flash · 付费' },
       { id: 'anthropic/claude-sonnet-4',              tag: '💰', desc: 'Claude Sonnet 4 · 顶级付费' },
@@ -1476,14 +1481,15 @@ const PROVIDERS = {
     model: 'Qwen/Qwen3-VL-30B-A3B-Instruct',
     fallbackModels: [
       'Qwen/Qwen3-VL-8B-Instruct',
-      'Qwen/Qwen3-VL-30B-A3B-Thinking',
+      'zai-org/GLM-4.6V',
       'Qwen/Qwen3-VL-235B-A22B-Instruct'
     ],
     altModels: [
-      { id: 'Qwen/Qwen3-VL-30B-A3B-Instruct',  tag: '✅', desc: '默认 · Qwen3-VL 30B · 免费视觉 · 256K · 国内快' },
-      { id: 'Qwen/Qwen3-VL-30B-A3B-Thinking',   tag: '🧩', desc: 'Qwen3-VL 30B · 思考模式 · OCR/推理更准' },
+      { id: 'Qwen/Qwen3-VL-30B-A3B-Instruct',  tag: '✅', desc: '默认 · Qwen3-VL 30B · 免费视觉 · 国内快' },
+      { id: 'Qwen/Qwen3-VL-30B-A3B-Thinking',   tag: '🧩', desc: 'Qwen3-VL 30B · 思考模式 · 更准确' },
       { id: 'Qwen/Qwen3-VL-8B-Instruct',         tag: '⚡', desc: 'Qwen3-VL 8B · 最快' },
       { id: 'Qwen/Qwen3-VL-235B-A22B-Instruct',   tag: '💎', desc: 'Qwen3-VL 235B · 旗舰大参数' },
+      { id: 'zai-org/GLM-4.6V',                   tag: '🔍', desc: 'GLM-4.6V · 9B 多模态 · OCR 强（2025/12新）' },
       { id: 'Pro/Qwen/Qwen2.5-VL-7B-Instruct',   tag: '☑️', desc: 'Qwen2.5-VL 7B Pro · 注意带 Pro/ 前缀' }
     ],
     endpoint: 'https://api.siliconflow.cn/v1/chat/completions',
@@ -3219,19 +3225,9 @@ async function testConnection() {
         let er = {};
         try { er = JSON.parse(raw); } catch(e) {}
         const m = er.error?.message || er.message || raw.slice(0, 150);
-        const isModelErr = /not a valid model|model.*not found|不存在|invalid model|no endpoints|not found/i.test(m);
+        const isModelErr = /not a valid model|model.*not found|不存在|invalid model/i.test(m);
         if (isModelErr) {
-          // Suggest a known-good model: openrouter/free for OR, else first non-paid altModel
-          let suggest = '';
-          if (cfg.prov === 'openrouter') suggest = 'openrouter/free';
-          else if (p.altModels?.length) {
-            const good = p.altModels.find(a => a.id !== useModel && !/💰/.test(a.tag||'')) || p.altModels[0];
-            suggest = good?.id || '';
-          }
-          const btnHtml = suggest
-            ? `<br><button onclick="quickSwitchModel('${esc(suggest)}')" class="hbtn hbtn-blue" style="margin-top:6px;height:28px;font-size:11px">⚡ 一键切换到可用模型「${esc(suggest)}」并重测</button>`
-            : (p.fallbackModels?.length ? '<br>💡 识别时会自动尝试备选模型。' : '');
-          resultEl.innerHTML = `<span style="color:var(--orange)">⚠️ Key 有效，但模型「${esc(useModel)}」不可用（可能已下架或拼写有误）。${btnHtml}</span>`;
+          resultEl.innerHTML = `<span style="color:var(--orange)">⚠️ Key 有效，但模型「${useModel}」不可用。请切换其他模型。${p.fallbackModels ? '<br>💡 识别时会自动尝试备选模型。' : ''}</span>`;
         } else if (res.status === 401) {
           resultEl.innerHTML = `<span style="color:var(--red)">❌ API Key 无效</span>`;
         } else {
@@ -3356,25 +3352,6 @@ function selectORModel(modelId) {
   localStorage.setItem('phck_models', JSON.stringify(cfg.models));
   fetchOpenRouterModels(true); // use cache, just re-render
   toast(`✅ 已选择: ${modelId}`);
-}
-
-// One-click: switch the current provider's model to a known-good one, sync the
-// model dropdown/custom input, persist it, and immediately re-run testConnection.
-function quickSwitchModel(modelId) {
-  if (!cfg.models) cfg.models = {};
-  cfg.models[cfg.prov] = modelId;
-  localStorage.setItem('phck_models', JSON.stringify(cfg.models));
-  // Sync the settings UI controls if present (dropdown uses '' for default;
-  // a model not in the list goes into the custom input with dropdown blanked).
-  const sel = document.getElementById('modelSelect');
-  const custom = document.getElementById('modelCustom');
-  if (sel) {
-    const has = Array.from(sel.options).some(o => o.value === modelId);
-    if (has) { sel.value = modelId; if (custom) custom.value = ''; }
-    else { if (custom) custom.value = modelId; sel.value = ''; }
-  }
-  toast(`⚡ 已切换到 ${modelId}`);
-  if (typeof testConnection === 'function') testConnection();
 }
 
 /* ════ 通用：获取各供应商最新模型列表 ════ */
@@ -4443,16 +4420,10 @@ async function callAI(b64, mime, prompt) {
   try {
     return await callOpenAICompat(p, key, b64, mime, prompt, primaryModel);
   } catch(err) {
-    const isModelError = /not a valid model|model.*not found|model.*not exist|不存在|404|does not exist|invalid model|no endpoints/i.test(err.message);
-    // Build the fallback chain. For OpenRouter, always guarantee openrouter/free
-    // as the last resort so a stale free-model ID never hard-fails recognition.
-    let chain = (p.fallbackModels || []).slice();
-    if (cfg.prov === 'openrouter' && !chain.includes('openrouter/free') && primaryModel !== 'openrouter/free') {
-      chain.push('openrouter/free');
-    }
-    if (isModelError && chain.length) {
+    const isModelError = /not a valid model|model.*not found|model.*not exist|不存在|404|does not exist|invalid model/i.test(err.message);
+    if (isModelError && p.fallbackModels?.length) {
       console.warn(`模型 ${primaryModel} 不可用，尝试备选模型...`);
-      for (const fallback of chain) {
+      for (const fallback of p.fallbackModels) {
         if (fallback === primaryModel) continue;
         try {
           const result = await callOpenAICompat(p, key, b64, mime, prompt, fallback);
@@ -4463,12 +4434,12 @@ async function callAI(b64, mime, prompt) {
           localStorage.setItem('phck_models', JSON.stringify(cfg.models));
           return result;
         } catch(e2) {
-          const isModel2 = /not a valid model|model.*not found|model.*not exist|不存在|404|does not exist|invalid model|no endpoints/i.test(e2.message);
+          const isModel2 = /not a valid model|model.*not found|model.*not exist|不存在|404|does not exist|invalid model/i.test(e2.message);
           if (isModel2) continue; // try next fallback
           throw e2; // non-model error, stop trying
         }
       }
-      throw new Error(`模型「${primaryModel}」及所有备选模型均不可用。\n\n💡 解决方案：\n1. 打开「设置」→ 切换到「openrouter/free」（自动路由，永远可用）\n2. 或点「🔄 实时拉取最新免费视觉模型」选一个当前可用的\n3. 免费模型经常更新换代，属于正常现象\n\n原始错误：${err.message}`);
+      throw new Error(`模型「${primaryModel}」及所有备选模型均不可用。\n\n💡 解决方案：\n1. 打开「设置」→ 切换到「openrouter/free」（自动路由，永远可用）\n2. 或访问 openrouter.ai/models 查看最新可用的免费视觉模型\n3. 免费模型经常更新换代，属于正常现象\n\n原始错误：${err.message}`);
     }
     throw err;
   }
