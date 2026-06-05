@@ -596,6 +596,137 @@ input[type=file]{display:none}
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* ─── Review Modal (左右对照核对) ─── */
+.review-bg{
+  position:fixed;inset:0;z-index:600;
+  background:rgba(0,0,0,.55);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .22s;
+  padding:0;
+}
+.review-bg.on{opacity:1;pointer-events:all}
+.review-shell{
+  background:var(--g9);
+  width:100%;height:100%;max-width:1200px;max-height:100%;
+  display:flex;flex-direction:column;
+  transform:scale(.97);opacity:.7;
+  transition:transform .38s var(--spring),opacity .25s;
+  overflow:hidden;
+}
+.review-bg.on .review-shell{transform:scale(1);opacity:1}
+@media(min-width:900px){
+  .review-shell{height:94vh;border-radius:20px;box-shadow:0 30px 80px rgba(15,23,42,.3)}
+}
+.review-head{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;
+  background:rgba(248,249,252,.9);
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--hairline);
+  flex-shrink:0;
+}
+.rv-x{
+  width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(60,60,67,.1);color:var(--g2);font-size:16px;flex-shrink:0;
+  transition:transform .3s var(--spring),background .15s;
+}
+.rv-x:hover{background:rgba(60,60,67,.18)}
+.rv-x:active{transform:scale(.88)}
+.rv-title{flex:1;font-size:15px;font-weight:700;letter-spacing:-.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rv-nav{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.rv-navbtn{
+  height:30px;padding:0 12px;border-radius:15px;border:none;cursor:pointer;
+  background:rgba(60,60,67,.1);color:var(--g2);font-size:12px;font-weight:600;
+  transition:transform .3s var(--spring),background .15s;white-space:nowrap;
+}
+.rv-navbtn:hover:not(:disabled){background:rgba(60,60,67,.18)}
+.rv-navbtn:active:not(:disabled){transform:scale(.93)}
+.rv-navbtn:disabled{opacity:.35;pointer-events:none}
+.rv-pos{font-size:12px;font-weight:600;color:var(--g4);min-width:54px;text-align:center}
+.review-body{flex:1;display:flex;min-height:0;overflow:hidden}
+@media(max-width:768px){
+  .review-body{flex-direction:column}
+  .rv-nav .rv-navbtn{padding:0 8px}
+}
+.rv-left{
+  flex:1.15;min-width:0;display:flex;flex-direction:column;
+  background:#3a3a3c;border-right:1px solid var(--hairline-2);
+}
+.rv-left-toolbar{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:8px 12px;background:rgba(0,0,0,.25);flex-shrink:0;
+}
+.rv-pagecnt{font-size:11px;font-weight:600;color:rgba(255,255,255,.8)}
+.rv-zoom{display:flex;align-items:center;gap:4px}
+.rv-zbtn{
+  width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;
+  background:rgba(255,255,255,.14);color:#fff;font-size:14px;font-weight:700;
+  transition:transform .25s var(--spring),background .15s;
+  display:flex;align-items:center;justify-content:center;
+}
+.rv-zbtn:hover{background:rgba(255,255,255,.24)}
+.rv-zbtn:active{transform:scale(.88)}
+.rv-zlbl{font-size:11px;color:rgba(255,255,255,.85);min-width:40px;text-align:center;font-weight:600}
+.rv-pages{
+  flex:1;overflow:auto;padding:14px;
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  scroll-behavior:smooth;
+}
+.rv-page-wrap{position:relative;width:100%;display:flex;flex-direction:column;align-items:center}
+.rv-page-num{
+  font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;
+  background:rgba(0,0,0,.35);padding:2px 10px;border-radius:10px;
+}
+.rv-page-img{
+  max-width:100%;border-radius:6px;box-shadow:0 4px 20px rgba(0,0,0,.4);
+  display:block;transition:width .2s var(--ease-out);background:#fff;
+}
+.rv-right{
+  flex:1;min-width:0;display:flex;flex-direction:column;background:var(--g9);
+}
+.rv-right-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;border-bottom:1px solid var(--hairline);
+  font-size:12px;font-weight:700;color:var(--g2);flex-shrink:0;
+  background:var(--glass-strong);
+}
+.rv-fill{font-size:11px;color:var(--g4);font-weight:600}
+.rv-fields{flex:1;overflow-y:auto;padding:10px 12px 30px}
+.rv-frow{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:7px 8px;border-radius:10px;
+  transition:background .12s;
+}
+.rv-frow:hover{background:rgba(0,122,255,.04)}
+.rv-frow+.rv-frow{border-top:1px solid var(--hairline)}
+.rv-flabel{
+  flex:0 0 44%;font-size:12px;color:var(--g2);line-height:1.4;
+  padding-top:7px;word-break:break-word;font-weight:500;
+}
+.rv-flabel .rv-fkey{display:block;font-size:9px;color:var(--g5);font-family:'SF Mono',monospace;margin-top:1px}
+.rv-finput{
+  flex:1;min-width:0;height:34px;padding:0 10px;
+  border:1.5px solid var(--g6);border-radius:9px;
+  font-size:13px;color:var(--g1);background:#fff;
+  transition:border-color .15s,box-shadow .15s;font-family:inherit;
+}
+.rv-finput:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,122,255,.12)}
+.rv-finput.rv-num{font-family:'SF Mono',monospace}
+.rv-finput.rv-empty{background:rgba(255,204,0,.08);border-color:rgba(255,204,0,.4)}
+.rv-fselect{
+  flex:1;min-width:0;height:34px;padding:0 8px;
+  border:1.5px solid var(--g6);border-radius:9px;font-size:13px;background:#fff;font-family:inherit;
+}
+.rv-fselect:focus{outline:none;border-color:var(--blue)}
+.rv-sec{
+  font-size:11px;font-weight:700;color:var(--blue);
+  padding:12px 8px 5px;letter-spacing:.2px;position:sticky;top:0;
+  background:var(--g9);z-index:1;
+}
+.tc-id-link{cursor:pointer;color:var(--blue);font-weight:600;text-decoration:none}
+.tc-id-link:hover{text-decoration:underline}
+
 /* Settings modal */
 .settings-modal{padding:0;text-align:left;max-width:480px}
 .sm-head{
@@ -996,7 +1127,7 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
         <span style="font-size:20px">📤</span>
         <div style="flex:1">
           <div class="card-title" style="font-size:14px">批量上传待识别文件</div>
-          <div class="card-desc">PDF 自动按页拆分</div>
+          <div class="card-desc">一份 PDF = 一条记录（多页自动合并）</div>
         </div>
       </div>
       <div class="upload-zone" id="uzUse" style="border-radius:0;margin:0"
@@ -1004,7 +1135,7 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
         ondragover="dovU(event)" ondragleave="dlvU()" ondrop="ddpU(event)">
         <div class="uz-circle">📤</div>
         <div class="uz-t">上传文件 或 拍照识别</div>
-        <div class="uz-s">每张图片/每页 PDF 对应一条记录<br>支持手机直接拍照实时识别</div>
+        <div class="uz-s">一张图片 = 一条记录；一份多页 PDF = 一个人一条记录<br>识别后点记录可左右对照人工核对</div>
         <div class="uz-tags">
           <span class="uz-tag tag-pdf">📑 PDF</span>
           <span class="uz-tag tag-img">📷 JPG/PNG</span>
@@ -1049,9 +1180,18 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
             <option value="10000">超慢 10 秒（最稳）</option>
           </select>
         </div>
+        <div class="set-item" style="grid-column:1/-1">
+          <div class="set-label">多页 PDF 识别方式</div>
+          <select class="set-select" id="multiPageMode">
+            <option value="auto" selected>智能：≤2 页拼接 · ≥3 页逐页合并（推荐）</option>
+            <option value="perpage">总是逐页识别 → 自动合并（最稳·防超时/限额）</option>
+            <option value="stitch">总是拼接整页 → 单次调用（最省额度）</option>
+          </select>
+        </div>
       </div>
       <div style="padding:0 14px 12px;font-size:11px;color:var(--g4);line-height:1.6">
-        💡 遇到 <strong>429 限速</strong>会自动等待重试（最多4次，6→12→24→48秒）。频繁 429 时建议改用「保守」或「超慢」模式。
+        💡 遇到 <strong>429 限速</strong>会自动等待重试（最多4次，6→12→24→48秒）。频繁 429 时建议改用「保守」或「超慢」模式。<br>
+        📄 <strong>多页 PDF</strong>：荧屏表等多页大表「拼接整页」易超时/限额。<strong>逐页识别</strong>会把每一页单独发给模型（图更小、字段更少、更快更稳），识别完<strong>自动合并成「一个人」一条记录</strong>导出——同一份 PDF 仍只占 1 行。代价是一份 N 页 PDF 会发 N 次请求，更费额度。
       </div>
     </div>
 
@@ -1298,6 +1438,42 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
   </div>
 </div>
 
+<!-- Review Modal: 左 PDF 原图滚动 / 右 可编辑字段 -->
+<div class="review-bg" id="reviewModal">
+  <div class="review-shell">
+    <div class="review-head">
+      <button class="rv-x" onclick="closeReview()" title="关闭">✕</button>
+      <div class="rv-title" id="rvTitle">核对</div>
+      <div class="rv-nav">
+        <button class="rv-navbtn" id="rvPrevRec" onclick="reviewStep(-1)" title="上一条">‹ 上一条</button>
+        <span class="rv-pos" id="rvPos">—</span>
+        <button class="rv-navbtn" id="rvNextRec" onclick="reviewStep(1)" title="下一条">下一条 ›</button>
+      </div>
+    </div>
+    <div class="review-body">
+      <div class="rv-left" id="rvLeft">
+        <div class="rv-left-toolbar">
+          <span class="rv-pagecnt" id="rvPageCnt">原件</span>
+          <div class="rv-zoom">
+            <button class="rv-zbtn" onclick="rvZoom(-1)" title="缩小">－</button>
+            <span class="rv-zlbl" id="rvZoomLbl">100%</span>
+            <button class="rv-zbtn" onclick="rvZoom(1)" title="放大">＋</button>
+            <button class="rv-zbtn" onclick="rvZoomReset()" title="还原">⟲</button>
+          </div>
+        </div>
+        <div class="rv-pages" id="rvPages"></div>
+      </div>
+      <div class="rv-right" id="rvRight">
+        <div class="rv-right-head">
+          <span>识别字段（可直接修改）</span>
+          <span class="rv-fill" id="rvFill">—</span>
+        </div>
+        <div class="rv-fields" id="rvFields"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1356,17 +1532,16 @@ const PROVIDERS = {
     name: 'Groq', fullName: 'Groq · 极速推理',
     emoji: '⚡', badges: ['免费','极速','需翻墙/中转'],
     model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-    fallbackModels: ['meta-llama/llama-4-maverick-17b-128e-instruct'],
+    fallbackModels: [],
     altModels: [
-      { id: 'meta-llama/llama-4-scout-17b-16e-instruct',     tag: '✅', desc: '默认 · Llama 4 Scout 17B/16E · 109B · 460+ t/s' },
-      { id: 'meta-llama/llama-4-maverick-17b-128e-instruct', tag: '💎', desc: 'Llama 4 Maverick 17B/128E · 400B · 视觉旗舰' }
+      { id: 'meta-llama/llama-4-scout-17b-16e-instruct',     tag: '✅', desc: '默认 · Llama 4 Scout 17B/16E · 当前 Groq 唯一视觉模型 · 460+ t/s' }
     ],
     endpoint: 'https://api.groq.com/openai/v1/chat/completions',
     placeholder: 'gsk_xxxxxxxxxxxxxxxx',
     rateLimit: 6000, maxTokens: 4096, imageFirst: false,
     guide: `<strong>⚡ Groq · 全球最快推理（免费）</strong>
 注册：<a href="https://console.groq.com" target="_blank">console.groq.com</a> → Google/GitHub 登录 → API Keys → 创建<br>
-<strong>视觉模型</strong>：Groq 目前仅 <code>llama-4-scout</code>（推荐·更快）和 <code>llama-4-maverick</code>（更强·400B）支持视觉。其他文本模型（GPT-OSS 等）不能识别图片。<br>
+<strong>视觉模型</strong>：Groq 目前<strong>仅 <code>llama-4-scout</code> 支持视觉</strong>（Maverick 已于 2026/02 下架，GPT-OSS 等文本模型不能识别图片）。<br>
 免费版限 1000次/天，<strong>无需信用卡</strong>。<br>
 ⚠️ <strong>国内需翻墙</strong>。CORS 已通过同域 <code>/api/groq</code> 代理自动绕过（Pages 部署后生效）。<br>
 <button onclick="fetchProviderModels('groq')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
@@ -1442,22 +1617,18 @@ const PROVIDERS = {
     emoji: '🌐', badges: ['国内可用','免费视觉'],
     model: 'openrouter/free',
     fallbackModels: [
-      'google/gemma-4-31b:free',
-      'nvidia/nemotron-nano-omni-30b:free',
+      'google/gemma-4-31b-it:free',
+      'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
       'nvidia/nemotron-nano-12b-v2-vl:free',
-      'qwen/qwen3-vl-235b-a22b-instruct:free'
+      'google/gemma-4-26b-a4b-it:free'
     ],
     altModels: [
       { id: 'openrouter/free',                       tag: '✅', desc: '默认 · 自动路由 · 永不下线（强烈推荐，模型挂了自动换）' },
-      { id: 'google/gemma-4-31b:free',               tag: '💎', desc: 'Google Gemma 4 31B · 当前最佳免费视觉（2026/06）' },
-      { id: 'nvidia/nemotron-nano-omni-30b:free',    tag: '🔍', desc: 'Nemotron Nano Omni 30B · 全模态 · OCR 强' },
-      { id: 'nvidia/nemotron-nano-12b-v2-vl:free',   tag: '🔍', desc: 'Nemotron Nano 12B v2 VL · OCR/文档专精' },
-      { id: 'qwen/qwen3-vl-235b-a22b-instruct:free', tag: '⚡', desc: 'Qwen3-VL 235B · 大参数视觉' },
-      { id: 'qwen/qwen3-vl-30b-a3b-thinking:free',   tag: '☑️', desc: 'Qwen3-VL 30B · 思考模式 · 更准' },
-      { id: 'qwen/qwen3-vl-8b-instruct:free',        tag: '⚡', desc: 'Qwen3-VL 8B · 最快' },
-      { id: 'meta-llama/llama-4-maverick:free',      tag: '☑️', desc: 'Llama 4 Maverick · 视觉 · 1M 上下文' },
-      { id: 'meta-llama/llama-4-scout:free',         tag: '⚡', desc: 'Llama 4 Scout · 视觉 · 更快' },
-      { id: 'mistralai/mistral-small-3.2-24b-instruct:free', tag: '☑️', desc: 'Mistral Small 3.2 · 视觉' },
+      { id: 'google/gemma-4-31b-it:free',            tag: '💎', desc: 'Google Gemma 4 31B · 当前最佳免费视觉（2026/06）· 262K' },
+      { id: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free', tag: '🔍', desc: 'Nemotron Nano Omni 30B · 全模态 · OCR 强 · 256K' },
+      { id: 'nvidia/nemotron-nano-12b-v2-vl:free',   tag: '🔍', desc: 'Nemotron Nano 12B v2 VL · OCR/文档专精 · 128K' },
+      { id: 'google/gemma-4-26b-a4b-it:free',        tag: '☑️', desc: 'Google Gemma 4 26B MoE · 视觉 · 262K' },
+      { id: 'moonshotai/kimi-k2.6:free',             tag: '⚡', desc: 'Kimi K2.6 · 多模态 · 视觉+工具 · 262K' },
       { id: 'google/gemini-2.5-flash-lite',          tag: '💰', desc: 'Gemini 2.5 Flash Lite · 付费' },
       { id: 'google/gemini-2.5-flash',               tag: '💰', desc: 'Gemini 2.5 Flash · 付费' },
       { id: 'anthropic/claude-sonnet-4',              tag: '💰', desc: 'Claude Sonnet 4 · 顶级付费' },
@@ -1481,15 +1652,14 @@ const PROVIDERS = {
     model: 'Qwen/Qwen3-VL-30B-A3B-Instruct',
     fallbackModels: [
       'Qwen/Qwen3-VL-8B-Instruct',
-      'zai-org/GLM-4.6V',
+      'Qwen/Qwen3-VL-30B-A3B-Thinking',
       'Qwen/Qwen3-VL-235B-A22B-Instruct'
     ],
     altModels: [
-      { id: 'Qwen/Qwen3-VL-30B-A3B-Instruct',  tag: '✅', desc: '默认 · Qwen3-VL 30B · 免费视觉 · 国内快' },
-      { id: 'Qwen/Qwen3-VL-30B-A3B-Thinking',   tag: '🧩', desc: 'Qwen3-VL 30B · 思考模式 · 更准确' },
+      { id: 'Qwen/Qwen3-VL-30B-A3B-Instruct',  tag: '✅', desc: '默认 · Qwen3-VL 30B · 免费视觉 · 256K · 国内快' },
+      { id: 'Qwen/Qwen3-VL-30B-A3B-Thinking',   tag: '🧩', desc: 'Qwen3-VL 30B · 思考模式 · OCR/推理更准' },
       { id: 'Qwen/Qwen3-VL-8B-Instruct',         tag: '⚡', desc: 'Qwen3-VL 8B · 最快' },
       { id: 'Qwen/Qwen3-VL-235B-A22B-Instruct',   tag: '💎', desc: 'Qwen3-VL 235B · 旗舰大参数' },
-      { id: 'zai-org/GLM-4.6V',                   tag: '🔍', desc: 'GLM-4.6V · 9B 多模态 · OCR 强（2025/12新）' },
       { id: 'Pro/Qwen/Qwen2.5-VL-7B-Instruct',   tag: '☑️', desc: 'Qwen2.5-VL 7B Pro · 注意带 Pro/ 前缀' }
     ],
     endpoint: 'https://api.siliconflow.cn/v1/chat/completions',
@@ -2181,7 +2351,7 @@ function goBack() {
   } else if (currentView === 'use') {
     if (queue.length || results.length) {
       askConfirm('返回模板列表？','当前队列和识别结果将丢失','返回',()=>{
-        queue.forEach(q=>URL.revokeObjectURL(q.url));
+        queue.forEach(revokeItemUrls);
         queue = []; results = [];
         showView('templates');
       });
@@ -3225,9 +3395,19 @@ async function testConnection() {
         let er = {};
         try { er = JSON.parse(raw); } catch(e) {}
         const m = er.error?.message || er.message || raw.slice(0, 150);
-        const isModelErr = /not a valid model|model.*not found|不存在|invalid model/i.test(m);
+        const isModelErr = /not a valid model|model.*not found|不存在|invalid model|no endpoints|not found/i.test(m);
         if (isModelErr) {
-          resultEl.innerHTML = `<span style="color:var(--orange)">⚠️ Key 有效，但模型「${useModel}」不可用。请切换其他模型。${p.fallbackModels ? '<br>💡 识别时会自动尝试备选模型。' : ''}</span>`;
+          // Suggest a known-good model: openrouter/free for OR, else first non-paid altModel
+          let suggest = '';
+          if (cfg.prov === 'openrouter') suggest = 'openrouter/free';
+          else if (p.altModels?.length) {
+            const good = p.altModels.find(a => a.id !== useModel && !/💰/.test(a.tag||'')) || p.altModels[0];
+            suggest = good?.id || '';
+          }
+          const btnHtml = suggest
+            ? `<br><button onclick="quickSwitchModel('${esc(suggest)}')" class="hbtn hbtn-blue" style="margin-top:6px;height:28px;font-size:11px">⚡ 一键切换到可用模型「${esc(suggest)}」并重测</button>`
+            : (p.fallbackModels?.length ? '<br>💡 识别时会自动尝试备选模型。' : '');
+          resultEl.innerHTML = `<span style="color:var(--orange)">⚠️ Key 有效，但模型「${esc(useModel)}」不可用（可能已下架或拼写有误）。${btnHtml}</span>`;
         } else if (res.status === 401) {
           resultEl.innerHTML = `<span style="color:var(--red)">❌ API Key 无效</span>`;
         } else {
@@ -3352,6 +3532,25 @@ function selectORModel(modelId) {
   localStorage.setItem('phck_models', JSON.stringify(cfg.models));
   fetchOpenRouterModels(true); // use cache, just re-render
   toast(`✅ 已选择: ${modelId}`);
+}
+
+// One-click: switch the current provider's model to a known-good one, sync the
+// model dropdown/custom input, persist it, and immediately re-run testConnection.
+function quickSwitchModel(modelId) {
+  if (!cfg.models) cfg.models = {};
+  cfg.models[cfg.prov] = modelId;
+  localStorage.setItem('phck_models', JSON.stringify(cfg.models));
+  // Sync the settings UI controls if present (dropdown uses '' for default;
+  // a model not in the list goes into the custom input with dropdown blanked).
+  const sel = document.getElementById('modelSelect');
+  const custom = document.getElementById('modelCustom');
+  if (sel) {
+    const has = Array.from(sel.options).some(o => o.value === modelId);
+    if (has) { sel.value = modelId; if (custom) custom.value = ''; }
+    else { if (custom) custom.value = modelId; sel.value = ''; }
+  }
+  toast(`⚡ 已切换到 ${modelId}`);
+  if (typeof testConnection === 'function') testConnection();
 }
 
 /* ════ 通用：获取各供应商最新模型列表 ════ */
@@ -3684,7 +3883,7 @@ function useTemplate(t) {
     return;
   }
   activeTemplate = t;
-  queue.forEach(q=>URL.revokeObjectURL(q.url));
+  queue.forEach(revokeItemUrls);
   queue = []; results = [];
   document.getElementById('rtScroll').innerHTML = '<table class="rt" id="rt"></table>';
   renderUseTemplateSummary();
@@ -4110,12 +4309,23 @@ function addToQueue(file, displayName, isPdfPage) {
   queue.push({
     id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
     file, displayName, url: URL.createObjectURL(file),
-    status: 'wait', data: null, err: null, isPdfPage: !!isPdfPage
+    status: 'wait', data: null, err: null, isPdfPage: !!isPdfPage,
+    pages: null, pageCount: 1   // pages: array of {url} for multi-page PDF records
   });
 }
 
+// Revoke all blob URLs held by a queue item (main url + every page image).
+function revokeItemUrls(it) {
+  if (!it) return;
+  try { if (it.url) URL.revokeObjectURL(it.url); } catch(e){}
+  if (it.pages) it.pages.forEach(p => { try { URL.revokeObjectURL(p.url); } catch(e){} });
+}
+
+// One whole PDF = ONE queue item (= one person = one record).
+// All page images are rendered and kept in item.pages for left-side review,
+// and stitched into a single tall composite for the AI call.
 async function splitPdf(file) {
-  showLoader('📑','正在拆分 PDF',file.name,'读取文件…');
+  showLoader('📑','正在读取 PDF',file.name,'读取文件…');
   const buffer = await file.arrayBuffer();
   setLoaderProgress(0,1,'解析中…');
   const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
@@ -4127,11 +4337,12 @@ async function splitPdf(file) {
   if (total > 100) {
     hideLoader();
     if (!confirm(`PDF 共 ${total} 页，确定继续？`)) return;
-    showLoader('📑','拆分中',file.name,'准备…');
+    showLoader('📑','读取中',file.name,'准备…');
   }
 
+  const pageBlobs = [];   // {url, blob, w, h}
   for (let i=1; i<=total; i++) {
-    setLoaderProgress(i,total,`第 ${i}/${total} 页`);
+    setLoaderProgress(i,total,`渲染第 ${i}/${total} 页`);
     const page = await pdf.getPage(i);
     let vp = page.getViewport({ scale });
     if (vp.width > maxWidth) vp = page.getViewport({ scale: scale * (maxWidth/vp.width) });
@@ -4140,14 +4351,50 @@ async function splitPdf(file) {
     await page.render({ canvasContext: c.getContext('2d',{alpha:false}), viewport: vp }).promise;
     const blob = await new Promise(r => c.toBlob(r,'image/jpeg',0.82));
     if (!blob) throw new Error('页面 '+i+' 转换失败');
-    const pageFile = new File([blob], `${baseName}_p${String(i).padStart(3,'0')}.jpg`, { type:'image/jpeg' });
-    addToQueue(pageFile, `${baseName}·第${i}页`, true);
+    pageBlobs.push({ url: URL.createObjectURL(blob), blob, w: c.width, h: c.height });
     c.width=0;c.height=0;
-    if (i%5===0) renderQ();
     if (i%3===0) await new Promise(r=>setTimeout(r,10));
   }
+
+  // Create a single queue item representing the whole PDF.
+  // file = first page (placeholder thumbnail); pages = all page images.
+  const item = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+    file: pageBlobs[0].blob,
+    displayName: total > 1 ? `${baseName}（${total}页）` : baseName,
+    url: pageBlobs[0].url,
+    status: 'wait', data: null, err: null,
+    isPdfPage: true,
+    pages: pageBlobs.map(p => ({ url: p.url })),
+    pageCount: total,
+    _pageBlobs: pageBlobs   // kept for stitching at recognition time
+  };
+  queue.push(item);
   hideLoader();
-  toast(`✅ PDF 拆分完成，${total} 页`);
+  toast(`✅ PDF 已载入，${total} 页 = 1 条记录`);
+}
+
+// Stitch an array of page blobs into one tall composite JPEG for a single AI call.
+async function stitchPages(pageBlobs, maxWidth) {
+  if (pageBlobs.length === 1) return new File([pageBlobs[0].blob], 'page.jpg', { type:'image/jpeg' });
+  // Load all as images
+  const imgs = await Promise.all(pageBlobs.map(p => new Promise((res,rej)=>{
+    const im = new Image(); im.onload=()=>res(im); im.onerror=()=>rej(new Error('页面图加载失败')); im.src=p.url;
+  })));
+  const W = Math.min(maxWidth, Math.max(...imgs.map(im=>im.width)));
+  const gap = 8;
+  // scale each page to width W, sum heights
+  const scaled = imgs.map(im => ({ im, w: W, h: Math.round(im.height * (W/im.width)) }));
+  const totalH = scaled.reduce((s,x)=>s+x.h,0) + gap*(scaled.length-1);
+  const c = document.createElement('canvas');
+  c.width = W; c.height = totalH;
+  const ctx = c.getContext('2d',{alpha:false});
+  ctx.fillStyle = '#fff'; ctx.fillRect(0,0,W,totalH);
+  let y=0;
+  for (const s of scaled){ ctx.drawImage(s.im, 0, y, s.w, s.h); y += s.h + gap; }
+  const blob = await new Promise(r => c.toBlob(r,'image/jpeg',0.82));
+  c.width=0;c.height=0;
+  return new File([blob], 'stitched.jpg', { type:'image/jpeg' });
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -4170,7 +4417,9 @@ function renderQ() {
     d2.className = 'q-card ' + (item.status!=='wait'?'s-'+item.status:'');
     const dotCls = {wait:'dot-wait',processing:'dot-proc',done:'dot-done',error:'dot-err'}[item.status];
     const dotTxt = {wait:'…',processing:'◌',done:'✓',error:'!'}[item.status];
-    const tag = item.isPdfPage?`<div class="q-tag">PDF页</div>`:'';
+    const tag = item.isPdfPage
+      ? `<div class="q-tag">${item.pageCount>1?`PDF·${item.pageCount}页`:'PDF'}</div>`
+      : '';
     const delBtn = (item.status==='wait'||item.status==='error')
       ?`<button class="q-del" onclick="rmItem('${item.id}',event)">✕</button>`:'';
     const nameHtml = item.status==='error'
@@ -4184,6 +4433,14 @@ function renderQ() {
         ev.stopPropagation();
         showItemError(item);
       });
+    } else if (item.status==='done') {
+      d2.style.cursor = 'pointer';
+      d2.title = '点击左右对照核对';
+      d2.addEventListener('click', (ev) => {
+        if (ev.target.closest('.q-del')) return;
+        ev.stopPropagation();
+        openReview(item.id);
+      });
     }
     g.appendChild(d2);
   });
@@ -4194,14 +4451,14 @@ function rmItem(id, e) {
   e.stopPropagation();
   const i = queue.findIndex(q=>q.id===id);
   if (i>=0&&(queue[i].status==='wait'||queue[i].status==='error')) {
-    URL.revokeObjectURL(queue[i].url);
+    revokeItemUrls(queue[i]);
     queue.splice(i,1);renderQ();
   }
 }
 function clearDone(){queue=queue.filter(q=>q.status!=='done');renderQ()}
 function clearAll(){
   askConfirm('清空队列？','所有待处理和失败项将被移除','清空',()=>{
-    queue.forEach(q=>URL.revokeObjectURL(q.url));queue=[];renderQ();
+    queue.forEach(revokeItemUrls);queue=[];renderQ();
   });
 }
 function refreshRunBtn() {
@@ -4246,11 +4503,63 @@ async function runBatch() {
 
     const t0 = Date.now();
     try {
-      const data = await recognizeWithTemplate(item.file);
+      const maxWidth = parseInt(document.getElementById('maxImgWidth').value)||1568;
+      const pageMode = document.getElementById('multiPageMode')?.value || 'auto';
+      const pageCount = item._pageBlobs ? item._pageBlobs.length : 1;
+      // 是否逐页识别：多页 PDF 且（手动选逐页 / 智能模式下 ≥3 页）
+      const usePerPage = pageCount > 1 && (
+        pageMode === 'perpage' || (pageMode === 'auto' && pageCount >= 3)
+      );
+
+      let data;
+      item.warn = null;
+
+      if (usePerPage) {
+        // ── 逐页识别 → 合并为一条记录（防超时/限额）──
+        const pages = item._pageBlobs;
+        const partials = [];
+        const pageErrs = [];
+        for (let pi = 0; pi < pages.length; pi++) {
+          if (stopFlag) throw new Error('已停止');
+          const rInfo = adaptiveRateMul > 1 ? ` [限速 ${adaptiveRateMul.toFixed(1)}x]` : '';
+          setProg(done, total, `第 ${done+1}/${total}：${item.displayName} · 逐页 ${pi+1}/${pages.length}${rInfo}`);
+          const pageFile = new File([pages[pi].blob], `page_${pi+1}.jpg`, { type:'image/jpeg' });
+          try {
+            const pd = await recognizeWithTemplate(pageFile);
+            partials.push(pd);
+          } catch(pe) {
+            pageErrs.push(`第 ${pi+1} 页：${pe.message || pe}`);
+            partials.push(null);
+          }
+          // 每一页都是独立请求 → 页间也要按限速间隔，避免 429
+          if (pi < pages.length - 1 && !stopFlag) {
+            const wait = baseRate * adaptiveRateMul;
+            if (wait > 0) await sleep(wait);
+          }
+        }
+        const okPages = partials.filter(Boolean).length;
+        if (okPages === 0) {
+          throw new Error('所有页面识别均失败：\n' + pageErrs.join('\n'));
+        }
+        data = mergeRecords(partials, activeTemplate);   // ← 合并成「一个人」一条记录
+        if (pageErrs.length) {
+          item.warn = `${okPages}/${pages.length} 页成功，以下页失败（其余已合并）：\n` + pageErrs.join('\n');
+        }
+      } else {
+        // ── 默认：拼接整页 → 单次调用（省额度）──
+        let fileForAI = item.file;
+        if (pageCount > 1) {
+          setProg(done, total, `第 ${done+1}/${total}：拼接 ${pageCount} 页…`);
+          fileForAI = await stitchPages(item._pageBlobs, maxWidth);
+        }
+        data = await recognizeWithTemplate(fileForAI);
+      }
+
       item.status = 'done';
       item.data = data;
       results.push({ ...data, _fname: item.displayName, _itemId: item.id });
       appendResultRow(data, item.displayName, item.id);
+      if (item.warn) toast('⚠️ ' + item.displayName + '：部分页未识别，已合并可用页');
     } catch(err) {
       item.status = 'error';
       item.err = err.message || String(err);
@@ -4406,6 +4715,67 @@ async function recognizeWithTemplate(file) {
   throw lastErr;
 }
 
+/* ────────────────────────────────────────────────────────────────
+   逐页识别 → 合并为「一个人」一条记录
+   每一页单独识别后，模型对看不到的字段会填 null；
+   合并规则：标量字段取各页中第一个非空值；表格字段按「行×列」逐格取第一个非空值。
+   这样同一份多页 PDF 仍然只产出 1 条记录（1 行）。
+──────────────────────────────────────────────────────────────── */
+function _isBlank(v) {
+  return v === null || v === undefined || (typeof v === 'string' && v.trim() === '');
+}
+function mergeRecords(partials, template) {
+  const valid = partials.filter(p => p && typeof p === 'object');
+  if (valid.length === 0) return {};
+  if (valid.length === 1) return valid[0];
+
+  const tableKeys = new Set(
+    (template.fields || [])
+      .filter(f => f.type === 'table' && f.columns?.length && f.rows?.length)
+      .map(f => f.key)
+  );
+  const merged = {};
+
+  // 1) 普通字段：按页顺序取第一个非空值
+  (template.fields || []).forEach(f => {
+    if (tableKeys.has(f.key)) return;
+    let val = null;
+    for (const p of valid) {
+      if (!_isBlank(p[f.key])) { val = p[f.key]; break; }
+    }
+    merged[f.key] = val;
+  });
+
+  // 2) 表格字段：逐格(行 ri × 列 c.key)取第一个非空值
+  (template.fields || []).forEach(f => {
+    if (!tableKeys.has(f.key)) return;
+    const out = [];
+    for (let ri = 0; ri < f.rows.length; ri++) {
+      const row = {};
+      f.columns.forEach(c => {
+        let cell = null;
+        for (const p of valid) {
+          const arr = p[f.key];
+          const v = Array.isArray(arr) ? arr[ri]?.[c.key] : undefined;
+          if (!_isBlank(v)) { cell = v; break; }
+        }
+        row[c.key] = cell;
+      });
+      out.push(row);
+    }
+    merged[f.key] = out;
+  });
+
+  // 3) 兜底：保留模板未定义但页面里出现的额外键
+  valid.forEach(p => {
+    Object.keys(p).forEach(k => {
+      if (!(k in merged) && !_isBlank(p[k])) merged[k] = p[k];
+    });
+  });
+
+  return merged;
+}
+
 async function callAI(b64, mime, prompt) {
   const p = PROVIDERS[cfg.prov];
   const key = p.useOpenRouterKey ? cfg.keys.openrouter : cfg.keys[cfg.prov];
@@ -4420,10 +4790,16 @@ async function callAI(b64, mime, prompt) {
   try {
     return await callOpenAICompat(p, key, b64, mime, prompt, primaryModel);
   } catch(err) {
-    const isModelError = /not a valid model|model.*not found|model.*not exist|不存在|404|does not exist|invalid model/i.test(err.message);
-    if (isModelError && p.fallbackModels?.length) {
+    const isModelError = /not a valid model|model.*not found|model.*not exist|不存在|404|does not exist|invalid model|no endpoints/i.test(err.message);
+    // Build the fallback chain. For OpenRouter, always guarantee openrouter/free
+    // as the last resort so a stale free-model ID never hard-fails recognition.
+    let chain = (p.fallbackModels || []).slice();
+    if (cfg.prov === 'openrouter' && !chain.includes('openrouter/free') && primaryModel !== 'openrouter/free') {
+      chain.push('openrouter/free');
+    }
+    if (isModelError && chain.length) {
       console.warn(`模型 ${primaryModel} 不可用，尝试备选模型...`);
-      for (const fallback of p.fallbackModels) {
+      for (const fallback of chain) {
         if (fallback === primaryModel) continue;
         try {
           const result = await callOpenAICompat(p, key, b64, mime, prompt, fallback);
@@ -4434,12 +4810,12 @@ async function callAI(b64, mime, prompt) {
           localStorage.setItem('phck_models', JSON.stringify(cfg.models));
           return result;
         } catch(e2) {
-          const isModel2 = /not a valid model|model.*not found|model.*not exist|不存在|404|does not exist|invalid model/i.test(e2.message);
+          const isModel2 = /not a valid model|model.*not found|model.*not exist|不存在|404|does not exist|invalid model|no endpoints/i.test(e2.message);
           if (isModel2) continue; // try next fallback
           throw e2; // non-model error, stop trying
         }
       }
-      throw new Error(`模型「${primaryModel}」及所有备选模型均不可用。\n\n💡 解决方案：\n1. 打开「设置」→ 切换到「openrouter/free」（自动路由，永远可用）\n2. 或访问 openrouter.ai/models 查看最新可用的免费视觉模型\n3. 免费模型经常更新换代，属于正常现象\n\n原始错误：${err.message}`);
+      throw new Error(`模型「${primaryModel}」及所有备选模型均不可用。\n\n💡 解决方案：\n1. 打开「设置」→ 切换到「openrouter/free」（自动路由，永远可用）\n2. 或点「🔄 实时拉取最新免费视觉模型」选一个当前可用的\n3. 免费模型经常更新换代，属于正常现象\n\n原始错误：${err.message}`);
     }
     throw err;
   }
@@ -4818,7 +5194,8 @@ function appendSingleResultRow(d, fname, itemId) {
     if (col.key === '_src') {
       val = fname;
       const short = fname.length > 14 ? fname.slice(0,12)+'…' : fname;
-      td.innerHTML = `<span class="tc-id" title="${esc(fname)}">${esc(short)}</span>`;
+      // Source cell doubles as the "open review" entry point
+      td.innerHTML = `<span class="tc-id tc-id-link" title="点击左右对照核对：${esc(fname)}" onclick="openReview('${itemId}')">🔍 ${esc(short)}</span>`;
     } else if (col.isTableCell) {
       const arr = d[col.tableField.key];
       val = arr?.[col.rowIdx]?.[col.tableField.columns[col.colIdx].key];
@@ -4863,6 +5240,204 @@ function onCellEdit(inp) {
     r[key] = val;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   REVIEW MODAL — 左 PDF 原图滚动 / 右 可编辑字段（左右对照人工核对）
+════════════════════════════════════════════════════════════════ */
+let _reviewItemId = null;
+let _reviewZoom = 1;
+
+// Section grouping for the screen-time template (and graceful default for others).
+function fieldSectionLabel(key) {
+  if (/^(ID|childname|gender|school|grade|class)$/.test(key)) return '① 顶部身份信息';
+  if (/^st1_/.test(key)) return '② 手机基本情况';
+  if (/^st2_/.test(key)) return '③ 电话手表基本情况';
+  if (/^st3_1/.test(key)) return '④ 上学期间 · 工作日（周一~周五）';
+  if (/^st3_2/.test(key)) return '⑤ 上学期间 · 休息日（周六、周日）';
+  if (/^st4_1/.test(key)) return '⑥ 寒暑假 · 工作日';
+  if (/^st4_2/.test(key)) return '⑦ 寒暑假 · 休息日';
+  return null;
+}
+
+// Ordered list of currently-displayed result item IDs (for prev/next navigation).
+function reviewableIds() {
+  return Array.from(document.querySelectorAll('#rt tbody tr[data-item-id]'))
+    .map(tr => tr.dataset.itemId)
+    .filter(id => results.some(r => r._itemId === id));
+}
+
+function openReview(itemId) {
+  const r = results.find(x => x._itemId === itemId);
+  if (!r) { toast('找不到该记录'); return; }
+  _reviewItemId = itemId;
+  _reviewZoom = 1;
+  // Find the queue item that produced this result (for page images).
+  // For expanded rows, itemId is like "<qid>_<idx>"; strip the suffix to find the source.
+  let qItem = queue.find(q => q.id === itemId);
+  if (!qItem) {
+    const baseId = itemId.replace(/_\d+$/, '');
+    qItem = queue.find(q => q.id === baseId);
+  }
+  document.getElementById('rvTitle').textContent = '🔍 ' + (r._fname || '核对');
+
+  // ---- Left: page images ----
+  const pagesEl = document.getElementById('rvPages');
+  const cntEl = document.getElementById('rvPageCnt');
+  pagesEl.innerHTML = '';
+  let pageUrls = [];
+  if (qItem?.pages?.length) pageUrls = qItem.pages.map(p => p.url);
+  else if (qItem?.url) pageUrls = [qItem.url];
+  if (pageUrls.length) {
+    cntEl.textContent = pageUrls.length > 1 ? `共 ${pageUrls.length} 页 · 可滚动查看` : '原件';
+    pageUrls.forEach((u, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'rv-page-wrap';
+      const numHtml = pageUrls.length > 1 ? `<div class="rv-page-num">第 ${i+1} / ${pageUrls.length} 页</div>` : '';
+      wrap.innerHTML = `${numHtml}<img class="rv-page-img" src="${u}" style="width:100%">`;
+      pagesEl.appendChild(wrap);
+    });
+  } else {
+    cntEl.textContent = '无原图';
+    pagesEl.innerHTML = `<div style="color:rgba(255,255,255,.6);font-size:13px;padding:40px;text-align:center">该记录无可显示的原图<br><span style="font-size:11px">（图片来源或已清理）</span></div>`;
+  }
+  document.getElementById('rvZoomLbl').textContent = '100%';
+
+  // ---- Right: editable fields ----
+  renderReviewFields(r);
+
+  // ---- Nav position ----
+  const ids = reviewableIds();
+  const idx = ids.indexOf(itemId);
+  document.getElementById('rvPos').textContent = ids.length ? `${idx+1} / ${ids.length}` : '—';
+  document.getElementById('rvPrevRec').disabled = idx <= 0;
+  document.getElementById('rvNextRec').disabled = idx < 0 || idx >= ids.length-1;
+
+  document.getElementById('reviewModal').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderReviewFields(r) {
+  const t = activeTemplate;
+  const host = document.getElementById('rvFields');
+  host.innerHTML = '';
+  let filled = 0, totalCnt = 0;
+  let lastSec = null;
+
+  t.fields.forEach(f => {
+    // Section header
+    const sec = fieldSectionLabel(f.key);
+    if (sec && sec !== lastSec) {
+      const sh = document.createElement('div');
+      sh.className = 'rv-sec';
+      sh.textContent = sec;
+      host.appendChild(sh);
+      lastSec = sec;
+    }
+
+    if (f.type === 'table' && f.columns?.length && f.rows?.length) {
+      // Render each table cell as its own row
+      f.rows.forEach((row, ri) => {
+        f.columns.forEach((col, ci) => {
+          totalCnt++;
+          const cur = (Array.isArray(r[f.key]) && r[f.key][ri]) ? r[f.key][ri][col.key] : '';
+          if (cur != null && cur !== '') filled++;
+          host.appendChild(makeReviewRow(
+            `${f.label} · ${row.label} · ${col.label}`,
+            `${f.key}__${row.key}__${col.key}`,
+            cur, col.type === 'number', null
+          ));
+        });
+      });
+    } else {
+      totalCnt++;
+      const cur = r[f.key];
+      if (cur != null && cur !== '') filled++;
+      const labelMain = f.label + (f.hint ? `（${f.hint}）` : '');
+      host.appendChild(makeReviewRow(labelMain, f.key, cur, f.type === 'number', f.type === 'select' ? f.options : null, f.key));
+    }
+  });
+
+  document.getElementById('rvFill').textContent = `已填 ${filled} / ${totalCnt}`;
+}
+
+function makeReviewRow(label, key, val, isNum, options, rawKey) {
+  const row = document.createElement('div');
+  row.className = 'rv-frow';
+  const display = val == null ? '' : String(val);
+  const keyTag = rawKey ? `<span class="rv-fkey">${esc(rawKey)}</span>` : '';
+  let control;
+  if (options && options.length) {
+    const opts = ['<option value=""></option>'].concat(
+      options.map(o => `<option value="${esc(o)}"${String(display)===String(o)?' selected':''}>${esc(o)}</option>`)
+    ).join('');
+    control = `<select class="rv-fselect" data-rvkey="${esc(key)}" onchange="onReviewEdit(this)">${opts}</select>`;
+  } else {
+    const empty = display === '' ? ' rv-empty' : '';
+    control = `<input class="rv-finput${isNum?' rv-num':''}${empty}" value="${esc(display)}" data-rvkey="${esc(key)}" oninput="onReviewEdit(this)" ${isNum?'inputmode="decimal"':''}>`;
+  }
+  row.innerHTML = `<div class="rv-flabel">${esc(label)}${keyTag}</div>${control}`;
+  return row;
+}
+
+// Edit in review → write to results AND keep the main table's input in sync.
+function onReviewEdit(el) {
+  if (!_reviewItemId) return;
+  const key = el.dataset.rvkey;
+  const val = el.value;
+  const r = results.find(x => x._itemId === _reviewItemId);
+  if (!r) return;
+  const parts = key.split('__');
+  if (parts.length === 3) {
+    const [fk, rk, ck] = parts;
+    const f = activeTemplate.fields.find(f => f.key === fk);
+    if (f) {
+      const ri = f.rows.findIndex(x => x.key === rk);
+      if (ri >= 0) {
+        if (!Array.isArray(r[fk])) r[fk] = f.rows.map(() => ({}));
+        if (!r[fk][ri]) r[fk][ri] = {};
+        r[fk][ri][ck] = val;
+      }
+    }
+  } else {
+    r[key] = val;
+  }
+  // Sync the matching cell input in the main result table (if rendered)
+  const cell = document.querySelector(`#rt tbody tr[data-item-id="${CSS.escape(_reviewItemId)}"] input[data-key="${CSS.escape(key)}"]`);
+  if (cell && cell.value !== val) cell.value = val;
+  // Update empty-highlight state
+  if (el.classList.contains('rv-finput')) el.classList.toggle('rv-empty', val === '');
+}
+
+function reviewStep(dir) {
+  const ids = reviewableIds();
+  const idx = ids.indexOf(_reviewItemId);
+  const ni = idx + dir;
+  if (ni < 0 || ni >= ids.length) return;
+  openReview(ids[ni]);
+}
+
+function rvZoom(dir) {
+  _reviewZoom = Math.min(3, Math.max(0.4, _reviewZoom + dir*0.15));
+  applyRvZoom();
+}
+function rvZoomReset() { _reviewZoom = 1; applyRvZoom(); }
+function applyRvZoom() {
+  document.querySelectorAll('#rvPages .rv-page-img').forEach(img => {
+    img.style.width = (_reviewZoom*100) + '%';
+  });
+  document.getElementById('rvZoomLbl').textContent = Math.round(_reviewZoom*100) + '%';
+}
+
+function closeReview() {
+  document.getElementById('reviewModal').classList.remove('on');
+  document.body.style.overflow = '';
+  _reviewItemId = null;
+}
+
+// ESC closes the review modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('reviewModal')?.classList.contains('on')) closeReview();
+});
 
 function clearResults() {
   askConfirm('清空所有识别结果？','已识别的数据将丢失','清空',()=>{
