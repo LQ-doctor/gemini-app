@@ -608,7 +608,7 @@ input[type=file]{display:none}
 .review-bg.on{opacity:1;pointer-events:all}
 .review-shell{
   background:var(--g9);
-  width:100%;height:100%;max-width:1200px;max-height:100%;
+  width:100%;height:100%;max-width:1600px;max-height:100%;
   display:flex;flex-direction:column;
   transform:scale(.97);opacity:.7;
   transition:transform .38s var(--spring),opacity .25s;
@@ -650,9 +650,20 @@ input[type=file]{display:none}
   .rv-nav .rv-navbtn{padding:0 8px}
 }
 .rv-left{
-  flex:1.15;min-width:0;display:flex;flex-direction:column;
+  flex:1;min-width:0;display:flex;flex-direction:column;
   background:#3a3a3c;border-right:1px solid var(--hairline-2);
 }
+.rv-splitter{
+  flex:0 0 8px;cursor:col-resize;background:var(--hairline-2);
+  position:relative;transition:background .15s;z-index:2;
+}
+.rv-splitter::before{
+  content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:2px;height:38px;background:var(--g5);border-radius:2px;opacity:.55;
+}
+.rv-splitter:hover,.rv-splitter.dragging{background:var(--blue)}
+.rv-splitter:hover::before,.rv-splitter.dragging::before{background:#fff;opacity:1;height:48px}
+@media(max-width:768px){.rv-splitter{display:none}}
 .rv-left-toolbar{
   display:flex;align-items:center;justify-content:space-between;gap:8px;
   padding:8px 12px;background:rgba(0,0,0,.25);flex-shrink:0;
@@ -1464,6 +1475,7 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
         </div>
         <div class="rv-pages" id="rvPages"></div>
       </div>
+      <div class="rv-splitter" id="rvSplitter" title="拖动调整左右宽度，双击恢复默认"></div>
       <div class="rv-right" id="rvRight">
         <div class="rv-right-head">
           <span>识别字段（可直接修改）</span>
@@ -2071,13 +2083,14 @@ const PRESET_TEMPLATES = [{
   ]
 },{
   id: 'preset_screen_time',
-  name: '儿童荧屏时间调查表',
-  description: '「儿童基本情况与荧屏时间调查表」荧屏设备使用部分 · 含手机/电话手表基本情况 + 上学/寒暑假 × 工作日/休息日 × 电视/电脑/手机/投影仪/电话手表(2026新增) 全部 181 个变量，变量名与数据库表1完全一致',
+  name: '儿童荧屏时间调查表（完整·433字段）',
+  description: '「儿童基本情况与荧屏时间调查表」完整版（433字段） · 含手机/电话手表基本情况 + 上学/寒暑假 × 工作日/休息日 × 电视/电脑/手机/投影仪/电话手表(2026新增) 全部 433 个变量（已含荧屏+网络/成瘾+SAS+SDS+PSQI+LQ+家庭ff/fm+生长发育+青春期发育+采集信息），变量名与数据库完全一致',
   preset: true,
   emoji: '📺',
-  extractHint: "这是一份「儿童基本情况与荧屏时间调查表」的第一部分（荧屏设备使用情况）。请逐项精确识别手写内容，未填写或空白的字段一律填 null。\n\n【顶部身份信息】\n- ID：调查对象编号（如 J971301）\n- childname：姓名（手写）\n- gender：性别栏填写的数字，1=男 2=女（按表格里写的数字原样填）\n- school：学校名称\n- grade：年级数字\n- class：班级数字\n\n【0/1 是否题的通用规则】所有\"是否…?\"字段：是=1，否=0，方框内写 0 或 1 就照填；空白填 null。\n\n【设备使用的层级结构 / 跳答逻辑】问卷分 4 个时段，每个时段下分若干设备：\n  st1_x：手机基本情况（开始年龄、是否拥有、号码、是否带到学校、是否看手机）\n  st2_x：电话手表基本情况（是否拥有、是否带到学校）\n  st3_1*：上学期间-工作日（周一~周五）\n  st3_2*：上学期间-休息日（周六、周日）\n  st4_1*：寒暑假-工作日\n  st4_2*：寒暑假-休息日\n每个时段内的设备字母：a=电视, b=电脑, c=手机, d=投影仪/显示器, f=电话手表（2026年新增）。\n\n【每种设备的填写规则】\n1) 设备主开关（如 st3_1a 电视、st3_1b 电脑、st3_1c 手机、st3_1d 投影仪、st3_1f 电话手表）：是否使用，是=1 否=0。\n2) 电视(a)和投影仪(d)：只有 频率(_1 或 a1/d1，单位 天/周或次/周) 和 时长(_2 或 a2/d2，单位 分钟)。\n3) 电脑(b)/手机(c)/电话手表(f)：是\"多选题用途\"结构——\n   - 用途勾选项（如 st3_1b1 休闲娱乐、st3_1b2 网上查资料在线学习、st3_1b3 玩游戏、st3_1c4 看小说、st3_1f2 刷视频刷社交媒体、st3_1f3 玩小游戏）：方框内打勾(√/✓/对号)=1，未勾=0。\n   - 每个用途后面跟两个数字：_1=频率(次/周，有时写\"次\"或\"天\")，_2=时长(分钟)。只有该用途被勾选时通常才有数字；没写就填 null。\n4) 电脑(b) 用途只有 3 项（休闲娱乐b1 / 在线学习b2 / 玩游戏b3），没有\"看小说\"。\n5) 手机(c) 用途有 4 项（休闲娱乐c1 / 在线学习c2 / 玩游戏c3 / 看小说c4）。\n6) 电话手表(f) 用途有 4 项（休闲娱乐f1 / 刷视频刷社交媒体f2 / 玩小游戏f3 / 看小说f4）。\n\n【手写数字辨认】仔细区分 0/6、1/7、2/Z 等；频率一般是 1~7 的小数字，时长一般是 10/20/30/60 等。\n【重要】只输出 JSON，键名必须与字段定义里的英文 key 完全一致，一个都不能改名或漏掉。识别不到就填 null，绝不要编造数字。",
+  extractHint: "这是一份「儿童基本情况与荧屏时间调查表」（多页问卷，依次包含：荧屏设备使用、网络使用/成瘾、SAS焦虑自评、SDS抑郁自评、PSQI睡眠质量、LQ量表、家庭ff/fm量表、生长发育、男/女青春期发育、采集信息等多个部分）。请逐项精确识别手写与勾选内容，未填写或空白的字段一律填 null。\n\n【顶部身份信息】\n- ID：调查对象编号（如 J971301）\n- childname：姓名（手写）\n- gender：性别栏填写的数字，1=男 2=女（按表格里写的数字原样填）\n- school：学校名称\n- grade：年级数字\n- class：班级数字\n\n【0/1 是否题的通用规则】所有\"是否…?\"字段：是=1，否=0，方框内写 0 或 1 就照填；空白填 null。\n\n【设备使用的层级结构 / 跳答逻辑】问卷分 4 个时段，每个时段下分若干设备：\n  st1_x：手机基本情况（开始年龄、是否拥有、号码、是否带到学校、是否看手机）\n  st2_x：电话手表基本情况（是否拥有、是否带到学校）\n  st3_1*：上学期间-工作日（周一~周五）\n  st3_2*：上学期间-休息日（周六、周日）\n  st4_1*：寒暑假-工作日\n  st4_2*：寒暑假-休息日\n每个时段内的设备字母：a=电视, b=电脑, c=手机, d=投影仪/显示器, f=电话手表（2026年新增）。\n\n【每种设备的填写规则】\n1) 设备主开关（如 st3_1a 电视、st3_1b 电脑、st3_1c 手机、st3_1d 投影仪、st3_1f 电话手表）：是否使用，是=1 否=0。\n2) 电视(a)和投影仪(d)：只有 频率(_1 或 a1/d1，单位 天/周或次/周) 和 时长(_2 或 a2/d2，单位 分钟)。\n3) 电脑(b)/手机(c)/电话手表(f)：是\"多选题用途\"结构——\n   - 用途勾选项（如 st3_1b1 休闲娱乐、st3_1b2 网上查资料在线学习、st3_1b3 玩游戏、st3_1c4 看小说、st3_1f2 刷视频刷社交媒体、st3_1f3 玩小游戏）：方框内打勾(√/✓/对号)=1，未勾=0。\n   - 每个用途后面跟两个数字：_1=频率(次/周，有时写\"次\"或\"天\")，_2=时长(分钟)。只有该用途被勾选时通常才有数字；没写就填 null。\n4) 电脑(b) 用途只有 3 项（休闲娱乐b1 / 在线学习b2 / 玩游戏b3），没有\"看小说\"。\n5) 手机(c) 用途有 4 项（休闲娱乐c1 / 在线学习c2 / 玩游戏c3 / 看小说c4）。\n6) 电话手表(f) 用途有 4 项（休闲娱乐f1 / 刷视频刷社交媒体f2 / 玩小游戏f3 / 看小说f4）。\n\n【手写数字辨认】仔细区分 0/6、1/7、2/Z 等；频率一般是 1~7 的小数字，时长一般是 10/20/30/60 等。\n【后半部分量表（phone/internet/addiction/sas/sds/PSQ/LQ/ff/fm）】这些是问卷后续页的量表题，多为每题圈选或填写一个数字（如 1~4，或 0/1）：逐题填该题被选中/填写的数字；本页看不到的字段一律填 null。【生长发育 grow / girl / boy】带 _y 的填年龄(岁)或年份、带 _m 的填月份；girlN/boyN 主项是否发生填 1=是 0=否。【采集信息】collectform=采集方式、collectdata=采集日期、keyboarder=录入人，按页面信息填。\n【重要】只输出 JSON，键名必须与字段定义里的英文 key 完全一致，一个都不能改名或漏掉。识别不到就填 null，绝不要编造数字。",
   fields: [
     { id:'sid1', key:'ID', label:"调查对象编号", type:'text', hint:"如 J971301" },
+    { id:"no", key:"no", label:"序号/编号(no)", type:"text" },
     { id:'sid2', key:'childname', label:"姓名", type:'text', hint:"手写姓名" },
     { id:'sid3', key:'gender', label:"性别", type:'select', options:["1", "2"], hint:"1=男 2=女（按表填写的数字）" },
     { id:'sid4', key:'school', label:"学校", type:'text' },
@@ -2257,7 +2270,258 @@ const PRESET_TEMPLATES = [{
     { id:'st172', key:'st4_2f3_2', label:"寒暑假期间休息日平均每次使用电话手表玩小游戏的时长_分钟", type:'number', hint:"分钟" },
     { id:'st173', key:'st4_2f4', label:"寒暑假期间休息日电话手表的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
     { id:'st174', key:'st4_2f4_1', label:"寒暑假期间休息日使用电话手表看小说的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st175', key:'st4_2f4_2', label:"寒暑假期间休息日平均每次使用电话手表看小说的时长_分钟", type:'number', hint:"分钟" }
+    { id:'st175', key:'st4_2f4_2', label:"寒暑假期间休息日平均每次使用电话手表看小说的时长_分钟", type:'number', hint:"分钟" },
+    { id:"phone1", key:"phone1", label:"手机使用 第1题", type:"number", hint:"按题目选项填数字" },
+    { id:"phone2", key:"phone2", label:"手机使用 第2题", type:"number", hint:"按题目选项填数字" },
+    { id:"phone3", key:"phone3", label:"手机使用 第3题", type:"number", hint:"按题目选项填数字" },
+    { id:"phone4", key:"phone4", label:"手机使用 第4题", type:"number", hint:"按题目选项填数字" },
+    { id:"phone5", key:"phone5", label:"手机使用 第5题", type:"number", hint:"按题目选项填数字" },
+    { id:"phone6", key:"phone6", label:"手机使用 第6题", type:"number", hint:"按题目选项填数字" },
+    { id:"phone7", key:"phone7", label:"手机使用 第7题", type:"number", hint:"按题目选项填数字" },
+    { id:"phone8", key:"phone8", label:"手机使用 第8题", type:"number", hint:"按题目选项填数字" },
+    { id:"phone9", key:"phone9", label:"手机使用 第9题", type:"number", hint:"按题目选项填数字" },
+    { id:"phone10", key:"phone10", label:"手机使用 第10题", type:"number", hint:"按题目选项填数字" },
+    { id:"phone11", key:"phone11", label:"手机使用 第11题", type:"number", hint:"按题目选项填数字" },
+    { id:"phone12", key:"phone12", label:"手机使用 第12题", type:"number", hint:"按题目选项填数字" },
+    { id:"phone13", key:"phone13", label:"手机使用 第13题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet1", key:"internet1", label:"网络使用 第1题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet2", key:"internet2", label:"网络使用 第2题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet3", key:"internet3", label:"网络使用 第3题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet4", key:"internet4", label:"网络使用 第4题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet5", key:"internet5", label:"网络使用 第5题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet6", key:"internet6", label:"网络使用 第6题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet7", key:"internet7", label:"网络使用 第7题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet8", key:"internet8", label:"网络使用 第8题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet9", key:"internet9", label:"网络使用 第9题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet10", key:"internet10", label:"网络使用 第10题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet11", key:"internet11", label:"网络使用 第11题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet12", key:"internet12", label:"网络使用 第12题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet13", key:"internet13", label:"网络使用 第13题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet14", key:"internet14", label:"网络使用 第14题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet15", key:"internet15", label:"网络使用 第15题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet16", key:"internet16", label:"网络使用 第16题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet17", key:"internet17", label:"网络使用 第17题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet18", key:"internet18", label:"网络使用 第18题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet19", key:"internet19", label:"网络使用 第19题", type:"number", hint:"按题目选项填数字" },
+    { id:"internet20", key:"internet20", label:"网络使用 第20题", type:"number", hint:"按题目选项填数字" },
+    { id:"addiction1", key:"addiction1", label:"成瘾倾向 第1题", type:"number", hint:"按题目选项填数字" },
+    { id:"addiction2", key:"addiction2", label:"成瘾倾向 第2题", type:"number", hint:"按题目选项填数字" },
+    { id:"addiction3", key:"addiction3", label:"成瘾倾向 第3题", type:"number", hint:"按题目选项填数字" },
+    { id:"addiction4", key:"addiction4", label:"成瘾倾向 第4题", type:"number", hint:"按题目选项填数字" },
+    { id:"addiction5", key:"addiction5", label:"成瘾倾向 第5题", type:"number", hint:"按题目选项填数字" },
+    { id:"addiction6", key:"addiction6", label:"成瘾倾向 第6题", type:"number", hint:"按题目选项填数字" },
+    { id:"addiction7", key:"addiction7", label:"成瘾倾向 第7题", type:"number", hint:"按题目选项填数字" },
+    { id:"addiction8", key:"addiction8", label:"成瘾倾向 第8题", type:"number", hint:"按题目选项填数字" },
+    { id:"sas1", key:"sas1", label:"焦虑自评量表SAS 第1题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas2", key:"sas2", label:"焦虑自评量表SAS 第2题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas3", key:"sas3", label:"焦虑自评量表SAS 第3题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas4", key:"sas4", label:"焦虑自评量表SAS 第4题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas5", key:"sas5", label:"焦虑自评量表SAS 第5题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas6", key:"sas6", label:"焦虑自评量表SAS 第6题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas7", key:"sas7", label:"焦虑自评量表SAS 第7题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas8", key:"sas8", label:"焦虑自评量表SAS 第8题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas9", key:"sas9", label:"焦虑自评量表SAS 第9题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas10", key:"sas10", label:"焦虑自评量表SAS 第10题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas11", key:"sas11", label:"焦虑自评量表SAS 第11题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas12", key:"sas12", label:"焦虑自评量表SAS 第12题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas13", key:"sas13", label:"焦虑自评量表SAS 第13题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas14", key:"sas14", label:"焦虑自评量表SAS 第14题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas15", key:"sas15", label:"焦虑自评量表SAS 第15题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas16", key:"sas16", label:"焦虑自评量表SAS 第16题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas17", key:"sas17", label:"焦虑自评量表SAS 第17题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas18", key:"sas18", label:"焦虑自评量表SAS 第18题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas19", key:"sas19", label:"焦虑自评量表SAS 第19题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sas20", key:"sas20", label:"焦虑自评量表SAS 第20题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds1", key:"sds1", label:"抑郁自评量表SDS 第1题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds2", key:"sds2", label:"抑郁自评量表SDS 第2题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds3", key:"sds3", label:"抑郁自评量表SDS 第3题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds4", key:"sds4", label:"抑郁自评量表SDS 第4题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds5", key:"sds5", label:"抑郁自评量表SDS 第5题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds6", key:"sds6", label:"抑郁自评量表SDS 第6题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds7", key:"sds7", label:"抑郁自评量表SDS 第7题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds8", key:"sds8", label:"抑郁自评量表SDS 第8题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds9", key:"sds9", label:"抑郁自评量表SDS 第9题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds10", key:"sds10", label:"抑郁自评量表SDS 第10题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds11", key:"sds11", label:"抑郁自评量表SDS 第11题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds12", key:"sds12", label:"抑郁自评量表SDS 第12题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds13", key:"sds13", label:"抑郁自评量表SDS 第13题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds14", key:"sds14", label:"抑郁自评量表SDS 第14题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds15", key:"sds15", label:"抑郁自评量表SDS 第15题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds16", key:"sds16", label:"抑郁自评量表SDS 第16题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds17", key:"sds17", label:"抑郁自评量表SDS 第17题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds18", key:"sds18", label:"抑郁自评量表SDS 第18题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds19", key:"sds19", label:"抑郁自评量表SDS 第19题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"sds20", key:"sds20", label:"抑郁自评量表SDS 第20题", type:"number", hint:"每题圈选的数字(常见1-4)" },
+    { id:"PSQ1", key:"PSQ1", label:"匹兹堡睡眠质量PSQI 第1题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ2", key:"PSQ2", label:"匹兹堡睡眠质量PSQI 第2题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ3", key:"PSQ3", label:"匹兹堡睡眠质量PSQI 第3题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ4", key:"PSQ4", label:"匹兹堡睡眠质量PSQI 第4题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ5", key:"PSQ5", label:"匹兹堡睡眠质量PSQI 第5题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ6", key:"PSQ6", label:"匹兹堡睡眠质量PSQI 第6题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ7", key:"PSQ7", label:"匹兹堡睡眠质量PSQI 第7题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ8", key:"PSQ8", label:"匹兹堡睡眠质量PSQI 第8题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ9", key:"PSQ9", label:"匹兹堡睡眠质量PSQI 第9题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ10", key:"PSQ10", label:"匹兹堡睡眠质量PSQI 第10题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ11", key:"PSQ11", label:"匹兹堡睡眠质量PSQI 第11题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ12", key:"PSQ12", label:"匹兹堡睡眠质量PSQI 第12题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ13", key:"PSQ13", label:"匹兹堡睡眠质量PSQI 第13题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ14", key:"PSQ14", label:"匹兹堡睡眠质量PSQI 第14题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ15", key:"PSQ15", label:"匹兹堡睡眠质量PSQI 第15题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ16", key:"PSQ16", label:"匹兹堡睡眠质量PSQI 第16题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ17", key:"PSQ17", label:"匹兹堡睡眠质量PSQI 第17题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ18", key:"PSQ18", label:"匹兹堡睡眠质量PSQI 第18题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ19", key:"PSQ19", label:"匹兹堡睡眠质量PSQI 第19题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ20", key:"PSQ20", label:"匹兹堡睡眠质量PSQI 第20题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ21", key:"PSQ21", label:"匹兹堡睡眠质量PSQI 第21题", type:"number", hint:"每题选填的数字" },
+    { id:"PSQ22", key:"PSQ22", label:"匹兹堡睡眠质量PSQI 第22题", type:"number", hint:"每题选填的数字" },
+    { id:"LQ1", key:"LQ1", label:"LQ量表 第1题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ2", key:"LQ2", label:"LQ量表 第2题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ3", key:"LQ3", label:"LQ量表 第3题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ4", key:"LQ4", label:"LQ量表 第4题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ5", key:"LQ5", label:"LQ量表 第5题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ6", key:"LQ6", label:"LQ量表 第6题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ7", key:"LQ7", label:"LQ量表 第7题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ8", key:"LQ8", label:"LQ量表 第8题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ9", key:"LQ9", label:"LQ量表 第9题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ10", key:"LQ10", label:"LQ量表 第10题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ11", key:"LQ11", label:"LQ量表 第11题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ12", key:"LQ12", label:"LQ量表 第12题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ13", key:"LQ13", label:"LQ量表 第13题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ14", key:"LQ14", label:"LQ量表 第14题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ15", key:"LQ15", label:"LQ量表 第15题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ16", key:"LQ16", label:"LQ量表 第16题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ17", key:"LQ17", label:"LQ量表 第17题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ18", key:"LQ18", label:"LQ量表 第18题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ19", key:"LQ19", label:"LQ量表 第19题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ20", key:"LQ20", label:"LQ量表 第20题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ21", key:"LQ21", label:"LQ量表 第21题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ22", key:"LQ22", label:"LQ量表 第22题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ23", key:"LQ23", label:"LQ量表 第23题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ24", key:"LQ24", label:"LQ量表 第24题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ25", key:"LQ25", label:"LQ量表 第25题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ26", key:"LQ26", label:"LQ量表 第26题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ27", key:"LQ27", label:"LQ量表 第27题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ28", key:"LQ28", label:"LQ量表 第28题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ29", key:"LQ29", label:"LQ量表 第29题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ30", key:"LQ30", label:"LQ量表 第30题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ31", key:"LQ31", label:"LQ量表 第31题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ32", key:"LQ32", label:"LQ量表 第32题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ33", key:"LQ33", label:"LQ量表 第33题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ34", key:"LQ34", label:"LQ量表 第34题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ35", key:"LQ35", label:"LQ量表 第35题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ36", key:"LQ36", label:"LQ量表 第36题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ37", key:"LQ37", label:"LQ量表 第37题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ38", key:"LQ38", label:"LQ量表 第38题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ39", key:"LQ39", label:"LQ量表 第39题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ40", key:"LQ40", label:"LQ量表 第40题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ41", key:"LQ41", label:"LQ量表 第41题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ42", key:"LQ42", label:"LQ量表 第42题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ43", key:"LQ43", label:"LQ量表 第43题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ44", key:"LQ44", label:"LQ量表 第44题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ45", key:"LQ45", label:"LQ量表 第45题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ46", key:"LQ46", label:"LQ量表 第46题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ47", key:"LQ47", label:"LQ量表 第47题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ48", key:"LQ48", label:"LQ量表 第48题", type:"number", hint:"每题圈选的数字" },
+    { id:"LQ49", key:"LQ49", label:"LQ量表 第49题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff1", key:"ff1", label:"家庭/父亲量表ff 第1题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff2", key:"ff2", label:"家庭/父亲量表ff 第2题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff3", key:"ff3", label:"家庭/父亲量表ff 第3题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff4", key:"ff4", label:"家庭/父亲量表ff 第4题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff5", key:"ff5", label:"家庭/父亲量表ff 第5题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff6", key:"ff6", label:"家庭/父亲量表ff 第6题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff7", key:"ff7", label:"家庭/父亲量表ff 第7题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff8", key:"ff8", label:"家庭/父亲量表ff 第8题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff9", key:"ff9", label:"家庭/父亲量表ff 第9题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff10", key:"ff10", label:"家庭/父亲量表ff 第10题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff11", key:"ff11", label:"家庭/父亲量表ff 第11题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff12", key:"ff12", label:"家庭/父亲量表ff 第12题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff13", key:"ff13", label:"家庭/父亲量表ff 第13题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff14", key:"ff14", label:"家庭/父亲量表ff 第14题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff15", key:"ff15", label:"家庭/父亲量表ff 第15题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff16", key:"ff16", label:"家庭/父亲量表ff 第16题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff17", key:"ff17", label:"家庭/父亲量表ff 第17题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff18", key:"ff18", label:"家庭/父亲量表ff 第18题", type:"number", hint:"每题圈选的数字" },
+    { id:"ff19", key:"ff19", label:"家庭/父亲量表ff 第19题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm1", key:"fm1", label:"家庭/母亲量表fm 第1题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm2", key:"fm2", label:"家庭/母亲量表fm 第2题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm3", key:"fm3", label:"家庭/母亲量表fm 第3题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm4", key:"fm4", label:"家庭/母亲量表fm 第4题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm5", key:"fm5", label:"家庭/母亲量表fm 第5题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm6", key:"fm6", label:"家庭/母亲量表fm 第6题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm7", key:"fm7", label:"家庭/母亲量表fm 第7题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm8", key:"fm8", label:"家庭/母亲量表fm 第8题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm9", key:"fm9", label:"家庭/母亲量表fm 第9题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm10", key:"fm10", label:"家庭/母亲量表fm 第10题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm11", key:"fm11", label:"家庭/母亲量表fm 第11题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm12", key:"fm12", label:"家庭/母亲量表fm 第12题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm13", key:"fm13", label:"家庭/母亲量表fm 第13题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm14", key:"fm14", label:"家庭/母亲量表fm 第14题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm15", key:"fm15", label:"家庭/母亲量表fm 第15题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm16", key:"fm16", label:"家庭/母亲量表fm 第16题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm17", key:"fm17", label:"家庭/母亲量表fm 第17题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm18", key:"fm18", label:"家庭/母亲量表fm 第18题", type:"number", hint:"每题圈选的数字" },
+    { id:"fm19", key:"fm19", label:"家庭/母亲量表fm 第19题", type:"number", hint:"每题圈选的数字" },
+    { id:"grow1", key:"grow1", label:"生长发育 grow1", type:"number" },
+    { id:"grow1_t", key:"grow1_t", label:"生长发育 grow1_t", type:"text" },
+    { id:"grow1_r", key:"grow1_r", label:"生长发育 grow1_r", type:"text" },
+    { id:"grow2", key:"grow2", label:"生长发育 grow2", type:"number" },
+    { id:"grow3", key:"grow3", label:"生长发育 grow3", type:"number" },
+    { id:"grow3_yb", key:"grow3_yb", label:"grow3 起始年", type:"number" },
+    { id:"grow3_mb", key:"grow3_mb", label:"grow3 起始月", type:"number" },
+    { id:"grow3_ya", key:"grow3_ya", label:"grow3 结束年", type:"number" },
+    { id:"grow3_ma", key:"grow3_ma", label:"grow3 结束月", type:"number" },
+    { id:"grow4", key:"grow4", label:"生长发育 grow4", type:"number" },
+    { id:"girl1", key:"girl1", label:"女生发育 第1项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"girl1_y", key:"girl1_y", label:"女生发育 第1项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"girl1_m", key:"girl1_m", label:"女生发育 第1项-月份", type:"number", hint:"月" },
+    { id:"girl2", key:"girl2", label:"女生发育 第2项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"girl2_y", key:"girl2_y", label:"女生发育 第2项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"girl2_m", key:"girl2_m", label:"女生发育 第2项-月份", type:"number", hint:"月" },
+    { id:"girl3", key:"girl3", label:"女生发育 第3项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"girl3_y", key:"girl3_y", label:"女生发育 第3项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"girl3_m", key:"girl3_m", label:"女生发育 第3项-月份", type:"number", hint:"月" },
+    { id:"girl4", key:"girl4", label:"女生发育 第4项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"girl4_y", key:"girl4_y", label:"女生发育 第4项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"girl4_m", key:"girl4_m", label:"女生发育 第4项-月份", type:"number", hint:"月" },
+    { id:"girl5", key:"girl5", label:"女生发育 第5项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"girl5_y", key:"girl5_y", label:"女生发育 第5项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"girl5_m", key:"girl5_m", label:"女生发育 第5项-月份", type:"number", hint:"月" },
+    { id:"girl6", key:"girl6", label:"女生发育 第6项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"girl6_y", key:"girl6_y", label:"女生发育 第6项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"girl6_m", key:"girl6_m", label:"女生发育 第6项-月份", type:"number", hint:"月" },
+    { id:"boy1", key:"boy1", label:"男生发育 第1项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"boy1_y", key:"boy1_y", label:"男生发育 第1项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"boy1_m", key:"boy1_m", label:"男生发育 第1项-月份", type:"number", hint:"月" },
+    { id:"boy2", key:"boy2", label:"男生发育 第2项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"boy2_y", key:"boy2_y", label:"男生发育 第2项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"boy2_m", key:"boy2_m", label:"男生发育 第2项-月份", type:"number", hint:"月" },
+    { id:"boy3", key:"boy3", label:"男生发育 第3项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"boy3_y", key:"boy3_y", label:"男生发育 第3项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"boy3_m", key:"boy3_m", label:"男生发育 第3项-月份", type:"number", hint:"月" },
+    { id:"boy4", key:"boy4", label:"男生发育 第4项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"boy4_y", key:"boy4_y", label:"男生发育 第4项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"boy4_m", key:"boy4_m", label:"男生发育 第4项-月份", type:"number", hint:"月" },
+    { id:"boy5", key:"boy5", label:"男生发育 第5项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"boy5_y", key:"boy5_y", label:"男生发育 第5项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"boy5_m", key:"boy5_m", label:"男生发育 第5项-月份", type:"number", hint:"月" },
+    { id:"boy6", key:"boy6", label:"男生发育 第6项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"boy6_y", key:"boy6_y", label:"男生发育 第6项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"boy6_m", key:"boy6_m", label:"男生发育 第6项-月份", type:"number", hint:"月" },
+    { id:"boy7", key:"boy7", label:"男生发育 第7项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"boy7_y", key:"boy7_y", label:"男生发育 第7项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"boy7_m", key:"boy7_m", label:"男生发育 第7项-月份", type:"number", hint:"月" },
+    { id:"boy8", key:"boy8", label:"男生发育 第8项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"boy8_y", key:"boy8_y", label:"男生发育 第8项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"boy8_m", key:"boy8_m", label:"男生发育 第8项-月份", type:"number", hint:"月" },
+    { id:"boy9", key:"boy9", label:"男生发育 第9项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"boy9_y", key:"boy9_y", label:"男生发育 第9项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"boy9_m", key:"boy9_m", label:"男生发育 第9项-月份", type:"number", hint:"月" },
+    { id:"boy10", key:"boy10", label:"男生发育 第10项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
+    { id:"boy10_y", key:"boy10_y", label:"男生发育 第10项-年龄(岁)", type:"number", hint:"岁" },
+    { id:"boy10_m", key:"boy10_m", label:"男生发育 第10项-月份", type:"number", hint:"月" },
+    { id:"collectform", key:"collectform", label:"采集方式", type:"text" },
+    { id:"collectdata", key:"collectdata", label:"采集日期", type:"text" },
+    { id:"keyboarder", key:"keyboarder", label:"录入人", type:"text" }
   ]
 }];
 
@@ -5291,9 +5555,37 @@ function reviewableIds() {
     .filter(id => results.some(r => r._itemId === id));
 }
 
+/* 核对窗左右分隔条：拖动调整左右宽度，双击恢复默认。带去重，重复调用安全。 */
+function setupRvSplitter(){
+  const sp=document.getElementById('rvSplitter');
+  if(!sp||sp._bound) return;
+  sp._bound=true;
+  const body=sp.parentElement;            // .review-body
+  const left=document.getElementById('rvLeft');
+  if(!body||!left) return;
+  let dragging=false;
+  const move=(e)=>{
+    if(!dragging) return;
+    const r=body.getBoundingClientRect();
+    const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    const w=Math.max(240, Math.min(r.width-300, cx));   // 左侧最小240、给右侧至少留300
+    left.style.flex='0 0 '+w+'px';
+    if(e.cancelable) e.preventDefault();
+  };
+  const stop=()=>{ if(!dragging)return; dragging=false; sp.classList.remove('dragging'); document.body.style.userSelect=''; };
+  sp.addEventListener('mousedown',e=>{dragging=true;sp.classList.add('dragging');document.body.style.userSelect='none';e.preventDefault();});
+  sp.addEventListener('touchstart',()=>{dragging=true;sp.classList.add('dragging');},{passive:true});
+  window.addEventListener('mousemove',move);
+  window.addEventListener('touchmove',move,{passive:false});
+  window.addEventListener('mouseup',stop);
+  window.addEventListener('touchend',stop);
+  sp.addEventListener('dblclick',()=>{left.style.flex='';});   // 双击恢复默认比例
+}
+
 function openReview(itemId) {
   console.log('[核对] 点击已触发 → openReview，itemId =', itemId,
               '｜当前结果条数 =', (typeof results !== 'undefined' && results ? results.length : '(results 未初始化!)'));
+  setupRvSplitter();
   try {
   const r = results.find(x => x._itemId === itemId);
   if (!r) {
