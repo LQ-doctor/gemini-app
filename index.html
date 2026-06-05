@@ -1509,7 +1509,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
     placeholder: 'xxxxxxxx.xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 4096, imageFirst: true,
+    rateLimit: 3000, maxTokens: 8192, imageFirst: true,
     extraBody: { thinking: { type: 'disabled' } },
     guide: `<strong>🤖 智谱 GLM-4.6V-Flash · 完全免费旗舰</strong>
 注册：<a href="https://bigmodel.cn" target="_blank">bigmodel.cn</a> → 「API密钥」→ 新建<br>
@@ -1529,7 +1529,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://apihub.agnes-ai.com/v1/chat/completions',
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 4000, maxTokens: 4096, imageFirst: false,
+    rateLimit: 4000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🟣 Agnes AI · 2.0 Flash（全模态 · 免费）</strong>
 新加坡 Agnes AI，2026/6 起<strong>无限期免费</strong>开放 API。OpenAI 兼容、国内可直连、已开放跨域（浏览器可直接调，无需代理）。<br>
 注册：<a href="https://platform.agnes-ai.com" target="_blank">platform.agnes-ai.com</a> → 登录 → 创建 API Key（<code>sk-</code> 开头）<br>
@@ -1554,7 +1554,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://generativelanguage.googleapis.com/v1beta/models',
     placeholder: 'AIzaSy…',
-    rateLimit: 7000, maxTokens: 4096,
+    rateLimit: 7000, maxTokens: 8192,
     guide: `<strong>✨ Google Gemini</strong>
 注册：<a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> → Google 账号登录 → 「Get API Key」<br>
 ⚠️ <strong>API 域名 generativelanguage.googleapis.com 对中国大陆 IP 严格封禁（403）</strong>，AI Studio 网页能用 ≠ API 能用。<br>
@@ -1571,7 +1571,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://api.groq.com/openai/v1/chat/completions',
     placeholder: 'gsk_xxxxxxxxxxxxxxxx',
-    rateLimit: 6000, maxTokens: 4096, imageFirst: false,
+    rateLimit: 6000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>⚡ Groq · 全球最快推理（免费）</strong>
 注册：<a href="https://console.groq.com" target="_blank">console.groq.com</a> → Google/GitHub 登录 → API Keys → 创建<br>
 <strong>视觉模型</strong>：Groq 目前<strong>仅 <code>llama-4-scout</code> 支持视觉</strong>（Maverick 已于 2026/02 下架，GPT-OSS 等文本模型不能识别图片）。<br>
@@ -1600,7 +1600,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://models.github.ai/inference/chat/completions',
     placeholder: 'github_pat_xxxxxxxx',
-    rateLimit: 8000, maxTokens: 4096, imageFirst: false,
+    rateLimit: 8000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🐙 GitHub Models · 免费 GPT-4o 视觉</strong>
 前往：<a href="https://github.com/marketplace/models" target="_blank">github.com/marketplace/models</a><br>
 使用 GitHub Personal Access Token（PAT）认证 → Settings → Developer settings → Personal access tokens → Generate<br>
@@ -1635,7 +1635,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://integrate.api.nvidia.com/v1/chat/completions',
     placeholder: 'nvapi-xxxxxxxxxxxxxxxx',
-    rateLimit: 4000, maxTokens: 4096, imageFirst: false,
+    rateLimit: 4000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🟢 NVIDIA NIM · 100+ 免费模型</strong>
 注册：<a href="https://build.nvidia.com" target="_blank">build.nvidia.com</a> → 邮箱注册（NVIDIA Developer Program）→ 右上角头像 → 「API Keys」→ Generate（<code>nvapi-</code> 开头）<br>
 <strong>免费额度</strong>：注册赠 1000 credits（可申请到 5000）· 限速 40 RPM · 无需信用卡<br>
@@ -1669,7 +1669,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://openrouter.ai/api/v1/chat/completions',
     placeholder: 'sk-or-v1-xxxxxxxxxxxxx',
-    rateLimit: 4000, maxTokens: 4096, imageFirst: false,
+    rateLimit: 4000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🌐 OpenRouter · 国内可直连（推荐）</strong>
 注册：<a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a> → Google/GitHub 登录 → 创建 Key<br>
 走 Cloudflare 网络，<strong>无需翻墙</strong>。免费 <code>:free</code> 模型限 20次/分 · 200次/天。<br>
@@ -1697,7 +1697,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://api.siliconflow.cn/v1/chat/completions',
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 4096, imageFirst: false,
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🔮 硅基流动 SiliconCloud · 完全免费</strong>
 注册：<a href="https://cloud.siliconflow.cn" target="_blank">cloud.siliconflow.cn</a> → 注册 → 「API 密钥」→ 创建<br>
 推荐 <strong>Qwen3-VL-30B</strong>（最新免费视觉模型），<strong>国内直连、速度快</strong>。<br>
@@ -3521,7 +3521,7 @@ function saveCustom() {
     endpoint,
     apiType: provApiType,
     placeholder: 'sk-...',
-    rateLimit: 4000, maxTokens: 4096,
+    rateLimit: 4000, maxTokens: 8192,
     imageFirst,
     extraBody: disableThinking ? { thinking: { type: 'disabled' } } : undefined,
     guide: `<strong>${emojiMap[provApiType] || '🔧'} ${esc(name)}</strong><br>
@@ -4925,33 +4925,48 @@ function makeDataExtractionPrompt(template) {
     lines.push(line);
   });
 
-  // Build expected JSON shape
-  const shape = {};
-  template.fields.forEach(f => {
-    if (f.type === 'table' && f.columns?.length && f.rows?.length) {
-      shape[f.key] = f.rows.map(r => {
-        const row = {};
-        f.columns.forEach(c => row[c.key] = '值或null');
-        return row;
-      });
-    } else {
-      shape[f.key] = '值或null';
-    }
-  });
+  const hasTable = template.fields.some(f => f.type === 'table' && f.columns?.length && f.rows?.length);
 
-  return `你是数据提取助手。请仔细识别这张已填写的「${template.name}」表单，提取所有数据。
+  return `你是数据提取助手。请仔细识别这张已填写的「${template.name}」表单图片，提取其中的数据。
 
-字段定义：
+字段定义（英文key｜中文标签｜类型）：
 ${lines.join('\n')}
 ${template.extractHint ? '\n特殊识别说明：\n' + template.extractHint + '\n' : ''}
-只输出 JSON（不要 Markdown 标记或任何其他内容），格式如下：
-${JSON.stringify(shape, null, 2)}
+输出要求（务必遵守，否则会因输出过长被截断而整页失败）：
+1. 只输出一个 JSON 对象，不要任何 Markdown 代码块标记，不要解释文字。
+2. 键名必须与上面的英文 key 完全一致，不要改名。
+3. 【最重要】只输出你在这张图片上确实能看到、已填写的字段；本图上没有、看不到、空白或无法识别的字段，请直接不要输出该键——既不要用 null 占位，也不要把全部字段罗列出来。这样能大幅缩短输出、避免被截断。
+4. 用紧凑 JSON：不换行、不缩进、不加多余空格。
+5. 数值一律以字符串返回。示例：{"ID":"G140323","childname":"罗智兰","gender":"1","st1_1":"10","st1_2":"1"}${hasTable ? '\n6. 表格字段按行顺序返回数组，每行为一个对象、含所有列。' : ''}`;
+}
 
-要求：
-- 仔细辨认手写数字（区分 0/6, 1/7 等）
-- 数值以字符串返回
-- 无法识别的字段填 null
-- 表格必须按行顺序返回数组，每行包含所有列`;
+/* 稳健解析模型返回的 JSON：去掉 Markdown 代码块围栏 → 整体解析 → 失败则逐对抢救
+   （即便输出被截断、缺右括号，也能把已经返回的字段救回来，不至于整页作废） */
+function parseModelJSON(text){
+  if(!text) return null;
+  let s = String(text).replace(/```json/gi,'').replace(/```/g,'').trim();
+  const first = s.indexOf('{');
+  if(first < 0) return null;
+  // 1) 优先整体解析：第一个 { 到最后一个 }
+  const last = s.lastIndexOf('}');
+  if(last > first){
+    try { return JSON.parse(s.slice(first, last+1)); } catch(e){ /* 落到抢救 */ }
+  }
+  // 2) 抢救：逐个提取完整的 "key": value 对（截断时也能拿到前面已返回的数据）
+  const body = s.slice(first);
+  const re = /"([^"\\]+)"\s*:\s*(null|true|false|-?\d+(?:\.\d+)?|"(?:[^"\\]|\\.)*"|\[[\s\S]*?\])/g;
+  const obj = {}; let mm, n = 0;
+  while((mm = re.exec(body))){
+    let v = mm[2];
+    if(v === 'null') v = null;
+    else if(v === 'true') v = true;
+    else if(v === 'false') v = false;
+    else if(v[0] === '"'){ try{ v = JSON.parse(v); }catch(_){ v = v.slice(1,-1); } }
+    else if(v[0] === '['){ try{ v = JSON.parse(v); }catch(_){ continue; } }
+    else { const num = Number(v); v = isNaN(num) ? v : num; }
+    obj[mm[1]] = v; n++;
+  }
+  return n > 0 ? obj : null;
 }
 
 async function recognizeWithTemplate(file) {
@@ -4969,10 +4984,9 @@ async function recognizeWithTemplate(file) {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const text = await callAI(b64, mime, makeDataExtractionPrompt(activeTemplate));
-      const m = text.match(/\{[\s\S]*\}/);
-      if (!m) throw new Error('AI 未返回 JSON。原始：' + text.slice(0,200));
-      try { return JSON.parse(m[0]); }
-      catch(e) { throw new Error('JSON 解析错误：' + e.message + '\n返回：' + m[0].slice(0,200)); }
+      const parsed = parseModelJSON(text);
+      if (!parsed || typeof parsed !== 'object') throw new Error('AI 未返回可解析的 JSON。原始：' + (text||'').slice(0,200));
+      return parsed;
     } catch(err) {
       lastErr = err;
       const isRate = /429|rate|频率|超限|too many|quota/i.test(err.message);
@@ -5130,7 +5144,7 @@ async function callGemini(provider, key, b64, mime, prompt) {
         }],
         generationConfig: {
           temperature: 0.1,
-          maxOutputTokens: provider.maxTokens || 4096,
+          maxOutputTokens: provider.maxTokens || 8192,
           // For 2.5 Flash family, response_mime_type forces JSON output
           responseMimeType: 'application/json'
         }
@@ -5178,7 +5192,7 @@ async function callAnthropicCompat(provider, key, b64, mime, prompt) {
 
   const body = {
     model: useModel,
-    max_tokens: provider.maxTokens || 4096,
+    max_tokens: provider.maxTokens || 8192,
     messages: [{ role: 'user', content }]
   };
 
