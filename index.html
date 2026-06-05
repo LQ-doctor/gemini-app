@@ -692,37 +692,38 @@ input[type=file]{display:none}
   background:var(--glass-strong);
 }
 .rv-fill{font-size:11px;color:var(--g4);font-weight:600}
-.rv-fields{flex:1;overflow-y:auto;padding:10px 12px 30px}
+.rv-fields{flex:1;overflow-y:auto;padding:2px 6px 30px;font-variant-numeric:tabular-nums}
 .rv-frow{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:7px 8px;border-radius:10px;
-  transition:background .12s;
+  display:flex;align-items:center;gap:8px;
+  padding:1px 6px;min-height:28px;
+  transition:background .1s;
 }
-.rv-frow:hover{background:rgba(0,122,255,.04)}
+.rv-frow:hover{background:rgba(0,122,255,.06)}
 .rv-frow+.rv-frow{border-top:1px solid var(--hairline)}
 .rv-flabel{
-  flex:0 0 44%;font-size:12px;color:var(--g2);line-height:1.4;
-  padding-top:7px;word-break:break-word;font-weight:500;
+  flex:1;min-width:0;font-size:11px;color:var(--g2);line-height:1.25;
+  word-break:break-word;font-weight:500;
 }
-.rv-flabel .rv-fkey{display:block;font-size:9px;color:var(--g5);font-family:'SF Mono',monospace;margin-top:1px}
+.rv-flabel .rv-fkey{font-size:8.5px;color:var(--g5);font-family:'SF Mono',monospace;margin-left:5px;font-weight:400;white-space:nowrap}
 .rv-finput{
-  flex:1;min-width:0;height:34px;padding:0 10px;
-  border:1.5px solid var(--g6);border-radius:9px;
-  font-size:13px;color:var(--g1);background:#fff;
+  flex:0 0 132px;width:132px;height:26px;padding:0 8px;
+  border:1px solid var(--g6);border-radius:6px;
+  font-size:12px;color:var(--g1);background:#fff;
   transition:border-color .15s,box-shadow .15s;font-family:inherit;
 }
-.rv-finput:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,122,255,.12)}
-.rv-finput.rv-num{font-family:'SF Mono',monospace}
-.rv-finput.rv-empty{background:rgba(255,204,0,.08);border-color:rgba(255,204,0,.4)}
+.rv-finput:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(0,122,255,.14)}
+.rv-finput.rv-num{flex:0 0 58px;width:58px;text-align:center;font-family:'SF Mono',monospace;font-size:13px}
+.rv-finput.rv-empty{background:rgba(255,204,0,.10);border-color:rgba(255,204,0,.5)}
 .rv-fselect{
-  flex:1;min-width:0;height:34px;padding:0 8px;
-  border:1.5px solid var(--g6);border-radius:9px;font-size:13px;background:#fff;font-family:inherit;
+  flex:0 0 70px;width:70px;height:26px;padding:0 4px;
+  border:1px solid var(--g6);border-radius:6px;font-size:12px;background:#fff;font-family:inherit;
 }
 .rv-fselect:focus{outline:none;border-color:var(--blue)}
 .rv-sec{
-  font-size:11px;font-weight:700;color:var(--blue);
-  padding:12px 8px 5px;letter-spacing:.2px;position:sticky;top:0;
-  background:var(--g9);z-index:1;
+  font-size:10.5px;font-weight:800;color:var(--g1);
+  padding:4px 9px;margin:6px 0 2px;letter-spacing:.2px;
+  position:sticky;top:0;z-index:1;
+  background:var(--g7);border-radius:6px;border-left:3px solid var(--blue);
 }
 .tc-id-link{cursor:pointer;color:var(--blue);font-weight:600;text-decoration:none}
 .tc-id-link:hover{text-decoration:underline}
@@ -4432,10 +4433,25 @@ function renderQ() {
   document.getElementById('retryAllBtn').style.display = e>0?'':'none';
 
   const g = document.getElementById('qGrid');
+  // 事件委托：只在固定父容器 #qGrid 上绑定一次。卡片是动态重绘的，
+  // 委托到不变的父节点最可靠，彻底避免「某张卡片没绑上、点了没反应」。
+  if (!g._reviewBound) {
+    g._reviewBound = true;
+    g.addEventListener('click', (ev) => {
+      if (ev.target.closest('.q-del')) return;          // 删除按钮不触发核对
+      const card = ev.target.closest('.q-card');
+      if (!card) return;
+      const it = queue.find(q => q.id === card.dataset.qid);
+      if (!it) return;
+      if (it.status === 'done') openReview(it.id);
+      else if (it.status === 'error') showItemError(it);
+    });
+  }
   g.innerHTML = '';
   queue.forEach(item => {
     const d2 = document.createElement('div');
     d2.className = 'q-card ' + (item.status!=='wait'?'s-'+item.status:'');
+    d2.dataset.qid = item.id;
     const dotCls = {wait:'dot-wait',processing:'dot-proc',done:'dot-done',error:'dot-err'}[item.status];
     const dotTxt = {wait:'…',processing:'◌',done:'✓',error:'!'}[item.status];
     const tag = item.isPdfPage
@@ -4447,21 +4463,9 @@ function renderQ() {
       ?`<div class="q-name q-name-err">⚠️ 点击查看错误</div>`
       :`<div class="q-name" title="${esc(item.displayName)}">${esc(item.displayName)}</div>`;
     d2.innerHTML = `<img class="q-img" src="${item.url}" loading="lazy">${delBtn}<div class="q-dot ${dotCls}">${dotTxt}</div>${tag}${nameHtml}`;
-    if (item.status==='error') {
-      d2.title = '点击查看错误详情：' + (item.err || '未知');
-      d2.addEventListener('click', (ev) => {
-        if (ev.target.closest('.q-del')) return;
-        ev.stopPropagation();
-        showItemError(item);
-      });
-    } else if (item.status==='done') {
+    if (item.status==='done' || item.status==='error') {
       d2.style.cursor = 'pointer';
-      d2.title = '点击左右对照核对';
-      d2.addEventListener('click', (ev) => {
-        if (ev.target.closest('.q-del')) return;
-        ev.stopPropagation();
-        openReview(item.id);
-      });
+      d2.title = item.status==='done' ? '点击左右对照核对' : ('点击查看错误详情：' + (item.err||'未知'));
     }
     g.appendChild(d2);
   });
@@ -5288,8 +5292,16 @@ function reviewableIds() {
 }
 
 function openReview(itemId) {
+  console.log('[核对] 点击已触发 → openReview，itemId =', itemId,
+              '｜当前结果条数 =', (typeof results !== 'undefined' && results ? results.length : '(results 未初始化!)'));
+  try {
   const r = results.find(x => x._itemId === itemId);
-  if (!r) { toast('找不到该记录'); return; }
+  if (!r) {
+    const _m = `找不到该记录（itemId=${itemId}，当前共 ${results.length} 条）。\n可能这条结果未成功写入。请重新识别一次再试。`;
+    console.warn('[核对]', _m);
+    alert('⚠️ ' + _m);
+    return;
+  }
   _reviewItemId = itemId;
   _reviewZoom = 1;
   // Find the queue item that produced this result (for page images).
@@ -5335,6 +5347,12 @@ function openReview(itemId) {
 
   document.getElementById('reviewModal').classList.add('on');
   document.body.style.overflow = 'hidden';
+  console.log('[核对] 核对窗已打开 ✅');
+  } catch (err) {
+    console.error('[核对] openReview 执行出错：', err);
+    alert('❌ 打开核对窗时出错：\n' + (err && err.message ? err.message : err) +
+          '\n\n（把这行错误截给开发者即可定位）');
+  }
 }
 
 function renderReviewFields(r) {
