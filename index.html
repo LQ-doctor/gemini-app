@@ -1506,6 +1506,26 @@ const PROVIDERS = {
 <div id="providerFetchResult_zhipu" style="margin-top:6px;font-size:11px"></div>
 <a href="https://docs.bigmodel.cn/cn/guide/models/free/glm-4.6v-flash" target="_blank">📖 官方文档</a>`
   },
+  agnes: {
+    name: 'Agnes AI', fullName: 'Agnes AI · 2.0 Flash',
+    emoji: '🟣', badges: ['完全免费','OpenAI兼容'],
+    model: 'agnes-2.0-flash',
+    fallbackModels: [],
+    altModels: [
+      { id: 'agnes-2.0-flash', tag: '✅', desc: '全模态 Flash · 免费 · 支持图片输入（OCR 准确率请自测）' }
+    ],
+    endpoint: 'https://apihub.agnes-ai.com/v1/chat/completions',
+    placeholder: 'sk-xxxxxxxxxxxxxxxx',
+    rateLimit: 4000, maxTokens: 4096, imageFirst: false,
+    guide: `<strong>🟣 Agnes AI · 2.0 Flash（全模态 · 免费）</strong>
+新加坡 Agnes AI，2026/6 起<strong>无限期免费</strong>开放 API。OpenAI 兼容、国内可直连、已开放跨域（浏览器可直接调，无需代理）。<br>
+注册：<a href="https://platform.agnes-ai.com" target="_blank">platform.agnes-ai.com</a> → 登录 → 创建 API Key（<code>sk-</code> 开头）<br>
+接口地址 <code>https://apihub.agnes-ai.com/v1</code> · 模型 <code>agnes-2.0-flash</code>。<br>
+⚠️ <strong>用于识别表单图片请先实测</strong>：Agnes 主打文本/Agent 与<strong>图片生成</strong>，<code>agnes-2.0-flash</code> 虽接受图片输入，但<strong>并非专门的 OCR 视觉模型</strong>。识别手写问卷的准确率，请先用「🧪 测试连接」+ 一张样表试一下；若不理想，建议仍用 GLM-4V / Qwen-VL / Gemini 等视觉模型。<br>
+<button onclick="fetchProviderModels('agnes')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
+<div id="providerFetchResult_agnes" style="margin-top:6px;font-size:11px"></div>
+<a href="https://agnes-ai.com/doc/" target="_blank">📖 官方文档</a>`
+  },
   /* 通义/豆包/混元/百度 4 个国内服务已移到「自定义供应商 → 快速预设」中。 */
   gemini: {
     name: 'Gemini', fullName: 'Google Gemini',
@@ -3568,6 +3588,7 @@ async function fetchProviderModels(provId) {
   const listEndpoints = {
     zhipu: null, // 智谱无公开 /models 接口
     siliconcloud: 'https://api.siliconflow.cn/v1/models',
+    agnes: 'https://apihub.agnes-ai.com/v1/models',
     groq: getListUrl('groq'),
     github: getListUrl('github'),
     nvidia: getListUrl('nvidia'),
