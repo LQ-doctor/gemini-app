@@ -608,7 +608,7 @@ input[type=file]{display:none}
 .review-bg.on{opacity:1;pointer-events:all}
 .review-shell{
   background:var(--g9);
-  width:100%;height:100%;max-width:1600px;max-height:100%;
+  width:100%;height:100%;max-width:100%;max-height:100%;
   display:flex;flex-direction:column;
   transform:scale(.97);opacity:.7;
   transition:transform .38s var(--spring),opacity .25s;
@@ -616,7 +616,7 @@ input[type=file]{display:none}
 }
 .review-bg.on .review-shell{transform:scale(1);opacity:1}
 @media(min-width:900px){
-  .review-shell{height:94vh;border-radius:20px;box-shadow:0 30px 80px rgba(15,23,42,.3)}
+  .review-shell{width:96vw;height:96vh;max-width:1700px;border-radius:20px;box-shadow:0 30px 80px rgba(15,23,42,.3)}
 }
 .review-head{
   display:flex;align-items:center;gap:10px;
@@ -648,22 +648,23 @@ input[type=file]{display:none}
 @media(max-width:768px){
   .review-body{flex-direction:column}
   .rv-nav .rv-navbtn{padding:0 8px}
+  .rv-resizer{display:none}
 }
 .rv-left{
-  flex:1;min-width:0;display:flex;flex-direction:column;
-  background:#3a3a3c;border-right:1px solid var(--hairline-2);
+  flex:0 0 var(--rv-split,56%);min-width:200px;display:flex;flex-direction:column;
+  background:#3a3a3c;
 }
-.rv-splitter{
+/* draggable divider between left (PDF) and right (fields) */
+.rv-resizer{
   flex:0 0 8px;cursor:col-resize;background:var(--hairline-2);
-  position:relative;transition:background .15s;z-index:2;
+  position:relative;transition:background .15s;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
 }
-.rv-splitter::before{
-  content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:2px;height:38px;background:var(--g5);border-radius:2px;opacity:.55;
+.rv-resizer:hover,.rv-resizer.dragging{background:var(--blue)}
+.rv-resizer::after{
+  content:'';width:2px;height:34px;border-radius:2px;background:rgba(255,255,255,.5);
 }
-.rv-splitter:hover,.rv-splitter.dragging{background:var(--blue)}
-.rv-splitter:hover::before,.rv-splitter.dragging::before{background:#fff;opacity:1;height:48px}
-@media(max-width:768px){.rv-splitter{display:none}}
+.rv-resizer:hover::after,.rv-resizer.dragging::after{background:#fff}
 .rv-left-toolbar{
   display:flex;align-items:center;justify-content:space-between;gap:8px;
   padding:8px 12px;background:rgba(0,0,0,.25);flex-shrink:0;
@@ -694,7 +695,7 @@ input[type=file]{display:none}
   display:block;transition:width .2s var(--ease-out);background:#fff;
 }
 .rv-right{
-  flex:1;min-width:0;display:flex;flex-direction:column;background:var(--g9);
+  flex:1 1 auto;min-width:200px;display:flex;flex-direction:column;background:var(--g9);
 }
 .rv-right-head{
   display:flex;align-items:center;justify-content:space-between;
@@ -703,38 +704,37 @@ input[type=file]{display:none}
   background:var(--glass-strong);
 }
 .rv-fill{font-size:11px;color:var(--g4);font-weight:600}
-.rv-fields{flex:1;overflow-y:auto;padding:2px 6px 30px;font-variant-numeric:tabular-nums}
+.rv-fields{flex:1;overflow-y:auto;padding:10px 12px 30px}
 .rv-frow{
-  display:flex;align-items:center;gap:8px;
-  padding:1px 6px;min-height:28px;
-  transition:background .1s;
+  display:flex;align-items:flex-start;gap:10px;
+  padding:7px 8px;border-radius:10px;
+  transition:background .12s;
 }
-.rv-frow:hover{background:rgba(0,122,255,.06)}
+.rv-frow:hover{background:rgba(0,122,255,.04)}
 .rv-frow+.rv-frow{border-top:1px solid var(--hairline)}
 .rv-flabel{
-  flex:1;min-width:0;font-size:11px;color:var(--g2);line-height:1.25;
-  word-break:break-word;font-weight:500;
+  flex:0 0 44%;font-size:12px;color:var(--g2);line-height:1.4;
+  padding-top:7px;word-break:break-word;font-weight:500;
 }
-.rv-flabel .rv-fkey{font-size:8.5px;color:var(--g5);font-family:'SF Mono',monospace;margin-left:5px;font-weight:400;white-space:nowrap}
+.rv-flabel .rv-fkey{display:block;font-size:9px;color:var(--g5);font-family:'SF Mono',monospace;margin-top:1px}
 .rv-finput{
-  flex:0 0 132px;width:132px;height:26px;padding:0 8px;
-  border:1px solid var(--g6);border-radius:6px;
-  font-size:12px;color:var(--g1);background:#fff;
+  flex:1;min-width:0;height:34px;padding:0 10px;
+  border:1.5px solid var(--g6);border-radius:9px;
+  font-size:13px;color:var(--g1);background:#fff;
   transition:border-color .15s,box-shadow .15s;font-family:inherit;
 }
-.rv-finput:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(0,122,255,.14)}
-.rv-finput.rv-num{flex:0 0 58px;width:58px;text-align:center;font-family:'SF Mono',monospace;font-size:13px}
-.rv-finput.rv-empty{background:rgba(255,204,0,.10);border-color:rgba(255,204,0,.5)}
+.rv-finput:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,122,255,.12)}
+.rv-finput.rv-num{font-family:'SF Mono',monospace}
+.rv-finput.rv-empty{background:rgba(255,204,0,.08);border-color:rgba(255,204,0,.4)}
 .rv-fselect{
-  flex:0 0 70px;width:70px;height:26px;padding:0 4px;
-  border:1px solid var(--g6);border-radius:6px;font-size:12px;background:#fff;font-family:inherit;
+  flex:1;min-width:0;height:34px;padding:0 8px;
+  border:1.5px solid var(--g6);border-radius:9px;font-size:13px;background:#fff;font-family:inherit;
 }
 .rv-fselect:focus{outline:none;border-color:var(--blue)}
 .rv-sec{
-  font-size:10.5px;font-weight:800;color:var(--g1);
-  padding:4px 9px;margin:6px 0 2px;letter-spacing:.2px;
-  position:sticky;top:0;z-index:1;
-  background:var(--g7);border-radius:6px;border-left:3px solid var(--blue);
+  font-size:11px;font-weight:700;color:var(--blue);
+  padding:12px 8px 5px;letter-spacing:.2px;position:sticky;top:0;
+  background:var(--g9);z-index:1;
 }
 .tc-id-link{cursor:pointer;color:var(--blue);font-weight:600;text-decoration:none}
 .tc-id-link:hover{text-decoration:underline}
@@ -1192,18 +1192,9 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
             <option value="10000">超慢 10 秒（最稳）</option>
           </select>
         </div>
-        <div class="set-item" style="grid-column:1/-1">
-          <div class="set-label">多页 PDF 识别方式</div>
-          <select class="set-select" id="multiPageMode">
-            <option value="auto" selected>智能：≤2 页拼接 · ≥3 页逐页合并（推荐）</option>
-            <option value="perpage">总是逐页识别 → 自动合并（最稳·防超时/限额）</option>
-            <option value="stitch">总是拼接整页 → 单次调用（最省额度）</option>
-          </select>
-        </div>
       </div>
       <div style="padding:0 14px 12px;font-size:11px;color:var(--g4);line-height:1.6">
-        💡 遇到 <strong>429 限速</strong>会自动等待重试（最多4次，6→12→24→48秒）。频繁 429 时建议改用「保守」或「超慢」模式。<br>
-        📄 <strong>多页 PDF</strong>：荧屏表等多页大表「拼接整页」易超时/限额。<strong>逐页识别</strong>会把每一页单独发给模型（图更小、字段更少、更快更稳），识别完<strong>自动合并成「一个人」一条记录</strong>导出——同一份 PDF 仍只占 1 行。代价是一份 N 页 PDF 会发 N 次请求，更费额度。
+        💡 遇到 <strong>429 限速</strong>会自动等待重试（最多4次，6→12→24→48秒）。频繁 429 时建议改用「保守」或「超慢」模式。
       </div>
     </div>
 
@@ -1475,7 +1466,7 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
         </div>
         <div class="rv-pages" id="rvPages"></div>
       </div>
-      <div class="rv-splitter" id="rvSplitter" title="拖动调整左右宽度，双击恢复默认"></div>
+      <div class="rv-resizer" id="rvResizer" title="拖动调整左右宽度"></div>
       <div class="rv-right" id="rvRight">
         <div class="rv-right-head">
           <span>识别字段（可直接修改）</span>
@@ -1509,7 +1500,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
     placeholder: 'xxxxxxxx.xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: true,
+    rateLimit: 3000, maxTokens: 4096, imageFirst: true,
     extraBody: { thinking: { type: 'disabled' } },
     guide: `<strong>🤖 智谱 GLM-4.6V-Flash · 完全免费旗舰</strong>
 注册：<a href="https://bigmodel.cn" target="_blank">bigmodel.cn</a> → 「API密钥」→ 新建<br>
@@ -1518,26 +1509,6 @@ const PROVIDERS = {
 <button onclick="fetchProviderModels('zhipu')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表</button>
 <div id="providerFetchResult_zhipu" style="margin-top:6px;font-size:11px"></div>
 <a href="https://docs.bigmodel.cn/cn/guide/models/free/glm-4.6v-flash" target="_blank">📖 官方文档</a>`
-  },
-  agnes: {
-    name: 'Agnes AI', fullName: 'Agnes AI · 2.0 Flash',
-    emoji: '🟣', badges: ['完全免费','OpenAI兼容'],
-    model: 'agnes-2.0-flash',
-    fallbackModels: [],
-    altModels: [
-      { id: 'agnes-2.0-flash', tag: '✅', desc: '全模态 Flash · 免费 · 支持图片输入（OCR 准确率请自测）' }
-    ],
-    endpoint: 'https://apihub.agnes-ai.com/v1/chat/completions',
-    placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 4000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🟣 Agnes AI · 2.0 Flash（全模态 · 免费）</strong>
-新加坡 Agnes AI，2026/6 起<strong>无限期免费</strong>开放 API。OpenAI 兼容、国内可直连、已开放跨域（浏览器可直接调，无需代理）。<br>
-注册：<a href="https://platform.agnes-ai.com" target="_blank">platform.agnes-ai.com</a> → 登录 → 创建 API Key（<code>sk-</code> 开头）<br>
-接口地址 <code>https://apihub.agnes-ai.com/v1</code> · 模型 <code>agnes-2.0-flash</code>。<br>
-⚠️ <strong>用于识别表单图片请先实测</strong>：Agnes 主打文本/Agent 与<strong>图片生成</strong>，<code>agnes-2.0-flash</code> 虽接受图片输入，但<strong>并非专门的 OCR 视觉模型</strong>。识别手写问卷的准确率，请先用「🧪 测试连接」+ 一张样表试一下；若不理想，建议仍用 GLM-4V / Qwen-VL / Gemini 等视觉模型。<br>
-<button onclick="fetchProviderModels('agnes')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
-<div id="providerFetchResult_agnes" style="margin-top:6px;font-size:11px"></div>
-<a href="https://agnes-ai.com/doc/" target="_blank">📖 官方文档</a>`
   },
   /* 通义/豆包/混元/百度 4 个国内服务已移到「自定义供应商 → 快速预设」中。 */
   gemini: {
@@ -1554,7 +1525,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://generativelanguage.googleapis.com/v1beta/models',
     placeholder: 'AIzaSy…',
-    rateLimit: 7000, maxTokens: 8192,
+    rateLimit: 7000, maxTokens: 4096,
     guide: `<strong>✨ Google Gemini</strong>
 注册：<a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> → Google 账号登录 → 「Get API Key」<br>
 ⚠️ <strong>API 域名 generativelanguage.googleapis.com 对中国大陆 IP 严格封禁（403）</strong>，AI Studio 网页能用 ≠ API 能用。<br>
@@ -1571,7 +1542,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://api.groq.com/openai/v1/chat/completions',
     placeholder: 'gsk_xxxxxxxxxxxxxxxx',
-    rateLimit: 6000, maxTokens: 8192, imageFirst: false,
+    rateLimit: 6000, maxTokens: 4096, imageFirst: false,
     guide: `<strong>⚡ Groq · 全球最快推理（免费）</strong>
 注册：<a href="https://console.groq.com" target="_blank">console.groq.com</a> → Google/GitHub 登录 → API Keys → 创建<br>
 <strong>视觉模型</strong>：Groq 目前<strong>仅 <code>llama-4-scout</code> 支持视觉</strong>（Maverick 已于 2026/02 下架，GPT-OSS 等文本模型不能识别图片）。<br>
@@ -1600,7 +1571,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://models.github.ai/inference/chat/completions',
     placeholder: 'github_pat_xxxxxxxx',
-    rateLimit: 8000, maxTokens: 8192, imageFirst: false,
+    rateLimit: 8000, maxTokens: 4096, imageFirst: false,
     guide: `<strong>🐙 GitHub Models · 免费 GPT-4o 视觉</strong>
 前往：<a href="https://github.com/marketplace/models" target="_blank">github.com/marketplace/models</a><br>
 使用 GitHub Personal Access Token（PAT）认证 → Settings → Developer settings → Personal access tokens → Generate<br>
@@ -1635,7 +1606,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://integrate.api.nvidia.com/v1/chat/completions',
     placeholder: 'nvapi-xxxxxxxxxxxxxxxx',
-    rateLimit: 4000, maxTokens: 8192, imageFirst: false,
+    rateLimit: 4000, maxTokens: 4096, imageFirst: false,
     guide: `<strong>🟢 NVIDIA NIM · 100+ 免费模型</strong>
 注册：<a href="https://build.nvidia.com" target="_blank">build.nvidia.com</a> → 邮箱注册（NVIDIA Developer Program）→ 右上角头像 → 「API Keys」→ Generate（<code>nvapi-</code> 开头）<br>
 <strong>免费额度</strong>：注册赠 1000 credits（可申请到 5000）· 限速 40 RPM · 无需信用卡<br>
@@ -1669,7 +1640,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://openrouter.ai/api/v1/chat/completions',
     placeholder: 'sk-or-v1-xxxxxxxxxxxxx',
-    rateLimit: 4000, maxTokens: 8192, imageFirst: false,
+    rateLimit: 4000, maxTokens: 4096, imageFirst: false,
     guide: `<strong>🌐 OpenRouter · 国内可直连（推荐）</strong>
 注册：<a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a> → Google/GitHub 登录 → 创建 Key<br>
 走 Cloudflare 网络，<strong>无需翻墙</strong>。免费 <code>:free</code> 模型限 20次/分 · 200次/天。<br>
@@ -1697,7 +1668,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://api.siliconflow.cn/v1/chat/completions',
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    rateLimit: 3000, maxTokens: 4096, imageFirst: false,
     guide: `<strong>🔮 硅基流动 SiliconCloud · 完全免费</strong>
 注册：<a href="https://cloud.siliconflow.cn" target="_blank">cloud.siliconflow.cn</a> → 注册 → 「API 密钥」→ 创建<br>
 推荐 <strong>Qwen3-VL-30B</strong>（最新免费视觉模型），<strong>国内直连、速度快</strong>。<br>
@@ -1705,6 +1676,27 @@ const PROVIDERS = {
 <button onclick="fetchProviderModels('siliconcloud')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
 <div id="providerFetchResult_siliconcloud" style="margin-top:6px;font-size:11px"></div>
 <a href="https://docs.siliconflow.cn/cn/userguide/capabilities/vision" target="_blank">📖 官方文档</a>`
+  },
+  agnes: {
+    name: 'Agnes AI', fullName: 'Agnes AI (Sapiens AI)',
+    emoji: '🆓', badges: ['无限免费','视觉'],
+    model: 'agnes-1.5-flash',
+    fallbackModels: ['agnes-2.0-flash'],
+    altModels: [
+      { id: 'agnes-1.5-flash', tag: '✅', desc: '默认 · 多模态视觉模型 · 支持图片输入 · 无限免费' },
+      { id: 'agnes-2.0-flash', tag: '⚡', desc: 'Agnes 2.0 Flash · 更新 · 文本+图片多模态' }
+    ],
+    endpoint: 'https://apihub.agnes-ai.com/v1/chat/completions',
+    placeholder: 'sk-xxxxxxxxxxxxxxxx',
+    rateLimit: 3000, maxTokens: 4096, imageFirst: false,
+    guide: `<strong>🆓 Agnes AI · 无限期免费（全模态）</strong>
+注册：<a href="https://agnes-ai.com" target="_blank">agnes-ai.com</a> → 注册登录 → 控制台创建 API Key<br>
+全球 Top AI Lab，<strong>文本/图片/视频模型无限期免费开放</strong>，完全兼容 OpenAI 接口。<br>
+✅ 视觉识别推荐 <strong>agnes-1.5-flash</strong>（确认支持图片输入）；agnes-2.0-flash 为更新版本。<br>
+⚠️ 国内访问情况未知，若被 CORS 拦截可在网络设置中配置代理。<br>
+<button onclick="fetchProviderModels('agnes')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
+<div id="providerFetchResult_agnes" style="margin-top:6px;font-size:11px"></div>
+<a href="https://agnes-ai.com/doc" target="_blank">📖 官方文档</a>`
   }
 };
 
@@ -2083,445 +2075,445 @@ const PRESET_TEMPLATES = [{
   ]
 },{
   id: 'preset_screen_time',
-  name: '儿童荧屏时间调查表（完整·433字段）',
-  description: '「儿童基本情况与荧屏时间调查表」完整版（433字段） · 含手机/电话手表基本情况 + 上学/寒暑假 × 工作日/休息日 × 电视/电脑/手机/投影仪/电话手表(2026新增) 全部 433 个变量（已含荧屏+网络/成瘾+SAS+SDS+PSQI+LQ+家庭ff/fm+生长发育+青春期发育+采集信息），变量名与数据库完全一致',
+  name: '儿童问卷完整识别表(12页全)',
+  description: '「儿童基本情况与荧屏时间调查表」完整12页 · 全部433个变量(身份+荧屏时间+手机成瘾+网络成瘾+SAS焦虑+SDS抑郁+PSQ睡眠+生活质量+父母教养+生长发育),变量名与数据库表1完全一致',
   preset: true,
-  emoji: '📺',
-  extractHint: "这是一份「儿童基本情况与荧屏时间调查表」（多页问卷，依次包含：荧屏设备使用、网络使用/成瘾、SAS焦虑自评、SDS抑郁自评、PSQI睡眠质量、LQ量表、家庭ff/fm量表、生长发育、男/女青春期发育、采集信息等多个部分）。请逐项精确识别手写与勾选内容，未填写或空白的字段一律填 null。\n\n【顶部身份信息】\n- ID：调查对象编号（如 J971301）\n- childname：姓名（手写）\n- gender：性别栏填写的数字，1=男 2=女（按表格里写的数字原样填）\n- school：学校名称\n- grade：年级数字\n- class：班级数字\n\n【0/1 是否题的通用规则】所有\"是否…?\"字段：是=1，否=0，方框内写 0 或 1 就照填；空白填 null。\n\n【设备使用的层级结构 / 跳答逻辑】问卷分 4 个时段，每个时段下分若干设备：\n  st1_x：手机基本情况（开始年龄、是否拥有、号码、是否带到学校、是否看手机）\n  st2_x：电话手表基本情况（是否拥有、是否带到学校）\n  st3_1*：上学期间-工作日（周一~周五）\n  st3_2*：上学期间-休息日（周六、周日）\n  st4_1*：寒暑假-工作日\n  st4_2*：寒暑假-休息日\n每个时段内的设备字母：a=电视, b=电脑, c=手机, d=投影仪/显示器, f=电话手表（2026年新增）。\n\n【每种设备的填写规则】\n1) 设备主开关（如 st3_1a 电视、st3_1b 电脑、st3_1c 手机、st3_1d 投影仪、st3_1f 电话手表）：是否使用，是=1 否=0。\n2) 电视(a)和投影仪(d)：只有 频率(_1 或 a1/d1，单位 天/周或次/周) 和 时长(_2 或 a2/d2，单位 分钟)。\n3) 电脑(b)/手机(c)/电话手表(f)：是\"多选题用途\"结构——\n   - 用途勾选项（如 st3_1b1 休闲娱乐、st3_1b2 网上查资料在线学习、st3_1b3 玩游戏、st3_1c4 看小说、st3_1f2 刷视频刷社交媒体、st3_1f3 玩小游戏）：方框内打勾(√/✓/对号)=1，未勾=0。\n   - 每个用途后面跟两个数字：_1=频率(次/周，有时写\"次\"或\"天\")，_2=时长(分钟)。只有该用途被勾选时通常才有数字；没写就填 null。\n4) 电脑(b) 用途只有 3 项（休闲娱乐b1 / 在线学习b2 / 玩游戏b3），没有\"看小说\"。\n5) 手机(c) 用途有 4 项（休闲娱乐c1 / 在线学习c2 / 玩游戏c3 / 看小说c4）。\n6) 电话手表(f) 用途有 4 项（休闲娱乐f1 / 刷视频刷社交媒体f2 / 玩小游戏f3 / 看小说f4）。\n\n【手写数字辨认】仔细区分 0/6、1/7、2/Z 等；频率一般是 1~7 的小数字，时长一般是 10/20/30/60 等。\n【后半部分量表（phone/internet/addiction/sas/sds/PSQ/LQ/ff/fm）】这些是问卷后续页的量表题，多为每题圈选或填写一个数字（如 1~4，或 0/1）：逐题填该题被选中/填写的数字；本页看不到的字段一律填 null。【生长发育 grow / girl / boy】带 _y 的填年龄(岁)或年份、带 _m 的填月份；girlN/boyN 主项是否发生填 1=是 0=否。【采集信息】collectform=采集方式、collectdata=采集日期、keyboarder=录入人，按页面信息填。\n【重要】只输出 JSON，键名必须与字段定义里的英文 key 完全一致，一个都不能改名或漏掉。识别不到就填 null，绝不要编造数字。",
+  emoji: '📋',
+  extractHint: "这是一份完整的「儿童基本情况与荧屏时间调查表」(共约12页),包含多个量表。请逐项精确识别手写/勾选内容,未填写的字段一律填 null。整份图是多页拼接的长图,请从上往下依次识别每一页。\n\n【顶部身份信息】ID=调查对象编号(如J971301);no=花名册序号(通常空,填null);childname=姓名;gender=性别栏数字(1=男 2=女);school=学校;grade=年级;class=班级。\n\n【一-(一) 荧屏设备使用 st*】是否题:是=1 否=0。设备字母 a=电视 b=电脑 c=手机 d=投影仪 f=电话手表。时段:st1=手机基本情况,st2=电话手表基本情况,st3_1=上学工作日,st3_2=上学休息日,st4_1=寒暑假工作日,st4_2=寒暑假休息日。每设备:主开关(0/1);电视/投影仪只有频率(_1,天/周)和时长(_2,分钟);电脑/手机/电话手表是多选用途结构,用途勾选项(打√=1 未勾=0)后跟频率(_1次/周)和时长(_2分钟),没勾就填null。手写数字仔细分辨0/6、1/7。\n\n【一-(二) 手机使用 phone1-13】5级量表,在\"从不/偶尔/有时/经常/总是\"打√:从不=1 偶尔=2 有时=3 经常=4 总是=5。按勾选的列填对应数字。\n\n【一-(三) 网络使用 internet1-20】5级量表,同上:从不=1 偶尔=2 有时=3 经常=4 总是=5。\n\n【一-(四) 网络成瘾判断 addiction1-8】只有\"是/否\"两列:是=1 否=0。\n\n【二-(一) 焦虑自评SAS sas1-20】4级,列为\"没有或很少时间/小部分时间/相当多时间/绝大部分或全部时间\":=1/2/3/4。带*号的题正常按勾选列填数字即可(不要自己反向计分)。\n\n【二-(二) 抑郁自评SDS sds1-20】4级,同SAS:=1/2/3/4。\n\n【三 睡眠呼吸PSQ PSQ1-22】三列\"是/否/不知道\":是=1 否=2 不知道=3。空白填null。\n\n【四-(一) 生活质量 LQ1-20】每题4个选项,题干前数字被画○圈选,填被圈的那个数字(1-4)。\n【四-(二) 生活质量 LQ21-49】4级\"从不/很少/经常/总是\"打√:=1/2/3/4。\n\n【五 家庭教养】父母两列都要填。父亲列→ff1-19,母亲列→fm1-19。4级\"非常不符合/基本不符合/基本符合/非常符合\":=1/2/3/4。注意同一行有父亲和母亲两个勾,分别填到ff和fm。\n\n【六 儿童生长发育】grow1=因青春期看医生(0/1),grow1_t=次数,grow1_r=原因;grow2=检查骨龄(0/1);grow3=骨龄符合(0/1),提前则填grow3_yb(岁)/grow3_mb(月),落后填grow3_ya/grow3_ma;grow4=接受性早熟治疗(0/1)。女生问诊表→girl1-6(每项 是否0/1 + 初始_y岁/_m月);男生问诊表→boy1-10(同结构:girl/boy的子项依次为腋毛/阴毛/(乳房或睾丸)/...)。只填实际填写的那个性别,另一个性别整块填null。\n\n【填表信息】collectform=填表人姓名;collectdata=填表日期(如2026-5-18);keyboarder=录入员(通常空)。\n\n【最重要】只输出JSON,键名必须与字段定义里的英文key完全一致,一个都不能改名或漏掉。识别不到或空白就填null,绝不编造。题目很多,请耐心识别每一页每一题。",
   fields: [
-    { id:'sid1', key:'ID', label:"调查对象编号", type:'text', hint:"如 J971301" },
-    { id:"no", key:"no", label:"序号/编号(no)", type:"text" },
-    { id:'sid2', key:'childname', label:"姓名", type:'text', hint:"手写姓名" },
-    { id:'sid3', key:'gender', label:"性别", type:'select', options:["1", "2"], hint:"1=男 2=女（按表填写的数字）" },
-    { id:'sid4', key:'school', label:"学校", type:'text' },
-    { id:'sid5', key:'grade', label:"年级", type:'number', hint:"如 7" },
-    { id:'sid6', key:'class', label:"班级", type:'number', hint:"如 13" },
-    { id:'st001', key:'st1_1', label:"开始使用手机的年龄_岁", type:'number', hint:"岁" },
-    { id:'st002', key:'st1_2', label:"是否拥有属于自己的手机?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st003', key:'st1_3', label:"自己的手机号码为", type:'text', hint:"手机号码" },
-    { id:'st004', key:'st1_4', label:"上学期间是否带手机到学校?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st005', key:'st1_5', label:"上学期间是否会看手机?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st006', key:'st2_1', label:"是否拥有属于自己的电话手表?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st007', key:'st2_2', label:"是否把电话手表带到学校?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st008', key:'st3_1a', label:"上学期间工作日是否使用电视?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st009', key:'st3_1a1', label:"上学期间工作日电视使用频率_天/周", type:'number', hint:"次/天 每周" },
-    { id:'st010', key:'st3_1a2', label:"上学期间工作日平均每次电视使用时间_分钟", type:'number', hint:"分钟" },
-    { id:'st011', key:'st3_1b', label:"上学期间工作日是否使用电脑?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st012', key:'st3_1b1', label:"上学期间工作日电脑的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st013', key:'st3_1b1_1', label:"上学期间工作日使用电脑休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st014', key:'st3_1b1_2', label:"上学期间工作日平均每次使用电脑休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st015', key:'st3_1b2', label:"上学期间工作日电脑的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st016', key:'st3_1b2_1', label:"上学期间工作日使用电脑网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st017', key:'st3_1b2_2', label:"上学期间工作日平均每次使用电脑网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st018', key:'st3_1b3', label:"上学期间工作日电脑的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st019', key:'st3_1b3_1', label:"上学期间工作日使用电脑玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st020', key:'st3_1b3_2', label:"上学期间工作日平均每次使用电脑玩游戏的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st021', key:'st3_1c', label:"上学期间工作日是否使用手机?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st022', key:'st3_1c1', label:"上学期间工作日手机的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st023', key:'st3_1c1_1', label:"上学期间工作日使用手机休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st024', key:'st3_1c1_2', label:"上学期间工作日平均每次使用手机休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st025', key:'st3_1c2', label:"上学期间工作日手机的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st026', key:'st3_1c2_1', label:"上学期间工作日使用手机网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st027', key:'st3_1c2_2', label:"上学期间工作日平均每次使用手机网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st028', key:'st3_1c3', label:"上学期间工作日手机的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st029', key:'st3_1c3_1', label:"上学期间工作日使用手机玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st030', key:'st3_1c3_2', label:"上学期间工作日平均每次使用手机玩游戏的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st031', key:'st3_1c4', label:"上学期间工作日手机的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st032', key:'st3_1c4_1', label:"上学期间工作日使用手机看小说的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st033', key:'st3_1c4_2', label:"上学期间工作日平均每次使用手机看小说的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st034', key:'st3_1d', label:"上学期间工作日是否使用投影仪/显示器", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st035', key:'st3_1d1', label:"上学期间工作日投影仪/显示器的使用频率_天/周", type:'number', hint:"次/天 每周" },
-    { id:'st036', key:'st3_1d2', label:"上学期间工作日平均每次使用投影仪/显示器的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st037', key:'st3_1f', label:"上学期间工作日是否使用电话手表?", type:'select', options:["0", "1"], hint:"0=否 1=是 · 2026年新增" },
-    { id:'st038', key:'st3_1f1', label:"上学期间工作日电话手表的主要用途_休闲娱乐(如聊天、视频通话等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st039', key:'st3_1f1_1', label:"上学期间工作日使用电话手表休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st040', key:'st3_1f1_2', label:"上学期间工作日平均每次使用电话手表休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st041', key:'st3_1f2', label:"上学期间工作日电话手表的主要用途_刷视频、刷社交媒体", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st042', key:'st3_1f2_1', label:"上学期间工作日使用电话手表刷视频、刷社交媒体的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st043', key:'st3_1f2_2', label:"上学期间工作日平均每次使用电话手表刷视频、刷社交媒体的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st044', key:'st3_1f3', label:"上学期间工作日电话手表的主要用途_玩小游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st045', key:'st3_1f3_1', label:"上学期间工作日使用电话手表玩小游戏的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st046', key:'st3_1f3_2', label:"上学期间工作日平均每次使用电话手表玩小游戏的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st047', key:'st3_1f4', label:"上学期间工作日电话手表的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st048', key:'st3_1f4_1', label:"上学期间工作日使用电话手表看小说的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st049', key:'st3_1f4_2', label:"上学期间工作日平均每次使用电话手表看小说的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st050', key:'st3_2a', label:"上学期间休息日是否使用电视?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st051', key:'st3_2a1', label:"上学期间休息日电视使用频率_天/周", type:'number', hint:"次/天 每周" },
-    { id:'st052', key:'st3_2a2', label:"上学期间休息日平均每次电视使用时间_分钟", type:'number', hint:"分钟" },
-    { id:'st053', key:'st3_2b', label:"上学期间休息日是否使用电脑?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st054', key:'st3_2b1', label:"上学期间休息日电脑的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st055', key:'st3_2b1_1', label:"上学期间休息日使用电脑休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st056', key:'st3_2b1_2', label:"上学期间休息日平均每次使用电脑休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st057', key:'st3_2b2', label:"上学期间休息日电脑的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st058', key:'st3_2b2_1', label:"上学期间休息日使用电脑网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st059', key:'st3_2b2_2', label:"上学期间休息日平均每次使用电脑网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st060', key:'st3_2b3', label:"上学期间休息日电脑的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st061', key:'st3_2b3_1', label:"上学期间休息日使用电脑玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st062', key:'st3_2b3_2', label:"上学期间休息日平均每次使用电脑玩游戏的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st063', key:'st3_2c', label:"上学期间休息日是否使用手机?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st064', key:'st3_2c1', label:"上学期间休息日手机的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st065', key:'st3_2c1_1', label:"上学期间休息日使用手机休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st066', key:'st3_2c1_2', label:"上学期间休息日平均每次使用手机休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st067', key:'st3_2c2', label:"上学期间休息日手机的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st068', key:'st3_2c2_1', label:"上学期间休息日使用手机网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st069', key:'st3_2c2_2', label:"上学期间休息日平均每次使用手机网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st070', key:'st3_2c3', label:"上学期间休息日手机的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st071', key:'st3_2c3_1', label:"上学期间休息日使用手机玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st072', key:'st3_2c3_2', label:"上学期间休息日平均每次使用手机玩游戏的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st073', key:'st3_2c4', label:"上学期间休息日手机的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st074', key:'st3_2c4_1', label:"上学期间休息日使用手机看小说的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st075', key:'st3_2c4_2', label:"上学期间休息日平均每次使用手机看小说的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st076', key:'st3_2d', label:"上学期间休息日是否使用投影仪/显示器", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st077', key:'st3_2d1', label:"上学期间休息日投影仪/显示器的使用频率_天/周", type:'number', hint:"次/天 每周" },
-    { id:'st078', key:'st3_2f', label:"上学期间休息日是否使用电话手表?", type:'select', options:["0", "1"], hint:"0=否 1=是 · 2026年新增" },
-    { id:'st079', key:'st3_2f1', label:"上学期间休息日电话手表的主要用途_休闲娱乐(如聊天、视频通话等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st080', key:'st3_2f1_1', label:"上学期间休息日使用电话手表休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st081', key:'st3_2f1_2', label:"上学期间休息日平均每次使用电话手表休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st082', key:'st3_2f2', label:"上学期间休息日电话手表的主要用途_刷视频、刷社交媒体", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st083', key:'st3_2f2_1', label:"上学期间休息日使用电话手表刷视频、刷社交媒体的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st084', key:'st3_2f2_2', label:"上学期间休息日平均每次使用电话手表刷视频、刷社交媒体的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st085', key:'st3_2f3', label:"上学期间休息日电话手表的主要用途_玩小游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st086', key:'st3_2f3_1', label:"上学期间休息日使用电话手表玩小游戏的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st087', key:'st3_2f3_2', label:"上学期间休息日平均每次使用电话手表玩小游戏的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st088', key:'st3_2f4', label:"上学期间休息日电话手表的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st089', key:'st3_2f4_1', label:"上学期间休息日使用电话手表看小说的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st090', key:'st3_2f4_2', label:"上学期间休息日平均每次使用电话手表看小说的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st091', key:'st3_2d2', label:"上学期间休息日平均每次使用投影仪/显示器的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st092', key:'st4_1a', label:"寒暑假期间工作日是否使用电视?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st093', key:'st4_1a1', label:"寒暑假期间工作日电视使用频率_天/周", type:'number', hint:"次/天 每周" },
-    { id:'st094', key:'st4_1a2', label:"寒暑假期间工作日平均每次电视使用时间_分钟", type:'number', hint:"分钟" },
-    { id:'st095', key:'st4_1b', label:"寒暑假期间工作日是否使用电脑?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st096', key:'st4_1b1', label:"寒暑假期间工作日电脑的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st097', key:'st4_1b1_1', label:"寒暑假期间工作日使用电脑休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st098', key:'st4_1b1_2', label:"寒暑假期间工作日平均每次使用电脑休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st099', key:'st4_1b2', label:"寒暑假期间工作日电脑的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st100', key:'st4_1b2_1', label:"寒暑假期间工作日使用电脑网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st101', key:'st4_1b2_2', label:"寒暑假期间工作日平均每次使用电脑网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st102', key:'st4_1b3', label:"寒暑假期间工作日电脑的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st103', key:'st4_1b3_1', label:"寒暑假期间工作日使用电脑玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st104', key:'st4_1b3_2', label:"寒暑假期间工作日平均每次使用电脑玩游戏的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st105', key:'st4_1c', label:"寒暑假期间工作日是否使用手机?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st106', key:'st4_1c1', label:"寒暑假期间工作日手机的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st107', key:'st4_1c1_1', label:"寒暑假期间工作日使用手机休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st108', key:'st4_1c1_2', label:"寒暑假期间工作日平均每次使用手机休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st109', key:'st4_1c2', label:"寒暑假期间工作日手机的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st110', key:'st4_1c2_1', label:"寒暑假期间工作日使用手机网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st111', key:'st4_1c2_2', label:"寒暑假期间工作日平均每次使用手机网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st112', key:'st4_1c3', label:"寒暑假期间工作日手机的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st113', key:'st4_1c3_1', label:"寒暑假期间工作日使用手机玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st114', key:'st4_1c3_2', label:"寒暑假期间工作日平均每次使用手机玩游戏的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st115', key:'st4_1c4', label:"寒暑假期间工作日手机的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st116', key:'st4_1c4_1', label:"寒暑假期间工作日使用手机看小说的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st117', key:'st4_1c4_2', label:"寒暑假期间工作日平均每次使用手机看小说的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st118', key:'st4_1d', label:"寒暑假期间工作日是否使用投影仪/显示器", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st119', key:'st4_1d1', label:"寒暑假期间工作日投影仪/显示器的使用频率_天/周", type:'number', hint:"次/天 每周" },
-    { id:'st120', key:'st4_1d2', label:"寒暑假期间工作日平均每次使用投影仪/显示器的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st121', key:'st4_1f', label:"寒暑假期间工作日是否使用电话手表?", type:'select', options:["0", "1"], hint:"0=否 1=是 · 2026年新增" },
-    { id:'st122', key:'st4_1f1', label:"寒暑假期间工作日电话手表的主要用途_休闲娱乐(如聊天、视频通话等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st123', key:'st4_1f1_1', label:"寒暑假期间工作日使用电话手表休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st124', key:'st4_1f1_2', label:"寒暑假期间工作日平均每次使用电话手表休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st125', key:'st4_1f2', label:"寒暑假期间工作日电话手表的主要用途_刷视频、刷社交媒体", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st126', key:'st4_1f2_1', label:"寒暑假期间工作日使用电话手表刷视频、刷社交媒体的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st127', key:'st4_1f2_2', label:"寒暑假期间工作日平均每次使用电话手表刷视频、刷社交媒体的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st128', key:'st4_1f3', label:"寒暑假期间工作日电话手表的主要用途_玩小游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st129', key:'st4_1f3_1', label:"寒暑假期间工作日使用电话手表玩小游戏的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st130', key:'st4_1f3_2', label:"寒暑假期间工作日平均每次使用电话手表玩小游戏的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st131', key:'st4_1f4', label:"寒暑假期间工作日电话手表的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st132', key:'st4_1f4_1', label:"寒暑假期间工作日使用电话手表看小说的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st133', key:'st4_1f4_2', label:"寒暑假期间工作日平均每次使用电话手表看小说的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st134', key:'st4_2a', label:"寒暑假期间休息日是否使用电视?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st135', key:'st4_2a1', label:"寒暑假期间休息日电视使用频率_天/周", type:'number', hint:"次/天 每周" },
-    { id:'st136', key:'st4_2a2', label:"寒暑假期间休息日平均每次电视使用时间_分钟", type:'number', hint:"分钟" },
-    { id:'st137', key:'st4_2b', label:"寒暑假期间休息日是否使用电脑?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st138', key:'st4_2b1', label:"寒暑假期间休息日电脑的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st139', key:'st4_2b1_1', label:"寒暑假期间休息日使用电脑休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st140', key:'st4_2b1_2', label:"寒暑假期间休息日平均每次使用电脑休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st141', key:'st4_2b2', label:"寒暑假期间休息日电脑的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st142', key:'st4_2b2_1', label:"寒暑假期间休息日使用电脑网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st143', key:'st4_2b2_2', label:"寒暑假期间休息日平均每次使用电脑网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st144', key:'st4_2b3', label:"寒暑假期间休息日电脑的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st145', key:'st4_2b3_1', label:"寒暑假期间休息日使用电脑玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st146', key:'st4_2b3_2', label:"寒暑假期间休息日平均每次使用电脑玩游戏的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st147', key:'st4_2c', label:"寒暑假期间休息日是否使用手机?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st148', key:'st4_2c1', label:"寒暑假期间休息日手机的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st149', key:'st4_2c1_1', label:"寒暑假期间休息日使用手机休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st150', key:'st4_2c1_2', label:"寒暑假期间休息日平均每次使用手机休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st151', key:'st4_2c2', label:"寒暑假期间休息日手机的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st152', key:'st4_2c2_1', label:"寒暑假期间休息日使用手机网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st153', key:'st4_2c2_2', label:"寒暑假期间休息日平均每次使用手机网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st154', key:'st4_2c3', label:"寒暑假期间休息日手机的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st155', key:'st4_2c3_1', label:"寒暑假期间休息日使用手机玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st156', key:'st4_2c3_2', label:"寒暑假期间休息日平均每次使用手机玩游戏的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st157', key:'st4_2c4', label:"寒暑假期间休息日手机的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st158', key:'st4_2c4_1', label:"寒暑假期间休息日使用手机看小说的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st159', key:'st4_2c4_2', label:"寒暑假期间休息日平均每次使用手机看小说的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st160', key:'st4_2d', label:"寒暑假期间休息日是否使用投影仪/显示器", type:'select', options:["0", "1"], hint:"0=否 1=是" },
-    { id:'st161', key:'st4_2d1', label:"寒暑假期间休息日投影仪/显示器的使用频率_天/周", type:'number', hint:"次/天 每周" },
-    { id:'st162', key:'st4_2d2', label:"寒暑假期间休息日平均每次使用投影仪/显示器的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st163', key:'st4_2f', label:"寒暑假期间休息日是否使用电话手表?", type:'select', options:["0", "1"], hint:"0=否 1=是 · 2026年新增" },
-    { id:'st164', key:'st4_2f1', label:"寒暑假期间休息日电话手表的主要用途_休闲娱乐(如聊天、视频通话等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st165', key:'st4_2f1_1', label:"寒暑假期间休息日使用电话手表休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st166', key:'st4_2f1_2', label:"寒暑假期间休息日平均每次使用电话手表休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st167', key:'st4_2f2', label:"寒暑假期间休息日电话手表的主要用途_刷视频、刷社交媒体", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st168', key:'st4_2f2_1', label:"寒暑假期间休息日使用电话手表刷视频、刷社交媒体的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st169', key:'st4_2f2_2', label:"寒暑假期间休息日平均每次使用电话手表刷视频、刷社交媒体的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st170', key:'st4_2f3', label:"寒暑假期间休息日电话手表的主要用途_玩小游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st171', key:'st4_2f3_1', label:"寒暑假期间休息日使用电话手表玩小游戏的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st172', key:'st4_2f3_2', label:"寒暑假期间休息日平均每次使用电话手表玩小游戏的时长_分钟", type:'number', hint:"分钟" },
-    { id:'st173', key:'st4_2f4', label:"寒暑假期间休息日电话手表的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾选=0" },
-    { id:'st174', key:'st4_2f4_1', label:"寒暑假期间休息日使用电话手表看小说的频率_次/周", type:'number', hint:"次/天 每周" },
-    { id:'st175', key:'st4_2f4_2', label:"寒暑假期间休息日平均每次使用电话手表看小说的时长_分钟", type:'number', hint:"分钟" },
-    { id:"phone1", key:"phone1", label:"手机使用 第1题", type:"number", hint:"按题目选项填数字" },
-    { id:"phone2", key:"phone2", label:"手机使用 第2题", type:"number", hint:"按题目选项填数字" },
-    { id:"phone3", key:"phone3", label:"手机使用 第3题", type:"number", hint:"按题目选项填数字" },
-    { id:"phone4", key:"phone4", label:"手机使用 第4题", type:"number", hint:"按题目选项填数字" },
-    { id:"phone5", key:"phone5", label:"手机使用 第5题", type:"number", hint:"按题目选项填数字" },
-    { id:"phone6", key:"phone6", label:"手机使用 第6题", type:"number", hint:"按题目选项填数字" },
-    { id:"phone7", key:"phone7", label:"手机使用 第7题", type:"number", hint:"按题目选项填数字" },
-    { id:"phone8", key:"phone8", label:"手机使用 第8题", type:"number", hint:"按题目选项填数字" },
-    { id:"phone9", key:"phone9", label:"手机使用 第9题", type:"number", hint:"按题目选项填数字" },
-    { id:"phone10", key:"phone10", label:"手机使用 第10题", type:"number", hint:"按题目选项填数字" },
-    { id:"phone11", key:"phone11", label:"手机使用 第11题", type:"number", hint:"按题目选项填数字" },
-    { id:"phone12", key:"phone12", label:"手机使用 第12题", type:"number", hint:"按题目选项填数字" },
-    { id:"phone13", key:"phone13", label:"手机使用 第13题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet1", key:"internet1", label:"网络使用 第1题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet2", key:"internet2", label:"网络使用 第2题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet3", key:"internet3", label:"网络使用 第3题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet4", key:"internet4", label:"网络使用 第4题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet5", key:"internet5", label:"网络使用 第5题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet6", key:"internet6", label:"网络使用 第6题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet7", key:"internet7", label:"网络使用 第7题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet8", key:"internet8", label:"网络使用 第8题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet9", key:"internet9", label:"网络使用 第9题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet10", key:"internet10", label:"网络使用 第10题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet11", key:"internet11", label:"网络使用 第11题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet12", key:"internet12", label:"网络使用 第12题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet13", key:"internet13", label:"网络使用 第13题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet14", key:"internet14", label:"网络使用 第14题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet15", key:"internet15", label:"网络使用 第15题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet16", key:"internet16", label:"网络使用 第16题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet17", key:"internet17", label:"网络使用 第17题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet18", key:"internet18", label:"网络使用 第18题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet19", key:"internet19", label:"网络使用 第19题", type:"number", hint:"按题目选项填数字" },
-    { id:"internet20", key:"internet20", label:"网络使用 第20题", type:"number", hint:"按题目选项填数字" },
-    { id:"addiction1", key:"addiction1", label:"成瘾倾向 第1题", type:"number", hint:"按题目选项填数字" },
-    { id:"addiction2", key:"addiction2", label:"成瘾倾向 第2题", type:"number", hint:"按题目选项填数字" },
-    { id:"addiction3", key:"addiction3", label:"成瘾倾向 第3题", type:"number", hint:"按题目选项填数字" },
-    { id:"addiction4", key:"addiction4", label:"成瘾倾向 第4题", type:"number", hint:"按题目选项填数字" },
-    { id:"addiction5", key:"addiction5", label:"成瘾倾向 第5题", type:"number", hint:"按题目选项填数字" },
-    { id:"addiction6", key:"addiction6", label:"成瘾倾向 第6题", type:"number", hint:"按题目选项填数字" },
-    { id:"addiction7", key:"addiction7", label:"成瘾倾向 第7题", type:"number", hint:"按题目选项填数字" },
-    { id:"addiction8", key:"addiction8", label:"成瘾倾向 第8题", type:"number", hint:"按题目选项填数字" },
-    { id:"sas1", key:"sas1", label:"焦虑自评量表SAS 第1题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas2", key:"sas2", label:"焦虑自评量表SAS 第2题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas3", key:"sas3", label:"焦虑自评量表SAS 第3题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas4", key:"sas4", label:"焦虑自评量表SAS 第4题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas5", key:"sas5", label:"焦虑自评量表SAS 第5题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas6", key:"sas6", label:"焦虑自评量表SAS 第6题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas7", key:"sas7", label:"焦虑自评量表SAS 第7题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas8", key:"sas8", label:"焦虑自评量表SAS 第8题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas9", key:"sas9", label:"焦虑自评量表SAS 第9题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas10", key:"sas10", label:"焦虑自评量表SAS 第10题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas11", key:"sas11", label:"焦虑自评量表SAS 第11题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas12", key:"sas12", label:"焦虑自评量表SAS 第12题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas13", key:"sas13", label:"焦虑自评量表SAS 第13题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas14", key:"sas14", label:"焦虑自评量表SAS 第14题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas15", key:"sas15", label:"焦虑自评量表SAS 第15题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas16", key:"sas16", label:"焦虑自评量表SAS 第16题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas17", key:"sas17", label:"焦虑自评量表SAS 第17题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas18", key:"sas18", label:"焦虑自评量表SAS 第18题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas19", key:"sas19", label:"焦虑自评量表SAS 第19题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sas20", key:"sas20", label:"焦虑自评量表SAS 第20题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds1", key:"sds1", label:"抑郁自评量表SDS 第1题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds2", key:"sds2", label:"抑郁自评量表SDS 第2题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds3", key:"sds3", label:"抑郁自评量表SDS 第3题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds4", key:"sds4", label:"抑郁自评量表SDS 第4题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds5", key:"sds5", label:"抑郁自评量表SDS 第5题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds6", key:"sds6", label:"抑郁自评量表SDS 第6题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds7", key:"sds7", label:"抑郁自评量表SDS 第7题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds8", key:"sds8", label:"抑郁自评量表SDS 第8题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds9", key:"sds9", label:"抑郁自评量表SDS 第9题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds10", key:"sds10", label:"抑郁自评量表SDS 第10题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds11", key:"sds11", label:"抑郁自评量表SDS 第11题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds12", key:"sds12", label:"抑郁自评量表SDS 第12题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds13", key:"sds13", label:"抑郁自评量表SDS 第13题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds14", key:"sds14", label:"抑郁自评量表SDS 第14题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds15", key:"sds15", label:"抑郁自评量表SDS 第15题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds16", key:"sds16", label:"抑郁自评量表SDS 第16题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds17", key:"sds17", label:"抑郁自评量表SDS 第17题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds18", key:"sds18", label:"抑郁自评量表SDS 第18题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds19", key:"sds19", label:"抑郁自评量表SDS 第19题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"sds20", key:"sds20", label:"抑郁自评量表SDS 第20题", type:"number", hint:"每题圈选的数字(常见1-4)" },
-    { id:"PSQ1", key:"PSQ1", label:"匹兹堡睡眠质量PSQI 第1题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ2", key:"PSQ2", label:"匹兹堡睡眠质量PSQI 第2题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ3", key:"PSQ3", label:"匹兹堡睡眠质量PSQI 第3题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ4", key:"PSQ4", label:"匹兹堡睡眠质量PSQI 第4题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ5", key:"PSQ5", label:"匹兹堡睡眠质量PSQI 第5题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ6", key:"PSQ6", label:"匹兹堡睡眠质量PSQI 第6题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ7", key:"PSQ7", label:"匹兹堡睡眠质量PSQI 第7题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ8", key:"PSQ8", label:"匹兹堡睡眠质量PSQI 第8题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ9", key:"PSQ9", label:"匹兹堡睡眠质量PSQI 第9题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ10", key:"PSQ10", label:"匹兹堡睡眠质量PSQI 第10题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ11", key:"PSQ11", label:"匹兹堡睡眠质量PSQI 第11题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ12", key:"PSQ12", label:"匹兹堡睡眠质量PSQI 第12题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ13", key:"PSQ13", label:"匹兹堡睡眠质量PSQI 第13题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ14", key:"PSQ14", label:"匹兹堡睡眠质量PSQI 第14题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ15", key:"PSQ15", label:"匹兹堡睡眠质量PSQI 第15题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ16", key:"PSQ16", label:"匹兹堡睡眠质量PSQI 第16题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ17", key:"PSQ17", label:"匹兹堡睡眠质量PSQI 第17题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ18", key:"PSQ18", label:"匹兹堡睡眠质量PSQI 第18题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ19", key:"PSQ19", label:"匹兹堡睡眠质量PSQI 第19题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ20", key:"PSQ20", label:"匹兹堡睡眠质量PSQI 第20题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ21", key:"PSQ21", label:"匹兹堡睡眠质量PSQI 第21题", type:"number", hint:"每题选填的数字" },
-    { id:"PSQ22", key:"PSQ22", label:"匹兹堡睡眠质量PSQI 第22题", type:"number", hint:"每题选填的数字" },
-    { id:"LQ1", key:"LQ1", label:"LQ量表 第1题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ2", key:"LQ2", label:"LQ量表 第2题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ3", key:"LQ3", label:"LQ量表 第3题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ4", key:"LQ4", label:"LQ量表 第4题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ5", key:"LQ5", label:"LQ量表 第5题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ6", key:"LQ6", label:"LQ量表 第6题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ7", key:"LQ7", label:"LQ量表 第7题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ8", key:"LQ8", label:"LQ量表 第8题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ9", key:"LQ9", label:"LQ量表 第9题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ10", key:"LQ10", label:"LQ量表 第10题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ11", key:"LQ11", label:"LQ量表 第11题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ12", key:"LQ12", label:"LQ量表 第12题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ13", key:"LQ13", label:"LQ量表 第13题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ14", key:"LQ14", label:"LQ量表 第14题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ15", key:"LQ15", label:"LQ量表 第15题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ16", key:"LQ16", label:"LQ量表 第16题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ17", key:"LQ17", label:"LQ量表 第17题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ18", key:"LQ18", label:"LQ量表 第18题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ19", key:"LQ19", label:"LQ量表 第19题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ20", key:"LQ20", label:"LQ量表 第20题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ21", key:"LQ21", label:"LQ量表 第21题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ22", key:"LQ22", label:"LQ量表 第22题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ23", key:"LQ23", label:"LQ量表 第23题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ24", key:"LQ24", label:"LQ量表 第24题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ25", key:"LQ25", label:"LQ量表 第25题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ26", key:"LQ26", label:"LQ量表 第26题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ27", key:"LQ27", label:"LQ量表 第27题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ28", key:"LQ28", label:"LQ量表 第28题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ29", key:"LQ29", label:"LQ量表 第29题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ30", key:"LQ30", label:"LQ量表 第30题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ31", key:"LQ31", label:"LQ量表 第31题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ32", key:"LQ32", label:"LQ量表 第32题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ33", key:"LQ33", label:"LQ量表 第33题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ34", key:"LQ34", label:"LQ量表 第34题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ35", key:"LQ35", label:"LQ量表 第35题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ36", key:"LQ36", label:"LQ量表 第36题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ37", key:"LQ37", label:"LQ量表 第37题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ38", key:"LQ38", label:"LQ量表 第38题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ39", key:"LQ39", label:"LQ量表 第39题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ40", key:"LQ40", label:"LQ量表 第40题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ41", key:"LQ41", label:"LQ量表 第41题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ42", key:"LQ42", label:"LQ量表 第42题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ43", key:"LQ43", label:"LQ量表 第43题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ44", key:"LQ44", label:"LQ量表 第44题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ45", key:"LQ45", label:"LQ量表 第45题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ46", key:"LQ46", label:"LQ量表 第46题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ47", key:"LQ47", label:"LQ量表 第47题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ48", key:"LQ48", label:"LQ量表 第48题", type:"number", hint:"每题圈选的数字" },
-    { id:"LQ49", key:"LQ49", label:"LQ量表 第49题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff1", key:"ff1", label:"家庭/父亲量表ff 第1题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff2", key:"ff2", label:"家庭/父亲量表ff 第2题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff3", key:"ff3", label:"家庭/父亲量表ff 第3题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff4", key:"ff4", label:"家庭/父亲量表ff 第4题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff5", key:"ff5", label:"家庭/父亲量表ff 第5题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff6", key:"ff6", label:"家庭/父亲量表ff 第6题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff7", key:"ff7", label:"家庭/父亲量表ff 第7题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff8", key:"ff8", label:"家庭/父亲量表ff 第8题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff9", key:"ff9", label:"家庭/父亲量表ff 第9题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff10", key:"ff10", label:"家庭/父亲量表ff 第10题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff11", key:"ff11", label:"家庭/父亲量表ff 第11题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff12", key:"ff12", label:"家庭/父亲量表ff 第12题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff13", key:"ff13", label:"家庭/父亲量表ff 第13题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff14", key:"ff14", label:"家庭/父亲量表ff 第14题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff15", key:"ff15", label:"家庭/父亲量表ff 第15题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff16", key:"ff16", label:"家庭/父亲量表ff 第16题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff17", key:"ff17", label:"家庭/父亲量表ff 第17题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff18", key:"ff18", label:"家庭/父亲量表ff 第18题", type:"number", hint:"每题圈选的数字" },
-    { id:"ff19", key:"ff19", label:"家庭/父亲量表ff 第19题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm1", key:"fm1", label:"家庭/母亲量表fm 第1题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm2", key:"fm2", label:"家庭/母亲量表fm 第2题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm3", key:"fm3", label:"家庭/母亲量表fm 第3题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm4", key:"fm4", label:"家庭/母亲量表fm 第4题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm5", key:"fm5", label:"家庭/母亲量表fm 第5题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm6", key:"fm6", label:"家庭/母亲量表fm 第6题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm7", key:"fm7", label:"家庭/母亲量表fm 第7题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm8", key:"fm8", label:"家庭/母亲量表fm 第8题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm9", key:"fm9", label:"家庭/母亲量表fm 第9题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm10", key:"fm10", label:"家庭/母亲量表fm 第10题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm11", key:"fm11", label:"家庭/母亲量表fm 第11题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm12", key:"fm12", label:"家庭/母亲量表fm 第12题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm13", key:"fm13", label:"家庭/母亲量表fm 第13题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm14", key:"fm14", label:"家庭/母亲量表fm 第14题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm15", key:"fm15", label:"家庭/母亲量表fm 第15题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm16", key:"fm16", label:"家庭/母亲量表fm 第16题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm17", key:"fm17", label:"家庭/母亲量表fm 第17题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm18", key:"fm18", label:"家庭/母亲量表fm 第18题", type:"number", hint:"每题圈选的数字" },
-    { id:"fm19", key:"fm19", label:"家庭/母亲量表fm 第19题", type:"number", hint:"每题圈选的数字" },
-    { id:"grow1", key:"grow1", label:"生长发育 grow1", type:"number" },
-    { id:"grow1_t", key:"grow1_t", label:"生长发育 grow1_t", type:"text" },
-    { id:"grow1_r", key:"grow1_r", label:"生长发育 grow1_r", type:"text" },
-    { id:"grow2", key:"grow2", label:"生长发育 grow2", type:"number" },
-    { id:"grow3", key:"grow3", label:"生长发育 grow3", type:"number" },
-    { id:"grow3_yb", key:"grow3_yb", label:"grow3 起始年", type:"number" },
-    { id:"grow3_mb", key:"grow3_mb", label:"grow3 起始月", type:"number" },
-    { id:"grow3_ya", key:"grow3_ya", label:"grow3 结束年", type:"number" },
-    { id:"grow3_ma", key:"grow3_ma", label:"grow3 结束月", type:"number" },
-    { id:"grow4", key:"grow4", label:"生长发育 grow4", type:"number" },
-    { id:"girl1", key:"girl1", label:"女生发育 第1项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"girl1_y", key:"girl1_y", label:"女生发育 第1项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"girl1_m", key:"girl1_m", label:"女生发育 第1项-月份", type:"number", hint:"月" },
-    { id:"girl2", key:"girl2", label:"女生发育 第2项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"girl2_y", key:"girl2_y", label:"女生发育 第2项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"girl2_m", key:"girl2_m", label:"女生发育 第2项-月份", type:"number", hint:"月" },
-    { id:"girl3", key:"girl3", label:"女生发育 第3项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"girl3_y", key:"girl3_y", label:"女生发育 第3项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"girl3_m", key:"girl3_m", label:"女生发育 第3项-月份", type:"number", hint:"月" },
-    { id:"girl4", key:"girl4", label:"女生发育 第4项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"girl4_y", key:"girl4_y", label:"女生发育 第4项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"girl4_m", key:"girl4_m", label:"女生发育 第4项-月份", type:"number", hint:"月" },
-    { id:"girl5", key:"girl5", label:"女生发育 第5项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"girl5_y", key:"girl5_y", label:"女生发育 第5项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"girl5_m", key:"girl5_m", label:"女生发育 第5项-月份", type:"number", hint:"月" },
-    { id:"girl6", key:"girl6", label:"女生发育 第6项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"girl6_y", key:"girl6_y", label:"女生发育 第6项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"girl6_m", key:"girl6_m", label:"女生发育 第6项-月份", type:"number", hint:"月" },
-    { id:"boy1", key:"boy1", label:"男生发育 第1项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"boy1_y", key:"boy1_y", label:"男生发育 第1项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"boy1_m", key:"boy1_m", label:"男生发育 第1项-月份", type:"number", hint:"月" },
-    { id:"boy2", key:"boy2", label:"男生发育 第2项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"boy2_y", key:"boy2_y", label:"男生发育 第2项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"boy2_m", key:"boy2_m", label:"男生发育 第2项-月份", type:"number", hint:"月" },
-    { id:"boy3", key:"boy3", label:"男生发育 第3项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"boy3_y", key:"boy3_y", label:"男生发育 第3项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"boy3_m", key:"boy3_m", label:"男生发育 第3项-月份", type:"number", hint:"月" },
-    { id:"boy4", key:"boy4", label:"男生发育 第4项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"boy4_y", key:"boy4_y", label:"男生发育 第4项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"boy4_m", key:"boy4_m", label:"男生发育 第4项-月份", type:"number", hint:"月" },
-    { id:"boy5", key:"boy5", label:"男生发育 第5项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"boy5_y", key:"boy5_y", label:"男生发育 第5项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"boy5_m", key:"boy5_m", label:"男生发育 第5项-月份", type:"number", hint:"月" },
-    { id:"boy6", key:"boy6", label:"男生发育 第6项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"boy6_y", key:"boy6_y", label:"男生发育 第6项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"boy6_m", key:"boy6_m", label:"男生发育 第6项-月份", type:"number", hint:"月" },
-    { id:"boy7", key:"boy7", label:"男生发育 第7项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"boy7_y", key:"boy7_y", label:"男生发育 第7项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"boy7_m", key:"boy7_m", label:"男生发育 第7项-月份", type:"number", hint:"月" },
-    { id:"boy8", key:"boy8", label:"男生发育 第8项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"boy8_y", key:"boy8_y", label:"男生发育 第8项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"boy8_m", key:"boy8_m", label:"男生发育 第8项-月份", type:"number", hint:"月" },
-    { id:"boy9", key:"boy9", label:"男生发育 第9项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"boy9_y", key:"boy9_y", label:"男生发育 第9项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"boy9_m", key:"boy9_m", label:"男生发育 第9项-月份", type:"number", hint:"月" },
-    { id:"boy10", key:"boy10", label:"男生发育 第10项(1=是 0=否)", type:"number", hint:"是=1 否=0" },
-    { id:"boy10_y", key:"boy10_y", label:"男生发育 第10项-年龄(岁)", type:"number", hint:"岁" },
-    { id:"boy10_m", key:"boy10_m", label:"男生发育 第10项-月份", type:"number", hint:"月" },
-    { id:"collectform", key:"collectform", label:"采集方式", type:"text" },
-    { id:"collectdata", key:"collectdata", label:"采集日期", type:"text" },
-    { id:"keyboarder", key:"keyboarder", label:"录入人", type:"text" }
+    { id:'f001', key:'ID', label:"调查对象编号", type:'text', options:"\u5982 J971301" },
+    { id:'f002', key:'no', label:"序号/编号(no)", type:'text', options:"\u82b1\u540d\u518c\u5e8f\u53f7,\u901a\u5e38\u7a7a\u7740\u586bnull" },
+    { id:'f003', key:'childname', label:"姓名", type:'text', options:"\u624b\u5199\u59d3\u540d" },
+    { id:'f004', key:'gender', label:"性别", type:'select', options:["1", "2"], hint:"1=男 2=女(按表填的数字)" },
+    { id:'f005', key:'school', label:"学校", type:'text' },
+    { id:'f006', key:'grade', label:"年级", type:'number', options:"\u5982 7" },
+    { id:'f007', key:'class', label:"班级", type:'number', options:"\u5982 13" },
+    { id:'f008', key:'st1_1', label:"开始使用手机的年龄_岁", type:'number', hint:"岁" },
+    { id:'f009', key:'st1_2', label:"是否拥有属于自己的手机?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f010', key:'st1_3', label:"自己的手机号码为", type:'text' },
+    { id:'f011', key:'st1_4', label:"上学期间是否带手机到学校?", type:'text' },
+    { id:'f012', key:'st1_5', label:"上学期间是否会看手机?", type:'text' },
+    { id:'f013', key:'st2_1', label:"是否拥有属于自己的电话手表?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f014', key:'st2_2', label:"是否把电话手表带到学校?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f015', key:'st3_1a', label:"上学期间工作日是否使用电视?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f016', key:'st3_1a1', label:"上学期间工作日电视使用频率_天/周", type:'number', hint:"次/天 每周" },
+    { id:'f017', key:'st3_1a2', label:"上学期间工作日平均每次电视使用时间_分钟", type:'number', hint:"分钟" },
+    { id:'f018', key:'st3_1b', label:"上学期间工作日是否使用电脑?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f019', key:'st3_1b1', label:"上学期间工作日电脑的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f020', key:'st3_1b1_1', label:"上学期间工作日使用电脑休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f021', key:'st3_1b1_2', label:"上学期间工作日平均每次使用电脑休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f022', key:'st3_1b2', label:"上学期间工作日电脑的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f023', key:'st3_1b2_1', label:"上学期间工作日使用电脑网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f024', key:'st3_1b2_2', label:"上学期间工作日平均每次使用电脑网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f025', key:'st3_1b3', label:"上学期间工作日电脑的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f026', key:'st3_1b3_1', label:"上学期间工作日使用电脑玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f027', key:'st3_1b3_2', label:"上学期间工作日平均每次使用电脑玩游戏的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f028', key:'st3_1c', label:"上学期间工作日是否使用手机?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f029', key:'st3_1c1', label:"上学期间工作日手机的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f030', key:'st3_1c1_1', label:"上学期间工作日使用手机休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f031', key:'st3_1c1_2', label:"上学期间工作日平均每次使用手机休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f032', key:'st3_1c2', label:"上学期间工作日手机的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f033', key:'st3_1c2_1', label:"上学期间工作日使用手机网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f034', key:'st3_1c2_2', label:"上学期间工作日平均每次使用手机网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f035', key:'st3_1c3', label:"上学期间工作日手机的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f036', key:'st3_1c3_1', label:"上学期间工作日使用手机玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f037', key:'st3_1c3_2', label:"上学期间工作日平均每次使用手机玩游戏的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f038', key:'st3_1c4', label:"上学期间工作日手机的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f039', key:'st3_1c4_1', label:"上学期间工作日使用手机看小说的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f040', key:'st3_1c4_2', label:"上学期间工作日平均每次使用手机看小说的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f041', key:'st3_1d', label:"上学期间工作日是否使用投影仪/显示器", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f042', key:'st3_1d1', label:"上学期间工作日投影仪/显示器的使用频率_天/周", type:'number', hint:"次/天 每周" },
+    { id:'f043', key:'st3_1d2', label:"上学期间工作日平均每次使用投影仪/显示器的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f044', key:'st3_1f', label:"上学期间工作日是否使用电话手表?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f045', key:'st3_1f1', label:"上学期间工作日电话手表的主要用途_休闲娱乐(如聊天、视频通话等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f046', key:'st3_1f1_1', label:"上学期间工作日使用电话手表休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f047', key:'st3_1f1_2', label:"上学期间工作日平均每次使用电话手表休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f048', key:'st3_1f2', label:"上学期间工作日电话手表的主要用途_刷视频、刷社交媒体", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f049', key:'st3_1f2_1', label:"上学期间工作日使用电话手表刷视频、刷社交媒体的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f050', key:'st3_1f2_2', label:"上学期间工作日平均每次使用电话手表刷视频、刷社交媒体的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f051', key:'st3_1f3', label:"上学期间工作日电话手表的主要用途_玩小游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f052', key:'st3_1f3_1', label:"上学期间工作日使用电话手表玩小游戏的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f053', key:'st3_1f3_2', label:"上学期间工作日平均每次使用电话手表玩小游戏的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f054', key:'st3_1f4', label:"上学期间工作日电话手表的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f055', key:'st3_1f4_1', label:"上学期间工作日使用电话手表看小说的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f056', key:'st3_1f4_2', label:"上学期间工作日平均每次使用电话手表看小说的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f057', key:'st3_2a', label:"上学期间休息日是否使用电视?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f058', key:'st3_2a1', label:"上学期间休息日电视使用频率_天/周", type:'number', hint:"次/天 每周" },
+    { id:'f059', key:'st3_2a2', label:"上学期间休息日平均每次电视使用时间_分钟", type:'number', hint:"分钟" },
+    { id:'f060', key:'st3_2b', label:"上学期间休息日是否使用电脑?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f061', key:'st3_2b1', label:"上学期间休息日电脑的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f062', key:'st3_2b1_1', label:"上学期间休息日使用电脑休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f063', key:'st3_2b1_2', label:"上学期间休息日平均每次使用电脑休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f064', key:'st3_2b2', label:"上学期间休息日电脑的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f065', key:'st3_2b2_1', label:"上学期间休息日使用电脑网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f066', key:'st3_2b2_2', label:"上学期间休息日平均每次使用电脑网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f067', key:'st3_2b3', label:"上学期间休息日电脑的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f068', key:'st3_2b3_1', label:"上学期间休息日使用电脑玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f069', key:'st3_2b3_2', label:"上学期间休息日平均每次使用电脑玩游戏的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f070', key:'st3_2c', label:"上学期间休息日是否使用手机?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f071', key:'st3_2c1', label:"上学期间休息日手机的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f072', key:'st3_2c1_1', label:"上学期间休息日使用手机休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f073', key:'st3_2c1_2', label:"上学期间休息日平均每次使用手机休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f074', key:'st3_2c2', label:"上学期间休息日手机的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f075', key:'st3_2c2_1', label:"上学期间休息日使用手机网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f076', key:'st3_2c2_2', label:"上学期间休息日平均每次使用手机网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f077', key:'st3_2c3', label:"上学期间休息日手机的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f078', key:'st3_2c3_1', label:"上学期间休息日使用手机玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f079', key:'st3_2c3_2', label:"上学期间休息日平均每次使用手机玩游戏的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f080', key:'st3_2c4', label:"上学期间休息日手机的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f081', key:'st3_2c4_1', label:"上学期间休息日使用手机看小说的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f082', key:'st3_2c4_2', label:"上学期间休息日平均每次使用手机看小说的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f083', key:'st3_2d', label:"上学期间休息日是否使用投影仪/显示器", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f084', key:'st3_2d1', label:"上学期间休息日投影仪/显示器的使用频率_天/周", type:'number', hint:"次/天 每周" },
+    { id:'f085', key:'st3_2f', label:"上学期间休息日是否使用电话手表?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f086', key:'st3_2f1', label:"上学期间休息日电话手表的主要用途_休闲娱乐(如聊天、视频通话等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f087', key:'st3_2f1_1', label:"上学期间休息日使用电话手表休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f088', key:'st3_2f1_2', label:"上学期间休息日平均每次使用电话手表休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f089', key:'st3_2f2', label:"上学期间休息日电话手表的主要用途_刷视频、刷社交媒体", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f090', key:'st3_2f2_1', label:"上学期间休息日使用电话手表刷视频、刷社交媒体的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f091', key:'st3_2f2_2', label:"上学期间休息日平均每次使用电话手表刷视频、刷社交媒体的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f092', key:'st3_2f3', label:"上学期间休息日电话手表的主要用途_玩小游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f093', key:'st3_2f3_1', label:"上学期间休息日使用电话手表玩小游戏的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f094', key:'st3_2f3_2', label:"上学期间休息日平均每次使用电话手表玩小游戏的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f095', key:'st3_2f4', label:"上学期间休息日电话手表的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f096', key:'st3_2f4_1', label:"上学期间休息日使用电话手表看小说的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f097', key:'st3_2f4_2', label:"上学期间休息日平均每次使用电话手表看小说的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f098', key:'st3_2d2', label:"上学期间休息日平均每次使用投影仪/显示器的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f099', key:'st4_1a', label:"寒暑假期间工作日是否使用电视?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f100', key:'st4_1a1', label:"寒暑假期间工作日电视使用频率_天/周", type:'number', hint:"次/天 每周" },
+    { id:'f101', key:'st4_1a2', label:"寒暑假期间工作日平均每次电视使用时间_分钟", type:'number', hint:"分钟" },
+    { id:'f102', key:'st4_1b', label:"寒暑假期间工作日是否使用电脑?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f103', key:'st4_1b1', label:"寒暑假期间工作日电脑的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f104', key:'st4_1b1_1', label:"寒暑假期间工作日使用电脑休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f105', key:'st4_1b1_2', label:"寒暑假期间工作日平均每次使用电脑休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f106', key:'st4_1b2', label:"寒暑假期间工作日电脑的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f107', key:'st4_1b2_1', label:"寒暑假期间工作日使用电脑网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f108', key:'st4_1b2_2', label:"寒暑假期间工作日平均每次使用电脑网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f109', key:'st4_1b3', label:"寒暑假期间工作日电脑的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f110', key:'st4_1b3_1', label:"寒暑假期间工作日使用电脑玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f111', key:'st4_1b3_2', label:"寒暑假期间工作日平均每次使用电脑玩游戏的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f112', key:'st4_1c', label:"寒暑假期间工作日是否使用手机?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f113', key:'st4_1c1', label:"寒暑假期间工作日手机的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f114', key:'st4_1c1_1', label:"寒暑假期间工作日使用手机休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f115', key:'st4_1c1_2', label:"寒暑假期间工作日平均每次使用手机休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f116', key:'st4_1c2', label:"寒暑假期间工作日手机的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f117', key:'st4_1c2_1', label:"寒暑假期间工作日使用手机网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f118', key:'st4_1c2_2', label:"寒暑假期间工作日平均每次使用手机网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f119', key:'st4_1c3', label:"寒暑假期间工作日手机的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f120', key:'st4_1c3_1', label:"寒暑假期间工作日使用手机玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f121', key:'st4_1c3_2', label:"寒暑假期间工作日平均每次使用手机玩游戏的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f122', key:'st4_1c4', label:"寒暑假期间工作日手机的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f123', key:'st4_1c4_1', label:"寒暑假期间工作日使用手机看小说的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f124', key:'st4_1c4_2', label:"寒暑假期间工作日平均每次使用手机看小说的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f125', key:'st4_1d', label:"寒暑假期间工作日是否使用投影仪/显示器", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f126', key:'st4_1d1', label:"寒暑假期间工作日投影仪/显示器的使用频率_天/周", type:'number', hint:"次/天 每周" },
+    { id:'f127', key:'st4_1d2', label:"寒暑假期间工作日平均每次使用投影仪/显示器的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f128', key:'st4_1f', label:"寒暑假期间工作日是否使用电话手表?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f129', key:'st4_1f1', label:"寒暑假期间工作日电话手表的主要用途_休闲娱乐(如聊天、视频通话等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f130', key:'st4_1f1_1', label:"寒暑假期间工作日使用电话手表休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f131', key:'st4_1f1_2', label:"寒暑假期间工作日平均每次使用电话手表休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f132', key:'st4_1f2', label:"寒暑假期间工作日电话手表的主要用途_刷视频、刷社交媒体", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f133', key:'st4_1f2_1', label:"寒暑假期间工作日使用电话手表刷视频、刷社交媒体的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f134', key:'st4_1f2_2', label:"寒暑假期间工作日平均每次使用电话手表刷视频、刷社交媒体的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f135', key:'st4_1f3', label:"寒暑假期间工作日电话手表的主要用途_玩小游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f136', key:'st4_1f3_1', label:"寒暑假期间工作日使用电话手表玩小游戏的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f137', key:'st4_1f3_2', label:"寒暑假期间工作日平均每次使用电话手表玩小游戏的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f138', key:'st4_1f4', label:"寒暑假期间工作日电话手表的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f139', key:'st4_1f4_1', label:"寒暑假期间工作日使用电话手表看小说的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f140', key:'st4_1f4_2', label:"寒暑假期间工作日平均每次使用电话手表看小说的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f141', key:'st4_2a', label:"寒暑假期间休息日是否使用电视?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f142', key:'st4_2a1', label:"寒暑假期间休息日电视使用频率_天/周", type:'number', hint:"次/天 每周" },
+    { id:'f143', key:'st4_2a2', label:"寒暑假期间休息日平均每次电视使用时间_分钟", type:'number', hint:"分钟" },
+    { id:'f144', key:'st4_2b', label:"寒暑假期间休息日是否使用电脑?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f145', key:'st4_2b1', label:"寒暑假期间休息日电脑的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f146', key:'st4_2b1_1', label:"寒暑假期间休息日使用电脑休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f147', key:'st4_2b1_2', label:"寒暑假期间休息日平均每次使用电脑休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f148', key:'st4_2b2', label:"寒暑假期间休息日电脑的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f149', key:'st4_2b2_1', label:"寒暑假期间休息日使用电脑网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f150', key:'st4_2b2_2', label:"寒暑假期间休息日平均每次使用电脑网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f151', key:'st4_2b3', label:"寒暑假期间休息日电脑的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f152', key:'st4_2b3_1', label:"寒暑假期间休息日使用电脑玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f153', key:'st4_2b3_2', label:"寒暑假期间休息日平均每次使用电脑玩游戏的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f154', key:'st4_2c', label:"寒暑假期间休息日是否使用手机?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f155', key:'st4_2c1', label:"寒暑假期间休息日手机的主要用途_休闲娱乐(如聊天、看电视剧等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f156', key:'st4_2c1_1', label:"寒暑假期间休息日使用手机休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f157', key:'st4_2c1_2', label:"寒暑假期间休息日平均每次使用手机休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f158', key:'st4_2c2', label:"寒暑假期间休息日手机的主要用途_网上查资料，在线学习", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f159', key:'st4_2c2_1', label:"寒暑假期间休息日使用手机网上查资料，在线学习的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f160', key:'st4_2c2_2', label:"寒暑假期间休息日平均每次使用手机网上查资料，在线学习的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f161', key:'st4_2c3', label:"寒暑假期间休息日手机的主要用途_玩游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f162', key:'st4_2c3_1', label:"寒暑假期间休息日使用手机玩游戏的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f163', key:'st4_2c3_2', label:"寒暑假期间休息日平均每次使用手机玩游戏的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f164', key:'st4_2c4', label:"寒暑假期间休息日手机的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f165', key:'st4_2c4_1', label:"寒暑假期间休息日使用手机看小说的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f166', key:'st4_2c4_2', label:"寒暑假期间休息日平均每次使用手机看小说的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f167', key:'st4_2d', label:"寒暑假期间休息日是否使用投影仪/显示器", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f168', key:'st4_2d1', label:"寒暑假期间休息日投影仪/显示器的使用频率_天/周", type:'number', hint:"次/天 每周" },
+    { id:'f169', key:'st4_2d2', label:"寒暑假期间休息日平均每次使用投影仪/显示器的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f170', key:'st4_2f', label:"寒暑假期间休息日是否使用电话手表?", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f171', key:'st4_2f1', label:"寒暑假期间休息日电话手表的主要用途_休闲娱乐(如聊天、视频通话等)", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f172', key:'st4_2f1_1', label:"寒暑假期间休息日使用电话手表休闲娱乐的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f173', key:'st4_2f1_2', label:"寒暑假期间休息日平均每次使用电话手表休闲娱乐的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f174', key:'st4_2f2', label:"寒暑假期间休息日电话手表的主要用途_刷视频、刷社交媒体", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f175', key:'st4_2f2_1', label:"寒暑假期间休息日使用电话手表刷视频、刷社交媒体的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f176', key:'st4_2f2_2', label:"寒暑假期间休息日平均每次使用电话手表刷视频、刷社交媒体的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f177', key:'st4_2f3', label:"寒暑假期间休息日电话手表的主要用途_玩小游戏", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f178', key:'st4_2f3_1', label:"寒暑假期间休息日使用电话手表玩小游戏的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f179', key:'st4_2f3_2', label:"寒暑假期间休息日平均每次使用电话手表玩小游戏的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f180', key:'st4_2f4', label:"寒暑假期间休息日电话手表的主要用途_看小说", type:'select', options:["0", "1"], hint:"勾选=1 未勾=0" },
+    { id:'f181', key:'st4_2f4_1', label:"寒暑假期间休息日使用电话手表看小说的频率_次/周", type:'number', hint:"次/天 每周" },
+    { id:'f182', key:'st4_2f4_2', label:"寒暑假期间休息日平均每次使用电话手表看小说的时长_分钟", type:'number', hint:"分钟" },
+    { id:'f183', key:'phone1', label:"我总觉得使用手机时间不够", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f184', key:'phone2', label:"当我企图减少或停止使用手机时,我会觉得沮丧、心情低落或脾气易躁", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f185', key:'phone3', label:"我玩手机过多导致睡眠不足", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f186', key:'phone4', label:"当因上课、聚餐等而必须关机时,会感到烦躁", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f187', key:'phone5', label:"我有时候宁愿拿着手机玩,也不愿处理其他一些更紧迫的事", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f188', key:'phone6', label:"当手机一段时间没响,我的脑海会开始浮现手机有未接来电的念头", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f189', key:'phone7', label:"我觉得需要花更多的时间在手机上才能得到满足", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f190', key:'phone8', label:"当我幻听到手机铃声响起或震动时,总会下意识拿出手机查看", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f191', key:'phone9', label:"因为使用手机的原因,我平时休闲活动时间减少了", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f192', key:'phone10', label:"我时常做有关手机的梦", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f193', key:'phone11', label:"一段时间不查看手机是否有信息或不开机,会令我感到焦虑", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f194', key:'phone12', label:"使用手机直接影响了我的学习或工作效率", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f195', key:'phone13', label:"如果没有手机我会感到不知所措", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f196', key:'internet1', label:"你觉得实际上网的时间比预期上网的时间长吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f197', key:'internet2', label:"你会由于上网而忽略自己必须要做的事情吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f198', key:'internet3', label:"你会更喜欢上网而不是和关系密切的朋友在一起吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f199', key:'internet4', label:"你经常在网上结交新朋友吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f200', key:'internet5', label:"在现实生活中朋友和家人会抱怨你上网的时间过长吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f201', key:'internet6', label:"因为上网而影响到你的学习了吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f202', key:'internet7', label:"你是否会不顾身边需要做的事情而先去上网查看QQ或微信?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f203', key:'internet8', label:"因为上网而影响到你的日常生活了吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f204', key:'internet9', label:"你是否经常担心网上的隐私被他人知道?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f205', key:'internet10', label:"心情不好时你是否会希望从网络上得到安慰,并将上网当成逃避困难或减轻烦恼的主要手段?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f206', key:'internet11', label:"在一次上网活动后,你是否会期待下次上网?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f207', key:'internet12', label:"假如不能上网,你会感觉生活无聊和空虚吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f208', key:'internet13', label:"你会因为他人打扰你上网而暴躁或发脾气吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f209', key:'internet14', label:"你会在深夜上网到很晚而不愿意去睡觉吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f210', key:'internet15', label:"当你离开网络后会继续想着网络上的事吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f211', key:'internet16', label:"上网时间即将结束的时候你会经常跟自己说\"再多玩几分钟\"吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f212', key:'internet17', label:"你会试图减少或者停止上网而最终失败了吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f213', key:'internet18', label:"你会为了隐瞒你的上网时间而对别人说谎吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f214', key:'internet19', label:"你会宁愿上网也不愿跟家人朋友相处吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f215', key:'internet20', label:"你会因为不能上网而感到失落、烦躁不安,而一旦能上网这种情绪就会消失吗?", type:'select', options:["1", "2", "3", "4", "5"], hint:"1=从不 2=偶尔 3=有时 4=经常 5=总是" },
+    { id:'f216', key:'addiction1', label:"将上网作为生活中心", type:'select', options:["1", "0"], hint:"1=是 0=否" },
+    { id:'f217', key:'addiction2', label:"不断增加上网需要", type:'select', options:["1", "0"], hint:"1=是 0=否" },
+    { id:'f218', key:'addiction3', label:"无法有效地减少、控制、停止上网需要", type:'select', options:["1", "0"], hint:"1=是 0=否" },
+    { id:'f219', key:'addiction4', label:"停止或减少上网会导致无聊、抑郁和气愤等负面情绪", type:'select', options:["1", "0"], hint:"1=是 0=否" },
+    { id:'f220', key:'addiction5', label:"在线时间超过预期计划", type:'select', options:["1", "0"], hint:"1=是 0=否" },
+    { id:'f221', key:'addiction6', label:"重要人际关系、工作、职业、学习等方面遭到破坏", type:'select', options:["1", "0"], hint:"1=是 0=否" },
+    { id:'f222', key:'addiction7', label:"向别人撒谎互联网自我卷入程度", type:'select', options:["1", "0"], hint:"1=是 0=否" },
+    { id:'f223', key:'addiction8', label:"通过使用互联网逃避现实问题", type:'select', options:["1", "0"], hint:"1=是 0=否" },
+    { id:'f224', key:'sas1', label:"我觉得比平时容易紧张或着急", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f225', key:'sas2', label:"我无缘无故在感到害怕", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f226', key:'sas3', label:"我容易心里烦乱或感到惊恐", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f227', key:'sas4', label:"我觉得我可能将要发疯", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f228', key:'sas5', label:"*我觉得一切都很好", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f229', key:'sas6', label:"我手脚发抖打颤", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f230', key:'sas7', label:"我因为头疼、颈痛和背痛而苦恼", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f231', key:'sas8', label:"我觉得容易衰弱和疲乏", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f232', key:'sas9', label:"*我觉得心平气和,并且容易安静坐着", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f233', key:'sas10', label:"我觉得心跳得很快", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f234', key:'sas11', label:"我因为一阵阵头晕而苦恼", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f235', key:'sas12', label:"我有晕倒发作,或觉得要晕倒似的", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f236', key:'sas13', label:"*我吸气呼气都感到很容易", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f237', key:'sas14', label:"我的手脚麻木和刺痛", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f238', key:'sas15', label:"我因为胃痛和消化不良而苦恼", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f239', key:'sas16', label:"我常常要小便", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f240', key:'sas17', label:"*我的手脚常常是干燥温暖的", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f241', key:'sas18', label:"我脸红发热", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f242', key:'sas19', label:"*我容易入睡并且一夜睡得很好", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f243', key:'sas20', label:"我做噩梦", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f244', key:'sds1', label:"我觉得闷闷不乐,情绪低沉", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f245', key:'sds2', label:"*我觉得一天之中早晨最好", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f246', key:'sds3', label:"我一阵阵哭出来或想哭", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f247', key:'sds4', label:"我晚上睡眠不好", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f248', key:'sds5', label:"*我吃得跟平常一样多", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f249', key:'sds6', label:"*我与异性密切接触时和以往一样感到愉快", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f250', key:'sds7', label:"我发觉我的体重在下降", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f251', key:'sds8', label:"我有便秘的苦恼", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f252', key:'sds9', label:"我心跳比平时快", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f253', key:'sds10', label:"我无缘无故地感到疲乏", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f254', key:'sds11', label:"*我的头脑跟平常一样清楚", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f255', key:'sds12', label:"*我觉得经常做的事情并不困难", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f256', key:'sds13', label:"我觉得不安而平静不下来", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f257', key:'sds14', label:"*我对将来抱有希望", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f258', key:'sds15', label:"我比平常容易生气激动", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f259', key:'sds16', label:"*我觉得做出决定是容易的", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f260', key:'sds17', label:"*我觉得自己是个有用的人,有人需要我", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f261', key:'sds18', label:"*我的生活过得很有意思", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f262', key:'sds19', label:"我认为如果我死了别人会生活得更好些", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f263', key:'sds20', label:"*平常感兴趣的事我仍然照样感兴趣", type:'select', options:["1", "2", "3", "4"], hint:"1=没有或很少时间 2=小部分时间 3=相当多时间 4=绝大部分或全部时间" },
+    { id:'f264', key:'PSQ1', label:"睡觉有超过一半的时间打鼾?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f265', key:'PSQ2', label:"睡觉总是打鼾?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f266', key:'PSQ3', label:"睡觉鼾声响亮?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f267', key:'PSQ4', label:"睡觉有\"粗重\"或响亮的呼吸音?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f268', key:'PSQ5', label:"睡觉有呼吸困难,或者用力呼吸?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f269', key:'PSQ6', label:"您是否曾经看到孩子在夜间睡眠时停止呼吸?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f270', key:'PSQ7', label:"白天倾向于用口呼吸?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f271', key:'PSQ8', label:"早晨醒来后感觉口干?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f272', key:'PSQ9', label:"偶尔尿床?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f273', key:'PSQ10', label:"早上感觉睡不清醒?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f274', key:'PSQ11', label:"白天嗜睡?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f275', key:'PSQ12', label:"老师或者其他照料者反映过孩子白天嗜睡?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f276', key:'PSQ13', label:"您的孩子早上是否难以叫醒?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f277', key:'PSQ14', label:"您的孩子早上醒后头疼?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f278', key:'PSQ15', label:"您的孩子出生后某段时间曾有过停止生长发育?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f279', key:'PSQ16', label:"您的孩子超重吗?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f280', key:'PSQ17', label:"对他说话时他像没有听到?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f281', key:'PSQ18', label:"规划任务或活动有困难?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f282', key:'PSQ19', label:"很容易因为外界的刺激而分散注意力?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f283', key:'PSQ20', label:"手脚不停地动或坐不住?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f284', key:'PSQ21', label:"总是\"忙碌\"或表现像\"发动机不停运转\"?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f285', key:'PSQ22', label:"打断/打扰别人?", type:'select', options:["1", "2", "3"], hint:"1=是 2=否 3=不知道" },
+    { id:'f286', key:'LQ1', label:"你觉得班上的同学对你友好吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f287', key:'LQ2', label:"你能轻松地参加田径和球类运动吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f288', key:'LQ3', label:"你对自己的记忆力感到满意吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f289', key:'LQ4', label:"你家附近有你可以进行体育运动的场所吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f290', key:'LQ5', label:"你对你和老师的关系感到满意吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f291', key:'LQ6', label:"你对父母和你的关系感到满意吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f292', key:'LQ7', label:"你有机会参加你所喜欢的课余活动吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f293', key:'LQ8', label:"你的朋友关心你吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f294', key:'LQ9', label:"你的好朋友多吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f295', key:'LQ10', label:"你对自己参加体育活动的能力感到满意吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f296', key:'LQ11', label:"你家周围的环境安静吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f297', key:'LQ12', label:"你对自己的睡眠情况感到满意吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f298', key:'LQ13', label:"你对自己的精力感到满意吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f299', key:'LQ14', label:"你对自己的生活感到满意吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f300', key:'LQ15', label:"你家附近能方便地买到你的生活和学习用品吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f301', key:'LQ16', label:"你觉得老师喜欢你吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f302', key:'LQ17', label:"你对自己的健康感到满意吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f303', key:'LQ18', label:"你家附近交通方便吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f304', key:'LQ19', label:"你对自己的朋友感到满意吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f305', key:'LQ20', label:"你认为自己的生活快乐吗?", type:'select', options:["1", "2", "3", "4"], hint:"每题4个选项,填1-4" },
+    { id:'f306', key:'LQ21', label:"你常为已经做过的事后悔吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f307', key:'LQ22', label:"你常觉得大多数人都喜欢你吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f308', key:'LQ23', label:"你一做作业就觉得恶心吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f309', key:'LQ24', label:"你做作业的过程中常需要休息好几次吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f310', key:'LQ25', label:"当遇到难题时,你仍然能坚持做下去吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f311', key:'LQ26', label:"当遇到困难时,你能得到老师的帮助吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f312', key:'LQ27', label:"你常偏爱某些食物或不吃某些食物吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f313', key:'LQ28', label:"你容易感到紧张或害怕吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f314', key:'LQ29', label:"需要帮助时,你能找到可信赖的朋友吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f315', key:'LQ30', label:"你常很容易就记住新学的知识吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f316', key:'LQ31', label:"你常感到疼痛或身体不舒服吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f317', key:'LQ32', label:"你常为这样或那样的事感到烦恼吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f318', key:'LQ33', label:"你常有机会去看展览、比赛或旅游吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f319', key:'LQ34', label:"你除了完成作业还愿意做其他的练习吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f320', key:'LQ35', label:"你常担心自己做错事吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f321', key:'LQ36', label:"你觉得自己是集体中重要的人吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f322', key:'LQ37', label:"你常喜欢和父母呆在一起吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f323', key:'LQ38', label:"你常举手回答老师提出的问题吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f324', key:'LQ39', label:"你常感到累或者没有精神吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f325', key:'LQ40', label:"你早上起床后常觉得还是很累吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f326', key:'LQ41', label:"你喜欢你的老师吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f327', key:'LQ42', label:"你认为自己是个好学生吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f328', key:'LQ43', label:"你常觉得生活没意思吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f329', key:'LQ44', label:"父母能理解你的想法吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f330', key:'LQ45', label:"你常要花很长的时间来完成作业吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f331', key:'LQ46', label:"你觉得老师对你友好吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f332', key:'LQ47', label:"你常觉得不想吃饭或吃得过饱吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f333', key:'LQ48', label:"你常参加体育锻炼吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f334', key:'LQ49', label:"当遇到困难时,你愿意告诉父母吗?", type:'select', options:["1", "2", "3", "4"], hint:"1=从不 2=很少 3=经常 4=总是" },
+    { id:'f335', key:'ff1', label:"父亲:温和(温柔)、友善地跟我说话", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f336', key:'ff2', label:"父亲:对我的帮助不太多", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f337', key:'ff3', label:"父亲:允许我做自己喜欢做的事情", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f338', key:'ff4', label:"父亲:感情上对我很冷淡", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f339', key:'ff5', label:"父亲:理解我的困难与担心", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f340', key:'ff6', label:"父亲:对我的感情很深", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f341', key:'ff7', label:"父亲:经常让我自己做决定", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f342', key:'ff8', label:"父亲:努力控制我的所有事情", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f343', key:'ff9', label:"父亲:侵犯我的隐私", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f344', key:'ff10', label:"父亲:经常跟我商量事情", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f345', key:'ff11', label:"父亲:经常对我微笑", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f346', key:'ff12', label:"父亲:比较娇惯(溺爱)我", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f347', key:'ff13', label:"父亲:貌似(好像)不理解我的需求和愿望", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f348', key:'ff14', label:"父亲:允许我决定自己的事", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f349', key:'ff15', label:"父亲:让我觉得自己不重要", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f350', key:'ff16', label:"父亲:在我不安焦虑时能帮我使我感觉好些", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f351', key:'ff17', label:"父亲:不经常和我说话", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f352', key:'ff18', label:"父亲:试图让我依赖他", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f353', key:'ff19', label:"父亲:觉得他不在时,我无法照顾自己", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f354', key:'fm1', label:"母亲:温和(温柔)、友善地跟我说话", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f355', key:'fm2', label:"母亲:对我的帮助不太多", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f356', key:'fm3', label:"母亲:允许我做自己喜欢做的事情", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f357', key:'fm4', label:"母亲:感情上对我很冷淡", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f358', key:'fm5', label:"母亲:理解我的困难与担心", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f359', key:'fm6', label:"母亲:对我的感情很深", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f360', key:'fm7', label:"母亲:经常让我自己做决定", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f361', key:'fm8', label:"母亲:努力控制我的所有事情", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f362', key:'fm9', label:"母亲:侵犯我的隐私", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f363', key:'fm10', label:"母亲:经常跟我商量事情", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f364', key:'fm11', label:"母亲:经常对我微笑", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f365', key:'fm12', label:"母亲:比较娇惯(溺爱)我", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f366', key:'fm13', label:"母亲:貌似(好像)不理解我的需求和愿望", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f367', key:'fm14', label:"母亲:允许我决定自己的事", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f368', key:'fm15', label:"母亲:让我觉得自己不重要", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f369', key:'fm16', label:"母亲:在我不安焦虑时能帮我使我感觉好些", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f370', key:'fm17', label:"母亲:不经常和我说话", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f371', key:'fm18', label:"母亲:试图让我依赖他", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f372', key:'fm19', label:"母亲:觉得他不在时,我无法照顾自己", type:'select', options:["1", "2", "3", "4"], hint:"1=非常不符合 2=基本不符合 3=基本符合 4=非常符合" },
+    { id:'f373', key:'grow1', label:"因青春期发育看过医生吗", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f374', key:'grow1_t', label:"看过几次", type:'number', options:"\u6b21\u6570" },
+    { id:'f375', key:'grow1_r', label:"就诊原因", type:'text' },
+    { id:'f376', key:'grow2', label:"是否检查过骨龄", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f377', key:'grow3', label:"骨龄和实际年龄是否符合", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f378', key:'grow3_yb', label:"骨龄提前_岁", type:'number' },
+    { id:'f379', key:'grow3_mb', label:"骨龄提前_月", type:'number' },
+    { id:'f380', key:'grow3_ya', label:"骨龄落后_岁", type:'number' },
+    { id:'f381', key:'grow3_ma', label:"骨龄落后_月", type:'number' },
+    { id:'f382', key:'grow4', label:"是否接受过性早熟/快速进展性青春期治疗", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f383', key:'girl1', label:"女-腋毛生长是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f384', key:'girl1_y', label:"女-腋毛生长初始_岁", type:'number' },
+    { id:'f385', key:'girl1_m', label:"女-腋毛生长初始_月", type:'number' },
+    { id:'f386', key:'girl2', label:"女-阴毛生长是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f387', key:'girl2_y', label:"女-阴毛生长初始_岁", type:'number' },
+    { id:'f388', key:'girl2_m', label:"女-阴毛生长初始_月", type:'number' },
+    { id:'f389', key:'girl3', label:"女-乳房发育是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f390', key:'girl3_y', label:"女-乳房发育初始_岁", type:'number' },
+    { id:'f391', key:'girl3_m', label:"女-乳房发育初始_月", type:'number' },
+    { id:'f392', key:'girl4', label:"女-月经是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f393', key:'girl4_y', label:"女-月经初始_岁", type:'number' },
+    { id:'f394', key:'girl4_m', label:"女-月经初始_月", type:'number' },
+    { id:'f395', key:'girl5', label:"女-痤疮(青春痘)是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f396', key:'girl5_y', label:"女-痤疮(青春痘)初始_岁", type:'number' },
+    { id:'f397', key:'girl5_m', label:"女-痤疮(青春痘)初始_月", type:'number' },
+    { id:'f398', key:'girl6', label:"女-注射生长激素是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f399', key:'girl6_y', label:"女-注射生长激素初始_岁", type:'number' },
+    { id:'f400', key:'girl6_m', label:"女-注射生长激素初始_月", type:'number' },
+    { id:'f401', key:'boy1', label:"男-腋毛生长是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f402', key:'boy1_y', label:"男-腋毛生长初始_岁", type:'number' },
+    { id:'f403', key:'boy1_m', label:"男-腋毛生长初始_月", type:'number' },
+    { id:'f404', key:'boy2', label:"男-阴毛生长是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f405', key:'boy2_y', label:"男-阴毛生长初始_岁", type:'number' },
+    { id:'f406', key:'boy2_m', label:"男-阴毛生长初始_月", type:'number' },
+    { id:'f407', key:'boy3', label:"男-睾丸增大是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f408', key:'boy3_y', label:"男-睾丸增大初始_岁", type:'number' },
+    { id:'f409', key:'boy3_m', label:"男-睾丸增大初始_月", type:'number' },
+    { id:'f410', key:'boy4', label:"男-阴茎增大是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f411', key:'boy4_y', label:"男-阴茎增大初始_岁", type:'number' },
+    { id:'f412', key:'boy4_m', label:"男-阴茎增大初始_月", type:'number' },
+    { id:'f413', key:'boy5', label:"男-声音变低沉是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f414', key:'boy5_y', label:"男-声音变低沉初始_岁", type:'number' },
+    { id:'f415', key:'boy5_m', label:"男-声音变低沉初始_月", type:'number' },
+    { id:'f416', key:'boy6', label:"男-喉结生长是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f417', key:'boy6_y', label:"男-喉结生长初始_岁", type:'number' },
+    { id:'f418', key:'boy6_m', label:"男-喉结生长初始_月", type:'number' },
+    { id:'f419', key:'boy7', label:"男-胡须生长是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f420', key:'boy7_y', label:"男-胡须生长初始_岁", type:'number' },
+    { id:'f421', key:'boy7_m', label:"男-胡须生长初始_月", type:'number' },
+    { id:'f422', key:'boy8', label:"男-痤疮(青春痘)是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f423', key:'boy8_y', label:"男-痤疮(青春痘)初始_岁", type:'number' },
+    { id:'f424', key:'boy8_m', label:"男-痤疮(青春痘)初始_月", type:'number' },
+    { id:'f425', key:'boy9', label:"男-遗精是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f426', key:'boy9_y', label:"男-遗精初始_岁", type:'number' },
+    { id:'f427', key:'boy9_m', label:"男-遗精初始_月", type:'number' },
+    { id:'f428', key:'boy10', label:"男-注射生长激素是否", type:'select', options:["0", "1"], hint:"0=否 1=是" },
+    { id:'f429', key:'boy10_y', label:"男-注射生长激素初始_岁", type:'number' },
+    { id:'f430', key:'boy10_m', label:"男-注射生长激素初始_月", type:'number' },
+    { id:'f431', key:'collectform', label:"填表人姓名", type:'text' },
+    { id:'f432', key:'collectdata', label:"填表日期", type:'text', options:"\u5982 2026-5-18" },
+    { id:'f433', key:'keyboarder', label:"录入员", type:'text' }
   ]
 }];
 
@@ -3521,7 +3513,7 @@ function saveCustom() {
     endpoint,
     apiType: provApiType,
     placeholder: 'sk-...',
-    rateLimit: 4000, maxTokens: 8192,
+    rateLimit: 4000, maxTokens: 4096,
     imageFirst,
     extraBody: disableThinking ? { thinking: { type: 'disabled' } } : undefined,
     guide: `<strong>${emojiMap[provApiType] || '🔧'} ${esc(name)}</strong><br>
@@ -3853,7 +3845,6 @@ async function fetchProviderModels(provId) {
   const listEndpoints = {
     zhipu: null, // 智谱无公开 /models 接口
     siliconcloud: 'https://api.siliconflow.cn/v1/models',
-    agnes: 'https://apihub.agnes-ai.com/v1/models',
     groq: getListUrl('groq'),
     github: getListUrl('github'),
     nvidia: getListUrl('nvidia'),
@@ -4697,25 +4688,10 @@ function renderQ() {
   document.getElementById('retryAllBtn').style.display = e>0?'':'none';
 
   const g = document.getElementById('qGrid');
-  // 事件委托：只在固定父容器 #qGrid 上绑定一次。卡片是动态重绘的，
-  // 委托到不变的父节点最可靠，彻底避免「某张卡片没绑上、点了没反应」。
-  if (!g._reviewBound) {
-    g._reviewBound = true;
-    g.addEventListener('click', (ev) => {
-      if (ev.target.closest('.q-del')) return;          // 删除按钮不触发核对
-      const card = ev.target.closest('.q-card');
-      if (!card) return;
-      const it = queue.find(q => q.id === card.dataset.qid);
-      if (!it) return;
-      if (it.status === 'done') openReview(it.id);
-      else if (it.status === 'error') showItemError(it);
-    });
-  }
   g.innerHTML = '';
   queue.forEach(item => {
     const d2 = document.createElement('div');
     d2.className = 'q-card ' + (item.status!=='wait'?'s-'+item.status:'');
-    d2.dataset.qid = item.id;
     const dotCls = {wait:'dot-wait',processing:'dot-proc',done:'dot-done',error:'dot-err'}[item.status];
     const dotTxt = {wait:'…',processing:'◌',done:'✓',error:'!'}[item.status];
     const tag = item.isPdfPage
@@ -4727,9 +4703,21 @@ function renderQ() {
       ?`<div class="q-name q-name-err">⚠️ 点击查看错误</div>`
       :`<div class="q-name" title="${esc(item.displayName)}">${esc(item.displayName)}</div>`;
     d2.innerHTML = `<img class="q-img" src="${item.url}" loading="lazy">${delBtn}<div class="q-dot ${dotCls}">${dotTxt}</div>${tag}${nameHtml}`;
-    if (item.status==='done' || item.status==='error') {
+    if (item.status==='error') {
+      d2.title = '点击查看错误详情：' + (item.err || '未知');
+      d2.addEventListener('click', (ev) => {
+        if (ev.target.closest('.q-del')) return;
+        ev.stopPropagation();
+        showItemError(item);
+      });
+    } else if (item.status==='done') {
       d2.style.cursor = 'pointer';
-      d2.title = item.status==='done' ? '点击左右对照核对' : ('点击查看错误详情：' + (item.err||'未知'));
+      d2.title = '点击左右对照核对';
+      d2.addEventListener('click', (ev) => {
+        if (ev.target.closest('.q-del')) return;
+        ev.stopPropagation();
+        openReview(item.id);
+      });
     }
     g.appendChild(d2);
   });
@@ -4793,62 +4781,17 @@ async function runBatch() {
     const t0 = Date.now();
     try {
       const maxWidth = parseInt(document.getElementById('maxImgWidth').value)||1568;
-      const pageMode = document.getElementById('multiPageMode')?.value || 'auto';
-      const pageCount = item._pageBlobs ? item._pageBlobs.length : 1;
-      // 是否逐页识别：多页 PDF 且（手动选逐页 / 智能模式下 ≥3 页）
-      const usePerPage = pageCount > 1 && (
-        pageMode === 'perpage' || (pageMode === 'auto' && pageCount >= 3)
-      );
-
-      let data;
-      item.warn = null;
-
-      if (usePerPage) {
-        // ── 逐页识别 → 合并为一条记录（防超时/限额）──
-        const pages = item._pageBlobs;
-        const partials = [];
-        const pageErrs = [];
-        for (let pi = 0; pi < pages.length; pi++) {
-          if (stopFlag) throw new Error('已停止');
-          const rInfo = adaptiveRateMul > 1 ? ` [限速 ${adaptiveRateMul.toFixed(1)}x]` : '';
-          setProg(done, total, `第 ${done+1}/${total}：${item.displayName} · 逐页 ${pi+1}/${pages.length}${rInfo}`);
-          const pageFile = new File([pages[pi].blob], `page_${pi+1}.jpg`, { type:'image/jpeg' });
-          try {
-            const pd = await recognizeWithTemplate(pageFile);
-            partials.push(pd);
-          } catch(pe) {
-            pageErrs.push(`第 ${pi+1} 页：${pe.message || pe}`);
-            partials.push(null);
-          }
-          // 每一页都是独立请求 → 页间也要按限速间隔，避免 429
-          if (pi < pages.length - 1 && !stopFlag) {
-            const wait = baseRate * adaptiveRateMul;
-            if (wait > 0) await sleep(wait);
-          }
-        }
-        const okPages = partials.filter(Boolean).length;
-        if (okPages === 0) {
-          throw new Error('所有页面识别均失败：\n' + pageErrs.join('\n'));
-        }
-        data = mergeRecords(partials, activeTemplate);   // ← 合并成「一个人」一条记录
-        if (pageErrs.length) {
-          item.warn = `${okPages}/${pages.length} 页成功，以下页失败（其余已合并）：\n` + pageErrs.join('\n');
-        }
-      } else {
-        // ── 默认：拼接整页 → 单次调用（省额度）──
-        let fileForAI = item.file;
-        if (pageCount > 1) {
-          setProg(done, total, `第 ${done+1}/${total}：拼接 ${pageCount} 页…`);
-          fileForAI = await stitchPages(item._pageBlobs, maxWidth);
-        }
-        data = await recognizeWithTemplate(fileForAI);
+      // Multi-page PDF record → stitch all pages into one composite for a single AI call
+      let fileForAI = item.file;
+      if (item._pageBlobs && item._pageBlobs.length > 1) {
+        setProg(done, total, `第 ${done+1}/${total}：拼接 ${item._pageBlobs.length} 页…`);
+        fileForAI = await stitchPages(item._pageBlobs, maxWidth);
       }
-
+      const data = await recognizeWithTemplate(fileForAI);
       item.status = 'done';
       item.data = data;
       results.push({ ...data, _fname: item.displayName, _itemId: item.id });
       appendResultRow(data, item.displayName, item.id);
-      if (item.warn) toast('⚠️ ' + item.displayName + '：部分页未识别，已合并可用页');
     } catch(err) {
       item.status = 'error';
       item.err = err.message || String(err);
@@ -4925,48 +4868,33 @@ function makeDataExtractionPrompt(template) {
     lines.push(line);
   });
 
-  const hasTable = template.fields.some(f => f.type === 'table' && f.columns?.length && f.rows?.length);
+  // Build expected JSON shape
+  const shape = {};
+  template.fields.forEach(f => {
+    if (f.type === 'table' && f.columns?.length && f.rows?.length) {
+      shape[f.key] = f.rows.map(r => {
+        const row = {};
+        f.columns.forEach(c => row[c.key] = '值或null');
+        return row;
+      });
+    } else {
+      shape[f.key] = '值或null';
+    }
+  });
 
-  return `你是数据提取助手。请仔细识别这张已填写的「${template.name}」表单图片，提取其中的数据。
+  return `你是数据提取助手。请仔细识别这张已填写的「${template.name}」表单，提取所有数据。
 
-字段定义（英文key｜中文标签｜类型）：
+字段定义：
 ${lines.join('\n')}
 ${template.extractHint ? '\n特殊识别说明：\n' + template.extractHint + '\n' : ''}
-输出要求（务必遵守，否则会因输出过长被截断而整页失败）：
-1. 只输出一个 JSON 对象，不要任何 Markdown 代码块标记，不要解释文字。
-2. 键名必须与上面的英文 key 完全一致，不要改名。
-3. 【最重要】只输出你在这张图片上确实能看到、已填写的字段；本图上没有、看不到、空白或无法识别的字段，请直接不要输出该键——既不要用 null 占位，也不要把全部字段罗列出来。这样能大幅缩短输出、避免被截断。
-4. 用紧凑 JSON：不换行、不缩进、不加多余空格。
-5. 数值一律以字符串返回。示例：{"ID":"G140323","childname":"罗智兰","gender":"1","st1_1":"10","st1_2":"1"}${hasTable ? '\n6. 表格字段按行顺序返回数组，每行为一个对象、含所有列。' : ''}`;
-}
+只输出 JSON（不要 Markdown 标记或任何其他内容），格式如下：
+${JSON.stringify(shape, null, 2)}
 
-/* 稳健解析模型返回的 JSON：去掉 Markdown 代码块围栏 → 整体解析 → 失败则逐对抢救
-   （即便输出被截断、缺右括号，也能把已经返回的字段救回来，不至于整页作废） */
-function parseModelJSON(text){
-  if(!text) return null;
-  let s = String(text).replace(/```json/gi,'').replace(/```/g,'').trim();
-  const first = s.indexOf('{');
-  if(first < 0) return null;
-  // 1) 优先整体解析：第一个 { 到最后一个 }
-  const last = s.lastIndexOf('}');
-  if(last > first){
-    try { return JSON.parse(s.slice(first, last+1)); } catch(e){ /* 落到抢救 */ }
-  }
-  // 2) 抢救：逐个提取完整的 "key": value 对（截断时也能拿到前面已返回的数据）
-  const body = s.slice(first);
-  const re = /"([^"\\]+)"\s*:\s*(null|true|false|-?\d+(?:\.\d+)?|"(?:[^"\\]|\\.)*"|\[[\s\S]*?\])/g;
-  const obj = {}; let mm, n = 0;
-  while((mm = re.exec(body))){
-    let v = mm[2];
-    if(v === 'null') v = null;
-    else if(v === 'true') v = true;
-    else if(v === 'false') v = false;
-    else if(v[0] === '"'){ try{ v = JSON.parse(v); }catch(_){ v = v.slice(1,-1); } }
-    else if(v[0] === '['){ try{ v = JSON.parse(v); }catch(_){ continue; } }
-    else { const num = Number(v); v = isNaN(num) ? v : num; }
-    obj[mm[1]] = v; n++;
-  }
-  return n > 0 ? obj : null;
+要求：
+- 仔细辨认手写数字（区分 0/6, 1/7 等）
+- 数值以字符串返回
+- 无法识别的字段填 null
+- 表格必须按行顺序返回数组，每行包含所有列`;
 }
 
 async function recognizeWithTemplate(file) {
@@ -4984,9 +4912,10 @@ async function recognizeWithTemplate(file) {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const text = await callAI(b64, mime, makeDataExtractionPrompt(activeTemplate));
-      const parsed = parseModelJSON(text);
-      if (!parsed || typeof parsed !== 'object') throw new Error('AI 未返回可解析的 JSON。原始：' + (text||'').slice(0,200));
-      return parsed;
+      const m = text.match(/\{[\s\S]*\}/);
+      if (!m) throw new Error('AI 未返回 JSON。原始：' + text.slice(0,200));
+      try { return JSON.parse(m[0]); }
+      catch(e) { throw new Error('JSON 解析错误：' + e.message + '\n返回：' + m[0].slice(0,200)); }
     } catch(err) {
       lastErr = err;
       const isRate = /429|rate|频率|超限|too many|quota/i.test(err.message);
@@ -5016,67 +4945,6 @@ async function recognizeWithTemplate(file) {
     }
   }
   throw lastErr;
-}
-
-/* ────────────────────────────────────────────────────────────────
-   逐页识别 → 合并为「一个人」一条记录
-   每一页单独识别后，模型对看不到的字段会填 null；
-   合并规则：标量字段取各页中第一个非空值；表格字段按「行×列」逐格取第一个非空值。
-   这样同一份多页 PDF 仍然只产出 1 条记录（1 行）。
-──────────────────────────────────────────────────────────────── */
-function _isBlank(v) {
-  return v === null || v === undefined || (typeof v === 'string' && v.trim() === '');
-}
-function mergeRecords(partials, template) {
-  const valid = partials.filter(p => p && typeof p === 'object');
-  if (valid.length === 0) return {};
-  if (valid.length === 1) return valid[0];
-
-  const tableKeys = new Set(
-    (template.fields || [])
-      .filter(f => f.type === 'table' && f.columns?.length && f.rows?.length)
-      .map(f => f.key)
-  );
-  const merged = {};
-
-  // 1) 普通字段：按页顺序取第一个非空值
-  (template.fields || []).forEach(f => {
-    if (tableKeys.has(f.key)) return;
-    let val = null;
-    for (const p of valid) {
-      if (!_isBlank(p[f.key])) { val = p[f.key]; break; }
-    }
-    merged[f.key] = val;
-  });
-
-  // 2) 表格字段：逐格(行 ri × 列 c.key)取第一个非空值
-  (template.fields || []).forEach(f => {
-    if (!tableKeys.has(f.key)) return;
-    const out = [];
-    for (let ri = 0; ri < f.rows.length; ri++) {
-      const row = {};
-      f.columns.forEach(c => {
-        let cell = null;
-        for (const p of valid) {
-          const arr = p[f.key];
-          const v = Array.isArray(arr) ? arr[ri]?.[c.key] : undefined;
-          if (!_isBlank(v)) { cell = v; break; }
-        }
-        row[c.key] = cell;
-      });
-      out.push(row);
-    }
-    merged[f.key] = out;
-  });
-
-  // 3) 兜底：保留模板未定义但页面里出现的额外键
-  valid.forEach(p => {
-    Object.keys(p).forEach(k => {
-      if (!(k in merged) && !_isBlank(p[k])) merged[k] = p[k];
-    });
-  });
-
-  return merged;
 }
 
 async function callAI(b64, mime, prompt) {
@@ -5130,6 +4998,9 @@ async function callGemini(provider, key, b64, mime, prompt) {
   const useModel = modelOverride || provider.model;
   const url = `${provider.endpoint}/${useModel}:generateContent?key=${key}`;
 
+  const fieldCount = activeTemplate?.fields?.length || 0;
+  const neededTokens = Math.min(16000, Math.max(provider.maxTokens || 4096, fieldCount * 14 + 800));
+
   let res;
   try {
     res = await fetch(url, {
@@ -5144,7 +5015,7 @@ async function callGemini(provider, key, b64, mime, prompt) {
         }],
         generationConfig: {
           temperature: 0.1,
-          maxOutputTokens: provider.maxTokens || 8192,
+          maxOutputTokens: neededTokens,
           // For 2.5 Flash family, response_mime_type forces JSON output
           responseMimeType: 'application/json'
         }
@@ -5192,7 +5063,7 @@ async function callAnthropicCompat(provider, key, b64, mime, prompt) {
 
   const body = {
     model: useModel,
-    max_tokens: provider.maxTokens || 8192,
+    max_tokens: provider.maxTokens || 4096,
     messages: [{ role: 'user', content }]
   };
 
@@ -5256,9 +5127,14 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
     useModel = modelOverride || provider.model;
   }
 
+  // Scale output tokens to template size so big forms (e.g. 433-field questionnaire)
+  // don't get their JSON truncated. ~12 tokens/field, min = provider default.
+  const fieldCount = activeTemplate?.fields?.length || 0;
+  const neededTokens = Math.min(16000, Math.max(provider.maxTokens || 2000, fieldCount * 14 + 800));
+
   const body = {
     model: useModel,
-    max_tokens: provider.maxTokens || 2000,
+    max_tokens: neededTokens,
     temperature: 0.1,
     messages: [{ role:'user', content }],
     ...(provider.extraBody || {})
@@ -5569,45 +5445,9 @@ function reviewableIds() {
     .filter(id => results.some(r => r._itemId === id));
 }
 
-/* 核对窗左右分隔条：拖动调整左右宽度，双击恢复默认。带去重，重复调用安全。 */
-function setupRvSplitter(){
-  const sp=document.getElementById('rvSplitter');
-  if(!sp||sp._bound) return;
-  sp._bound=true;
-  const body=sp.parentElement;            // .review-body
-  const left=document.getElementById('rvLeft');
-  if(!body||!left) return;
-  let dragging=false;
-  const move=(e)=>{
-    if(!dragging) return;
-    const r=body.getBoundingClientRect();
-    const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
-    const w=Math.max(240, Math.min(r.width-300, cx));   // 左侧最小240、给右侧至少留300
-    left.style.flex='0 0 '+w+'px';
-    if(e.cancelable) e.preventDefault();
-  };
-  const stop=()=>{ if(!dragging)return; dragging=false; sp.classList.remove('dragging'); document.body.style.userSelect=''; };
-  sp.addEventListener('mousedown',e=>{dragging=true;sp.classList.add('dragging');document.body.style.userSelect='none';e.preventDefault();});
-  sp.addEventListener('touchstart',()=>{dragging=true;sp.classList.add('dragging');},{passive:true});
-  window.addEventListener('mousemove',move);
-  window.addEventListener('touchmove',move,{passive:false});
-  window.addEventListener('mouseup',stop);
-  window.addEventListener('touchend',stop);
-  sp.addEventListener('dblclick',()=>{left.style.flex='';});   // 双击恢复默认比例
-}
-
 function openReview(itemId) {
-  console.log('[核对] 点击已触发 → openReview，itemId =', itemId,
-              '｜当前结果条数 =', (typeof results !== 'undefined' && results ? results.length : '(results 未初始化!)'));
-  setupRvSplitter();
-  try {
   const r = results.find(x => x._itemId === itemId);
-  if (!r) {
-    const _m = `找不到该记录（itemId=${itemId}，当前共 ${results.length} 条）。\n可能这条结果未成功写入。请重新识别一次再试。`;
-    console.warn('[核对]', _m);
-    alert('⚠️ ' + _m);
-    return;
-  }
+  if (!r) { toast('找不到该记录'); return; }
   _reviewItemId = itemId;
   _reviewZoom = 1;
   // Find the queue item that produced this result (for page images).
@@ -5653,12 +5493,6 @@ function openReview(itemId) {
 
   document.getElementById('reviewModal').classList.add('on');
   document.body.style.overflow = 'hidden';
-  console.log('[核对] 核对窗已打开 ✅');
-  } catch (err) {
-    console.error('[核对] openReview 执行出错：', err);
-    alert('❌ 打开核对窗时出错：\n' + (err && err.message ? err.message : err) +
-          '\n\n（把这行错误截给开发者即可定位）');
-  }
 }
 
 function renderReviewFields(r) {
@@ -5772,6 +5606,32 @@ function applyRvZoom() {
   });
   document.getElementById('rvZoomLbl').textContent = Math.round(_reviewZoom*100) + '%';
 }
+
+// Drag the divider to resize left (PDF) vs right (fields).
+(function initRvResizer(){
+  function setup(){
+    const rz = document.getElementById('rvResizer');
+    const body = rz ? rz.parentElement : null;
+    if (!rz || !body || rz._wired) return;
+    rz._wired = true;
+    let dragging = false;
+    const onMove = (clientX) => {
+      const rect = body.getBoundingClientRect();
+      let pct = ((clientX - rect.left) / rect.width) * 100;
+      pct = Math.max(22, Math.min(80, pct));   // clamp 22%–80%
+      document.querySelector('.review-shell').style.setProperty('--rv-split', pct + '%');
+    };
+    rz.addEventListener('mousedown', e => { dragging = true; rz.classList.add('dragging'); document.body.style.userSelect='none'; e.preventDefault(); });
+    window.addEventListener('mousemove', e => { if (dragging) onMove(e.clientX); });
+    window.addEventListener('mouseup', () => { if (dragging){ dragging=false; rz.classList.remove('dragging'); document.body.style.userSelect=''; } });
+    // touch
+    rz.addEventListener('touchstart', e => { dragging = true; rz.classList.add('dragging'); }, {passive:true});
+    window.addEventListener('touchmove', e => { if (dragging && e.touches[0]) onMove(e.touches[0].clientX); }, {passive:true});
+    window.addEventListener('touchend', () => { if (dragging){ dragging=false; rz.classList.remove('dragging'); } });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
+  else setup();
+})();
 
 function closeReview() {
   document.getElementById('reviewModal').classList.remove('on');
