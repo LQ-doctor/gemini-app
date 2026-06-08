@@ -2726,6 +2726,61 @@ const PRESET_TEMPLATES = [
     { id:"collectdata", key:"collectdata", label:"采集日期", type:"text" },
     { id:"keyboarder", key:"keyboarder", label:"录入人", type:"text" }
   ]
+},
+{
+  id: 'preset_growth_check',
+  name: '儿童健康体检结果（生长发育评价）',
+  description: '儿童健康体检结果单：编号/姓名/性别/出生日期，身高·体重·头围及各自百分位评价、BMI 及评价；自动把出生日期与收集日期拆成 年/月/日。导出英文变量名。',
+  preset: true,
+  emoji: '📏',
+  reviewKind: 'growth',
+  extractHint: `这是一张「儿童健康体检结果」单（多为打印体，少量手写），核心是上方身份信息 + 「体格发育评价」表。请逐项精确识别，识别不到或空白的字段一律填 null，绝不要编造数字。
+
+【身份信息】
+- ID：编号（表头"编号"后的数字，如 18913）
+- childname：姓名（如"张靖之女"原样照抄）
+- sex：性别，原样填中文"男"或"女"
+- birthday：出生日期，统一整理成 YYYY-MM-DD（例:"2025年06月10日" → "2025-06-10"）
+- birth_year / birth_month / birth_day：把出生日期拆成 年/月/日 三个数字（如 2025 / 6 / 10）
+
+【体格发育评价 · 生长水平】每一行通常是：测量值 + 百分位区间(如 p75-P85) + 评级(上/中上/中/中下/下)
+- height：身高数值（只取数字，单位 cm，如 75.6）
+- height_evaluation：身高对应评价，填"百分位区间 评级"，如"p75-P85 中上"；若只有评级就填评级词
+- weight：体重数值（kg，如 9.6）
+- weight_evaluation：体重对应评价，同上格式（如"p75-P90 中上"）
+- headline：头围数值（cm，如 44.8）；表上写"头围"
+- head_evaluation：头围对应评价，同上格式（如"p25-P50 中"）
+
+【匀称度】
+- BMI：身体质量指数数值（如 16.8）
+- BMI_evaluation：BMI 对应评价，填"百分位区间 评级"，如"p50-P75 中"
+
+【收集日期】
+- collectdata：本次体检/报告/采集日期，整理成 YYYY-MM-DD；单上没有就填 null
+- collect_year / collect_month / collect_day：把收集日期拆成 年/月/日；没有就填 null
+
+【注意】数值字段只填数字本身（不带单位）；评价字段保留中文评级词；只输出 JSON，键名必须与下面英文 key 完全一致，不得改名或遗漏。`,
+  fields: [
+    { id:'g1',  key:'ID',                label:'调查对象编号',     type:'text',   hint:'表头"编号"，如 18913' },
+    { id:'g2',  key:'childname',         label:'儿童姓名',         type:'text',   hint:'如 张靖之女' },
+    { id:'g3',  key:'sex',               label:'性别',             type:'select', options:['男','女'] },
+    { id:'g4',  key:'birthday',          label:'出生日期',         type:'text',   hint:'YYYY-MM-DD' },
+    { id:'g5',  key:'birth_year',        label:'出生日期_年',      type:'number', hint:'年，如 2025' },
+    { id:'g6',  key:'birth_month',       label:'出生日期_月',      type:'number', hint:'月，1-12' },
+    { id:'g7',  key:'birth_day',         label:'出生日期_日',      type:'number', hint:'日，1-31' },
+    { id:'g8',  key:'height',            label:'身高',             type:'number', hint:'cm，如 75.6' },
+    { id:'g9',  key:'height_evaluation', label:'身高_评价',        type:'text',   hint:'如 p75-P85 中上' },
+    { id:'g10', key:'weight',            label:'体重',             type:'number', hint:'kg，如 9.6' },
+    { id:'g11', key:'weight_evaluation', label:'体重_评价',        type:'text',   hint:'如 p75-P90 中上' },
+    { id:'g12', key:'headline',          label:'头围',             type:'number', hint:'cm，如 44.8' },
+    { id:'g13', key:'head_evaluation',   label:'头围_评价',        type:'text',   hint:'如 p25-P50 中' },
+    { id:'g14', key:'BMI',               label:'身体质量指数',     type:'number', hint:'如 16.8' },
+    { id:'g15', key:'BMI_evaluation',    label:'身体质量指数_评价', type:'text',  hint:'如 p50-P75 中' },
+    { id:'g16', key:'collectdata',       label:'收集日期',         type:'text',   hint:'YYYY-MM-DD，无则空' },
+    { id:'g17', key:'collect_year',      label:'收集日期_年',      type:'number' },
+    { id:'g18', key:'collect_month',     label:'收集日期_月',      type:'number' },
+    { id:'g19', key:'collect_day',       label:'收集日期_日',      type:'number' }
+  ]
 }];
 
 /* ════════════════════════════════════════════════════════════════
@@ -5827,6 +5882,13 @@ function openReview(itemId) {
   }
   _reviewItemId = itemId;
   _reviewZoom = 1;
+
+  // 先把全屏核对面板打开（再填内容）。这样即使下面某一步出错，弹窗也已经出现，
+  // 不会再发生「点核对没反应」。内容渲染各自包了 try，单点失败不影响整窗。
+  const _modal = document.getElementById('reviewModal');
+  if (_modal) _modal.classList.add('on');
+  document.body.style.overflow = 'hidden';
+
   // Find the queue item that produced this result (for page images).
   // For expanded rows, itemId is like "<qid>_<idx>"; strip the suffix to find the source.
   let qItem = queue.find(q => q.id === itemId);
@@ -5868,7 +5930,13 @@ function openReview(itemId) {
   document.getElementById('rvZoomLbl').textContent = '100%';
 
   // ---- Right: editable fields ----
-  renderReviewFields(r);
+  try { renderReviewFields(r); }
+  catch (e2) {
+    console.error('[核对] 字段渲染出错，已忽略以保证弹窗显示：', e2);
+    const host = document.getElementById('rvFields');
+    if (host) host.innerHTML = '<div style="padding:18px;color:#b91c1c;font-size:12px">字段渲染出错：' +
+      (e2 && e2.message ? e2.message : e2) + '<br>原图仍可在左侧查看。</div>';
+  }
 
   // ---- Nav position ----
   const ids = reviewableIds();
@@ -5877,8 +5945,6 @@ function openReview(itemId) {
   document.getElementById('rvPrevRec').disabled = idx <= 0;
   document.getElementById('rvNextRec').disabled = idx < 0 || idx >= ids.length-1;
 
-  document.getElementById('reviewModal').classList.add('on');
-  document.body.style.overflow = 'hidden';
   console.log('[核对] 核对窗已打开 ✅');
   } catch (err) {
     console.error('[核对] openReview 执行出错：', err);
@@ -6027,10 +6093,12 @@ function detectReviewKind(t) {
   if (id === 'preset_consent_form') return 'consent';
   if (id === 'preset_lipid_report') return 'lab';
   if (id === 'preset_cbc')          return 'cbc';
+  if (id === 'preset_growth_check') return 'growth';
   if (id === 'preset_screen_time')  return 'screen';
   const keys = new Set((t.fields || []).map(f => f.key));
   if (keys.has('consent_routine') || keys.has('consent_blood')) return 'consent';
   if (keys.has('WBC') && keys.has('PLT') && keys.has('HGB') && keys.has('MCV')) return 'cbc';
+  if (keys.has('height_evaluation') && keys.has('BMI_evaluation') && keys.has('headline')) return 'growth';
   if (keys.has('glu') && keys.has('hdl_c') && keys.has('ldl_c')) return 'lab';
   if (keys.has('TBW') && keys.has('SMM') && (keys.has('imp50_RA') || keys.has('PBF'))) return 'bca';
   if (keys.has('skinfold') && keys.has('bp')) return 'health';
@@ -6639,6 +6707,71 @@ function rvCbcRender(r, host){
   rvUpdateFill();
 }
 
+/* ════════ 渲染器：儿童健康体检结果 — 身份 + 生长水平表(值/评价) + 匀称度 ════════ */
+function rvGrowthRender(r, host){
+  const w=document.createElement('div'); w.className='rvx';
+  const F=k=>activeTemplate.fields.find(f=>f.key===k);
+
+  // 通用：把任意 key 包成一个受控输入框（写回 + 空值高亮 + 同步主表）
+  const inputFor=(key,isNum)=>{
+    const cur=r[key];
+    const inp=document.createElement('input');
+    inp.className='rvl-in'+((cur==null||cur==='')?' rv-empty':'');
+    inp.value=(cur==null?'':String(cur));
+    if(isNum) inp.inputMode='decimal';
+    inp.oninput=()=>rvSetScalar(key, inp.value, inp);
+    return inp;
+  };
+
+  // ── 身份信息 ──
+  w.appendChild(rvMakeSec('体检结果 · 身份信息', 0));
+  ['ID','childname','sex','birthday'].forEach(k=>{ const f=F(k); if(f) w.appendChild(rvFieldRow(f,r)); });
+  const bnote=document.createElement('div'); bnote.className='rvx-note';
+  bnote.textContent='出生日期已自动拆成 年/月/日，下面三格如有偏差可直接改：'; w.appendChild(bnote);
+  ['birth_year','birth_month','birth_day'].forEach(k=>{ const f=F(k); if(f) w.appendChild(rvFieldRow(f,r)); });
+
+  // ── 生长水平表：测量值 + 评价 ──
+  w.appendChild(rvMakeSec('体格发育评价 · 生长水平', 0));
+  const note=document.createElement('div'); note.className='rvx-note';
+  note.textContent='对照左侧原件逐行核对：左格填数值（cm/kg），右格填评价（如 p75-P85 中上）。'; w.appendChild(note);
+  const wrap=document.createElement('div'); wrap.className='rvl-wrap';
+  const tbl=document.createElement('table'); tbl.className='rvl';
+  tbl.innerHTML='<thead><tr><th style="text-align:left;width:78px">项目</th><th style="width:78px">数值</th><th style="text-align:left">评价（百分位 + 评级）</th></tr></thead>';
+  const tb=document.createElement('tbody');
+  [['身高','height','height_evaluation','cm'],
+   ['体重','weight','weight_evaluation','kg'],
+   ['头围','headline','head_evaluation','cm']].forEach(row=>{
+    const [name,vKey,eKey,unit]=row;
+    const tr=document.createElement('tr');
+    let td=document.createElement('td'); td.style.textAlign='left';
+    td.innerHTML='<div class="cbc-name">'+esc(name)+'</div><div class="cbc-key">'+esc(vKey)+'</div>'; tr.appendChild(td);
+    td=document.createElement('td');
+    const vIn=inputFor(vKey,true); vIn.style.textAlign='center'; td.appendChild(vIn);
+    const u=document.createElement('div'); u.className='cbc-unit'; u.style.marginTop='2px'; u.textContent=unit; td.appendChild(u);
+    tr.appendChild(td);
+    td=document.createElement('td');
+    const eIn=inputFor(eKey,false); td.appendChild(eIn);
+    const ek=document.createElement('div'); ek.className='cbc-key'; ek.textContent=eKey; td.appendChild(ek);
+    tr.appendChild(td);
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); wrap.appendChild(tbl); w.appendChild(wrap);
+
+  // ── 匀称度：BMI + 评价 ──
+  w.appendChild(rvMakeSec('匀称度 · 身体质量指数', 0));
+  ['BMI','BMI_evaluation'].forEach(k=>{ const f=F(k); if(f) w.appendChild(rvFieldRow(f,r)); });
+
+  // ── 收集日期 ──
+  w.appendChild(rvMakeSec('收集日期', 0));
+  const cf=F('collectdata'); if(cf) w.appendChild(rvFieldRow(cf,r));
+  const cnote=document.createElement('div'); cnote.className='rvx-note';
+  cnote.textContent='收集日期同样自动拆成 年/月/日：'; w.appendChild(cnote);
+  ['collect_year','collect_month','collect_day'].forEach(k=>{ const f=F(k); if(f) w.appendChild(rvFieldRow(f,r)); });
+
+  host.appendChild(w);
+  rvUpdateFill();
+}
+
 /* 专用面板注册表 */
 const SPECIAL_REVIEW = {
   health: rvHealthRender,
@@ -6646,6 +6779,7 @@ const SPECIAL_REVIEW = {
   consent: rvConsentRender,
   lab: rvLabRender,
   cbc: rvCbcRender,
+  growth: rvGrowthRender,
   screen: rvScreenRender
 };
 
