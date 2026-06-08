@@ -219,7 +219,9 @@ header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
 .rv-freq input{width:48px;height:25px;text-align:center;border:1px solid var(--line2);border-radius:6px;font-family:var(--mono);font-size:12px;background:#fff}
 .rv-freq input:focus{outline:none;border-color:var(--accent2);box-shadow:0 0 0 2px rgba(13,148,136,.16)}
 .rv-freq input.empty{background:#fffbeb;border-color:#fcd34d}
-.rv-devbody.off{opacity:.4}
+.rv-devbody.off{opacity:.85}
+.rv-devbody.off .rv-freq input,
+.rv-devbody.off .rv-chk{opacity:1;pointer-events:auto}
 .rv-toggle{display:inline-flex;border:1px solid var(--line2);border-radius:7px;overflow:hidden}
 .rv-toggle button{border:none;background:#fff;font-size:11px;font-weight:700;padding:3px 10px;cursor:pointer;color:var(--ink3)}
 .rv-toggle button.on{background:var(--accent2);color:#fff}
