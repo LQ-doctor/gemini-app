@@ -371,10 +371,10 @@ select.set-key{font-family:var(--sans)}
       <div class="card-h"><span class="dot"></span><h2 id="upTitle">① 上传 PDF</h2><span class="meta" id="qmeta">—</span></div>
       <div class="card-b">
         <div class="drop" id="drop">
-          <div class="big">📄 点击或拖入 PDF（可多选批量）</div>
-          <div class="sub" id="dropSub">每份 PDF 一个人。</div>
+          <div class="big">📄 点击或拖入 PDF / 图片（可多选批量）</div>
+          <div class="sub" id="dropSub">每份 PDF 一个人；图片支持一页一份（JPG / PNG）。</div>
         </div>
-        <input type="file" id="file" accept="application/pdf" multiple style="display:none">
+        <input type="file" id="file" accept="application/pdf,image/*" multiple style="display:none">
 
         <div class="splitnote"><span class="ico">✂️</span><span id="splitNote"></span></div>
 
@@ -407,13 +407,14 @@ select.set-key{font-family:var(--sans)}
 
         <!-- Import for visual cross-check -->
         <div class="imp-panel">
-          <div class="imp-h">🔎 导入同名变量做「可视化套对」</div>
-          <div class="imp-sub">导入一份 <code>.xlsx</code> / <code>.csv</code> / <code>.txt</code>（首行为英文变量名表头，与本系统 key 一致）。系统会按顺序（或按 <code>ID</code>/编号）把每行数据<b>填进对应记录的空位</b>并以<span style="color:#4b49c9;font-weight:700">紫色</span>标注，方便在核对窗与原件逐项比对。仅填空位，不覆盖已识别值（可勾「覆盖」）。</div>
+          <div class="imp-h">🔎 导入变量表 / 手动录入（可无原件）</div>
+          <div class="imp-sub">导入一份 <code>.xlsx</code> / <code>.csv</code> / <code>.txt</code>（首行为英文变量名表头，与本系统 key 一致）。<b>无需上传 PDF 或图片</b>：每行数据会按顺序（或按 <code>ID</code>/编号）填入对应记录的空位并以<span style="color:#4b49c9;font-weight:700">紫色</span>标注；记录不够时自动新建（核对窗左侧无原件即留空，只看右侧字段）。仅填空位，不覆盖已识别值（可勾「覆盖」）。也可「手动新增一条」直接录入，<b>核对窗内按 Tab / 回车跳下一题</b>。</div>
           <div class="imp-row">
-            <button class="btn" id="impBtn">📥 选择 xlsx / csv / txt</button>
+            <button class="btn" id="impBtn">📥 导入 xlsx / csv / txt</button>
             <input type="file" id="impFile" accept=".xlsx,.xls,.csv,.txt,.tsv" style="display:none">
+            <button class="btn" id="manualBtn">✍️ 手动新增一条</button>
             <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);cursor:pointer"><input type="checkbox" id="impOverwrite" style="width:15px;height:15px;accent-color:#5856D6">覆盖已识别值</label>
-            <button class="btn ghost" id="impClearBtn" style="display:none">清除套对</button>
+            <button class="btn ghost" id="impClearBtn" style="display:none">清除导入</button>
             <span class="imp-stat" id="impStat"></span>
           </div>
         </div>
@@ -1651,23 +1652,46 @@ function buildPromptFor(sys,page){
 /* ════════════ 上传 + 按「每人页数」自动拆分 ════════════ */
 async function addFiles(fileList){
   if(!curSys)return;
-  const files=[...fileList].filter(f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf');
-  if(!files.length){toast('请选择 PDF 文件');return;}
+  const all=[...fileList];
+  const isPdf=f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf';
+  const isImg=f=>/^image\//.test(f.type)||/\.(png|jpe?g|webp|gif|bmp)$/i.test(f.name);
+  const files=all.filter(f=>isPdf(f)||isImg(f));
+  if(!files.length){toast('请拖入 PDF 或图片文件');return;}
   const per=curSys.pagesPerRecord||1;
-  for(const file of files){
-    setProg(0,`解析 ${file.name} …`);
-    let pages;
-    try{ pages=await renderPdf(file); }
-    catch(e){ toast('PDF 解析失败：'+file.name); continue; }
-    const chunks=Math.max(1,Math.ceil(pages.length/per));
+  let imgBuf=[];   // 累积图片页：{page:{dataUrl,b64,mime}, name}
+  const flushImgs=()=>{
+    if(!imgBuf.length)return;
+    const chunks=Math.max(1,Math.ceil(imgBuf.length/per));
     for(let ci=0;ci<chunks;ci++){
-      const slice=pages.slice(ci*per,ci*per+per);
-      if(!slice.length)continue;
-      records.push({id:uid(),file:file.name.replace(/\.pdf$/i,''),part:chunks>1?(ci+1):0,partCount:chunks,
-        pages:slice,data:null,filled:0,status:'pending',err:'',imported:null});
+      const slice=imgBuf.slice(ci*per,ci*per+per);if(!slice.length)continue;
+      const names=slice.map(x=>x.name);
+      const label=slice.length===1?names[0]:(names[0]+'…+'+(slice.length-1)+'图');
+      records.push({id:uid(),file:label,part:chunks>1?(ci+1):0,partCount:chunks,
+        pages:slice.map(x=>x.page),data:null,filled:0,status:'pending',err:'',imported:null});
     }
-    renderResults();refreshQueueUI();
+    imgBuf=[];renderResults();refreshQueueUI();
+  };
+  for(const file of files){
+    if(isPdf(file)){
+      flushImgs();
+      setProg(0,`解析 ${file.name} …`);
+      let pages;
+      try{ pages=await renderPdf(file); }catch(e){ toast('PDF 解析失败：'+file.name); continue; }
+      const chunks=Math.max(1,Math.ceil(pages.length/per));
+      for(let ci=0;ci<chunks;ci++){
+        const slice=pages.slice(ci*per,ci*per+per);if(!slice.length)continue;
+        records.push({id:uid(),file:file.name.replace(/\.pdf$/i,''),part:chunks>1?(ci+1):0,partCount:chunks,
+          pages:slice,data:null,filled:0,status:'pending',err:'',imported:null});
+      }
+      renderResults();refreshQueueUI();
+    }else{
+      setProg(0,`读取 ${file.name} …`);
+      try{const d=await bReadImage(file);imgBuf.push({page:{dataUrl:d,b64:d.split(',')[1],mime:file.type||'image/png'},name:file.name.replace(/\.[^.]+$/,'')});}
+      catch(_){ toast('图片读取失败：'+file.name); }
+      if(per===1)flushImgs();   // 一页一份：每张图立即成一条记录
+    }
   }
+  flushImgs();
   setProg(-1);
   toast(`已加入待识别记录，共 ${records.length} 条`);
 }
@@ -1702,7 +1726,7 @@ async function runRecord(r){
     const page=i+1;
     setProg(0,`${recLabel(r)}：第 ${page}/${r.pages.length} 页`);
     const prompt=buildPromptFor(curSys,page);
-    const txt=await callWithRetry(prompt,r.pages[i].b64,'image/jpeg');
+    const txt=await callWithRetry(prompt,r.pages[i].b64,r.pages[i].mime||'image/jpeg');
     parts.push(parseModelJSON(txt)||{});
     await sleep(150);
   }
@@ -1760,11 +1784,13 @@ function statPill(r){
   if(r.status==='done')return '<span class="pill ok">完成</span>';
   if(r.status==='running')return '<span class="pill run">识别中</span>';
   if(r.status==='error')return '<span class="pill bad">失败</span>';
+  if(r.status==='imported')return '<span class="pill imp">导入</span>';
+  if(r.status==='manual')return '<span class="pill imp">录入</span>';
   return '<span class="pill" style="background:var(--paper);color:var(--ink3)">等待</span>';
 }
 function renderResults(){
   const wrap=$('resWrap');
-  if(!records.length){wrap.innerHTML='<div class="empty">还没有结果。上传 PDF 后点「开始识别」。</div>';$('rmeta').textContent='0 条';return;}
+  if(!records.length){wrap.innerHTML='<div class="empty">还没有记录。上传 PDF / 图片后点「开始识别」，或在上方直接导入变量表 / 手动新增一条录入。</div>';$('rmeta').textContent='0 条';return;}
   $('rmeta').textContent=records.length+' 条';
   const total=curSys.expandKey?0:curSys._leafKeys.length;
   let h='<table class="rtable"><thead><tr><th>文件 / 记录</th><th>ID</th><th>姓名 / 样本</th><th>状态</th><th>已填</th><th></th></tr></thead><tbody>';
@@ -2120,7 +2146,6 @@ function setupSplitter(){
 const ID_KEYS=['ID','id','ID_no','sample_no','student_id','sample_id','no'];
 async function handleImport(file){
   if(!curSys)return;
-  if(!records.some(r=>r.data)){toast('请先识别出数据，再导入做套对');return;}
   let aoa;const name=(file.name||'').toLowerCase();
   try{
     if(/\.(xlsx|xls)$/.test(name)){const buf=await file.arrayBuffer();const wb=XLSX.read(buf,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];aoa=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:''});}
@@ -2144,43 +2169,62 @@ function applyImport(headers,dataRows){
   const cols=curSys.expandKey?curSys._cols:curSys._leafKeys;
   const useKeys=headers.filter(h=>cols.includes(h));
   if(!useKeys.length){toast('表头里没有与本系统匹配的英文变量名');$('impStat').textContent='未匹配到任何变量名（请确认首行用英文 key）。';return;}
-  let matched=0,filled=0;const snap=[];
+  let matched=0,filled=0,created=0;const snap={vals:[],createdRecIds:[],trimRows:[]};
+  const newRec=(label,data)=>{const r={id:uid(),file:label,part:0,partCount:1,pages:[],data,filled:0,status:'imported',err:'',imported:null};records.push(r);snap.createdRecIds.push(r.id);created++;return r;};
   if(curSys.expandKey){
+    // 确保有一个承载记录（无原件）来放置导入行
+    let host=records.find(r=>r.data&&r.data[curSys.expandKey]);
+    if(!host)host=newRec('导入数据',{[curSys.expandKey]:[]});
+    else snap.trimRows.push({recId:host.id,len:(host.data[curSys.expandKey]||[]).length});
     const allRows=[];records.forEach(r=>{(r.data&&r.data[curSys.expandKey]||[]).forEach((row,ri)=>allRows.push({r,row,ri}));});
     const idKey=useKeys.find(k=>ID_KEYS.includes(k))||(useKeys.includes('sample_id')?'sample_id':null);
     dataRows.forEach((d,i)=>{
       let t=null;
       if(idKey&&d[idKey])t=allRows.find(x=>String(x.row[idKey]||'')===String(d[idKey]));
       if(!t)t=allRows[i];
-      if(!t)return;matched++;
+      if(!t){const row=Object.fromEntries(curSys._cols.map(k=>[k,'']));host.data[curSys.expandKey].push(row);t={r:host,row,ri:host.data[curSys.expandKey].length-1};allRows.push(t);}
+      matched++;
       const r=t.r;r.imported=r.imported||{};r.imported.__rows=r.imported.__rows||{};r.imported.__rows[t.ri]=r.imported.__rows[t.ri]||{};
-      useKeys.forEach(k=>{const val=d[k];if(blank(val))return;const cur=t.row[k];if(blank(cur)||overwrite){snap.push({obj:t.row,k,prev:t.row[k]});t.row[k]=val;r.imported.__rows[t.ri][k]=true;filled++;}});
+      useKeys.forEach(k=>{const val=d[k];if(blank(val))return;const cur=t.row[k];if(blank(cur)||overwrite){snap.vals.push({obj:t.row,k,prev:t.row[k]});t.row[k]=val;r.imported.__rows[t.ri][k]=true;filled++;}});
       r.filled=countFilled(r);
     });
   }else{
-    const recs=records.filter(r=>r.data);
+    const existing=records.filter(r=>r.data);   // 现有可填记录（识别得到 / 先前创建）
     const idKey=useKeys.find(k=>ID_KEYS.includes(k));
     dataRows.forEach((d,i)=>{
       let r=null;
-      if(idKey&&d[idKey])r=recs.find(x=>String(x.data[idKey]||'')===String(d[idKey]));
-      if(!r)r=recs[i];
-      if(!r)return;matched++;
+      if(idKey&&d[idKey])r=existing.find(x=>String(x.data[idKey]||'')===String(d[idKey]));
+      if(!r)r=existing[i]||null;
+      if(!r){r=newRec('导入#'+(i+1),{});existing[i]=r;}     // 无原件、新建一条
+      matched++;
       r.imported=r.imported||{};
-      useKeys.forEach(k=>{const val=d[k];if(blank(val))return;const cur=r.data[k];if(blank(cur)||overwrite){snap.push({obj:r.data,k,prev:r.data[k]});r.data[k]=val;r.imported[k]=true;filled++;}});
+      useKeys.forEach(k=>{const val=d[k];if(blank(val))return;const cur=r.data[k];if(blank(cur)||overwrite){snap.vals.push({obj:r.data,k,prev:r.data[k]});r.data[k]=val;r.imported[k]=true;filled++;}});
       r.filled=countFilled(r);
     });
   }
   _impSnap=snap;
-  $('impStat').innerHTML=`已套对 <b>${matched}</b> 条记录、填入 <b>${filled}</b> 个空位（紫色高亮）。打开「核对」逐项与原件比对。`;
-  $('impClearBtn').style.display=filled?'':'none';
-  renderResults();if(_rvId)renderFields(curRec());
+  const cTxt=created?`（新建 <b>${created}</b> 条无原件记录）`:'';
+  $('impStat').innerHTML=`已导入 <b>${matched}</b> 条、填入 <b>${filled}</b> 个空位${cTxt}（紫色高亮）。点「核对」逐项查看 / 编辑（Tab / 回车跳下一题）。`;
+  $('impClearBtn').style.display=(filled||created)?'':'none';
+  renderResults();refreshQueueUI();if(_rvId)renderFields(curRec());
 }
 function clearImport(silent){
-  if(_impSnap){_impSnap.forEach(s=>{s.obj[s.k]=s.prev;});_impSnap=null;}
+  if(_impSnap){
+    (_impSnap.vals||[]).forEach(s=>{s.obj[s.k]=s.prev;});
+    (_impSnap.trimRows||[]).forEach(t=>{const r=records.find(x=>x.id===t.recId);if(r&&r.data&&Array.isArray(r.data[curSys.expandKey]))r.data[curSys.expandKey].length=t.len;});
+    if(_impSnap.createdRecIds&&_impSnap.createdRecIds.length){const del=new Set(_impSnap.createdRecIds);if(del.has(_rvId)){_rvId=null;$('rvBg').classList.remove('on');document.body.style.overflow='';}records=records.filter(r=>!del.has(r.id));}
+    _impSnap=null;
+  }
   records.forEach(r=>{if(r.imported){r.imported=null;r.filled=countFilled(r);}});
   $('impClearBtn').style.display='none';
-  if(!silent)$('impStat').textContent='已清除套对填入的值。';
-  renderResults();if(_rvId)renderFields(curRec());
+  if(!silent)$('impStat').textContent='已清除导入填入的值与新建的记录。';
+  renderResults();refreshQueueUI();if(_rvId)renderFields(curRec());
+}
+function addManualRecord(){
+  if(!curSys)return;
+  const data=curSys.expandKey?{[curSys.expandKey]:[Object.fromEntries(curSys._cols.map(k=>[k,'']))]}:{};
+  const r={id:uid(),file:'手动录入',part:0,partCount:1,pages:[],data,filled:0,status:'manual',err:'',imported:null};
+  records.push(r);renderResults();refreshQueueUI();openReview(r.id);
 }
 
 /* ════════════ 导出（英文变量名表头） ════════════ */
@@ -2237,9 +2281,9 @@ function openSystem(id){
   $('hmark').innerHTML=s.emoji||'表单<br>OCR';
   $('hTitle').textContent=s.name;
   $('hSub').innerHTML=`独立识别系统 · <b>${s.pagesPerRecord} 页 = 1 条记录</b>${s.pagesPerRecord>1?'（多页 PDF 自动按 '+s.pagesPerRecord+' 页拆分）':'（多页 PDF 自动逐页拆分为多条）'} · 核对窗左原件可无级缩放、量表点格即选、点页标题跳页。`;
-  $('upTitle').textContent=`① 上传 PDF（${s.pagesPerRecord} 页/人，可多选批量）`;
-  $('dropSub').textContent=s.pagesPerRecord>1?`每 ${s.pagesPerRecord} 页视为 1 个人；页序须与原表一致。`:'每页视为 1 条记录（一页一人）。';
-  $('splitNote').innerHTML=`本系统按 <b>${s.pagesPerRecord} 页 / 人</b> 自动拆分：上传含 N 页的 PDF 将切分为 ⌈N/${s.pagesPerRecord}⌉ 条记录${s.expandKey?'；且每页内多份样本会再展开为多行。':'。'}`;
+  $('upTitle').textContent=`① 上传 PDF / 图片（${s.pagesPerRecord} 页/人，可多选批量）`;
+  $('dropSub').textContent=s.pagesPerRecord>1?`每 ${s.pagesPerRecord} 页（或 ${s.pagesPerRecord} 张图）视为 1 个人；页序须与原表一致。`:'每页 / 每张图视为 1 条记录（一页一人）。';
+  $('splitNote').innerHTML=`本系统按 <b>${s.pagesPerRecord} 页 / 人</b> 自动拆分：含 N 页的 PDF 切分为 ⌈N/${s.pagesPerRecord}⌉ 条；拖入图片则<b>每张图＝一页</b>，${s.pagesPerRecord>1?('每 '+s.pagesPerRecord+' 张按顺序合为一条'):'每张图即一条记录'}${s.expandKey?'；且每页内多份样本会再展开为多行。':'。'}`;
   $('impStat').textContent='';$('impClearBtn').style.display='none';if($('impOverwrite'))$('impOverwrite').checked=false;
   $('runBtn').textContent='▶ 开始识别';
   renderResults();refreshQueueUI();updateAiStatus();setProg(-1);
@@ -2462,6 +2506,14 @@ $('clearBtn').addEventListener('click',clearAll);
 $('impBtn').addEventListener('click',()=>$('impFile').click());
 $('impFile').addEventListener('change',e=>{if(e.target.files[0])handleImport(e.target.files[0]);e.target.value='';});
 $('impClearBtn').addEventListener('click',()=>clearImport(false));
+$('manualBtn').addEventListener('click',addManualRecord);
+/* 核对窗：Tab / 回车 跳到下一题（在字段区内循环，Shift+Tab 上一题） */
+function rvFocusables(){return [...$('rvFields').querySelectorAll('input,select,textarea')].filter(el=>!el.disabled&&el.offsetParent!==null);}
+function rvMoveFocus(dir){const f=rvFocusables();if(!f.length)return;let i=f.indexOf(document.activeElement);if(i<0)i=dir>0?-1:0;let n=i+dir;if(n<0)n=0;if(n>=f.length)n=f.length-1;const el=f[n];if(el){el.focus();if(el.tagName==='INPUT'&&el.select)try{el.select();}catch(_){}}}
+$('rvFields').addEventListener('keydown',e=>{
+  if(e.key==='Tab'){e.preventDefault();rvMoveFocus(e.shiftKey?-1:1);}
+  else if(e.key==='Enter'&&e.target&&e.target.tagName!=='TEXTAREA'){e.preventDefault();rvMoveFocus(1);}
+});
 $('xlsxBtn').addEventListener('click',doXlsx);
 $('tsvBtn').addEventListener('click',doTsv);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('rvBg').classList.contains('on'))closeReview();});
