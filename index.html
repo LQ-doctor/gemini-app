@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#F2F2F7">
-<title>AI 数据库识别 · 智能模板系统 v15（专用核对面板 · 左右对照 · 点格核对）</title>
+<title>AI 数据库识别 · 智能模板系统 v15.1（专用核对面板 · 逐页编排 · 点页跳图 · 左右对照）</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
@@ -740,11 +740,19 @@ input[type=file]{display:none}
 }
 .rv-fselect:focus{outline:none;border-color:var(--blue)}
 .rv-sec{
-  font-size:10.5px;font-weight:800;color:var(--g1);
-  padding:4px 9px;margin:6px 0 2px;letter-spacing:.2px;
-  position:sticky;top:0;z-index:1;
-  background:var(--g7);border-radius:6px;border-left:3px solid var(--blue);
+  display:flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:800;color:#fff;
+  padding:8px 12px;margin:12px 2px 5px;letter-spacing:.2px;
+  position:sticky;top:0;z-index:2;cursor:pointer;
+  background:linear-gradient(135deg,var(--indigo),var(--blue));
+  border-radius:9px;border:none;border-left:4px solid rgba(255,255,255,.7);
+  box-shadow:0 4px 12px rgba(0,122,255,.22);
+  transition:filter .12s,transform .12s;
 }
+.rv-sec:hover{filter:brightness(1.07);transform:translateX(1px)}
+.rv-sec.cur{background:linear-gradient(135deg,var(--orange),var(--pink));box-shadow:0 4px 14px rgba(255,45,85,.28)}
+.rv-sec .rv-sec-t{flex:1;min-width:0;line-height:1.3;word-break:break-word}
+.rv-sec .rv-sec-jump{flex:0 0 auto;font-size:9.5px;font-weight:700;opacity:.92;background:rgba(255,255,255,.22);border-radius:20px;padding:2px 8px;white-space:nowrap}
 .tc-id-link{cursor:pointer;color:var(--blue);font-weight:600;text-decoration:none}
 .tc-id-link:hover{text-decoration:underline}
 
@@ -1039,11 +1047,7 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
    SPECIALIZED REVIEW PANELS（移植「荧屏调查表」点格核对风格 · 各模板专用）
    贴版面：量表点格网格 / 设备横排 / 表格镜像 / 勾选块 / 检验报告多样本表
 ════════════════════════════════════════════════════════════════ */
-/* 小节标题可点击 → 左图跳到对应页 */
-.rv-sec{cursor:pointer;transition:background .12s,color .12s}
-.rv-sec:hover{background:var(--blue);color:#fff;border-left-color:#fff}
-.rv-sec.cur{background:var(--blue);color:#fff;border-left-color:#fff}
-.rv-sec .rv-sec-jump{float:right;font-size:9px;font-weight:600;opacity:.6}
+/* 小节/页标题样式见上方主 CSS 的 .rv-sec（醒目色条，可点击跳页） */
 .rv-sec:hover .rv-sec-jump{opacity:.95}
 
 /* 通用：本模板专用区域容器 */
@@ -1145,6 +1149,24 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
 
 /* 普通字段行（基本信息），稍紧凑 */
 .rvx .rv-frow{padding:1px 6px}
+
+/* 结果表「核对」入口（明显按钮）+ 来源文件名 */
+.tc-review{display:inline-flex;align-items:center;gap:4px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;
+  font-size:11px;font-weight:800;padding:5px 11px;border-radius:20px;white-space:nowrap;
+  box-shadow:0 3px 9px rgba(0,122,255,.28);transition:transform .25s var(--spring),filter .15s}
+.tc-review:hover{filter:brightness(1.08)}
+.tc-review:active{transform:scale(.93)}
+.tc-srcname{font-size:9.5px;color:var(--g4);margin-top:3px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* 队列「已完成」缩略图上的核对角标 */
+.q-card{position:relative}
+.q-review{position:absolute;left:6px;right:6px;bottom:26px;z-index:3;
+  background:linear-gradient(135deg,rgba(0,122,255,.96),rgba(88,86,214,.96));color:#fff;
+  font-size:11px;font-weight:800;text-align:center;padding:5px 0;border-radius:9px;
+  box-shadow:0 4px 12px rgba(0,122,255,.34);pointer-events:none;
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.q-card.s-done:hover .q-review{filter:brightness(1.08)}
 </style>
 </head>
 <body>
@@ -1605,7 +1627,7 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
       <div class="rv-splitter" id="rvSplitter" title="拖动调整左右宽度，双击恢复默认"></div>
       <div class="rv-right" id="rvRight">
         <div class="rv-right-head">
-          <span>识别结果 · 点格/勾选/对照填写（可直接改）</span>
+          <span id="rvRightHeadLabel">识别字段 · 量表点格即选 · 点页标题左图跳页</span>
           <span class="rv-fill" id="rvFill">—</span>
         </div>
         <div class="rv-fields" id="rvFields"></div>
@@ -4853,7 +4875,8 @@ function renderQ() {
     const nameHtml = item.status==='error'
       ?`<div class="q-name q-name-err">⚠️ 点击查看错误</div>`
       :`<div class="q-name" title="${esc(item.displayName)}">${esc(item.displayName)}</div>`;
-    d2.innerHTML = `<img class="q-img" src="${item.url}" loading="lazy">${delBtn}<div class="q-dot ${dotCls}">${dotTxt}</div>${tag}${nameHtml}`;
+    const reviewBadge = item.status==='done' ? `<div class="q-review">🔍 核对 ›</div>` : '';
+    d2.innerHTML = `<img class="q-img" src="${item.url}" loading="lazy">${delBtn}<div class="q-dot ${dotCls}">${dotTxt}</div>${tag}${reviewBadge}${nameHtml}`;
     if (item.status==='done' || item.status==='error') {
       d2.style.cursor = 'pointer';
       d2.title = item.status==='done' ? '点击左右对照核对' : ('点击查看错误详情：' + (item.err||'未知'));
@@ -5634,7 +5657,7 @@ function appendSingleResultRow(d, fname, itemId) {
       val = fname;
       const short = fname.length > 14 ? fname.slice(0,12)+'…' : fname;
       // Source cell doubles as the "open review" entry point
-      td.innerHTML = `<span class="tc-id tc-id-link" title="点击左右对照核对：${esc(fname)}" onclick="openReview('${itemId}')">🔍 ${esc(short)}</span>`;
+      td.innerHTML = `<button class="tc-review" title="点击左右对照核对：${esc(fname)}" onclick="openReview('${itemId}')">🔍 核对</button><div class="tc-srcname" title="${esc(fname)}">${esc(short)}</div>`;
     } else if (col.isTableCell) {
       const arr = d[col.tableField.key];
       val = arr?.[col.rowIdx]?.[col.tableField.columns[col.colIdx].key];
@@ -5811,9 +5834,14 @@ function renderReviewFields(r) {
   const t = activeTemplate;
   const host = document.getElementById('rvFields');
   host.innerHTML = '';
+  rvBindSecJump();
 
   // ── 专用核对面板分派：按模板类型选用「贴版面」渲染器（点格/横排/表格镜像/勾选）──
   const kind = detectReviewKind(t);
+  const headEl = document.getElementById('rvRightHeadLabel');
+  if (headEl) headEl.textContent = (kind === 'screen')
+    ? '识别字段 · 量表点格即选 · 点页标题左图跳页'
+    : '识别字段 · 点格/勾选即选 · 左右对照核对';
   if (kind && SPECIAL_REVIEW[kind]) {
     try {
       SPECIAL_REVIEW[kind](r, host);
@@ -6016,6 +6044,26 @@ function jumpToReviewPage(idx) {
   const pages = document.getElementById('rvPages');
   if (pages) pages.scrollTo({ top: Math.max(0, wraps[i].offsetTop - 8), behavior: 'smooth' });
 }
+/* 醒目页/小节标题条：点击 → 左图跳到 pgIdx 页（多页才显示跳页提示） */
+function rvMakeSec(title, pgIdx) {
+  const pg = pgIdx || 0;
+  const np = rvReviewPageCount() || 1;
+  const s = document.createElement('div'); s.className = 'rv-sec'; s.dataset.pg = pg;
+  s.innerHTML = '<span class="rv-sec-t">' + esc(title) + '</span>' + (np > 1 ? '<span class="rv-sec-jump">↟ 第' + (pg + 1) + '页</span>' : '');
+  return s;
+}
+/* 统一委托：点任意页/小节标题 → 跳左图 + 高亮当前（重复调用安全）*/
+function rvBindSecJump() {
+  const host = document.getElementById('rvFields');
+  if (!host || host._secBound) return; host._secBound = true;
+  host.addEventListener('click', e => {
+    const s = e.target.closest('.rv-sec'); if (!s || !host.contains(s)) return;
+    const pg = parseInt(s.dataset.pg) || 0;
+    jumpToReviewPage(pg);
+    host.querySelectorAll('.rv-sec').forEach(x => x.classList.remove('cur'));
+    s.classList.add('cur');
+  });
+}
 
 /* 通用小构件 */
 function rvFieldRow(f, r) {
@@ -6206,44 +6254,89 @@ function rvDevBlock(period, dev, r) {
   return wrap;
 }
 
-/* ════════ 渲染器：荧屏调查表 ════════ */
+/* ════════ 渲染器：荧屏调查表（逐页编排 · 与第一个专用系统一致）════════ */
+// 时段 → 该时段各设备出现在第几页（与原系统 PERIOD_PAGE 一致）
+const RVS_PERIODS = [['st3_1', '上学·工作日'], ['st3_2', '上学·休息日'], ['st4_1', '寒暑假·工作日'], ['st4_2', '寒暑假·休息日']];
+const RVS_PERIOD_PAGE = { st3_1: { a: 1, b: 1, c: 1, d: 1, f: 1 }, st3_2: { a: 2, b: 2, c: 2, d: 2, f: 2 }, st4_1: { a: 2, b: 2, c: 3, d: 3, f: 3 }, st4_2: { a: 3, b: 3, c: 3, d: 3, f: 4 } };
+const RVS_PAGE_TITLE = {
+  1: '基本信息 · 设备基本情况 · 上学工作日',
+  2: '上学休息日 · 寒暑假工作日(电视/电脑)',
+  3: '寒暑假工作日(手机/投影/手表) · 寒暑假休息日(电视/电脑/手机/投影)',
+  4: '寒暑假休息日(电子手表) · 手机使用 · 网络使用1-5',
+  5: '网络使用6-20 · 网络成瘾',
+  6: '焦虑自评 SAS', 7: '抑郁自评 SDS', 8: '睡眠呼吸 PSQ-SRBD',
+  9: '生活质量 1-20', 10: '生活质量 21-49', 11: '家庭教养(父/母) · 生长发育', 12: '问诊表(男/女) · 填表信息'
+};
+function rvDevBlocksForPage(pg) {
+  const out = [];
+  RVS_PERIODS.forEach(arr => { const p = arr[0], t = arr[1], pp = RVS_PERIOD_PAGE[p]; ['a', 'b', 'c', 'd', 'f'].forEach(dev => { if (pp[dev] === pg) out.push({ period: p, dev: dev, groupLabel: t }); }); });
+  return out;
+}
+function rvScreenPlainForPage(pg) {
+  if (pg === 1) return ['ID', 'no', 'childname', 'gender', 'school', 'grade', 'class', 'st1_1', 'st1_2', 'st1_3', 'st1_4', 'st1_5', 'st2_1', 'st2_2'];
+  if (pg === 11) return ['grow1', 'grow1_t', 'grow1_r', 'grow2', 'grow3', 'grow3_yb', 'grow3_mb', 'grow3_ya', 'grow3_ma', 'grow4'];
+  if (pg === 12) { const a = []; for (let i = 1; i <= 6; i++) a.push('girl' + i, 'girl' + i + '_y', 'girl' + i + '_m'); for (let i = 1; i <= 10; i++) a.push('boy' + i, 'boy' + i + '_y', 'boy' + i + '_m'); a.push('collectform', 'collectdata', 'keyboarder'); return a; }
+  return [];
+}
+function rvScreenGridGroups(pg) {
+  const G = [];
+  const mk = (cap, cols, keys, texts, extra) => G.push(Object.assign({ cap: cap, cols: cols, keys: keys, texts: texts }, extra || {}));
+  if (pg === 4) {
+    mk('（二）手机使用情况（从不1·偶尔2·有时3·经常4·总是5）', RVS_COL_5, RVS_T_PHONE.map((_, i) => 'phone' + (i + 1)), RVS_T_PHONE);
+    mk('（三）网络使用情况 1-5', RVS_COL_5, [1, 2, 3, 4, 5].map(i => 'internet' + i), RVS_T_INTERNET.slice(0, 5));
+  } else if (pg === 5) {
+    mk('（三）网络使用情况 6-20', RVS_COL_5, Array.from({ length: 15 }, (_, i) => 'internet' + (i + 6)), RVS_T_INTERNET.slice(5, 20));
+    mk('（四）网络成瘾判断表（是=1 否=0）', RVS_COL_YN, RVS_T_ADD.map((_, i) => 'addiction' + (i + 1)), RVS_T_ADD);
+  } else if (pg === 6) {
+    mk('（一）焦虑自评量表 SAS（没有/很少1·小部分2·相当多3·绝大部分4）', RVS_COL_SAS, RVS_T_SAS.map((_, i) => 'sas' + (i + 1)), RVS_T_SAS);
+  } else if (pg === 7) {
+    mk('（二）抑郁自评量表 SDS（没有/很少1·小部分2·相当多3·绝大部分4）', RVS_COL_SAS, RVS_T_SDS.map((_, i) => 'sds' + (i + 1)), RVS_T_SDS);
+  } else if (pg === 8) {
+    mk('睡眠呼吸障碍量表 PSQ-SRBD（是1·否2·不知道3）', RVS_COL_PSQ, RVS_T_PSQ.map((_, i) => 'PSQ' + (i + 1)), RVS_T_PSQ);
+  } else if (pg === 9) {
+    mk('生活质量 1-20（在选项数字上画○，取被圈的数）', null, Array.from({ length: 20 }, (_, i) => 'LQ' + (i + 1)), RVS_T_LQ.slice(0, 20), { type: 'circle', opts: RVS_LQ_OPTS });
+  } else if (pg === 10) {
+    mk('生活质量 21-49（从不1·很少2·经常3·总是4）', RVS_COL_LQ4, Array.from({ length: 29 }, (_, i) => 'LQ' + (i + 21)), RVS_T_LQ.slice(20, 49));
+  } else if (pg === 11) {
+    mk('五、家庭教养方式（左父亲 ff / 右母亲 fm，4列：非常不符1·基本不符2·基本符3·非常符4）', RVS_COL_PARENT, null, null, { type: 'parent2' });
+  }
+  return G;
+}
+function rvParentDouble(r) {
+  const box = document.createElement('div'); box.className = 'rvg-x2';
+  box.appendChild(rvScaleGrid('父亲（1-19）', RVS_COL_PARENT, Array.from({ length: 19 }, (_, i) => 'ff' + (i + 1)), RVS_T_PARENT));
+  box.appendChild(rvScaleGrid('母亲（1-19）', RVS_COL_PARENT, Array.from({ length: 19 }, (_, i) => 'fm' + (i + 1)), RVS_T_PARENT));
+  return box;
+}
+function rvBuildScreenGrid(g, r) {
+  if (g.type === 'parent2') { const wrap = document.createElement('div'); wrap.className = 'rvg'; const c = document.createElement('div'); c.className = 'rvg-cap'; c.textContent = g.cap; wrap.appendChild(c); wrap.appendChild(rvParentDouble(r)); return wrap; }
+  if (g.type === 'circle') return rvCircleGrid(g.cap, g.keys, g.texts, g.opts);
+  return rvScaleGrid(g.cap, g.cols, g.keys, g.texts);
+}
 function rvScreenRender(r, host) {
   const w = document.createElement('div'); w.className = 'rvx';
   const F = k => activeTemplate.fields.find(f => f.key === k);
-  const plain = keys => keys.forEach(k => { const f = F(k); if (f) w.appendChild(rvFieldRow(f, r)); });
   const np = rvReviewPageCount() || 1;
   const PG = p => Math.min(np - 1, p);
-  const secEls = [];
-  function sec(title, pg) {
-    const s = document.createElement('div'); s.className = 'rv-sec'; s.dataset.pg = pg;
-    s.innerHTML = esc(title) + (np > 1 ? '<span class="rv-sec-jump">↟ 第' + (pg + 1) + '页</span>' : '');
-    s.onclick = () => { jumpToReviewPage(pg); secEls.forEach(x => x.classList.toggle('cur', x === s)); };
-    w.appendChild(s); secEls.push(s);
+  let firstSec = null;
+  for (let pg = 1; pg <= 12; pg++) {
+    // 页标题大色条（点击跳左图对应页）
+    const sec = rvMakeSec('第 ' + pg + ' 页 · ' + (RVS_PAGE_TITLE[pg] || ''), PG(pg - 1));
+    w.appendChild(sec); if (!firstSec) firstSec = sec;
+    // 本页零散字段
+    rvScreenPlainForPage(pg).forEach(k => { const f = F(k); if (f) w.appendChild(rvFieldRow(f, r)); });
+    // 本页设备块（横排，带时段子标题，贴原版）
+    const devs = rvDevBlocksForPage(pg);
+    let lastLabel = null;
+    devs.forEach(b => {
+      if (b.groupLabel && b.groupLabel !== lastLabel) { const gl = document.createElement('div'); gl.className = 'rvd-grp'; gl.textContent = b.groupLabel; w.appendChild(gl); lastLabel = b.groupLabel; }
+      w.appendChild(rvDevBlock(b.period, b.dev, r));
+    });
+    // 本页量表网格
+    rvScreenGridGroups(pg).forEach(g => w.appendChild(rvBuildScreenGrid(g, r)));
   }
-  sec('① 顶部身份信息', PG(0)); plain(['ID', 'no', 'childname', 'gender', 'school', 'grade', 'class']);
-  sec('② 手机基本情况', PG(0)); plain(['st1_1', 'st1_2', 'st1_3', 'st1_4', 'st1_5']);
-  sec('③ 电话手表基本情况', PG(0)); plain(['st2_1', 'st2_2']);
-  const periodSec = [['st3_1', '④ 上学期间 · 工作日（周一~周五）', 0], ['st3_2', '⑤ 上学期间 · 休息日（周六、周日）', 1], ['st4_1', '⑥ 寒暑假 · 工作日', 2], ['st4_2', '⑦ 寒暑假 · 休息日', 3]];
-  periodSec.forEach(arr => { const p = arr[0], title = arr[1], pg = arr[2]; sec(title, PG(pg)); ['a', 'b', 'c', 'd', 'f'].forEach(dev => w.appendChild(rvDevBlock(p, dev, r))); });
-  sec('（二）手机使用情况 phone1–13', PG(3)); w.appendChild(rvScaleGrid('从不1 · 偶尔2 · 有时3 · 经常4 · 总是5', RVS_COL_5, RVS_T_PHONE.map((_, i) => 'phone' + (i + 1)), RVS_T_PHONE));
-  sec('（三）网络使用情况 internet1–20', PG(3)); w.appendChild(rvScaleGrid('从不1 · 偶尔2 · 有时3 · 经常4 · 总是5', RVS_COL_5, Array.from({ length: 20 }, (_, i) => 'internet' + (i + 1)), RVS_T_INTERNET));
-  sec('（四）网络成瘾 addiction1–8', PG(4)); w.appendChild(rvScaleGrid('是=1 · 否=0', RVS_COL_YN, RVS_T_ADD.map((_, i) => 'addiction' + (i + 1)), RVS_T_ADD));
-  sec('焦虑自评 SAS1–20', PG(5)); w.appendChild(rvScaleGrid('没有/很少1 · 小部分2 · 相当多3 · 绝大部分4', RVS_COL_SAS, RVS_T_SAS.map((_, i) => 'sas' + (i + 1)), RVS_T_SAS));
-  sec('抑郁自评 SDS1–20', PG(6)); w.appendChild(rvScaleGrid('没有/很少1 · 小部分2 · 相当多3 · 绝大部分4', RVS_COL_SAS, RVS_T_SDS.map((_, i) => 'sds' + (i + 1)), RVS_T_SDS));
-  sec('睡眠 PSQ-SRBD 1–22', PG(7)); w.appendChild(rvScaleGrid('是1 · 否2 · 不知道3', RVS_COL_PSQ, RVS_T_PSQ.map((_, i) => 'PSQ' + (i + 1)), RVS_T_PSQ));
-  sec('生活质量 LQ1–20（圈选）', PG(8)); w.appendChild(rvCircleGrid('在选项数字上画○（取被圈的数）', Array.from({ length: 20 }, (_, i) => 'LQ' + (i + 1)), RVS_T_LQ.slice(0, 20), RVS_LQ_OPTS));
-  sec('生活质量 LQ21–49', PG(9)); w.appendChild(rvScaleGrid('从不1 · 很少2 · 经常3 · 总是4', RVS_COL_LQ4, Array.from({ length: 29 }, (_, i) => 'LQ' + (i + 21)), RVS_T_LQ.slice(20, 49)));
-  sec('家庭教养方式（父 ff / 母 fm）', PG(10));
-  const px = document.createElement('div'); px.className = 'rvg-x2';
-  px.appendChild(rvScaleGrid('父亲 ff1–19（非常不符1·基本不符2·基本符3·非常符4）', RVS_COL_PARENT, Array.from({ length: 19 }, (_, i) => 'ff' + (i + 1)), RVS_T_PARENT));
-  px.appendChild(rvScaleGrid('母亲 fm1–19（非常不符1·基本不符2·基本符3·非常符4）', RVS_COL_PARENT, Array.from({ length: 19 }, (_, i) => 'fm' + (i + 1)), RVS_T_PARENT));
-  w.appendChild(px);
-  sec('生长发育 grow', PG(10)); plain(['grow1', 'grow1_t', 'grow1_r', 'grow2', 'grow3', 'grow3_yb', 'grow3_mb', 'grow3_ya', 'grow3_ma', 'grow4']);
-  sec('女生青春期发育 girl1–6', PG(11)); for (let i = 1; i <= 6; i++) plain(['girl' + i, 'girl' + i + '_y', 'girl' + i + '_m']);
-  sec('男生青春期发育 boy1–10', PG(11)); for (let i = 1; i <= 10; i++) plain(['boy' + i, 'boy' + i + '_y', 'boy' + i + '_m']);
-  sec('采集信息', PG(11)); plain(['collectform', 'collectdata', 'keyboarder']);
   host.appendChild(w);
-  if (secEls[0]) secEls[0].classList.add('cur');
+  if (firstSec) firstSec.classList.add('cur');
   rvUpdateFill();
 }
 
@@ -6251,7 +6344,7 @@ function rvScreenRender(r, host) {
 function rvHealthRender(r, host) {
   const w = document.createElement('div'); w.className = 'rvx';
   const F = k => activeTemplate.fields.find(f => f.key === k);
-  const cap = t => { const c = document.createElement('div'); c.className = 'rvx-cap'; c.textContent = t; w.appendChild(c); };
+  const cap = t => { w.appendChild(rvMakeSec(t, 0)); };
   const plain = keys => keys.forEach(k => { const f = F(k); if (f) w.appendChild(rvFieldRow(f, r)); });
   cap('① 基本信息'); plain(['id', 'name', 'gender', 'dob', 'age', 'school', 'grade', 'class']);
   cap('② 身体测量'); plain(['height', 'weight', 'body_comp', 'spo2', 'prbpm', 'waist', 'hip', 'pwv', 'ultrasound']);
@@ -6321,7 +6414,7 @@ function rvImpTable(r) {
 function rvBcaRender(r, host) {
   const w = document.createElement('div'); w.className = 'rvx';
   const F = k => activeTemplate.fields.find(f => f.key === k);
-  const cap = (t, note) => { const c = document.createElement('div'); c.className = 'rvx-cap'; c.textContent = t; w.appendChild(c); if (note) { const n = document.createElement('div'); n.className = 'rvx-note'; n.textContent = note; w.appendChild(n); } };
+  const cap = (t, note) => { w.appendChild(rvMakeSec(t, 0)); if (note) { const n = document.createElement('div'); n.className = 'rvx-note'; n.textContent = note; w.appendChild(n); } };
   const plain = keys => keys.forEach(k => { const f = F(k); if (f) w.appendChild(rvFieldRow(f, r)); });
   const EVAL3 = [{ v: '1', txt: '正常' }, { v: '2', txt: '缺乏', tone: 'warn' }, { v: '3', txt: '过量', tone: 'bad' }];
   const EVAL_W = [{ v: '1', txt: '正常' }, { v: '2', txt: '低标准', tone: 'warn' }, { v: '3', txt: '超标准', tone: 'bad' }];
@@ -6369,7 +6462,7 @@ function rvConsentBlock(n, q, key, r) {
 function rvConsentRender(r, host) {
   const w = document.createElement('div'); w.className = 'rvx';
   const F = k => activeTemplate.fields.find(f => f.key === k);
-  const cap = t => { const c = document.createElement('div'); c.className = 'rvx-cap'; c.textContent = t; w.appendChild(c); };
+  const cap = t => { w.appendChild(rvMakeSec(t, 0)); };
   const plain = keys => keys.forEach(k => { const f = F(k); if (f) w.appendChild(rvFieldRow(f, r)); });
   cap('学生与家长信息'); plain(['student_name', 'student_id', 'grade', 'class_num', 'parent_name']);
   cap('知情同意（点选 同意 / 不同意）');
@@ -6393,7 +6486,7 @@ function rvLabRender(r, host) {
   const list = sibs.length ? sibs : [r];
   const cols = [['sample_id', '编号'], ['glu', 'Glu'], ['tc', 'TC'], ['tg', 'TG'], ['hdl_c', 'HDL-C'], ['ldl_c', 'LDL-C']];
   const w = document.createElement('div'); w.className = 'rvx';
-  const cap = document.createElement('div'); cap.className = 'rvx-cap'; cap.textContent = '检验报告 · 本页 ' + list.length + ' 条样本（每行一条，可直接修改）'; w.appendChild(cap);
+  w.appendChild(rvMakeSec('检验报告 · 本页 ' + list.length + ' 条样本（每行一条，可直接修改）', 0));
   const note = document.createElement('div'); note.className = 'rvx-note'; note.textContent = '高亮行为当前点开的样本；左侧为整页原件，逐行对照即可。'; w.appendChild(note);
   const wrap = document.createElement('div'); wrap.className = 'rvl-wrap';
   const tbl = document.createElement('table'); tbl.className = 'rvl';
