@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#F2F2F7">
-<title>AI 数据库识别 · 智能模板系统 v15.1（专用核对面板 · 逐页编排 · 点页跳图 · 左右对照）</title>
+<title>AI 数据库识别 · 智能模板系统 v15.3（新增血常规CBC · 专用核对面板 · 导出英文变量名 · 新建/拍照）</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
@@ -981,6 +981,7 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
 .tc-edit:focus{background:#FFFBE5;border-radius:3px;padding:2px 4px}
 .gh-base{background:var(--g8);color:var(--g3)!important}
 .gh-grp{background:#EBF3FF!important;color:#003580!important}
+.gh-key{display:block;font-family:'SF Mono','Roboto Mono',ui-monospace,monospace;font-size:8.5px;font-weight:600;color:var(--g5);margin-top:2px;letter-spacing:.1px;opacity:.85;text-transform:none}
 .st-err{
   display:inline-flex;align-items:center;gap:3px;
   padding:2px 7px;border-radius:8px;
@@ -1167,6 +1168,20 @@ table.rt tr:hover td{background:rgba(0,122,255,.025)}
   box-shadow:0 4px 12px rgba(0,122,255,.34);pointer-events:none;
   -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
 .q-card.s-done:hover .q-review{filter:brightness(1.08)}
+
+/* 血常规 CBC 面板 */
+.rv-cbc th{font-size:9.5px}
+.rv-cbc td{vertical-align:middle}
+.cbc-name{font-size:11px;color:var(--g1);font-weight:600;line-height:1.25}
+.cbc-key{font-family:'SF Mono','Roboto Mono',monospace;font-size:8.5px;color:var(--g5);margin-top:1px}
+.cbc-ref{font-size:10px;color:var(--g4);white-space:nowrap}
+.cbc-unit{font-size:10px;color:var(--g4);white-space:nowrap}
+.cbc-st{font-size:10.5px;font-weight:800}
+.cbc-st.low{color:#0d9488}
+.cbc-st.high{color:#dc2626}
+.cbc-st.ok{color:var(--g4);font-weight:600}
+.rvl-in.cbc-abn-low{background:rgba(13,148,136,.12);border-color:#0d9488;color:#0d9488;font-weight:700}
+.rvl-in.cbc-abn-high{background:rgba(220,38,38,.10);border-color:#dc2626;color:#dc2626;font-weight:700}
 </style>
 </head>
 <body>
@@ -1967,7 +1982,46 @@ const FIELD_TYPES = [
 /* ════════════════════════════════════════════════════════════════
    PRESET TEMPLATES
 ════════════════════════════════════════════════════════════════ */
-const PRESET_TEMPLATES = [{
+const PRESET_TEMPLATES = [
+{
+  id: 'preset_cbc',
+  name: '血常规 / 血细胞分析 (CBC)',
+  description: '血细胞分析报告（CBC，23 项）：WBC/RBC/HGB/HCT/MCV/MCH/RDW/MCHC/PLT/MPV/PDW/PCT 及五分类绝对值/百分比，自动判读 ↑高/↓低',
+  preset: true,
+  emoji: '🩸',
+  reviewKind: 'cbc',
+  fields: [
+    { id:'cp0', key:'sample_no', label:'病员号', type:'text', hint:'如230007234' },
+    { id:'cp1', key:'patient_name', label:'病人姓名', type:'text', hint:'' },
+    { id:'cp2', key:'dept', label:'送检科室/目的', type:'text', hint:'如产科' },
+    { id:'cp3', key:'report_time', label:'报告时间', type:'text', hint:'YYYY-MM-DD HH:mm:ss' },
+    { id:'cp4', key:'bed_no', label:'床号', type:'text', hint:'' },
+    { id:'cb0', key:'WBC', label:'白细胞计数', type:'number', hint:'10^9/L 参考3.5-9.5 代号5556' },
+    { id:'cb1', key:'RBC', label:'红细胞计数', type:'number', hint:'10^12/L 参考3.8-5.1 代号5555' },
+    { id:'cb2', key:'HGB', label:'血红蛋白浓度', type:'number', hint:'g/L 参考115-150 代号5069' },
+    { id:'cb3', key:'HCT', label:'血球压积', type:'number', hint:' 参考0.35-0.45 代号5065' },
+    { id:'cb4', key:'MCV', label:'平均红细胞容积', type:'number', hint:'fl 参考82-100 代号5560' },
+    { id:'cb5', key:'MCH', label:'平均红细胞HB量', type:'number', hint:'pg 参考27.0-34.0 代号5386' },
+    { id:'cb6', key:'RDW', label:'红细胞分布宽度', type:'number', hint:'% 参考11.5-14.5 代号5576' },
+    { id:'cb7', key:'MCHC', label:'平均红细胞HB浓度', type:'number', hint:'g/L 参考316-354 代号5061' },
+    { id:'cb8', key:'PLT', label:'血小板计数', type:'number', hint:'10^9/L 参考125-350 代号5015' },
+    { id:'cb9', key:'MPV', label:'平均血小板容积', type:'number', hint:'fl 参考9.4-12.5 代号5559' },
+    { id:'cb10', key:'PDW', label:'血小板分布宽度', type:'number', hint:'fl 参考10.6-20.6 代号5385' },
+    { id:'cb11', key:'PCT', label:'血小板压积', type:'number', hint:'% 参考0.11-0.28 代号5739' },
+    { id:'cb12', key:'LYM_abs', label:'淋巴细胞数目', type:'number', hint:'10^9/L 参考1.10-3.20 代号5586' },
+    { id:'cb13', key:'EOS_abs', label:'嗜酸性粒细胞数目', type:'number', hint:'10^9/L 参考0.02-0.52 代号5376' },
+    { id:'cb14', key:'BASO_abs', label:'嗜碱性粒细胞数目', type:'number', hint:'10^9/L 参考0.00-0.06 代号5358' },
+    { id:'cb15', key:'MONO_abs', label:'单核细胞数目', type:'number', hint:'10^9/L 参考0.10-0.60 代号5129' },
+    { id:'cb16', key:'NEUT_abs', label:'中性粒细胞数目', type:'number', hint:'10^9/L 参考1.80-6.30 代号5630' },
+    { id:'cb17', key:'LYM_pct', label:'淋巴细胞百分比', type:'number', hint:'% 参考20.0-50.0 代号5111' },
+    { id:'cb18', key:'EOS_pct', label:'嗜酸性粒细胞百分比', type:'number', hint:'% 参考0.4-8.0 代号5735' },
+    { id:'cb19', key:'BASO_pct', label:'嗜碱性粒细胞百分比', type:'number', hint:'% 参考0.0-1.0 代号5734' },
+    { id:'cb20', key:'MONO_pct', label:'单核细胞百分比', type:'number', hint:'% 参考3.0-10.0 代号5387' },
+    { id:'cb21', key:'NEUT_pct', label:'中性粒细胞百分比', type:'number', hint:'% 参考40.0-75.0 代号5060' },
+    { id:'cb22', key:'other', label:'其他', type:'text', hint:'代号5673，如未见异常' }
+  ]
+},
+{
   id: 'preset_health_check',
   name: '儿童体检信息登记表',
   description: 'FORM-CHE-v3 标准模板，包含基本信息、身体测量、皮褶厚度、血压6次测量等完整字段',
@@ -5573,12 +5627,14 @@ function buildResultTable() {
       const th1 = document.createElement('th');
       th1.colSpan = span;
       th1.className = 'gh-grp';
-      th1.textContent = col.groupLabel;
+      th1.innerHTML = esc(col.groupLabel) + '<span class="gh-key">' + esc((col.tableField && col.tableField.key) || '') + '</span>';
+      th1.title = (col.tableField && col.tableField.key) || '';
       tr1.appendChild(th1);
       for (let k=i; k<j; k++) {
         const th2 = document.createElement('th');
         th2.className = 'gh-grp';
-        th2.textContent = flatCols[k].label;
+        th2.innerHTML = esc(flatCols[k].label) + '<span class="gh-key">' + esc(flatCols[k].key) + '</span>';
+        th2.title = flatCols[k].key;
         tr2.appendChild(th2);
       }
       i = j;
@@ -5586,7 +5642,8 @@ function buildResultTable() {
       const th1 = document.createElement('th');
       th1.rowSpan = 2;
       th1.className = 'gh-base';
-      th1.textContent = col.label;
+      th1.innerHTML = esc(col.label) + (col.isMeta ? '' : '<span class="gh-key">' + esc(col.key) + '</span>');
+      th1.title = col.isMeta ? '' : col.key;
       tr1.appendChild(th1);
       i++;
     }
@@ -5969,9 +6026,11 @@ function detectReviewKind(t) {
   if (id === 'preset_bca_report')   return 'bca';
   if (id === 'preset_consent_form') return 'consent';
   if (id === 'preset_lipid_report') return 'lab';
+  if (id === 'preset_cbc')          return 'cbc';
   if (id === 'preset_screen_time')  return 'screen';
   const keys = new Set((t.fields || []).map(f => f.key));
   if (keys.has('consent_routine') || keys.has('consent_blood')) return 'consent';
+  if (keys.has('WBC') && keys.has('PLT') && keys.has('HGB') && keys.has('MCV')) return 'cbc';
   if (keys.has('glu') && keys.has('hdl_c') && keys.has('ldl_c')) return 'lab';
   if (keys.has('TBW') && keys.has('SMM') && (keys.has('imp50_RA') || keys.has('PBF'))) return 'bca';
   if (keys.has('skinfold') && keys.has('bp')) return 'health';
@@ -6511,12 +6570,82 @@ function rvLabRender(r, host) {
   const el = document.getElementById('rvFill'); if (el) el.textContent = '本页 ' + list.length + ' 条 · 已填 ' + filled + ' / ' + total;
 }
 
+
+/* ════════ 渲染器：血常规 / 血细胞分析 (CBC) — 仿 LIS 版式 + 自动判读高低 ════════ */
+const RV_CBC = [
+  ['WBC','白细胞计数','3.5-9.5','10^9/L'],
+  ['RBC','红细胞计数','3.8-5.1','10^12/L'],
+  ['HGB','血红蛋白浓度','115-150','g/L'],
+  ['HCT','血球压积','0.35-0.45',''],
+  ['MCV','平均红细胞容积','82-100','fl'],
+  ['MCH','平均红细胞HB量','27.0-34.0','pg'],
+  ['RDW','红细胞分布宽度','11.5-14.5','%'],
+  ['MCHC','平均红细胞HB浓度','316-354','g/L'],
+  ['PLT','血小板计数','125-350','10^9/L'],
+  ['MPV','平均血小板容积','9.4-12.5','fl'],
+  ['PDW','血小板分布宽度','10.6-20.6','fl'],
+  ['PCT','血小板压积','0.11-0.28','%'],
+  ['LYM_abs','淋巴细胞数目','1.10-3.20','10^9/L'],
+  ['EOS_abs','嗜酸性粒细胞数目','0.02-0.52','10^9/L'],
+  ['BASO_abs','嗜碱性粒细胞数目','0.00-0.06','10^9/L'],
+  ['MONO_abs','单核细胞数目','0.10-0.60','10^9/L'],
+  ['NEUT_abs','中性粒细胞数目','1.80-6.30','10^9/L'],
+  ['LYM_pct','淋巴细胞百分比','20.0-50.0','%'],
+  ['EOS_pct','嗜酸性粒细胞百分比','0.4-8.0','%'],
+  ['BASO_pct','嗜碱性粒细胞百分比','0.0-1.0','%'],
+  ['MONO_pct','单核细胞百分比','3.0-10.0','%'],
+  ['NEUT_pct','中性粒细胞百分比','40.0-75.0','%'],
+  ['other','其他','','']
+];
+function rvCbcStatus(val, ref){
+  if(val==null||val==='') return {txt:'',cls:''};
+  const m=String(ref).match(/(-?\d+\.?\d*)\s*[-~～]\s*(-?\d+\.?\d*)/);
+  const v=parseFloat(val);
+  if(!m||isNaN(v)) return {txt:'',cls:''};
+  const lo=parseFloat(m[1]), hi=parseFloat(m[2]);
+  if(v<lo) return {txt:'↓ 偏低',cls:'low'};
+  if(v>hi) return {txt:'↑ 偏高',cls:'high'};
+  return {txt:'正常',cls:'ok'};
+}
+function rvCbcRender(r, host){
+  const w=document.createElement('div'); w.className='rvx';
+  const F=k=>activeTemplate.fields.find(f=>f.key===k);
+  w.appendChild(rvMakeSec('血细胞分析 · 患者信息', 0));
+  ['sample_no','patient_name','dept','report_time','bed_no'].forEach(k=>{ const f=F(k); if(f) w.appendChild(rvFieldRow(f,r)); });
+  w.appendChild(rvMakeSec('检验结果（'+RV_CBC.length+' 项 · 自动判读 ↑偏高 / ↓偏低）', 0));
+  const note=document.createElement('div'); note.className='rvx-note'; note.textContent='左侧为报告原件，逐行核对「结果」列即可；数值超出参考范围会自动标红/标蓝。'; w.appendChild(note);
+  const wrap=document.createElement('div'); wrap.className='rvl-wrap';
+  const tbl=document.createElement('table'); tbl.className='rvl rv-cbc';
+  tbl.innerHTML='<thead><tr><th>#</th><th style="text-align:left">项目</th><th>结果</th><th>参考值</th><th>单位</th><th>状态</th></tr></thead>';
+  const tb=document.createElement('tbody');
+  RV_CBC.forEach((a,i)=>{
+    const key=a[0], name=a[1], ref=a[2], unit=a[3];
+    const tr=document.createElement('tr'); const cur=r[key];
+    let td=document.createElement('td'); td.innerHTML='<span class="rvl-idx">'+(i+1)+'</span>'; tr.appendChild(td);
+    td=document.createElement('td'); td.style.textAlign='left'; td.innerHTML='<div class="cbc-name">'+esc(name)+'</div><div class="cbc-key">'+esc(key)+'</div>'; tr.appendChild(td);
+    td=document.createElement('td');
+    const inp=document.createElement('input'); inp.className='rvl-in'+((cur==null||cur==='')?' rv-empty':''); inp.value=(cur==null?'':String(cur)); if(key!=='other') inp.inputMode='decimal';
+    td.appendChild(inp); tr.appendChild(td);
+    td=document.createElement('td'); td.className='cbc-ref'; td.textContent=ref||'—'; tr.appendChild(td);
+    td=document.createElement('td'); td.className='cbc-unit'; td.textContent=unit||''; tr.appendChild(td);
+    const stTd=document.createElement('td'); const st=document.createElement('span'); st.className='cbc-st'; stTd.appendChild(st); tr.appendChild(stTd);
+    const applyStatus=()=>{ const sres=rvCbcStatus(inp.value, ref); st.textContent=sres.txt; st.className='cbc-st '+(sres.cls||''); inp.classList.toggle('cbc-abn-low', sres.cls==='low'); inp.classList.toggle('cbc-abn-high', sres.cls==='high'); };
+    if(key!=='other') applyStatus();
+    inp.oninput=()=>{ rvSetScalar(key, inp.value, inp); if(key!=='other') applyStatus(); };
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); wrap.appendChild(tbl); w.appendChild(wrap);
+  host.appendChild(w);
+  rvUpdateFill();
+}
+
 /* 专用面板注册表 */
 const SPECIAL_REVIEW = {
   health: rvHealthRender,
   bca: rvBcaRender,
   consent: rvConsentRender,
   lab: rvLabRender,
+  cbc: rvCbcRender,
   screen: rvScreenRender
 };
 
@@ -6658,21 +6787,22 @@ function doExport() {
   if (!results.length) { toast('没有可导出的数据'); return; }
   const t = activeTemplate;
 
-  // Build header rows for Excel (merged style)
-  // Just flat for simplicity but include group prefix for table columns
-  const headers = ['来源'];
+  // Header row uses the ENGLISH field keys (the variable names you provided), NOT Chinese labels.
+  // Table cells become composed keys: fieldKey__rowKey__colKey
+  const headers = ['source'];
   const colKeys = ['_fname'];
 
   t.fields.forEach(f => {
     if (f.type === 'table' && f.columns?.length && f.rows?.length) {
       f.rows.forEach(r => {
         f.columns.forEach(c => {
-          headers.push(`${f.label}-${r.label}-${c.label}`);
-          colKeys.push(`${f.key}__${r.key}__${c.key}`);
+          const k = `${f.key}__${r.key}__${c.key}`;
+          headers.push(k);
+          colKeys.push(k);
         });
       });
     } else {
-      headers.push(f.label + (f.hint ? `(${f.hint})` : ''));
+      headers.push(f.key);
       colKeys.push(f.key);
     }
   });
@@ -6713,6 +6843,21 @@ function doExport() {
   ]);
   ws2['!cols'] = [{wch:14},{wch:36}];
   XLSX.utils.book_append_sheet(wb, ws2, '导出信息');
+
+  // Field dictionary sheet: English variable name (key) → Chinese meaning → type
+  const dict = [['变量名 (key)', '中文含义', '类型']];
+  t.fields.forEach(f => {
+    if (f.type === 'table' && f.columns?.length && f.rows?.length) {
+      f.rows.forEach(r => f.columns.forEach(c => {
+        dict.push([`${f.key}__${r.key}__${c.key}`, `${f.label} · ${r.label} · ${c.label}`, '表格单元格']);
+      }));
+    } else {
+      dict.push([f.key, f.label + (f.hint ? `（${f.hint}）` : ''), f.type || 'text']);
+    }
+  });
+  const ws3 = XLSX.utils.aoa_to_sheet(dict);
+  ws3['!cols'] = [{wch:26},{wch:40},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws3, '字段对照');
 
   const safeName = t.name.replace(/[\\/:*?"<>|]/g,'_');
   const fname = `${safeName}_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${results.length}条.xlsx`;
