@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>表单识别工作台 · 多系统（神经运动 / 体检 / 体成分 / 检验 / 知情同意 / 血常规 / 生长发育 / 荧屏调查）</title>
+<title>表单识别工作台 · 多系统（神经运动 / 体检 / 体成分 / 检验 / 知情同意 / 血常规 / 生长发育 / 荧屏调查 / 膳食运动睡眠行为）</title>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -234,6 +234,31 @@ header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
 .rv-toggle button{border:none;background:#fff;font-size:11px;font-weight:700;padding:3px 10px;cursor:pointer;color:var(--ink3)}
 .rv-toggle button.on{background:var(--accent2);color:#fff}
 
+/* health · 膳食频率行（点格频度 + 斤/两） */
+.rv-diethead{display:flex;align-items:center;gap:8px;padding:3px 9px;font-size:10px;color:var(--ink3);font-weight:700;border-bottom:1px solid var(--line)}
+.rv-diethead .rv-dietname{flex:1 1 160px;min-width:120px}
+.rv-diethead .rv-dietfreq-h{flex:0 0 auto;width:185px;text-align:center}
+.rv-diethead .rv-dietamt-h{flex:0 0 auto}
+.rv-dietline{display:flex;align-items:center;gap:8px;padding:5px 9px;font-size:11.5px;color:var(--ink2);flex-wrap:wrap;border-top:1px solid var(--line)}
+.rv-dietline:first-of-type{border-top:none}
+.rv-dietline:hover{background:rgba(13,148,136,.045)}
+.rv-dietname{flex:1 1 160px;min-width:120px;line-height:1.3}
+.rv-dietfreq{display:flex;gap:4px;flex:0 0 auto}
+.rv-fcell{width:30px;height:28px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line2);border-radius:6px;background:#fff;cursor:pointer;font-family:var(--mono);font-size:12px;color:var(--ink3);font-weight:700;transition:.08s}
+.rv-fcell:hover{border-color:var(--accent2)}
+.rv-fcell.on{background:var(--accent2);border-color:var(--accent2);color:#fff}
+.rv-fcell.imp{background:#6366f1;border-color:#6366f1;color:#fff}
+.rv-dietamt{display:flex;gap:10px;margin-left:auto;flex:0 0 auto;flex-wrap:wrap}
+
+/* health · 家庭成员疾病史 / 亲属过敏史表 */
+.rv-famtbl td.q,.rv-famtbl th.q{white-space:nowrap}
+.rv-famnum{width:54px;height:26px;text-align:center;border:1px solid var(--line2);border-radius:6px;font-family:var(--mono);font-size:12px;background:#fff}
+.rv-famnum.empty{background:#fffbeb;border-color:#fcd34d}
+.rv-famnum.imp{background:#eef0ff;border-color:#a5a3f0}
+.rv-gtbl col.ncol{width:62px}
+.rv-famtbl th{font-size:10px;padding:5px 4px;line-height:1.2}
+.rv-famtbl td{padding:4px}
+
 /* row-expand (lipid) */
 .rv-recs{display:flex;flex-direction:column;gap:8px}
 .rv-rec{border:1px solid var(--line2);border-radius:9px;background:#fff;overflow:hidden}
@@ -244,6 +269,23 @@ header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
 .rv-mini label{font-size:10px;color:var(--ink3);font-weight:700}
 .rv-mini input{height:27px;border:1px solid var(--line2);border-radius:6px;font-size:12px;font-family:var(--mono);padding:0 7px;background:#fff}
 .rv-mini input.imp{background:#eef0ff;border-color:#a5a3f0}
+
+/* 左右对照对齐表（mode:'aligned'）— 行label在左，列label顶表头，逐行高度一致 */
+.rv-atbl-wrap{padding:6px 7px 7px;background:#fff}
+.rv-atbl{width:100%;border-collapse:separate;border-spacing:0;background:#fff;table-layout:fixed}
+.rv-atbl thead th{font-size:10.5px;font-weight:800;color:var(--ink2);background:var(--paper2);padding:5px 4px;text-align:center;line-height:1.2;border-bottom:1px solid var(--line2);border-right:1px solid var(--line);vertical-align:middle;height:28px;word-break:break-word}
+.rv-atbl thead th:last-child{border-right:none}
+.rv-atbl thead th.atbl-corner{width:96px;background:var(--paper2);border-right:1px solid var(--line2)}
+.rv-atbl tbody td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:3px 4px;height:34px;text-align:center;vertical-align:middle;background:#fff}
+.rv-atbl tbody td:last-child{border-right:none}
+.rv-atbl tbody tr:last-child td{border-bottom:none}
+.rv-atbl td.atbl-rl{text-align:left;font-size:11.5px;font-weight:700;color:var(--ink);background:var(--paper2);padding:0 8px;border-right:1px solid var(--line2);white-space:nowrap}
+.rv-atbl input{width:100%;height:28px;border:1px solid var(--line2);border-radius:6px;text-align:center;font-family:var(--mono);font-size:12px;background:#fff;padding:0 4px;box-sizing:border-box;color:var(--ink)}
+.rv-atbl input.imp{background:#eef0ff;border-color:#a5a3f0}
+.rv-atbl input.empty{background:#fffbeb;border-color:#fcd34d}
+.rv-atbl input:focus{outline:none;border-color:var(--accent2);box-shadow:0 0 0 2px rgba(13,148,136,.16)}
+.rv-atbl tbody tr:hover td{background:rgba(13,148,136,.04)}
+.rv-atbl tbody tr:hover td.atbl-rl{background:rgba(13,148,136,.10)}
 
 /* editable table (health-check) */
 .rv-tbl{margin:4px 0 12px;border:1px solid var(--line2);border-radius:9px;overflow:hidden;background:#fff}
@@ -294,6 +336,42 @@ select.set-key{font-family:var(--sans)}
 .set-guide .hbtn{display:none !important}
 
 /* toast */
+/* —— 启动器：新建系统卡 + 自建系统删除 —— */
+.sys{position:relative}
+.sys.builder{border:2px dashed var(--accent);background:linear-gradient(180deg,rgba(194,65,12,.05),var(--paper2))}
+.sys.builder .sys-emoji{background:rgba(194,65,12,.12)}
+.sys .sys-del{position:absolute;top:8px;right:8px;width:22px;height:22px;border:1px solid var(--line2);background:var(--paper2);color:var(--ink3);border-radius:7px;font-size:12px;line-height:20px;text-align:center;cursor:pointer;display:none;padding:0}
+.sys.custom:hover .sys-del{display:block}
+.sys .sys-del:hover{border-color:var(--bad);color:var(--bad)}
+/* —— 新建系统 Builder —— */
+.bld-grid{display:flex;gap:12px;flex-wrap:wrap}
+.bld-f{display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px}
+.bld-f>span{font-size:11.5px;font-weight:700;color:var(--ink2)}
+.bld-f input{border:1px solid var(--line2);background:var(--paper2);border-radius:9px;padding:9px 11px;font-size:13px;font-family:var(--sans);color:var(--ink)}
+.bld-f input:focus{outline:none;border-color:var(--accent)}
+.bld-emoji{flex:0 0 66px;min-width:66px}.bld-emoji input{text-align:center;font-size:18px}
+.bld-pages{flex:0 0 120px;min-width:110px}
+.bld-tip{font-size:12px;color:var(--ink2);background:rgba(13,148,136,.06);border:1px solid rgba(13,148,136,.16);border-radius:10px;padding:10px 12px;margin:12px 0;line-height:1.6}
+.bld-tip code{font-family:var(--mono);background:var(--paper);padding:1px 5px;border-radius:5px;border:1px solid var(--line)}
+.bld-tip b{color:var(--accent)}
+.bld-act{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.bld-stat{font-size:12px;color:var(--ink2);margin-top:10px;font-family:var(--mono);line-height:1.5}
+.bld-ta{width:100%;min-height:118px;border:1px solid var(--line2);background:var(--paper2);border-radius:11px;padding:11px 12px;font-size:12.5px;font-family:var(--mono);color:var(--ink);line-height:1.6;resize:vertical;box-sizing:border-box}
+.bld-ta:focus{outline:none;border-color:var(--accent)}
+.bf-head,.bf-row{display:grid;grid-template-columns:22px 52px 1.25fr 1.25fr 84px 1.05fr 28px;gap:7px;align-items:center}
+.bf-head{font-size:10.5px;font-weight:800;color:var(--ink3);padding:0 2px 7px}
+.bf-row{background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:7px;margin-bottom:7px}
+.bf-row.dragging{opacity:.4}
+.bf-row.over{border-color:var(--accent);box-shadow:0 0 0 2px rgba(194,65,12,.15)}
+.bf-drag{cursor:grab;text-align:center;color:var(--ink3);font-size:15px;user-select:none}
+.bf-drag:active{cursor:grabbing}
+.bf-row input,.bf-row select{width:100%;border:1px solid var(--line2);background:var(--paper);border-radius:7px;padding:6px 7px;font-size:12px;font-family:var(--sans);color:var(--ink);box-sizing:border-box}
+.bf-row input.k{font-family:var(--mono);color:var(--accent)}
+.bf-row input:focus,.bf-row select:focus{outline:none;border-color:var(--accent)}
+.bf-row .bf-del{border:1px solid var(--line2);background:var(--paper2);color:var(--ink3);border-radius:7px;padding:5px 0;font-size:13px;cursor:pointer}
+.bf-row .bf-del:hover{border-color:var(--bad);color:var(--bad)}
+.bf-row .bf-opt.hide{visibility:hidden}
+@media(max-width:720px){.bf-head{display:none}.bf-row{display:flex;flex-wrap:wrap;gap:6px}.bf-row>*{flex:1 1 auto}.bf-row .bf-drag{flex:0 0 22px}.bf-row input.pg{flex:0 0 50px}.bf-row .bf-del{flex:0 0 36px}.bld-emoji,.bld-pages{flex:1 1 auto}}
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper2);padding:11px 18px;border-radius:11px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:120;box-shadow:0 10px 30px rgba(0,0,0,.3);max-width:86vw;text-align:center}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -323,7 +401,7 @@ select.set-key{font-family:var(--sans)}
   <!-- ════════ Launcher ════════ -->
   <div id="vLauncher">
     <div class="lead">
-      🗂️ 下列为 <b>各自独立</b> 的识别系统，互不干扰、共用一套 AI 设置与核对面板。多页 PDF 会按「每人页数」<b>自动拆分</b>为多条记录：1 页表单逐页拆分、神经运动 2 页一人、荧屏调查 12 页一人。每个系统都支持导入同名变量的 <b>xlsx / txt</b> 做可视化套对。
+      🗂️ 下列为 <b>各自独立</b> 的识别系统，互不干扰、共用一套 AI 设置与核对面板。多页 PDF 会按「每人页数」<b>自动拆分</b>为多条记录：1 页表单逐页拆分、神经运动 2 页一人、荧屏调查 12 页一人、膳食运动睡眠行为 14 页一人。每个系统都支持导入同名变量的 <b>xlsx / txt</b> 做可视化套对。
     </div>
     <div class="grid" id="sysGrid"></div>
   </div>
@@ -335,10 +413,10 @@ select.set-key{font-family:var(--sans)}
       <div class="card-h"><span class="dot"></span><h2 id="upTitle">① 上传 PDF</h2><span class="meta" id="qmeta">—</span></div>
       <div class="card-b">
         <div class="drop" id="drop">
-          <div class="big">📄 点击或拖入 PDF（可多选批量）</div>
-          <div class="sub" id="dropSub">每份 PDF 一个人。</div>
+          <div class="big">📄 点击或拖入 PDF / 图片（可多选批量）</div>
+          <div class="sub" id="dropSub">每份 PDF 一个人；图片支持一页一份（JPG / PNG）。</div>
         </div>
-        <input type="file" id="file" accept="application/pdf" multiple style="display:none">
+        <input type="file" id="file" accept="application/pdf,image/*" multiple style="display:none">
 
         <div class="splitnote"><span class="ico">✂️</span><span id="splitNote"></span></div>
 
@@ -371,13 +449,14 @@ select.set-key{font-family:var(--sans)}
 
         <!-- Import for visual cross-check -->
         <div class="imp-panel">
-          <div class="imp-h">🔎 导入同名变量做「可视化套对」</div>
-          <div class="imp-sub">导入一份 <code>.xlsx</code> / <code>.csv</code> / <code>.txt</code>（首行为英文变量名表头，与本系统 key 一致）。系统会按顺序（或按 <code>ID</code>/编号）把每行数据<b>填进对应记录的空位</b>并以<span style="color:#4b49c9;font-weight:700">紫色</span>标注，方便在核对窗与原件逐项比对。仅填空位，不覆盖已识别值（可勾「覆盖」）。</div>
+          <div class="imp-h">🔎 导入变量表 / 手动录入（可无原件）</div>
+          <div class="imp-sub">导入一份 <code>.xlsx</code> / <code>.csv</code> / <code>.txt</code>（首行为英文变量名表头，与本系统 key 一致）。<b>无需上传 PDF 或图片</b>：每行数据会按顺序（或按 <code>ID</code>/编号）填入对应记录的空位并以<span style="color:#4b49c9;font-weight:700">紫色</span>标注；记录不够时自动新建（核对窗左侧无原件即留空，只看右侧字段）。仅填空位，不覆盖已识别值（可勾「覆盖」）。也可「手动新增一条」直接录入，<b>核对窗内按 Tab / 回车跳下一题</b>。</div>
           <div class="imp-row">
-            <button class="btn" id="impBtn">📥 选择 xlsx / csv / txt</button>
+            <button class="btn" id="impBtn">📥 导入 xlsx / csv / txt</button>
             <input type="file" id="impFile" accept=".xlsx,.xls,.csv,.txt,.tsv" style="display:none">
+            <button class="btn" id="manualBtn">✍️ 手动新增一条</button>
             <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);cursor:pointer"><input type="checkbox" id="impOverwrite" style="width:15px;height:15px;accent-color:#5856D6">覆盖已识别值</label>
-            <button class="btn ghost" id="impClearBtn" style="display:none">清除套对</button>
+            <button class="btn ghost" id="impClearBtn" style="display:none">清除导入</button>
             <span class="imp-stat" id="impStat"></span>
           </div>
         </div>
@@ -387,6 +466,69 @@ select.set-key{font-family:var(--sans)}
     <p style="font-size:11.5px;color:var(--ink3);text-align:center;line-height:1.7">
       多家免费视觉大模型可选（智谱 GLM-4.6V · 硅基 Qwen3-VL · OpenRouter · GitHub GPT-4o · NVIDIA · Gemini + 自定义）。点右上角 ⚙ 选服务、填自己的 API Key、测试连接。Key 只存在本机浏览器，不经任何中转。
     </p>
+  </div>
+
+  <!-- ════════ System Builder ════════ -->
+  <div id="vBuilder" hidden>
+    <div class="card">
+      <div class="card-h"><span class="dot"></span><h2>① 新系统设置</h2><span class="meta">自定义表单 → 一键变量名</span></div>
+      <div class="card-b">
+        <div class="bld-grid">
+          <label class="bld-f"><span>系统名称</span><input id="bName" placeholder="如：儿童口腔检查表"></label>
+          <label class="bld-f bld-emoji"><span>图标</span><input id="bEmoji" value="🧩" maxlength="2"></label>
+          <label class="bld-f bld-pages"><span>每人份页数</span><input id="bPages" type="number" min="1" max="30" value="1"></label>
+        </div>
+        <div class="bld-tip">先填名称与<b>每人份页数</b>（例如一个人占 2 页就填 2）。再上传<b>一个人的样表</b>（PDF 或图片），AI 会逐页找出所有要识别的字段并自动生成英文变量名。生成后此系统与内置系统完全一致：可识别、可核对、可 xlsx/txt 套对、可导出。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span><h2>② 上传样表并识别条目</h2><span class="meta" id="bShot">未上传</span></div>
+      <div class="card-b">
+        <div class="drop" id="bDrop">
+          <div class="big">📄 点击或拖入「一个人的样表」（PDF / JPG / PNG）</div>
+          <div class="sub">仅用于分析版面、生成字段，只需一份样本。多页样表会按页编号。</div>
+        </div>
+        <input type="file" id="bFile" accept="application/pdf,image/*" multiple style="display:none">
+        <div class="ai-status" id="bAiStatus">AI 服务：未配置 · 点右上角 ⚙ 设置</div>
+        <div class="bld-act">
+          <button class="btn primary" id="bDetect" disabled>② 识别条目，自动生成变量名</button>
+          <button class="btn ghost" id="bClearShot" style="display:none">清空样表</button>
+        </div>
+        <div class="prog" id="bProg"><div class="bar"><i id="bBarFill"></i></div><div class="lbl" id="bProgLbl">—</div></div>
+        <div class="bld-stat" id="bStat"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span><h2>③ 字段与变量名（可拖动排序 / 改名 / 改填写位置）</h2><span class="meta" id="bCount">0 字段</span></div>
+      <div class="card-b">
+        <div class="bld-tip">拖动左侧 <b>⠿</b> 调整<b>顺序与填写位置</b>；可直接改<b>变量名</b>（key）、中文标签、所属页、类型。类型选「选项」时在最后一列填可选值（逗号分隔）。变量名只用小写字母 / 数字 / 下划线，创建时会自动规整并去重。</div>
+        <div class="bf-head"><span></span><span>页</span><span>变量名 key</span><span>中文标签</span><span>类型</span><span>可选值</span><span></span></div>
+        <div id="bFields"></div>
+        <button class="btn ghost" id="bAddField" style="margin-top:10px">＋ 添加一个字段</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span class="dot"></span><h2>④ 粘贴变量名清单，一键匹配</h2><span class="meta">txt · 每行一个</span></div>
+      <div class="card-b">
+        <div class="bld-tip">把所有英文变量名按顺序粘进下框（每行一个；可写成 <code>key 中文名</code> 或 <code>key=中文名</code>），点按钮即<b>按顺序套到上面的字段</b>（覆盖变量名，有中文名则一并更新）。行数多于字段时，多出的自动新增为字段。</div>
+        <textarea id="bVarText" class="bld-ta" placeholder="name 姓名&#10;gender 性别&#10;birth_date 出生日期&#10;..."></textarea>
+        <div class="bld-act">
+          <button class="btn" id="bVarFileBtn">📄 从 txt 文件载入</button>
+          <input type="file" id="bVarFile" accept=".txt,.csv,.tsv" style="display:none">
+          <button class="btn primary" id="bApplyVars">④ 用上面文本一键匹配变量名</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-b" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+        <button class="btn dark" id="bCreate">✓ 创建系统并进入</button>
+        <span class="bld-stat" id="bCreateStat" style="margin:0"></span>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -638,6 +780,521 @@ const ST_PAGE_HINT={
 11:'父亲 ff1-19（左）、母亲 fm1-19（右），4列＝非常不符1·基本不符2·基本符3·非常符4。下方生长发育 grow1-4 0/1 方框。',
 12:'问诊表：男生(gender=1)填 boy1-10，女生填 girl1-6，另一性别留空。每项0/1；=1 读右侧初始岁/月。底部 collectform/collectdata 原样照抄。'};
 /* ════════════════════════════════════════════════════════════════
+   膳食运动睡眠行为问卷（14 页/人）— SCHEMA / 分页 / 量表网格 / 渲染
+   reviewMode:'health'（结构沿用 screen 专用系统逻辑：分页·量表点格·频率行·跳页）
+════════════════════════════════════════════════════════════════ */
+
+/* ---- 多选题选项（□打✓=1 空=0），key 前缀 + 序号 ---- */
+const HQ_PUNISH=['挨打','罚站','挨饿','干家务','扣零花钱','增加补习时间','限制看电视/玩电脑等电子设备的时间','限制外出玩耍时间','被关小黑屋/厕所等狭小空间','挨骂','其他'];
+const HQ_GAMETOOL=['手机','电脑','平板','学习机','电话手表','其他'];
+const HQ_GAMEPLACE=['家里','学校','上学/放学的路上','同学家里','亲戚家里','其他'];
+const HQ_DISEASE=['哮喘','先天性心脏病','贫血','肾脏疾病','其他疾病'];
+const HQ_PREG_SMOKE=['无','主动(孕妇吸烟)','被动(家庭成员吸烟)'];
+const HQ_PREG_SUPP=['多元维生素(21金维他,善存)','维生素A','维生素D','其他'];
+const HQ_PREG_COMP=['妊娠糖尿病','妊娠高血压','其他'];
+const HQ_ALLERGY=['过敏性鼻炎','湿疹或特应性皮炎','鼻窦炎','哮喘','鼻息肉','其他','无过敏性疾病'];
+const HQ_WATER=['自来水烧开','家用净水器过滤水','桶装矿泉水/纯净水','瓶装矿泉水/纯净水','瓶装含糖饮料','现制奶茶/果茶','其他'];
+
+/* ---- 家庭成员疾病史表（成员×疾病勾选 + 身高体重腰围数值） ---- */
+const HFAM_MEMBERS=[['father','父亲'],['mother','母亲'],['gpa','爷爷'],['gma','奶奶'],['mgpa','外公'],['mgma','外婆']];
+const HFAM_DISEASES=[['htn','高血压'],['hlp','高血脂'],['dm','糖尿病'],['chd','冠心病'],['stroke','脑卒中'],['thy','甲状腺功能异常'],['fld','脂肪肝'],['tumor','肿瘤']];
+
+/* ---- 膳食频率表（食用频度 0-4 + 食用量），子项保持原表层级 ---- */
+const HDIET_ITEMS=[
+  ['diet1a','谷薯类·米饭/面食等'],['diet1b','谷薯类·粗粮(玉米/小米等)'],
+  ['diet2','新鲜蔬菜(不含胡萝卜)'],['diet3','胡萝卜'],
+  ['diet4a','水果·果脯/果干/板栗'],['diet4b','水果·山楂/鲜枣/甘蔗/榴莲/荔枝/桂圆/提子'],
+  ['diet4c','水果·波罗蜜/石榴/柿子/香蕉/芒果/哈密瓜'],
+  ['diet4d','水果·番石榴/橘子/猕猴桃/葡萄/梨/苹果/火龙果/广柑/桃子/橙子/桑葚/杨梅/甜瓜'],
+  ['diet4e','水果·菠萝/柚子/枇杷/杏子/李子/草莓/木瓜/柠檬/西瓜/西红柿/莲雾/樱桃/杨桃'],
+  ['diet5','猪牛羊肉'],['diet6','动物肝脏(猪肝/鸡鸭肝)'],['diet7','鸡鸭及其他禽肉'],
+  ['diet8','各种鱼虾贝类'],['diet9','鸡蛋/鸭蛋等蛋类'],['diet10','牛奶/酸奶等制品'],
+  ['diet11a','豆类·干豆类'],['diet11b','豆类·豆制品(豆腐干/丝/泡)'],['diet11c','豆类·豆腐/豆腐脑'],['diet11d','豆类·豆浆'],
+  ['diet12','各种坚果'],['diet12a','坚果·夏威夷果/榛子/碧根果/杏仁/巴旦木/腰果/澳洲坚果'],['diet12b','坚果·花生/瓜子/核桃/松子/南瓜子/开心果'],
+  ['diet13','菌藻类(菇类/木耳/银耳等)'],['diet14','食用油'],['diet15','咸菜'],
+  ['diet16','营养补充剂(钙片/维生素等)'],['diet17','辣椒'],['diet18','炸鸡汉堡等'],
+  ['diet19a','含糖饮料·含糖果汁或蔬菜汁'],['diet19b','含糖饮料·其他含糖饮料(可乐/雪碧等)'],['diet20','蜂蜜'],
+  ['diet_smoke','你吸烟吗(频度)'],['diet_baijiu','您饮白酒吗(频度)'],['diet_pijiu','您饮啤酒吗(频度)']
+];
+
+/* ---- 睡眠习惯量表 1-33 题（三选一：1通常 2有时 3很少） ---- */
+const HSLEEP33=['每晚入睡时间固定','在自己的床上睡','在父母/兄弟姐妹的床上睡','入睡时需要父母陪伴','到睡觉时间了不愿入睡','害怕一个人睡','上床后在20分钟内睡着','睡眠时间太短','睡眠时间充足','每天的睡眠时间长度大致相同','害怕在黑暗环境睡觉','在除了自己家以外的地方入睡困难','半夜跑到父母等家人的床上睡觉','半夜醒来1次','半夜醒来不止1次','夜间尿床','睡觉说梦话','睡觉不安稳,多动','夜间梦游','睡觉磨牙','夜间醒来尖叫/流汗/伤心难过','被噩梦吓醒','打鼾声音很大','睡觉时看着像呼吸停止了','睡觉时有打鼾和喘气状况','早上自己醒来','早上由家长或兄弟姐妹叫醒','早上醒来情绪稳定','早上起床困难','起床后要花很长时间才能清醒','白天看起来很困倦','看电视时,犯困/睡着了','坐车时,犯困/睡着了'];
+
+/* ---- 免疫频率题 1-6（5列：1从不 2有时 3偶尔 4常常 5绝大多数） ---- */
+const HIMMUNE_FREQ=['过去12个月突然高烧的频率','过去12个月腹泻的频率','过去12个月头痛的频率','过去12个月肌肉和关节疼痛的频率','过去12个月普通感冒的频率','过去12个月咳嗽的频率'];
+
+/* ---- 直系亲属过敏史（父/母/兄弟姐妹 × 4列勾选） ---- */
+const HFAM_ALLERGY_MEM=[['fa','父亲'],['ma','母亲'],['sib','兄弟姐妹']];
+const HFAM_ALLERGY_COL=[['rhin','过敏性鼻炎'],['asthma','哮喘'],['ecz','湿疹或特应性皮炎'],['none','无以上疾病'],['unk','不详']];
+
+function buildHealthSchema(){
+  const S=[];const P=(key,label,page,kind,opts)=>S.push({key,label,page,kind:kind||'text',opts});
+  const multi=(prefix,arr,page,label)=>arr.forEach((t,i)=>P(`${prefix}${i+1}`,`${label}·${i+1}.${t}`,page,'toggle'));
+
+  /* ───────── 第1页 一、儿童基本情况 ───────── */
+  P('ID','调查对象编号 ID',1,'text');
+  P('childname','儿童姓名',1,'text');
+  P('gender','性别(1=男 2=女)',1,'gender');
+  P('nation','民族(1汉2彝3藏4羌5苗6其他)',1,'num');
+  P('idcard','身份证号码',1,'text');
+  P('dob_type','出生日期类型(1新历2农历)',1,'num');
+  P('dob','出生日期',1,'text');
+  P('school','就读学校',1,'text');
+  P('grade','年级',1,'num');
+  P('class','班级',1,'num');
+  P('arrive_h','早上要求到校时间·时',1,'num');P('arrive_m','早上要求到校时间·分',1,'num');
+  P('leave_h','下午/晚上放学时间·时',1,'num');P('leave_m','下午/晚上放学时间·分',1,'num');
+  P('boarding','是否住读(1是0否)',1,'toggle');
+  P('score_chinese','语文成绩',1,'text');P('score_math','数学成绩',1,'text');P('score_english','英语成绩',1,'text');
+  P('study_stress','学习压力(1无2较小3一般4较大5大)',1,'num');
+  P('parent_expect_stress','家长期望压力(1无2轻度3中度4重度)',1,'num');
+  P('personality','性格(1内向2外向3中间)',1,'num');
+  P('parent_neg_emotion','受家长负性情绪影响(1无2轻微3一般4较大5大)',1,'num');
+  P('punished','犯错/考差是否被惩罚(1是0否)',1,'toggle');
+  multi('punish',HQ_PUNISH,1,'惩罚方式');
+  P('play_game','是否玩游戏(0否1是)',1,'toggle');
+
+  /* ───────── 第2页 游戏/疾病/保险/维生素/月经遗精 + 二、孕期喂养B1-B6 ───────── */
+  P('game_term_times','上学期间每月玩游戏次数',2,'num');P('game_term_min','上学期间每次时长(分)',2,'num');
+  P('game_holiday_times','寒暑假每月玩游戏次数',2,'num');P('game_holiday_min','寒暑假每次时长(分)',2,'num');
+  multi('gametool',HQ_GAMETOOL,2,'玩游戏主要工具');
+  multi('gameplace',HQ_GAMEPLACE,2,'玩游戏场所');
+  P('has_disease','是否患以下疾病(0否1是)',2,'toggle');
+  multi('disease',HQ_DISEASE,2,'所患疾病类型');
+  P('insur_basic','是否购买基本医疗保险(0否1是)',2,'toggle');
+  P('insur_basic_level','基本医保第几档',2,'text');P('insur_basic_fee','基本医保每年花费(元)',2,'num');
+  P('insur_comm','是否购买商业医疗保险(0否1是)',2,'toggle');
+  P('insur_comm_fee','商业保险每年花费(元)',2,'num');P('insur_comm_reimburse','商业保险报销总额度(元)',2,'num');
+  P('vitA','是否服用维生素A补充剂(0否1是)',2,'toggle');
+  P('vitA_dose_re','维生素A每日剂量(视黄醇当量RE)',2,'num');P('vitA_dose_iu','维生素A每日剂量(IU)',2,'num');
+  P('vitD','是否服用维生素D补充剂(0否1是)',2,'toggle');
+  P('vitD_dose_ug','维生素D每日剂量(μg)',2,'num');P('vitD_dose_iu','维生素D每日剂量(IU)',2,'num');
+  P('menarche','(女)是否已来月经(0否1是)',2,'toggle');
+  P('menarche_y','月经初潮年龄·岁',2,'num');P('menarche_m','月经初潮·月',2,'num');
+  P('spermarche','(男)是否有遗精(0否1是)',2,'toggle');
+  P('spermarche_y','首次遗精年龄·岁',2,'num');P('spermarche_m','首次遗精·月',2,'num');
+  P('b1_mage','B1·怀孕时母亲年龄(岁)',2,'num');P('b1_fage','B1·怀孕时父亲年龄(岁)',2,'num');
+  P('b2_pre_weight','B2·母亲怀孕前体重(斤)',2,'num');P('b2_pre_weight2','B2·分娩前体重(斤)',2,'num');
+  P('b3_weeks','B3·分娩孕周(周)',2,'num');P('b3_days','B3·分娩孕周(天)',2,'num');P('b3_fullterm','B3·是否足月(0足月1早产)',2,'toggle');
+  P('b4_date','B4·分娩日期(新历)',2,'text');
+  P('b5_mode','B5·分娩方式(0顺产1剖腹产)',2,'toggle');P('b5_twins','B5·是否双胞胎(1是0否)',2,'toggle');
+  P('b6_length','B6·出生身长(cm)',2,'num');P('b6_weight','B6·出生体重(斤)',2,'num');
+
+  /* ───────── 第3页 二、孕期 B7-B20 ───────── */
+  P('b7_smoke','B7·怀孕前是否主动吸烟(0否1是)',3,'toggle');
+  P('b7_week','B7·平均每周(次)',3,'num');P('b7_each','B7·平均每次(支)',3,'num');P('b7_years','B7·烟龄(年)',3,'num');
+  P('b8_none','B8·孕期吸烟·无(打✓=1)',3,'toggle');P('b8_active','B8·孕期主动吸烟(1)',3,'toggle');P('b8_active_n','B8·主动每天(支)',3,'num');
+  P('b8_passive','B8·孕期被动吸烟(1)',3,'toggle');P('b8_passive_n','B8·被动每天(支)',3,'num');
+  P('b9_drink','B9·孕期是否饮酒(0否1是)',3,'toggle');
+  P('b9_baijiu_ml','B9·白酒每次(ml)',3,'num');P('b9_baijiu_n','B9·白酒每月(次)',3,'num');
+  P('b9_redwine_ml','B9·红酒每次(ml)',3,'num');P('b9_redwine_n','B9·红酒每月(次)',3,'num');
+  P('b9_beer_ml','B9·啤酒每次(ml)',3,'num');P('b9_beer_n','B9·啤酒每月(次)',3,'num');
+  P('b10_teratogen','B10·孕早期是否用致畸药物(0否1是)',3,'toggle');P('b10_week','B10·时间为孕(周)',3,'num');P('b10_drug','B10·药名',3,'text');
+  P('b11_htn','B11·孕期高血压(0否1是)',3,'toggle');P('b11_week','B11·诊断孕周',3,'num');
+  P('b12_gdm','B12·孕期糖尿病(0否1是)',3,'toggle');P('b12_week','B12·诊断孕周',3,'num');
+  P('b13_thyroid','B13·甲状腺功能异常(0否1是)',3,'toggle');P('b13_week','B13·诊断孕周',3,'num');
+  P('b14_supp','B14·孕期是否服营养补充剂(0否1是)',3,'toggle');
+  multi('b14sup',HQ_PREG_SUPP,3,'B14·营养补充剂类型');
+  P('b15_transfuse','B15·分娩住院期间是否输血(0否1是)',3,'toggle');
+  P('b16_breast_start','B16·母乳开始(0未添加1出生时2出生后天)',3,'num');P('b16_breast_start_d','B16·出生后(天)',3,'num');
+  P('b16_breast_to_y','B16·母乳喂养到·岁',3,'num');P('b16_breast_to_m','B16·母乳喂养到·月',3,'num');
+  P('b17_formula_start','B17·配方奶开始(0未添加1出生时2天3月)',3,'num');P('b17_formula_start_v','B17·开始数值',3,'num');
+  P('b17_formula_to_y','B17·配方奶喂养到·岁',3,'num');P('b17_formula_to_m','B17·配方奶喂养到·月',3,'num');
+  P('b18_solid_month','B18·添加辅食开始(月龄)',3,'num');
+  P('b19_move','B19·怀孕到现在是否搬家/翻新(0否1是)',3,'toggle');P('b19_times','B19·次数',3,'num');P('b19_years','B19·每次装修后入住年份',3,'text');
+  P('b20_gravida','B20a·孕次(顺+剖+流/引总次数)',3,'num');
+  P('b20_vaginal','B20b·顺产(次)',3,'num');P('b20_cesarean','B20b·剖宫产(次)',3,'num');
+  P('b20_last_mode','B20b·末次分娩方式(1阴道2剖宫)',3,'num');P('b20_last_time','B20b·末次分娩时间',3,'text');
+  P('b20_spont_ab','B20c·自然流产(次)',3,'num');P('b20_induced_ab','B20c·人工流产(次)',3,'num');
+  P('b20_last_ab_mode','B20c·末次流产方式(1手术2药物3自然)',3,'num');P('b20_last_ab_time','B20c·末次流产时间',3,'text');
+  P('b20_preterm','B20d·早产(次)',3,'num');P('b20_stillbirth','B20d·死胎/产(次)',3,'num');
+
+  /* ───────── 第4页 B21-B22 + 二、家庭基本情况1-7 ───────── */
+  P('b21_complication','B21·生育其他孩子时是否妊娠并发症(0否1是)',4,'toggle');
+  multi('b21comp',HQ_PREG_COMP,4,'B21·并发症名称');
+  P('b22_mage_menarche','B22·母亲月经初潮年龄(岁)',4,'num');
+  P('fam_live','与哪些家庭成员同住(1-6)',4,'num');
+  P('fam_total','家庭总人口数',4,'num');
+  P('sibling_count','兄弟姐妹个数(含自己)',4,'num');P('child_order','你是家中第几个孩子',4,'num');
+  P('main_caregiver','主要照顾者(1母2父3爷奶4外公婆5其他)',4,'num');
+  P('parent_marriage','父母婚姻(1双亲2离异未重组3离异/丧偶后重组4丧偶未重组5未婚)',4,'num');
+  P('mother_job','母亲职业(1-10)',4,'num');P('father_job','父亲职业(1-10)',4,'num');
+  P('mother_edu','母亲受教育程度(1初中2高中/职高3大专/本科4硕士及以上)',4,'num');
+  P('father_edu','父亲受教育程度(1初中2高中/职高3大专/本科4硕士及以上)',4,'num');
+  P('family_income','家庭年收入水平(1-8)',4,'num');
+  P('family_food_expense','每月家庭饮食开支(元)',4,'num');
+  /* 家庭成员疾病史表：身高/体重/腰围 + 8 病勾选 */
+  HFAM_MEMBERS.forEach(([mk,mn])=>{
+    P(`fam_${mk}_h`,`家庭疾病史·${mn}·身高(cm)`,4,'num');
+    P(`fam_${mk}_w`,`家庭疾病史·${mn}·体重(kg)`,4,'num');
+    P(`fam_${mk}_waist`,`家庭疾病史·${mn}·腰围(cm)`,4,'num');
+    HFAM_DISEASES.forEach(([dk,dn])=>P(`fam_${mk}_${dk}`,`家庭疾病史·${mn}·${dn}`,4,'toggle'));
+    P(`fam_${mk}_other`,`家庭疾病史·${mn}·其他`,4,'text');
+  });
+
+  /* ───────── 第5页 二、家庭8-12 + 三、儿童锻炼1-2 ───────── */
+  P('fam_smoke_front','家人最近一月在你面前吸烟(1是0否)',5,'toggle');
+  P('smoke_father','吸烟者·父亲',5,'toggle');P('smoke_father_n','父亲每天(支)',5,'num');
+  P('smoke_gpa','吸烟者·爷爷或外公',5,'toggle');P('smoke_gpa_n','爷爷/外公每天(支)',5,'num');
+  P('smoke_mother','吸烟者·母亲',5,'toggle');P('smoke_mother_n','母亲每天(支)',5,'num');
+  P('smoke_gma','吸烟者·奶奶或外婆',5,'toggle');P('smoke_gma_n','奶奶/外婆每天(支)',5,'num');
+  P('smoke_other','吸烟者·其他家人',5,'toggle');P('smoke_other_n','其他家人每天(支)',5,'num');
+  P('home_address','家庭现住址',5,'text');
+  P('home_area','目前居住房屋面积(平米)',5,'num');
+  P('near_pollution','住房500米内有污染工厂/臭水沟/大马路(1是0否)',5,'toggle');
+  P('mother_name','母亲姓名',5,'text');P('mother_phone','母亲手机号码',5,'text');
+  P('father_name','父亲姓名',5,'text');P('father_phone','父亲手机号码',5,'text');
+  P('other_caregiver_name','其他照顾者姓名',5,'text');P('other_caregiver_phone','其他照顾者手机号',5,'text');
+  /* 锻炼：上学回家方式 3 项 + 主要运动方式 1-3 */
+  const exC=[['ex_car','在楼下直接坐小汽车/公交车'],['ex_walk_bus','先步行一段到公交站再坐车'],['ex_walk_bike','步行/骑自行车']];
+  exC.forEach(([k,n])=>{P(k,`上学回家·${n}·是否`,5,'toggle');P(k+'_d',`上学回家·${n}·每周(天)`,5,'num');P(k+'_t',`上学回家·${n}·每次(分)`,5,'num');});
+  const sp1=[['sport1','快跑/跳绳'],['sport2','骑自行车/仰卧起坐/俯卧撑/引体向上'],['sport3','慢跑/足球/溜直排轮']];
+  sp1.forEach(([k,n])=>{P(k,`主要运动·${n}·是否`,5,'toggle');P(k+'_d',`主要运动·${n}·每周(天)`,5,'num');P(k+'_t',`主要运动·${n}·每次(分)`,5,'num');});
+
+  /* ───────── 第6页 三、运动方式4-13 + 家务 + 兴趣班 + 四、工作日作息 ───────── */
+  const sp2=[['sport4','篮球/游泳/跳远/跳高'],['sport5','羽毛球'],['sport6','乒乓球/体操'],['sport7','拉伸/瑜伽'],
+    ['sport8','逛街/逛超市'],['sport9','散步'],['sport10','学习(除上学)/玩电脑'],['sport11','吃饭/聊天/做手工'],['sport12','看电视/电影/听音乐'],['sport13','其他']];
+  sp2.forEach(([k,n])=>{P(k,`运动方式·${n}·是否`,6,'toggle');P(k+'_d',`运动方式·${n}·每周(天)`,6,'num');P(k+'_t',`运动方式·${n}·每次(分)`,6,'num');});
+  const chore=[['chore1','扫地'],['chore2','拖地'],['chore3','洗碗/倒垃圾/浇花等'],['chore4','遛狗/猫'],['chore5','其他']];
+  chore.forEach(([k,n])=>{P(k,`家务·${n}·是否`,6,'toggle');P(k+'_d',`家务·${n}·每周(天)`,6,'num');P(k+'_t',`家务·${n}·每次(分)`,6,'num');});
+  const hobby=[['hobby1','钢琴/风琴/小提琴'],['hobby2','吉他/大提琴/长笛/木管乐器'],['hobby3','芭蕾舞/现代舞/爵士'],['hobby4','跆拳道/柔道/空手道'],['hobby5','其他']];
+  hobby.forEach(([k,n])=>{P(k,`兴趣班·${n}·是否`,6,'toggle');P(k+'_d',`兴趣班·${n}·每周(天)`,6,'num');P(k+'_t',`兴趣班·${n}·每次(分)`,6,'num');});
+  P('wd_wake_h','工作日·早晨醒来·时',6,'num');P('wd_wake_m','工作日·早晨醒来·分',6,'num');
+  P('wd_getup_h','工作日·早晨起床·时',6,'num');P('wd_getup_m','工作日·早晨起床·分',6,'num');
+  P('wd_breakfast_h','工作日·早上吃饭·时',6,'num');P('wd_breakfast_m','工作日·早上吃饭·分',6,'num');
+  P('wd_nap_min','工作日·午休时间长度(分)',6,'num');
+  P('wd_dinner_h','工作日·晚餐·时',6,'num');P('wd_dinner_m','工作日·晚餐·分',6,'num');
+  P('wd_lastfood_h','工作日·睡前最后进食·时',6,'num');P('wd_lastfood_m','工作日·睡前最后进食·分',6,'num');
+  P('wd_bed_h','工作日·晚上上床·时',6,'num');P('wd_bed_m','工作日·晚上上床·分',6,'num');
+  P('wd_sleep_h','工作日·晚上入睡·时',6,'num');P('wd_sleep_m','工作日·晚上入睡·分',6,'num');
+
+  /* ───────── 第7页 工作日睡觉原因 + 休息日作息/原因 + 睡眠4题 ───────── */
+  const sleepReason=['家长规定','自己觉得困','这个时间点才能做完作业','想玩儿的玩够了','长期睡眠习惯','其他'];
+  multi('wd_reason',sleepReason,7,'工作日晚睡原因');
+  P('we_wake_h','休息日·早晨醒来·时',7,'num');P('we_wake_m','休息日·早晨醒来·分',7,'num');
+  P('we_getup_h','休息日·早晨起床·时',7,'num');P('we_getup_m','休息日·早晨起床·分',7,'num');
+  P('we_breakfast_h','休息日·早上吃饭·时',7,'num');P('we_breakfast_m','休息日·早上吃饭·分',7,'num');
+  P('we_nap_min','休息日·午休时间长度(分)',7,'num');
+  P('we_dinner_h','休息日·晚餐·时',7,'num');P('we_dinner_m','休息日·晚餐·分',7,'num');
+  P('we_lastfood_h','休息日·睡前最后进食·时',7,'num');P('we_lastfood_m','休息日·睡前最后进食·分',7,'num');
+  P('we_bed_h','休息日·晚上上床·时',7,'num');P('we_bed_m','休息日·晚上上床·分',7,'num');
+  P('we_sleep_h','休息日·晚上睡觉·时',7,'num');P('we_sleep_m','休息日·晚上睡觉·分',7,'num');
+  multi('we_reason',sleepReason,7,'休息日晚睡原因');
+  P('sleep_mood','睡前30分钟情绪(1平静2较平静3中等4较激动5激动)',7,'num');
+  P('sleep_type','作息类型(1早睡早起2早睡晚起3晚睡早起4晚睡晚起5入睡不规律6起床不规律)',7,'num');
+  P('sleep_latency','晚上需多长时间入睡(1:0-5分2:6-15分3:16-30分4:31-45分5:46-60分6:超1小时)',7,'num');
+
+  /* ───────── 第8页 睡眠习惯量表 1-33（三选一 1通常2有时3很少）───────── */
+  HSLEEP33.forEach((t,i)=>P(`sleep${i+1}`,`睡眠习惯·${i+1}.${t}`,8,'scale'));
+
+  /* ───────── 第9-10页 五、膳食频率表（频度0-4 + 食用量斤/两/ml）───────── */
+  HDIET_ITEMS.forEach(([k,n])=>{
+    const pg=(['diet1a','diet1b','diet2','diet3','diet4a','diet4b','diet4c','diet4d','diet4e','diet5','diet6','diet7','diet8','diet9','diet10','diet11a','diet11b'].includes(k))?9:10;
+    P(k,`${n}·频度(0不吃1天2周3月4年)`,pg,'freq');
+    P(k+'_jin',`${n}·食用量(斤)`,pg,'num');
+    P(k+'_liang',`${n}·食用量(两/ml/次)`,pg,'num');
+  });
+
+  /* ───────── 第10页 膳食后半 1.1-8 ───────── */
+  P('meal_count_school','上学日每天吃几次食物(2-6)',10,'num');P('meal_count_rest','休息日每天吃几次食物(2-6)',10,'num');
+  P('binge','是否会暴饮暴食(0否1是)',10,'toggle');P('binge_times','暴食平均(次/月)',10,'num');
+  P('taste','吃饭咸淡(1很咸2偏咸3适中4偏淡5很淡)',10,'num');
+  P('breakfast','吃早餐情况(0不吃1吃)',10,'toggle');P('breakfast_days','平均吃早餐(天/周)',10,'num');
+  P('stove','做饭主要灶具(1燃气灶2电子设备3煤炉/土灶4其他)',10,'num');
+  P('cook_smoke','做饭时油烟大小(1大2较大3一般4较小5小)',10,'num');
+  P('range_hood','厨房抽油烟设备(1抽油烟机2排气扇3无4不知道)',10,'num');
+  P('range_hood_freq','抽油烟使用频率(1一直2经常3有时4几乎不5从不9不清楚)',10,'num');
+  multi('water',HQ_WATER,10,'日常饮水来源');
+
+  /* ───────── 第11页 八·习惯延续(9-16) + 六、甲状腺1-3 ───────── */
+  P('bottle_freq','饮用瓶装水/饮料频率(1从不2每月1-3次3每周1-2次4每周3-5次5每天1次及以上)',11,'num');
+  P('takeout_freq','食用外卖/打包频率(1从不2每月1-3次3每周1-2次4每周3-5次5每天1次及以上)',11,'num');
+  P('takeout_pour','外卖是否倒入自家餐具(1每次倒2多数时候倒3偶尔倒4不倒直接用外卖盒)',11,'num');
+  P('disposable_tableware','家庭是否用一次性塑料餐具(1从不2仅外出/外卖时3家庭日常也频繁)',11,'num');
+  P('plastic_cup','孩子是否用塑料水杯/饭盒(1是2否)',11,'num');
+  P('plastic_hot','塑料水杯装热水/热饮(1从不2有时3偶尔4常常5绝大多数)',11,'num');
+  P('plastic_microwave','微波炉加热塑料饭盒食物(1从不2有时3偶尔4常常5绝大多数)',11,'num');
+  P('plastic_wrap','家庭使用保鲜膜(1从不2仅包裹冷鲜3包裹热食/加热)',11,'num');
+  P('prepackaged_freq','日常食用预包装食品频率(1从不2每月1-3次3每周1-2次4每周3-5次5每天1次及以上)',11,'num');
+  P('teabag_freq','是否常用茶包/袋泡咖啡(1从不2偶尔3经常)',11,'num');
+  P('thy_diagnosed','甲状腺相关·曾诊断疾病(填编号/文字,如不清楚)',11,'text');
+  P('thy_abnormal_check','近1年肝/甲状腺/血脂异常检查结果(1无2-5或文字)',11,'text');
+  P('thy_meds','近3个月服用药物(填编号,可多选/文字)',11,'text');
+
+  /* ───────── 第12页 七、儿童免疫1-17 ───────── */
+  HIMMUNE_FREQ.forEach((t,i)=>P(`imm_freq${i+1}`,`免疫频率·${i+1}.${t}`,12,'scale'));
+  P('imm7_skin','是否有过皮炎/化脓性皮肤病/严重湿疹(0否1是)',12,'toggle');
+  P('imm8_wheeze','是否反复发作喘息/哮鸣音(0否1是)',12,'toggle');
+  P('imm9_drycough','是否反复干咳超过8周(0否1是)',12,'toggle');
+  P('imm10_allergy','是否被诊断过敏相关疾病(0否1是)',12,'toggle');
+  multi('imm10a',HQ_ALLERGY,12,'过敏相关疾病');
+  P('imm11_test','是否做过过敏原检测(0否1是)',12,'toggle');P('imm11_substance','过敏物质是',12,'text');
+  P('imm12_ulcer','是否有过口腔溃疡(1约1-2周愈合不留瘢痕2:1-2月或更长可留瘢痕3病程1-2周不留瘢痕)',12,'num');
+  P('imm13_renovate','工作/居住房间装修不超过半年(0否1是)',12,'toggle');
+  P('imm14_rickets','是否有严重佝偻病/严重营养不良(0否1是)',12,'toggle');
+  P('imm15_ascariasis','是否有过蛔虫病(0否1是)',12,'toggle');
+  P('imm16_food_allergy','是否有食物/花粉/疫苗过敏史(0否1是)',12,'toggle');P('imm16_name','过敏具体名称',12,'text');
+  P('imm17_tcm','是否喝过中药(0否1是)',12,'toggle');
+
+  /* ───────── 第13页 七、免疫18-27 ───────── */
+  /* 18 直系亲属过敏史表（父/母/兄弟姐妹 × 5列）*/
+  HFAM_ALLERGY_MEM.forEach(([mk,mn])=>HFAM_ALLERGY_COL.forEach(([ck,cn])=>P(`imm18_${mk}_${ck}`,`亲属过敏史·${mn}·${cn}`,13,'toggle')));
+  P('imm19_brain','孩子是否有癫痫/脑发育异常/脑炎后遗症/颅内病变(0否1是)',13,'toggle');
+  P('imm20_immune','孩子是否有癌症/白血病/艾滋病/其他免疫系统疾病(0否1是)',13,'toggle');
+  P('imm21_steroid','过去3月是否用可的松/强的松/激素/抗肿瘤药或放疗(0否1是)',13,'toggle');
+  P('imm22_transfuse','过去1年是否输血/血制品/免疫球蛋白(0否1是)',13,'toggle');
+  P('imm23_vaccine','是否按计划接种疫苗(0否1是)',13,'toggle');
+  P('imm24_vaccine_reaction','疫苗后是否发生严重反应(0否1是)',13,'toggle');P('imm24_symptom','具体症状',13,'text');
+  P('imm25_covid','是否接种新冠疫苗(0否1是)',13,'toggle');
+  P('imm26_med_week','一周内是否在服药物(0否1是)',13,'toggle');P('imm26_med_name','药物类型/名称',13,'text');
+  P('imm27_anemia','孩子是否诊断过贫血(0否1是)',13,'toggle');P('imm27_anemia_med','是否服用过贫血治疗药物(0否1是)',13,'toggle');P('imm27_med_name','贫血具体药物',13,'text');
+
+  /* ───────── 第14页 八、环境暴露与生活习惯1-13 + 填表信息 ───────── */
+  P('env1_school_cup','学校喝水最常用杯子材质(1玻璃/不锈钢2硬塑料/太空杯3瓶装水/塑料杯奶茶)',14,'num');
+  P('env2_microwave_plastic','塑料饭盒/袋装热菜微波炉直接加热(1从不/家里不用2偶尔会3经常这样)',14,'num');
+  P('env3_snack','多久吃一次包装零食(1很少每月<1次2有时每周1-2次3经常几乎每天)',14,'num');
+  P('env4_fastfood_paper','吃快餐直接放防油纸/纸盒上吃(1很少这类快餐2吃但尽量不接触包装纸3经常直接拿着包装纸吃)',14,'num');
+  P('env5_bite','写作业/上课咬铅笔头/橡皮擦/指甲(1从来没有2以前有现在改了3现在经常这样)',14,'num');
+  P('env6_eraser','橡皮擦/文具是否特别软或浓烈香味(1不是都普通2有一部分是3大部分特别香软)',14,'num');
+  P('env7_receipt','收银小票拿手里玩(1从来不拿2有时拿手里玩3经常拿玩后不洗手吃东西)',14,'num');
+  P('env8_sunscreen','夏天常涂防晒霜/喷防晒雾(1几乎不用2只上体育课/出去玩才用3每天都用)',14,'num');
+  P('env9_screen_time','每天玩手机/平板/坐电脑前时间(1不到1小时2:1-3小时3超过3小时)',14,'num');
+  P('env10_new_furniture','过去一年家里刷墙/买新大件家具(1没有2有但不怎么闻到味道3有且能闻到明显新家具/油漆味)',14,'num');
+  P('env11_road','睡觉房间窗户外是否紧挨大马路(1否2是)',14,'num');
+  P('env12_mosquito','夏天睡觉房间点电蚊香/烧蚊香(1很少用主要挂蚊帐2经常用每晚开电蚊香3经常用一般烧蚊香)',14,'num');
+  P('env13_nonstick','正餐是否用黑色涂层不粘锅(1从不用铁锅/陶瓷锅2偶尔使用3经常使用几乎每天)',14,'num');
+  P('collectform','填表人姓名',14,'text');P('collectdata','填表日期',14,'text');P('keyboarder','录入员',14,'text');
+
+  return S;
+}
+
+/* ════════ 量表网格列定义 ════════ */
+const HCOL_SLEEP3=[['通常是这样','1'],['有时候这样','2'],['很少这样','3']];
+const HCOL_FREQ5=[['从不','1'],['有时','2'],['偶尔','3'],['常常','4'],['绝大多数','5']];
+const HCOL_DIET=[['不吃','0'],['天','1'],['周','2'],['月','3'],['年','4']];
+
+/* ════════ 每页量表分组（点格网格） ════════ */
+function hGridGroups(page){
+  const G=[];const mk=(id,cap,cols,keys,texts,extra)=>G.push(Object.assign({id,cap,cols,keys,texts},extra||{}));
+  if(page===8){
+    mk('h_sleep','四、睡眠习惯量表 1-33（1通常是这样·2有时候这样·3很少这样）',HCOL_SLEEP3,HSLEEP33.map((_,i)=>'sleep'+(i+1)),HSLEEP33);
+  }else if(page===12){
+    mk('h_imm','七、免疫·频率题 1-6（1从不·2有时·3偶尔·4常常·5绝大多数）',HCOL_FREQ5,HIMMUNE_FREQ.map((_,i)=>'imm_freq'+(i+1)),HIMMUNE_FREQ);
+  }else if(page===13){
+    mk('h_famallergy','18·直系亲属过敏史（父/母/兄弟姐妹 × 5列勾选）',null,null,null,{type:'famallergy'});
+  }
+  return G;
+}
+
+/* ════════ 频率行（食用频度点格 + 斤/两输入） ════════ */
+function hDietLine(item,r){
+  const [k,name]=item;
+  const wrap=document.createElement('div');wrap.className='rv-dietline';
+  const nm=document.createElement('div');nm.className='rv-dietname';nm.textContent=name;wrap.appendChild(nm);
+  /* 频度点格 0-4 */
+  const fr=document.createElement('div');fr.className='rv-dietfreq';
+  HCOL_DIET.forEach(([lbl,v])=>{
+    const on=String(r.data[k]??'')===v;const imp=on&&r.imported&&r.imported[k]?' imp':'';
+    const cell=document.createElement('span');cell.className='rv-fcell'+(on?' on':'')+(imp?' imp':'');cell.dataset.k=k;cell.dataset.v=v;cell.textContent=v;cell.title=lbl;
+    cell.onclick=()=>{const tr=cell.parentElement;const already=cell.classList.contains('on');tr.querySelectorAll('.rv-fcell').forEach(c=>{c.classList.remove('on');c.classList.remove('imp');});if(already){r.data[k]='';}else{cell.classList.add('on');r.data[k]=v;}if(r.imported)delete r.imported[k];r.filled=countFilled(r);updateFill(r);};
+    fr.appendChild(cell);
+  });
+  wrap.appendChild(fr);
+  /* 食用量 斤 / 两 */
+  const amt=document.createElement('div');amt.className='rv-dietamt';
+  const vj=r.data[k+'_jin']==null?'':String(r.data[k+'_jin']);
+  const vl=r.data[k+'_liang']==null?'':String(r.data[k+'_liang']);
+  const ji=document.createElement('span');ji.className='rv-freq';
+  ji.innerHTML=`<input data-k="${k}_jin" class="${vj===''?'empty':''}${r.imported&&r.imported[k+'_jin']?' imp':''}" value="${esc(vj)}"> 斤`;
+  ji.querySelector('input').oninput=function(){onEdit(this);};
+  const li=document.createElement('span');li.className='rv-freq';
+  li.innerHTML=`<input data-k="${k}_liang" class="${vl===''?'empty':''}${r.imported&&r.imported[k+'_liang']?' imp':''}" value="${esc(vl)}"> 两/ml`;
+  li.querySelector('input').oninput=function(){onEdit(this);};
+  amt.appendChild(ji);amt.appendChild(li);wrap.appendChild(amt);
+  return wrap;
+}
+
+/* ════════ 通用「是否+每周天/每次分」运动行块 ════════ */
+function hActivityBlock(items,groupLabel,r){
+  const box=document.createElement('div');
+  if(groupLabel){const gl=document.createElement('div');gl.className='rv-gcap';gl.textContent=groupLabel;box.appendChild(gl);}
+  items.forEach(([k,n])=>{
+    const line=document.createElement('div');line.className='rv-uline';
+    const on=String(r.data[k]??'')==='1';
+    const chk=document.createElement('span');chk.className='rv-chk'+(on?' on':'');chk.title='打勾=进行该项(1)';
+    chk.onclick=()=>{const cur=String(r.data[k]??'')==='1';setToggle(k,cur?'0':'1');chk.classList.toggle('on',!cur);};
+    line.appendChild(chk);
+    const nm=document.createElement('span');nm.className='rv-uname';nm.textContent=n;line.appendChild(nm);
+    /* 每周天 / 每次分 */
+    const bx=document.createElement('span');bx.style.cssText='display:flex;gap:14px;margin-left:auto;flex-wrap:wrap';
+    const vd=r.data[k+'_d']==null?'':String(r.data[k+'_d']);
+    const a=document.createElement('span');a.className='rv-freq';
+    a.innerHTML=`每周 <input data-k="${k}_d" class="${vd===''?'empty':''}${r.imported&&r.imported[k+'_d']?' imp':''}" value="${esc(vd)}"> 天`;
+    a.querySelector('input').oninput=function(){onEdit(this);};
+    const vt=r.data[k+'_t']==null?'':String(r.data[k+'_t']);
+    const b=document.createElement('span');b.className='rv-freq';
+    b.innerHTML=`每次 <input data-k="${k}_t" class="${vt===''?'empty':''}${r.imported&&r.imported[k+'_t']?' imp':''}" value="${esc(vt)}"> 分`;
+    b.querySelector('input').oninput=function(){onEdit(this);};
+    bx.appendChild(a);bx.appendChild(b);line.appendChild(bx);
+    box.appendChild(line);
+  });
+  return box;
+}
+
+/* ════════ 直系亲属过敏史网格 ════════ */
+function hBuildFamAllergyGrid(r){
+  const wrap=document.createElement('div');wrap.className='rv-grid';
+  const tbl=document.createElement('table');tbl.className='rv-gtbl';
+  const colg=document.createElement('colgroup');colg.innerHTML='<col>'+HFAM_ALLERGY_COL.map(()=>'<col class="optcol">').join('');tbl.appendChild(colg);
+  const thead=document.createElement('thead');let th='<tr><th class="q">亲属</th>'+HFAM_ALLERGY_COL.map(c=>`<th>${esc(c[1])}</th>`).join('')+'</tr>';thead.innerHTML=th;tbl.appendChild(thead);
+  const tb=document.createElement('tbody');
+  HFAM_ALLERGY_MEM.forEach(([mk,mn])=>{
+    const tr=document.createElement('tr');
+    let h=`<td class="q">${esc(mn)}</td>`;
+    HFAM_ALLERGY_COL.forEach(([ck])=>{const key=`imm18_${mk}_${ck}`;const on=String(r.data[key]??'')==='1';const imp=on&&r.imported&&r.imported[key]?' imp':'';h+=`<td><div class="rv-cell${on?' on':''}${imp}" data-fak="${key}">${on?'✓':''}</div></td>`;});
+    tr.innerHTML=h;tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);
+  tbl.addEventListener('click',e=>{const cell=e.target.closest('.rv-cell');if(!cell||!cell.dataset.fak)return;const key=cell.dataset.fak;const cur=String(r.data[key]??'')==='1';r.data[key]=cur?'':'1';cell.classList.toggle('on',!cur);cell.textContent=cur?'':'✓';if(r.imported)delete r.imported[key];r.filled=countFilled(r);updateFill(r);});
+  wrap.appendChild(tbl);return wrap;
+}
+
+/* ════════ 家庭成员疾病史网格（身高体重腰围 + 8病勾选 + 其他） ════════ */
+function hBuildFamDiseaseGrid(r){
+  const wrap=document.createElement('div');wrap.className='rv-grid';
+  const cap=document.createElement('div');cap.className='rv-gcap';cap.textContent='7·家庭成员疾病史（身高/体重/腰围数值 + 疾病勾选）';wrap.appendChild(cap);
+  const tbl=document.createElement('table');tbl.className='rv-gtbl rv-famtbl';
+  const colg=document.createElement('colgroup');colg.innerHTML='<col><col class="ncol"><col class="ncol"><col class="ncol">'+HFAM_DISEASES.map(()=>'<col class="optcol">').join('')+'<col>';tbl.appendChild(colg);
+  const thead=document.createElement('thead');
+  let th='<tr><th class="q">成员</th><th>身高</th><th>体重</th><th>腰围</th>'+HFAM_DISEASES.map(d=>`<th>${esc(d[1])}</th>`).join('')+'<th>其他</th></tr>';
+  thead.innerHTML=th;tbl.appendChild(thead);
+  const tb=document.createElement('tbody');
+  HFAM_MEMBERS.forEach(([mk,mn])=>{
+    const tr=document.createElement('tr');
+    const td0=document.createElement('td');td0.className='q';td0.textContent=mn;tr.appendChild(td0);
+    ['h','w','waist'].forEach(suf=>{
+      const key=`fam_${mk}_${suf}`;const td=document.createElement('td');
+      const v=r.data[key]==null?'':String(r.data[key]);
+      td.innerHTML=`<input class="rv-famnum${v===''?' empty':''}${r.imported&&r.imported[key]?' imp':''}" data-k="${key}" value="${esc(v)}">`;
+      td.querySelector('input').oninput=function(){onEdit(this);};tr.appendChild(td);
+    });
+    HFAM_DISEASES.forEach(([dk])=>{
+      const key=`fam_${mk}_${dk}`;const on=String(r.data[key]??'')==='1';const imp=on&&r.imported&&r.imported[key]?' imp':'';
+      const td=document.createElement('td');td.innerHTML=`<div class="rv-cell${on?' on':''}${imp}" data-fdk="${key}">${on?'✓':''}</div>`;tr.appendChild(td);
+    });
+    const tdo=document.createElement('td');const key=`fam_${mk}_other`;const vo=r.data[key]==null?'':String(r.data[key]);
+    tdo.innerHTML=`<input class="rv-famnum${vo===''?' empty':''}${r.imported&&r.imported[key]?' imp':''}" data-k="${key}" value="${esc(vo)}" style="width:64px">`;
+    tdo.querySelector('input').oninput=function(){onEdit(this);};tr.appendChild(tdo);
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);
+  tbl.addEventListener('click',e=>{const cell=e.target.closest('.rv-cell');if(!cell||!cell.dataset.fdk)return;const key=cell.dataset.fdk;const cur=String(r.data[key]??'')==='1';r.data[key]=cur?'':'1';cell.classList.toggle('on',!cur);cell.textContent=cur?'':'✓';if(r.imported)delete r.imported[key];r.filled=countFilled(r);updateFill(r);});
+  wrap.appendChild(tbl);return wrap;
+}
+
+/* ════════ 页标题 + 页提示 ════════ */
+const H_PAGE_TITLE={1:'一、基本情况(身份/成绩/压力/惩罚)',2:'游戏·疾病·保险·维生素·月经遗精 + 孕期B1-B6',3:'孕期 B7-B20',4:'B21-B22 + 家庭情况1-7(疾病史表)',5:'家庭8-12 + 锻炼·上学回家·运动1-3',6:'运动4-13·家务·兴趣班 + 工作日作息',7:'工作日睡因·休息日作息/睡因·睡眠4题',8:'睡眠习惯量表 1-33',9:'膳食频率表(谷薯/蔬果/肉蛋·上半)',10:'膳食频率表(豆坚果/油盐糖·下半) + 膳食1.1-8',11:'习惯9-16 + 甲状腺1-3',12:'免疫1-17(频率题+过敏)',13:'免疫18-27(亲属过敏史)',14:'环境暴露1-13 + 填表信息'};
+
+const H_PAGE_HINT={
+1:'一、儿童基本情况。ID/姓名/性别(方框1男2女)/民族/身份证号/出生日期/学校/年级/班级/到校放学时间/是否住读/语数英成绩/学习压力/家长期望压力/性格/负性情绪影响。第11题被惩罚方式为多选□打✓(punish1-11)；第12题是否玩游戏0否1是。方框内手写数字原样照抄。',
+2:'上半：游戏次数与时长、玩游戏工具(gametool1-6多选)、场所(gameplace1-6多选)、是否患疾病(disease1-5多选)、医保(基本/商业)、维生素A/D剂量、月经(女)/遗精(男)。下半：二、母亲怀孕到婴儿期 B1-B6(父母年龄/孕前体重/分娩孕周/足月早产/分娩日期/分娩方式/双胞胎/出生身长体重)。',
+3:'二、孕期 B7-B20。B7孕前吸烟、B8孕期吸烟(无/主动/被动多选+支数)、B9饮酒(白/红/啤酒ml与次)、B10致畸药、B11高血压B12糖尿病B13甲状腺(0/1+诊断孕周)、B14营养补充剂(b14sup1-4多选)、B15输血、B16母乳B17配方奶B18辅食、B19搬家装修、B20孕产史(孕次/顺剖/流产/早产死胎)。',
+4:'上半：B21妊娠并发症(b21comp1-3多选)、B22母亲初潮年龄。下半：二、家庭基本情况。同住成员/总人口/兄弟姐妹/第几孩/主要照顾者/父母婚姻/父母职业(1-10)/受教育程度/家庭年收入(1-8)/月饮食开支。第7题家庭成员疾病史表：父/母/爷/奶/外公/外婆 各填身高体重腰围 + 高血压/高血脂/糖尿病/冠心病/脑卒中/甲状腺/脂肪肝/肿瘤 勾选(fam_<成员>_<病>)。',
+5:'上半：二、家庭8-12。家人面前吸烟(吸烟者父/爷/母/奶/其他+支数)、现住址、房屋面积、500米内污染、父母及照顾者姓名电话。下半：三、儿童锻炼。上学回家方式3项(ex_*：是否□+每周天+每次分)、主要运动方式1-3(sport1-3同结构)。',
+6:'三、运动方式4-13(sport4-13)、做家务1-5(chore1-5)、兴趣班1-5(hobby1-5)，每项=是否□+每周天+每次分。下半：四、儿童睡眠·工作日(周一~周五)作息：醒来/起床/早餐/午休分钟/晚餐/睡前最后进食/上床/入睡 各时:分。24小时制。',
+7:'上半：工作日晚睡原因(wd_reason1-6多选□)。中：休息日(周六~周日)作息(we_*时:分)+休息日晚睡原因(we_reason1-6)。下半：睡前30分钟情绪(1-5)、作息类型(1-6)、入睡所需时间(1-6)。方框内数字原样。',
+8:'四、睡眠习惯量表 1-33 题。每题三选一在方框内填数字：1=通常是这样、2=有时候这样、3=很少这样。逐题读取手写数字。',
+9:'五、膳食频率表(上半 diet1a-diet11b)。每行：食用频度方框填0-4(0不吃1天2周3月4年) + 右侧食用量(斤/两，部分为ml)。频度与食用量分别照抄。',
+10:'五、膳食频率表(下半 diet11c-diet20 及吸烟饮酒频度) + 膳食1.1-8。频度0-4+食用量。下半：每天吃几次(上学日/休息日)、暴饮暴食、咸淡、早餐、灶具、油烟、抽油烟设备及频率、饮水来源(water1-7多选)。',
+11:'八习惯延续9-16(瓶装水/外卖/倒餐具/一次性餐具/塑料杯/塑料装热饮/微波炉塑料/保鲜膜/预包装/茶包，各填编号数字)。六、甲状腺1-3：曾诊断疾病、近1年异常检查、近3月用药——若写"不清楚"则原样填文字，否则填编号。',
+12:'七、儿童免疫。1-6频率题(imm_freq1-6，5列：1从不2有时3偶尔4常常5绝大多数)。7-17：皮炎/喘息/干咳/过敏诊断(imm10a1-7多选)/过敏原检测/口腔溃疡(1-3)/装修/佝偻/蛔虫/食物过敏/中药，0否1是或编号。',
+13:'七、免疫18-27。18直系亲属过敏史表(父/母/兄弟姐妹 × 过敏性鼻炎/哮喘/湿疹/无以上/不详 勾选，imm18_<成员>_<列>)。19-27：癫痫脑病/免疫疾病/激素抗肿瘤/输血免疫球蛋白/计划疫苗/疫苗反应/新冠疫苗/一周内服药/贫血及治疗药，0否1是。',
+14:'八、环境暴露与生活习惯1-13(env1-env13，各填编号数字)：学校杯子/微波塑料/零食/快餐包装/咬笔/橡皮香软/小票/防晒/屏幕时间/新家具/大马路/蚊香/不粘锅。底部填表人姓名/填表日期/录入员原样照抄。'};
+
+/* ════════ 逐页提示词（沿用 screen 结构） ════════ */
+function healthPrompt(sys,page){
+  const list=sys._leaf.filter(f=>f.page===page).map(f=>`- ${f.key}｜${f.label}`).join('\n');
+  return `你是表单转写器，正在识别《儿童膳食、运动、睡眠和行为健康评估问卷》第 ${page} 页。直接按图把下列字段填好，立即输出 JSON。禁止任何分析、推理、解释或思考过程，看到什么写什么。
+
+【本页字段】（key｜含义，键名必须原样使用）：
+${list}
+
+【读取规则】
+- 方框 □ / 下划线里手写的数字、字母、号码、姓名 → 原样照抄框内内容。
+- 复选框 □ 内打了 ✓/√/对勾 = 选中（该项填 1）；空框 = 未选（填 0 或省略）。
+- 单选编码题（如 1=… 2=… 3=…）→ 读方框内手写的那个数字。
+- 量表每行在某一列打 ✓/填数字 → 该行填对应数字（列从左到右 1,2,3,…）。
+- 「是否使用/是否进行」=0 时，其下次数、分钟、用途一律 0 或省略，不要编造。
+- 手写阿拉伯数字按字面照抄，注意区分 0/O、1/7、5/6、6/0。
+- 看不清或空白的字段 → 直接省略该键，不要猜测、不要编造。
+
+【本页版面】${H_PAGE_HINT[page]||''}
+
+【输出】只输出一个紧凑 JSON 对象：不换行、不缩进、无 Markdown、无注释。值用字符串，只输出本页确实填写了的字段。`;
+}
+
+/* ════════ 核对窗渲染（分页 → 行/运动块/膳食频率/量表网格） ════════ */
+function healthRender(host,r){
+  const pages=[...new Set(curSys._leaf.map(f=>f.page))].sort((a,b)=>a-b);
+  for(const pg of pages){
+    const sec=document.createElement('div');sec.className='rv-sec';sec.dataset.page=pg;sec.textContent=`第 ${pg} 页 · ${H_PAGE_TITLE[pg]||''}（点此定位左侧原件）`;sec.onclick=()=>jumpToPage(pg);host.appendChild(sec);
+
+    /* 本页量表网格涉及的 key（避免重复渲染） */
+    const groups=hGridGroups(pg);
+    const handledKeys=new Set();
+    groups.forEach(g=>{
+      (g.keys||[]).forEach(k=>handledKeys.add(k));
+      if(g.type==='famallergy')HFAM_ALLERGY_MEM.forEach(([mk])=>HFAM_ALLERGY_COL.forEach(([ck])=>handledKeys.add(`imm18_${mk}_${ck}`)));
+    });
+
+    /* 第4页家庭疾病史表：用专用网格 */
+    let famDiseaseKeys=new Set();
+    if(pg===4){HFAM_MEMBERS.forEach(([mk])=>{['h','w','waist','other'].forEach(s=>famDiseaseKeys.add(`fam_${mk}_${s}`));HFAM_DISEASES.forEach(([dk])=>famDiseaseKeys.add(`fam_${mk}_${dk}`));});}
+
+    /* 运动/家务/兴趣班/上学回家：用活动块（是否+每周天+每次分） */
+    const actGroups=[];
+    if(pg===5){
+      actGroups.push({label:'上学/放学回家方式',items:[['ex_car','在楼下直接坐小汽车/公交车'],['ex_walk_bus','先步行一段到公交站再坐车'],['ex_walk_bike','步行/骑自行车']]});
+      actGroups.push({label:'主要运动方式 1-3',items:[['sport1','快跑/跳绳'],['sport2','骑自行车/仰卧起坐/俯卧撑/引体向上'],['sport3','慢跑/足球/溜直排轮']]});
+    }else if(pg===6){
+      actGroups.push({label:'运动方式 4-13',items:[['sport4','篮球/游泳/跳远/跳高'],['sport5','羽毛球'],['sport6','乒乓球/体操'],['sport7','拉伸/瑜伽'],['sport8','逛街/逛超市'],['sport9','散步'],['sport10','学习(除上学)/玩电脑'],['sport11','吃饭/聊天/做手工'],['sport12','看电视/电影/听音乐'],['sport13','其他']]});
+      actGroups.push({label:'做家务 1-5',items:[['chore1','扫地'],['chore2','拖地'],['chore3','洗碗/倒垃圾/浇花等'],['chore4','遛狗/猫'],['chore5','其他']]});
+      actGroups.push({label:'兴趣班 1-5',items:[['hobby1','钢琴/风琴/小提琴'],['hobby2','吉他/大提琴/长笛/木管乐器'],['hobby3','芭蕾舞/现代舞/爵士'],['hobby4','跆拳道/柔道/空手道'],['hobby5','其他']]});
+    }
+    const actKeys=new Set();actGroups.forEach(ag=>ag.items.forEach(([k])=>{actKeys.add(k);actKeys.add(k+'_d');actKeys.add(k+'_t');}));
+
+    /* 膳食频率行：本页所有 diet* 主项 */
+    const dietItems=HDIET_ITEMS.filter(([k])=>curSys._fby[k]&&curSys._fby[k].page===pg);
+    const dietKeys=new Set();dietItems.forEach(([k])=>{dietKeys.add(k);dietKeys.add(k+'_jin');dietKeys.add(k+'_liang');});
+
+    /* 1) 先渲染普通字段行（排除以上专用块的 key） */
+    curSys._leaf.filter(f=>f.page===pg && !handledKeys.has(f.key) && !famDiseaseKeys.has(f.key) && !actKeys.has(f.key) && !dietKeys.has(f.key))
+      .forEach(f=>host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key])));
+
+    /* 2) 家庭疾病史表 */
+    if(pg===4)host.appendChild(hBuildFamDiseaseGrid(r));
+
+    /* 3) 活动块 */
+    actGroups.forEach(ag=>host.appendChild(hActivityBlock(ag.items,ag.label,r)));
+
+    /* 4) 膳食频率块 */
+    if(dietItems.length){
+      const dwrap=document.createElement('div');dwrap.className='rv-grid';
+      const dcap=document.createElement('div');dcap.className='rv-gcap';dcap.textContent='五、膳食频率（点选频度0-4 + 填食用量）';dwrap.appendChild(dcap);
+      const dhead=document.createElement('div');dhead.className='rv-diethead';dhead.innerHTML='<span class="rv-dietname">食物</span><span class="rv-dietfreq-h">不吃0·天1·周2·月3·年4</span><span class="rv-dietamt-h">食用量</span>';dwrap.appendChild(dhead);
+      dietItems.forEach(it=>dwrap.appendChild(hDietLine(it,r)));
+      host.appendChild(dwrap);
+    }
+
+    /* 5) 量表网格 */
+    groups.forEach(g=>{
+      if(g.type==='famallergy'){host.appendChild(hBuildFamAllergyGrid(r));}
+      else host.appendChild(stBuildGrid(g,r));
+    });
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
    SYSTEMS — 每个独立识别系统
    pagesPerRecord: 每"一个人/一条记录"占多少页 → 多页 PDF 自动拆分依据
    reviewMode: generic | neuro | screen
@@ -745,6 +1402,130 @@ const SYSTEMS=[
 基本信息：ID_no 序号、childname 顶部红字姓名、gender 男1女2、age、grade、class、collectdata 日期(YYYY/MM/DD)、collectdata1 时间(HH:MM:SS)。
 评估值编码：正常=1，低标准/缺乏=2，超标准/过量=3，PBF 重度肥胖=4，骨骼肌高标准=3。
 节段脂肪/肌肉数值形如"X.X(M)"取括号前数字。阻抗表 3 行(5k/50k/250k)×5 列(RA/LA/TR/RL/LL)。Body Type 取图中箭头所指体型编号 1-9。`
+},
+{
+  id:'inbody_adult', name:'成人体成分（InBody S10）', emoji:'💧',
+  tags:['1 页/人','InBody S10','左右对照'],
+  desc:'InBody S10 成人「身体水分／体成分」分析报告。版面左图右表：左侧含柱状图/历史趋势，右侧为数字明细。识别系统按版面左右对照：节段(水分／ECW比率／相位角)以 5 节段 × 3 列对齐表呈现；生物电阻抗以 6 频率 × 5 节段对齐表呈现，行高字段宽度统一。',
+  pagesPerRecord:1, reviewMode:'generic',
+  fields:[
+    /* ─── 基本信息 ─── */
+    {key:'ID',label:'ID 编号',type:'text',group:'基本信息'},
+    {key:'name',label:'姓名',type:'text',group:'基本信息'},
+    {key:'height',label:'身高 (cm)',type:'number',group:'基本信息'},
+    {key:'age',label:'年龄',type:'number',group:'基本信息'},
+    {key:'gender',label:'性别',type:'select',options:['男','女'],group:'基本信息'},
+    {key:'test_date',label:'测试日期',type:'text',hint:'YYYY.MM.DD',group:'基本信息'},
+    {key:'test_time',label:'测试时间',type:'text',hint:'HH:MM',group:'基本信息'},
+
+    /* ─── ①身体水分组成 (L) ─── */
+    {key:'TBW',label:'身体总水分 TBW (L)',type:'number',hint:'参考30.2~37.0',group:'①身体水分组成 (L)'},
+    {key:'ICW',label:'细胞内水分 ICW (L)',type:'number',hint:'参考18.7~22.9',group:'①身体水分组成 (L)'},
+    {key:'ECW',label:'细胞外水分 ECW (L)',type:'number',hint:'参考11.5~14.1',group:'①身体水分组成 (L)'},
+    {key:'ECW_ratio',label:'细胞外水分比率 ECW/TBW',type:'number',hint:'正常 0.360~0.390',group:'①身体水分组成 (L)'},
+
+    /* ─── ②节段测量：5 节段 × (水分 / ECW比率 / 相位角) ─── */
+    {key:'segment',label:'节段测量（5 节段 × 水分 / ECW比率 / 相位角ϕ）',type:'table',mode:'aligned',cornerLabel:'节段',
+      group:'②节段测量 — 左右对照',
+      columns:[
+        {key:'water',label:'水分 (L)'},
+        {key:'ecw_ratio',label:'ECW/TBW'},
+        {key:'phase',label:'相位角 ϕ(°)'}
+      ],
+      rows:[
+        {key:'RA',label:'右上肢'},
+        {key:'LA',label:'左上肢'},
+        {key:'TR',label:'躯  干'},
+        {key:'RL',label:'右下肢'},
+        {key:'LL',label:'左下肢'}
+      ]
+    },
+    {key:'edema_eval',label:'浮肿评估（综合 5 节段 ECW/TBW）',type:'select',
+      options:['1','2','3'],
+      hint:'1正常(<0.380)·2轻度浮肿(0.380~0.400)·3浮肿(>0.400)',
+      group:'②节段测量 — 左右对照'},
+
+    /* ─── ③人体成分分析 (kg) ─── */
+    {key:'Protein',label:'蛋白质 (kg)',type:'number',hint:'参考8.1~9.9',group:'③人体成分分析 (kg)'},
+    {key:'Mineral',label:'无机盐 (kg)',type:'number',hint:'参考2.80~3.42',group:'③人体成分分析 (kg)'},
+    {key:'BFM',label:'体脂肪 (kg)',type:'number',hint:'参考11.9~19.0',group:'③人体成分分析 (kg)'},
+    {key:'FFM',label:'去脂体重 (kg)',type:'number',hint:'参考41.2~50.3',group:'③人体成分分析 (kg)'},
+    {key:'BMC',label:'骨矿物质含量 (kg)',type:'number',hint:'参考2.30~2.82',group:'③人体成分分析 (kg)'},
+
+    /* ─── ④肌肉脂肪分析 ─── */
+    {key:'Weight',label:'体重 (kg)',type:'number',hint:'参考50.5~68.3',group:'④肌肉脂肪分析'},
+    {key:'SMM',label:'骨骼肌含量 (kg)',type:'number',hint:'参考22.7~27.7',group:'④肌肉脂肪分析'},
+    {key:'MM',label:'肌肉量 (kg)',type:'number',hint:'参考38.9~47.5',group:'④肌肉脂肪分析'},
+    {key:'BFM2',label:'体脂肪含量 (kg)',type:'number',hint:'与 BFM 同值（版面重复）',group:'④肌肉脂肪分析'},
+
+    /* ─── ⑤肥胖分析 ─── */
+    {key:'BMI',label:'BMI (kg/m²)',type:'number',hint:'参考18.5~23.9',group:'⑤肥胖分析'},
+    {key:'PBF',label:'体脂百分比 (%)',type:'number',hint:'参考18.0~28.0',group:'⑤肥胖分析'},
+
+    /* ─── ⑥研究项目（按报告顺序）─── */
+    {key:'BMR',label:'基础代谢率 (kcal)',type:'number',hint:'参考1542~1803',group:'⑥研究项目'},
+    {key:'WHR',label:'腰臀比 WHR',type:'number',hint:'参考0.75~0.85',group:'⑥研究项目'},
+    {key:'waist_circ',label:'腹围 (cm)',type:'number',group:'⑥研究项目'},
+    {key:'VFA',label:'内脏脂肪面积 (cm²)',type:'number',group:'⑥研究项目'},
+    {key:'obesity_deg',label:'肥胖度 (%)',type:'number',hint:'参考90~110',group:'⑥研究项目'},
+    {key:'BCM',label:'身体细胞量 (kg)',type:'number',hint:'参考26.9~32.9',group:'⑥研究项目'},
+    {key:'AC',label:'上臂围度 (cm)',type:'number',group:'⑥研究项目'},
+    {key:'AMC',label:'上臂肌肉围度 (cm)',type:'number',group:'⑥研究项目'},
+    {key:'TBW_FFM',label:'TBW/FFM (%)',type:'number',group:'⑥研究项目'},
+    {key:'FFMI',label:'去脂体重指数 FFMI (kg/m²)',type:'number',group:'⑥研究项目'},
+    {key:'FMI',label:'脂肪量指数 FMI (kg/m²)',type:'number',group:'⑥研究项目'},
+
+    /* ─── ⑦生物电阻抗：6 频率 × 5 节段 ─── */
+    {key:'imp',label:'生物电阻抗 Z(Ω)',type:'table',mode:'aligned',cornerLabel:'频率 \\ 节段',
+      group:'⑦生物电阻抗 Z(Ω) — 6 频率 × 5 节段',
+      columns:[
+        {key:'RA',label:'右上肢'},
+        {key:'LA',label:'左上肢'},
+        {key:'TR',label:'躯  干'},
+        {key:'RL',label:'右下肢'},
+        {key:'LL',label:'左下肢'}
+      ],
+      rows:[
+        {key:'1k',label:'1 kHz'},
+        {key:'5k',label:'5 kHz'},
+        {key:'50k',label:'50 kHz'},
+        {key:'250k',label:'250 kHz'},
+        {key:'500k',label:'500 kHz'},
+        {key:'1000k',label:'1000 kHz'}
+      ]
+    },
+
+    /* ─── ⑧测量信息 ─── */
+    {key:'measure_type',label:'测量类型',type:'text',hint:'如 Touch Type, Standing Posture',group:'⑧测量信息'},
+    {key:'institution',label:'医疗机构',type:'text',hint:'如 重庆医科大学附属永川医院 临床营养科',group:'⑧测量信息'},
+    {key:'keyboarder',label:'录入员',type:'text',group:'⑧测量信息'}
+  ],
+  extractHint:`这是 InBody S10 成人「身体水分／体成分」分析报告（重医永川医院临床营养科）。版面要点：报告左侧是含柱状图的可视化区，右侧是数字明细表，左右是同一份数据的两种展示。**优先用右侧数字明细表识别**，左侧仅作核对参考。识别不到填 null。
+
+【基本信息】顶部行：ID 数字串、name 顶端手写姓名（在 ID 右侧方框）、height 身高 cm 数字、age 年龄、gender 男/女、test_date 形如 2026.06.06、test_time 形如 12:18。
+
+【①身体水分组成 (L)】右上"身体水分组成"区：TBW 身体总水分、ICW 细胞内水分、ECW 细胞外水分（单位均 L）。ECW_ratio 来自左中部"细胞外水分比率分析"单值（小数 0.3-0.4 区间）。
+
+【②节段测量（type:table mode:aligned）】生成 15 个键，每键形如 segment_<节段>_<列>：
+- water 列（5 个）：来自右侧"节段水分分析" 数值（L）
+- ecw_ratio 列（5 个）：来自左下"节段细胞外水分比率分析"图中 5 个点的纵坐标读数（每个点旁有标注的小数，如 0.373、0.373、0.372、0.371、0.376）
+- phase 列（5 个）：来自右下"节段相位角 ϕ(°) 50kHz"行的 5 个数值
+节段顺序固定：RA 右上肢 → LA 左上肢 → TR 躯干 → RL 右下肢 → LL 左下肢。
+键举例：segment_RA_water=2.09、segment_TR_ecw_ratio=0.372、segment_LL_phase=6.3。
+
+【浮肿评估 edema_eval】综合左下"节段细胞外水分比率分析"图中 5 个点的位置：
+- 5 点全部落"正常"区(0.36-0.38) → 1
+- 任一点落"轻度浮肿"区(0.380-0.400) → 2
+- 任一点落"浮肿"区(>0.400) → 3
+
+【③人体成分 (kg)】右侧"人体成分分析"：蛋白质 / 无机盐 / 体脂肪 BFM / 去脂体重 FFM / 骨矿物质含量 BMC。
+【④肌肉脂肪】右侧"肌肉脂肪分析"：体重 / 骨骼肌含量 SMM / 肌肉量 MM / 体脂肪含量 BFM2。BFM2 数值与 ③的 BFM 相同，按版面分别提取。
+【⑤肥胖分析】BMI / 体脂百分比 PBF (%)。
+【⑥研究项目】按报告顺序原值提取：基础代谢率 BMR(kcal)、腰臀比 WHR、腹围(cm)、内脏脂肪面积(cm²)、肥胖度(%)、身体细胞量 BCM(kg)、上臂围度 AC、上臂肌肉围度 AMC(cm)、TBW/FFM(%)、去脂体重指数 FFMI、脂肪量指数 FMI(kg/m²)。
+
+【⑦生物电阻抗（type:table mode:aligned）】右下"生物电阻抗 Z(Ω)"表，6 行 × 5 列 = 30 个数值。键名 imp_<频率>_<节段>，举例：imp_1k_RA、imp_5k_TR、imp_50k_LA、imp_250k_RL、imp_500k_LL、imp_1000k_TR。频率前缀：1k / 5k / 50k / 250k / 500k / 1000k；节段后缀：RA / LA / TR / RL / LL。
+
+【⑧测量信息】measure_type 取最底部方括号脚注 [Touch Type, Standing Posture] 原样；institution 取顶部右"重庆医科大学附属永川医院 临床营养科"；keyboarder 若有则填，无则 null。`
 },
 {
   id:'lipid', name:'血糖血脂检验报告单', emoji:'🧪',
@@ -856,6 +1637,14 @@ collectdata 报告/采集日期整理 YYYY-MM-DD 并拆 collect_year/month/day�
   pagesPerRecord:12, reviewMode:'screen',
   maxPages:12,
   fields:buildScreenSchema().map(f=>({key:f.key,label:f.label,type:(f.kind==='gender'?'select':(f.kind==='num'||f.kind==='scale'||f.kind==='toggle')?'number':'text'),options:f.kind==='gender'?['1','2']:undefined,page:f.page,kind:f.kind}))
+},
+{
+  id:'health_survey', name:'儿童膳食、运动、睡眠和行为健康评估问卷', emoji:'🍎', klass:'neo', isNew:true,
+  tags:['14 页/人','新增','量表点格·跳页'],
+  desc:'完整版（约 609 字段）：基本情况/惩罚/游戏 + 孕期 B1-B22 + 家庭情况与成员疾病史表 + 锻炼·运动·家务·兴趣班 + 工作日/休息日作息 + 睡眠习惯量表 1-33 + 膳食频率表(频度0-4+食用量) + 甲状腺 + 免疫(频率题/亲属过敏史) + 环境暴露 1-13。',
+  pagesPerRecord:14, reviewMode:'health',
+  maxPages:14,
+  fields:buildHealthSchema().map(f=>({key:f.key,label:f.label,type:(f.kind==='gender'?'select':(f.kind==='num'||f.kind==='scale'||f.kind==='toggle'||f.kind==='freq')?'number':'text'),options:f.kind==='gender'?['1','2']:undefined,page:f.page,kind:f.kind}))
 }
 ];
 const SYS_BY={};SYSTEMS.forEach(s=>{SYS_BY[s.id]=s; s.fields.forEach(f=>{if(f.page==null)f.page=1;}); s.KEYS=s.fields.map(f=>f.key); s.FBY={}; s.fields.forEach(f=>s.FBY[f.key]=f);});
@@ -1546,29 +2335,53 @@ ${list}
 function buildPromptFor(sys,page){
   if(sys.reviewMode==='neuro') return neuroPrompt(sys,page);
   if(sys.reviewMode==='screen') return screenPrompt(sys,page);
+  if(sys.reviewMode==='health') return healthPrompt(sys,page);
   return genericPrompt(sys,page);
 }
 
 /* ════════════ 上传 + 按「每人页数」自动拆分 ════════════ */
 async function addFiles(fileList){
   if(!curSys)return;
-  const files=[...fileList].filter(f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf');
-  if(!files.length){toast('请选择 PDF 文件');return;}
+  const all=[...fileList];
+  const isPdf=f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf';
+  const isImg=f=>/^image\//.test(f.type)||/\.(png|jpe?g|webp|gif|bmp)$/i.test(f.name);
+  const files=all.filter(f=>isPdf(f)||isImg(f));
+  if(!files.length){toast('请拖入 PDF 或图片文件');return;}
   const per=curSys.pagesPerRecord||1;
-  for(const file of files){
-    setProg(0,`解析 ${file.name} …`);
-    let pages;
-    try{ pages=await renderPdf(file); }
-    catch(e){ toast('PDF 解析失败：'+file.name); continue; }
-    const chunks=Math.max(1,Math.ceil(pages.length/per));
+  let imgBuf=[];   // 累积图片页：{page:{dataUrl,b64,mime}, name}
+  const flushImgs=()=>{
+    if(!imgBuf.length)return;
+    const chunks=Math.max(1,Math.ceil(imgBuf.length/per));
     for(let ci=0;ci<chunks;ci++){
-      const slice=pages.slice(ci*per,ci*per+per);
-      if(!slice.length)continue;
-      records.push({id:uid(),file:file.name.replace(/\.pdf$/i,''),part:chunks>1?(ci+1):0,partCount:chunks,
-        pages:slice,data:null,filled:0,status:'pending',err:'',imported:null});
+      const slice=imgBuf.slice(ci*per,ci*per+per);if(!slice.length)continue;
+      const names=slice.map(x=>x.name);
+      const label=slice.length===1?names[0]:(names[0]+'…+'+(slice.length-1)+'图');
+      records.push({id:uid(),file:label,part:chunks>1?(ci+1):0,partCount:chunks,
+        pages:slice.map(x=>x.page),data:null,filled:0,status:'pending',err:'',imported:null});
     }
-    renderResults();refreshQueueUI();
+    imgBuf=[];renderResults();refreshQueueUI();
+  };
+  for(const file of files){
+    if(isPdf(file)){
+      flushImgs();
+      setProg(0,`解析 ${file.name} …`);
+      let pages;
+      try{ pages=await renderPdf(file); }catch(e){ toast('PDF 解析失败：'+file.name); continue; }
+      const chunks=Math.max(1,Math.ceil(pages.length/per));
+      for(let ci=0;ci<chunks;ci++){
+        const slice=pages.slice(ci*per,ci*per+per);if(!slice.length)continue;
+        records.push({id:uid(),file:file.name.replace(/\.pdf$/i,''),part:chunks>1?(ci+1):0,partCount:chunks,
+          pages:slice,data:null,filled:0,status:'pending',err:'',imported:null});
+      }
+      renderResults();refreshQueueUI();
+    }else{
+      setProg(0,`读取 ${file.name} …`);
+      try{const d=await bReadImage(file);imgBuf.push({page:{dataUrl:d,b64:d.split(',')[1],mime:file.type||'image/png'},name:file.name.replace(/\.[^.]+$/,'')});}
+      catch(_){ toast('图片读取失败：'+file.name); }
+      if(per===1)flushImgs();   // 一页一份：每张图立即成一条记录
+    }
   }
+  flushImgs();
   setProg(-1);
   toast(`已加入待识别记录，共 ${records.length} 条`);
 }
@@ -1603,7 +2416,7 @@ async function runRecord(r){
     const page=i+1;
     setProg(0,`${recLabel(r)}：第 ${page}/${r.pages.length} 页`);
     const prompt=buildPromptFor(curSys,page);
-    const txt=await callWithRetry(prompt,r.pages[i].b64,'image/jpeg');
+    const txt=await callWithRetry(prompt,r.pages[i].b64,r.pages[i].mime||'image/jpeg');
     parts.push(parseModelJSON(txt)||{});
     await sleep(150);
   }
@@ -1661,11 +2474,13 @@ function statPill(r){
   if(r.status==='done')return '<span class="pill ok">完成</span>';
   if(r.status==='running')return '<span class="pill run">识别中</span>';
   if(r.status==='error')return '<span class="pill bad">失败</span>';
+  if(r.status==='imported')return '<span class="pill imp">导入</span>';
+  if(r.status==='manual')return '<span class="pill imp">录入</span>';
   return '<span class="pill" style="background:var(--paper);color:var(--ink3)">等待</span>';
 }
 function renderResults(){
   const wrap=$('resWrap');
-  if(!records.length){wrap.innerHTML='<div class="empty">还没有结果。上传 PDF 后点「开始识别」。</div>';$('rmeta').textContent='0 条';return;}
+  if(!records.length){wrap.innerHTML='<div class="empty">还没有记录。上传 PDF / 图片后点「开始识别」，或在上方直接导入变量表 / 手动新增一条录入。</div>';$('rmeta').textContent='0 条';return;}
   $('rmeta').textContent=records.length+' 条';
   const total=curSys.expandKey?0:curSys._leafKeys.length;
   let h='<table class="rtable"><thead><tr><th>文件 / 记录</th><th>ID</th><th>姓名 / 样本</th><th>状态</th><th>已填</th><th></th></tr></thead><tbody>';
@@ -1724,6 +2539,7 @@ function renderFields(r){
   const host=$('rvFields');host.innerHTML='';
   if(curSys.reviewMode==='neuro') neuroRender(host,r);
   else if(curSys.reviewMode==='screen') screenRender(host,r);
+  else if(curSys.reviewMode==='health') healthRender(host,r);
   else genericRender(host,r);
   updateFill(r);
 }
@@ -1804,6 +2620,41 @@ function genericRender(host,r){
 function buildMiniTable(r,f){
   const box=document.createElement('div');box.className='rv-grid';
   const cap=document.createElement('div');cap.className='rv-gcap';cap.textContent=f.label+'（可逐格编辑）';box.appendChild(cap);
+
+  /* —— 左右对照对齐表：行 label 居左为表头，列横向严格对齐，每行高度一致 —— */
+  if(f.mode==='aligned'){
+    const wrap=document.createElement('div');wrap.className='rv-atbl-wrap';
+    const tbl=document.createElement('table');tbl.className='rv-atbl';
+    /* 用 colgroup 强制列宽：第一列固定，其余等分 */
+    const colg=document.createElement('colgroup');
+    let cgh='<col style="width:96px">';
+    const wEach=Math.floor(100/f.columns.length*100)/100;
+    f.columns.forEach(()=>{cgh+=`<col style="width:${wEach}%">`;});
+    colg.innerHTML=cgh;tbl.appendChild(colg);
+    /* 表头 */
+    const thead=document.createElement('thead');
+    let th='<tr><th class="atbl-corner">'+(f.cornerLabel?esc(f.cornerLabel):'')+'</th>';
+    f.columns.forEach(c=>th+=`<th>${esc(c.label)}</th>`);
+    th+='</tr>';thead.innerHTML=th;tbl.appendChild(thead);
+    /* 表体 */
+    const tb=document.createElement('tbody');
+    f.rows.forEach(rw=>{
+      const tr=document.createElement('tr');
+      let rh=`<td class="atbl-rl">${esc(rw.label)}</td>`;
+      f.columns.forEach(c=>{
+        const key=`${f.key}_${rw.key}_${c.key}`;
+        const v=r.data[key]==null?'':String(r.data[key]);
+        const imp=(r.imported&&r.imported[key])?' imp':'';
+        const empty=v===''?' empty':'';
+        rh+=`<td><input class="num${imp}${empty}" data-k="${key}" value="${esc(v)}" oninput="onEdit(this)"></td>`;
+      });
+      tr.innerHTML=rh;tb.appendChild(tr);
+    });
+    tbl.appendChild(tb);wrap.appendChild(tbl);box.appendChild(wrap);
+    return box;
+  }
+
+  /* —— 默认：自动网格（兼容 health_check 皮褶/血压 等老系统）—— */
   const grid=document.createElement('div');grid.className='rv-rec-b';grid.style.padding='2px 0';
   f.rows.forEach(rw=>f.columns.forEach(c=>{
     const key=`${f.key}_${rw.key}_${c.key}`;
@@ -2021,7 +2872,6 @@ function setupSplitter(){
 const ID_KEYS=['ID','id','ID_no','sample_no','student_id','sample_id','no'];
 async function handleImport(file){
   if(!curSys)return;
-  if(!records.some(r=>r.data)){toast('请先识别出数据，再导入做套对');return;}
   let aoa;const name=(file.name||'').toLowerCase();
   try{
     if(/\.(xlsx|xls)$/.test(name)){const buf=await file.arrayBuffer();const wb=XLSX.read(buf,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];aoa=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:''});}
@@ -2045,43 +2895,62 @@ function applyImport(headers,dataRows){
   const cols=curSys.expandKey?curSys._cols:curSys._leafKeys;
   const useKeys=headers.filter(h=>cols.includes(h));
   if(!useKeys.length){toast('表头里没有与本系统匹配的英文变量名');$('impStat').textContent='未匹配到任何变量名（请确认首行用英文 key）。';return;}
-  let matched=0,filled=0;const snap=[];
+  let matched=0,filled=0,created=0;const snap={vals:[],createdRecIds:[],trimRows:[]};
+  const newRec=(label,data)=>{const r={id:uid(),file:label,part:0,partCount:1,pages:[],data,filled:0,status:'imported',err:'',imported:null};records.push(r);snap.createdRecIds.push(r.id);created++;return r;};
   if(curSys.expandKey){
+    // 确保有一个承载记录（无原件）来放置导入行
+    let host=records.find(r=>r.data&&r.data[curSys.expandKey]);
+    if(!host)host=newRec('导入数据',{[curSys.expandKey]:[]});
+    else snap.trimRows.push({recId:host.id,len:(host.data[curSys.expandKey]||[]).length});
     const allRows=[];records.forEach(r=>{(r.data&&r.data[curSys.expandKey]||[]).forEach((row,ri)=>allRows.push({r,row,ri}));});
     const idKey=useKeys.find(k=>ID_KEYS.includes(k))||(useKeys.includes('sample_id')?'sample_id':null);
     dataRows.forEach((d,i)=>{
       let t=null;
       if(idKey&&d[idKey])t=allRows.find(x=>String(x.row[idKey]||'')===String(d[idKey]));
       if(!t)t=allRows[i];
-      if(!t)return;matched++;
+      if(!t){const row=Object.fromEntries(curSys._cols.map(k=>[k,'']));host.data[curSys.expandKey].push(row);t={r:host,row,ri:host.data[curSys.expandKey].length-1};allRows.push(t);}
+      matched++;
       const r=t.r;r.imported=r.imported||{};r.imported.__rows=r.imported.__rows||{};r.imported.__rows[t.ri]=r.imported.__rows[t.ri]||{};
-      useKeys.forEach(k=>{const val=d[k];if(blank(val))return;const cur=t.row[k];if(blank(cur)||overwrite){snap.push({obj:t.row,k,prev:t.row[k]});t.row[k]=val;r.imported.__rows[t.ri][k]=true;filled++;}});
+      useKeys.forEach(k=>{const val=d[k];if(blank(val))return;const cur=t.row[k];if(blank(cur)||overwrite){snap.vals.push({obj:t.row,k,prev:t.row[k]});t.row[k]=val;r.imported.__rows[t.ri][k]=true;filled++;}});
       r.filled=countFilled(r);
     });
   }else{
-    const recs=records.filter(r=>r.data);
+    const existing=records.filter(r=>r.data);   // 现有可填记录（识别得到 / 先前创建）
     const idKey=useKeys.find(k=>ID_KEYS.includes(k));
     dataRows.forEach((d,i)=>{
       let r=null;
-      if(idKey&&d[idKey])r=recs.find(x=>String(x.data[idKey]||'')===String(d[idKey]));
-      if(!r)r=recs[i];
-      if(!r)return;matched++;
+      if(idKey&&d[idKey])r=existing.find(x=>String(x.data[idKey]||'')===String(d[idKey]));
+      if(!r)r=existing[i]||null;
+      if(!r){r=newRec('导入#'+(i+1),{});existing[i]=r;}     // 无原件、新建一条
+      matched++;
       r.imported=r.imported||{};
-      useKeys.forEach(k=>{const val=d[k];if(blank(val))return;const cur=r.data[k];if(blank(cur)||overwrite){snap.push({obj:r.data,k,prev:r.data[k]});r.data[k]=val;r.imported[k]=true;filled++;}});
+      useKeys.forEach(k=>{const val=d[k];if(blank(val))return;const cur=r.data[k];if(blank(cur)||overwrite){snap.vals.push({obj:r.data,k,prev:r.data[k]});r.data[k]=val;r.imported[k]=true;filled++;}});
       r.filled=countFilled(r);
     });
   }
   _impSnap=snap;
-  $('impStat').innerHTML=`已套对 <b>${matched}</b> 条记录、填入 <b>${filled}</b> 个空位（紫色高亮）。打开「核对」逐项与原件比对。`;
-  $('impClearBtn').style.display=filled?'':'none';
-  renderResults();if(_rvId)renderFields(curRec());
+  const cTxt=created?`（新建 <b>${created}</b> 条无原件记录）`:'';
+  $('impStat').innerHTML=`已导入 <b>${matched}</b> 条、填入 <b>${filled}</b> 个空位${cTxt}（紫色高亮）。点「核对」逐项查看 / 编辑（Tab / 回车跳下一题）。`;
+  $('impClearBtn').style.display=(filled||created)?'':'none';
+  renderResults();refreshQueueUI();if(_rvId)renderFields(curRec());
 }
 function clearImport(silent){
-  if(_impSnap){_impSnap.forEach(s=>{s.obj[s.k]=s.prev;});_impSnap=null;}
+  if(_impSnap){
+    (_impSnap.vals||[]).forEach(s=>{s.obj[s.k]=s.prev;});
+    (_impSnap.trimRows||[]).forEach(t=>{const r=records.find(x=>x.id===t.recId);if(r&&r.data&&Array.isArray(r.data[curSys.expandKey]))r.data[curSys.expandKey].length=t.len;});
+    if(_impSnap.createdRecIds&&_impSnap.createdRecIds.length){const del=new Set(_impSnap.createdRecIds);if(del.has(_rvId)){_rvId=null;$('rvBg').classList.remove('on');document.body.style.overflow='';}records=records.filter(r=>!del.has(r.id));}
+    _impSnap=null;
+  }
   records.forEach(r=>{if(r.imported){r.imported=null;r.filled=countFilled(r);}});
   $('impClearBtn').style.display='none';
-  if(!silent)$('impStat').textContent='已清除套对填入的值。';
-  renderResults();if(_rvId)renderFields(curRec());
+  if(!silent)$('impStat').textContent='已清除导入填入的值与新建的记录。';
+  renderResults();refreshQueueUI();if(_rvId)renderFields(curRec());
+}
+function addManualRecord(){
+  if(!curSys)return;
+  const data=curSys.expandKey?{[curSys.expandKey]:[Object.fromEntries(curSys._cols.map(k=>[k,'']))]}:{};
+  const r={id:uid(),file:'手动录入',part:0,partCount:1,pages:[],data,filled:0,status:'manual',err:'',imported:null};
+  records.push(r);renderResults();refreshQueueUI();openReview(r.id);
 }
 
 /* ════════════ 导出（英文变量名表头） ════════════ */
@@ -2110,16 +2979,24 @@ function doTsv(){
 /* ════════════ 系统启动器 + 视图切换 ════════════ */
 function renderLauncher(){
   const g=$('sysGrid');g.innerHTML='';
+  const bcard=document.createElement('button');bcard.className='sys builder';bcard.onclick=openBuilder;
+  bcard.innerHTML=`
+    <div class="sys-top"><div class="sys-emoji">➕</div>
+      <div><div class="sys-name">新建识别系统</div><div class="sys-tags"><span class="tag new">自定义</span><span class="tag p">任意页数</span></div></div></div>
+    <div class="sys-desc">上传任意表单样张，AI 自动识别条目并生成英文变量名；可拖动改名 / 改填写位置，或粘贴 txt 变量清单一键匹配，立即生成可识别·可核对·可套对的新系统。</div>
+    <div class="sys-foot"><span>OCR 建模</span><span>·</span><span>txt 一键匹配</span><span class="go">开始创建 →</span></div>`;
+  g.appendChild(bcard);
   SYSTEMS.forEach(s=>{
     ensureMeta(s);
-    const card=document.createElement('button');card.className='sys'+(s.klass==='neo'?' neo':'');card.onclick=()=>openSystem(s.id);
-    const tags=(s.tags||[]).map((t)=>{const cls=(s.isNew&&t==='新增')?'new':(/页/.test(t)?'p':'n');return `<span class="tag ${cls}">${esc(t)}</span>`;}).join('');
+    const card=document.createElement('button');card.className='sys'+(s.klass==='neo'?' neo':'')+(s.custom?' custom':'');card.onclick=()=>openSystem(s.id);
+    const tags=(s.tags||[]).map((t)=>{const cls=((s.isNew&&t==='新增')||t==='自建')?'new':(/页/.test(t)?'p':'n');return `<span class="tag ${cls}">${esc(t)}</span>`;}).join('');
     const keyN=s.expandKey?(s.fields.length+' 字段/样本'):(s._leafKeys.length+' 字段');
     card.innerHTML=`
       <div class="sys-top"><div class="sys-emoji">${s.emoji||'📄'}</div>
         <div><div class="sys-name">${esc(s.name)}</div><div class="sys-tags">${tags}</div></div></div>
       <div class="sys-desc">${esc(s.desc||'')}</div>
       <div class="sys-foot"><span>${esc(keyN)}</span><span>·</span><span>${s.pagesPerRecord} 页/人</span><span class="go">进入系统 →</span></div>`;
+    if(s.custom){const del=document.createElement('span');del.className='sys-del';del.textContent='✕';del.title='删除自建系统';del.onclick=ev=>{ev.stopPropagation();deleteCustomSystem(s.id);};card.appendChild(del);}
     g.appendChild(card);
   });
 }
@@ -2130,9 +3007,9 @@ function openSystem(id){
   $('hmark').innerHTML=s.emoji||'表单<br>OCR';
   $('hTitle').textContent=s.name;
   $('hSub').innerHTML=`独立识别系统 · <b>${s.pagesPerRecord} 页 = 1 条记录</b>${s.pagesPerRecord>1?'（多页 PDF 自动按 '+s.pagesPerRecord+' 页拆分）':'（多页 PDF 自动逐页拆分为多条）'} · 核对窗左原件可无级缩放、量表点格即选、点页标题跳页。`;
-  $('upTitle').textContent=`① 上传 PDF（${s.pagesPerRecord} 页/人，可多选批量）`;
-  $('dropSub').textContent=s.pagesPerRecord>1?`每 ${s.pagesPerRecord} 页视为 1 个人；页序须与原表一致。`:'每页视为 1 条记录（一页一人）。';
-  $('splitNote').innerHTML=`本系统按 <b>${s.pagesPerRecord} 页 / 人</b> 自动拆分：上传含 N 页的 PDF 将切分为 ⌈N/${s.pagesPerRecord}⌉ 条记录${s.expandKey?'；且每页内多份样本会再展开为多行。':'。'}`;
+  $('upTitle').textContent=`① 上传 PDF / 图片（${s.pagesPerRecord} 页/人，可多选批量）`;
+  $('dropSub').textContent=s.pagesPerRecord>1?`每 ${s.pagesPerRecord} 页（或 ${s.pagesPerRecord} 张图）视为 1 个人；页序须与原表一致。`:'每页 / 每张图视为 1 条记录（一页一人）。';
+  $('splitNote').innerHTML=`本系统按 <b>${s.pagesPerRecord} 页 / 人</b> 自动拆分：含 N 页的 PDF 切分为 ⌈N/${s.pagesPerRecord}⌉ 条；拖入图片则<b>每张图＝一页</b>，${s.pagesPerRecord>1?('每 '+s.pagesPerRecord+' 张按顺序合为一条'):'每张图即一条记录'}${s.expandKey?'；且每页内多份样本会再展开为多行。':'。'}`;
   $('impStat').textContent='';$('impClearBtn').style.display='none';if($('impOverwrite'))$('impOverwrite').checked=false;
   $('runBtn').textContent='▶ 开始识别';
   renderResults();refreshQueueUI();updateAiStatus();setProg(-1);
@@ -2140,9 +3017,207 @@ function openSystem(id){
 }
 function goLauncher(){
   if(running){toast('识别中，请稍候');return;}
-  $('vSystem').hidden=true;$('vLauncher').hidden=false;$('backBtn').style.display='none';
+  $('vSystem').hidden=true;$('vBuilder').hidden=true;$('vLauncher').hidden=false;$('backBtn').style.display='none';
   $('hmark').innerHTML='表单<br>OCR';$('hTitle').textContent='表单识别工作台 · 多系统';
   $('hSub').innerHTML='每一种表单 = 一个独立识别系统。点击进入后：上传 PDF → AI 按版面填空 → <b>核对窗</b>（左原件可缩放 / 右字段·量表点格即选·点页标题跳页）→ 导出英文变量名。';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ════════════════════════════════════════════════════════════════
+   新建系统（System Builder）：上传样表 → AI 逐页识别条目 → 自动生成
+   英文变量名 → 可拖动改名/改填写位置 → txt 一键匹配 → 生成与内置系统
+   完全一致的自定义识别系统（持久化于本机 localStorage）。
+════════════════════════════════════════════════════════════════ */
+let builderPages=[];     // [{dataUrl,b64,mime}]
+let builderFields=[];    // [{key,label,page,type,options:[...]}]
+let _bDrag=null;
+const CUSTOM_LS='phck_custom';
+
+function bSetProg(p,lbl){const box=$('bProg');if(p<0){box.classList.remove('on');return;}box.classList.add('on');$('bBarFill').style.width=Math.round(p*100)+'%';if(lbl!=null)$('bProgLbl').textContent=lbl;}
+function bUpdateAi(){const el=$('bAiStatus');if(!el)return;const p=PROVIDERS[cfg.prov];const m=getEffectiveModel()||'(未选模型)';const hasKey=!!getEffectiveKey();el.innerHTML='AI 服务：<b>'+esc(p?p.name:'-')+'</b> · 模型 <b>'+esc(m)+'</b> · '+(hasKey?'<span style="color:var(--ok)">已配置 Key</span>':'<span style="color:var(--bad)">未配置 Key</span>')+'<button class="gobtn" onclick="openSet()">⚙ 设置</button>';}
+
+function bSanitizeKey(s){let k=String(s||'').trim().toLowerCase().replace(/[^a-z0-9_]+/g,'_').replace(/^_+|_+$/g,'').replace(/_+/g,'_');if(!k)k='field';if(/^[0-9]/.test(k))k='f_'+k;return k.slice(0,40);}
+function bUniqueKey(base,seen){let k=base,i=2;while(seen.has(k)){k=base+'_'+i;i++;}return k;}
+
+/* —— 样表上传（PDF / 图片）—— */
+function bReadImage(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});}
+async function bAddSample(fileList){
+  const files=[...fileList].filter(Boolean);if(!files.length)return;
+  bSetProg(0,'读取样表…');const pages=[];
+  for(const file of files){
+    if(/\.pdf$/i.test(file.name)||file.type==='application/pdf'){
+      try{const ps=await renderPdf(file);ps.forEach(p=>pages.push({dataUrl:p.dataUrl,b64:p.b64,mime:'image/jpeg'}));}
+      catch(e){toast('PDF 解析失败：'+(e.message||e));}
+    }else if(/^image\//.test(file.type)||/\.(png|jpe?g|webp|gif|bmp)$/i.test(file.name)){
+      try{const d=await bReadImage(file);pages.push({dataUrl:d,b64:d.split(',')[1],mime:file.type||'image/png'});}catch(_){}
+    }
+  }
+  bSetProg(-1);
+  if(!pages.length){toast('未读到可用页面');return;}
+  builderPages=pages;
+  $('bShot').textContent=pages.length+' 页样表已就绪';
+  $('bClearShot').style.display='';$('bDetect').disabled=false;
+  if((parseInt($('bPages').value)||1)<=1&&pages.length>1)$('bPages').value=pages.length;
+}
+function bClearSample(){builderPages=[];$('bShot').textContent='未上传';$('bClearShot').style.display='none';$('bDetect').disabled=true;bSetProg(-1);}
+
+/* —— AI 识别条目 → 生成字段 —— */
+function bDetectPrompt(page,total){
+  return `你是表单结构分析器。下面是一张表单${total>1?('（共 '+total+' 页）的第 '+page+' 页'):''}的扫描图。请找出本页中所有需要「填写或识别」的字段：包括空格、下划线、方框、表格里每个可填单元格、勾选项 □、被圈选的选项、量表的每一行等。
+为每个字段生成：
+- key：简短英文 snake_case 变量名（只用小写字母、数字、下划线，见名知意、本表唯一）
+- label：中文标签，照抄表单印刷文字（含编号，如「3.对声音反应」）
+- type：text（手写/文本）、number（纯数字）、select（勾选/圈选/固定选项）之一
+- options：仅当 type 为 select 时给出选项数组（中文或编码，如 ["男","女"] 或 ["1","0"]）
+
+只输出一个 JSON 对象：{"fields":[{"key":"name","label":"姓名","type":"text"},{"key":"gender","label":"性别","type":"select","options":["男","女"]}]}
+禁止任何分析、解释、思考过程、Markdown 或多余文字。`;
+}
+function bParseFields(txt){
+  if(!txt)return [];
+  const o=parseModelJSON(txt);
+  if(o&&Array.isArray(o.fields))return o.fields;
+  const out=[];const re=/\{[^{}]*\}/g;let m;
+  while((m=re.exec(txt))){try{const j=JSON.parse(m[0]);if(j&&(j.key||j.label))out.push(j);}catch(_){}}
+  return out;
+}
+async function bDetectFields(){
+  if(!builderPages.length){toast('请先上传样表');return;}
+  const n=Math.min(builderPages.length,Math.max(1,parseInt($('bPages').value)||1));
+  $('bDetect').disabled=true;$('bStat').textContent='';
+  const collected=[];const seen=new Set(builderFields.map(f=>f.key));
+  for(let i=0;i<n;i++){
+    bSetProg(i/n,`识别第 ${i+1} / ${n} 页…`);
+    try{
+      const pg=builderPages[i];
+      const txt=await callWithRetry(bDetectPrompt(i+1,n),pg.b64,pg.mime||'image/jpeg');
+      const fs=bParseFields(txt);
+      fs.forEach(f=>{
+        let key=bUniqueKey(bSanitizeKey(f.key||f.label||'field'),seen);seen.add(key);
+        const type=['text','number','select','date'].includes(f.type)?f.type:'text';
+        let opts=[];
+        if(type==='select'){opts=Array.isArray(f.options)?f.options.map(x=>String(x)).filter(Boolean):(typeof f.options==='string'?f.options.split(/[,，、|]/).map(s=>s.trim()).filter(Boolean):[]);}
+        collected.push({key,label:String(f.label||key),page:i+1,type,options:opts});
+      });
+    }catch(e){$('bStat').textContent='第 '+(i+1)+' 页识别出错：'+(e.message||e)+'（可手动添加字段，或换更强的视觉模型重试）';}
+  }
+  bSetProg(1,'完成');setTimeout(()=>bSetProg(-1),700);
+  if(collected.length){builderFields=builderFields.concat(collected);renderBuilderFields();$('bStat').textContent='共识别出 '+collected.length+' 个字段；请在下方核对/拖动调整后创建系统。';}
+  else if(!builderFields.length){$('bStat').textContent='未识别到字段。可点「＋ 添加字段」手动建立，或粘贴变量名清单后一键匹配。';}
+  $('bDetect').disabled=false;
+}
+
+/* —— 字段编辑器（拖动排序 / 改名 / 改位置 / 改类型）—— */
+function renderBuilderFields(){
+  const host=$('bFields');host.innerHTML='';
+  builderFields.forEach((f,i)=>{
+    const row=document.createElement('div');row.className='bf-row';row.dataset.i=i;
+    const optHide=f.type==='select'?'':' hide';
+    row.innerHTML=`
+      <div class="bf-drag" title="拖动排序">⠿</div>
+      <input class="pg" type="number" min="1" value="${f.page||1}" data-i="${i}" data-f="page">
+      <input class="k" value="${esc(f.key)}" data-i="${i}" data-f="key" spellcheck="false">
+      <input value="${esc(f.label)}" data-i="${i}" data-f="label">
+      <select data-i="${i}" data-f="type">
+        <option value="text"${f.type==='text'?' selected':''}>文本</option>
+        <option value="number"${f.type==='number'?' selected':''}>数字</option>
+        <option value="select"${f.type==='select'?' selected':''}>选项</option>
+        <option value="date"${f.type==='date'?' selected':''}>日期</option>
+      </select>
+      <input class="bf-opt${optHide}" placeholder="逗号分隔" value="${esc((f.options||[]).join(','))}" data-i="${i}" data-f="options">
+      <button class="bf-del" data-i="${i}" title="删除">✕</button>`;
+    host.appendChild(row);
+  });
+  host.querySelectorAll('input,select').forEach(el=>el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>bFieldEdit(el)));
+  host.querySelectorAll('.bf-del').forEach(b=>b.addEventListener('click',()=>{builderFields.splice(+b.dataset.i,1);renderBuilderFields();}));
+  host.querySelectorAll('.bf-row').forEach(r=>{
+    const handle=r.querySelector('.bf-drag');handle.draggable=true;
+    handle.addEventListener('dragstart',e=>{_bDrag=+r.dataset.i;r.classList.add('dragging');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',String(_bDrag));}catch(_){}});
+    handle.addEventListener('dragend',()=>{_bDrag=null;host.querySelectorAll('.bf-row').forEach(x=>x.classList.remove('dragging','over'));});
+    r.addEventListener('dragover',e=>{if(_bDrag==null)return;e.preventDefault();r.classList.add('over');});
+    r.addEventListener('dragleave',()=>r.classList.remove('over'));
+    r.addEventListener('drop',e=>{e.preventDefault();r.classList.remove('over');const to=+r.dataset.i;if(_bDrag==null||_bDrag===to)return;const moved=builderFields.splice(_bDrag,1)[0];builderFields.splice(to,0,moved);renderBuilderFields();});
+  });
+  $('bCount').textContent=builderFields.length+' 字段';
+}
+function bFieldEdit(el){
+  const i=+el.dataset.i,f=el.dataset.f,fld=builderFields[i];if(!fld)return;
+  if(f==='page')fld.page=Math.max(1,parseInt(el.value)||1);
+  else if(f==='key')fld.key=el.value;
+  else if(f==='label')fld.label=el.value;
+  else if(f==='type'){fld.type=el.value;renderBuilderFields();}
+  else if(f==='options')fld.options=el.value.split(/[,，、|]/).map(s=>s.trim()).filter(Boolean);
+}
+function bAddField(){builderFields.push({key:bUniqueKey('field',new Set(builderFields.map(f=>f.key))),label:'',page:1,type:'text',options:[]});renderBuilderFields();}
+
+/* —— 变量名清单一键匹配 —— */
+function bApplyVarText(){
+  const lines=$('bVarText').value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  if(!lines.length){toast('请先粘贴变量名');return;}
+  const sepRe=/[\t＝=｜\|,，]|\s+/;const seen=new Set();let n=0;
+  lines.forEach((line,i)=>{
+    const key=line.split(sepRe)[0].trim();
+    const label=line.slice(key.length).replace(/^[\t＝=｜\|,，\s]+/,'').trim();
+    let k=bUniqueKey(bSanitizeKey(key),seen);seen.add(k);n++;
+    if(i<builderFields.length){builderFields[i].key=k;if(label)builderFields[i].label=label;}
+    else builderFields.push({key:k,label:label||k,page:1,type:'text',options:[]});
+  });
+  renderBuilderFields();toast('已按顺序匹配 '+n+' 个变量名');
+}
+
+/* —— 持久化 + 创建/删除自建系统 —— */
+function customDefs(){return SYSTEMS.filter(s=>s.custom).map(s=>({id:s.id,name:s.name,emoji:s.emoji,pagesPerRecord:s.pagesPerRecord,fields:s.fields.map(f=>({key:f.key,label:f.label,type:f.type,page:f.page,group:f.group,options:f.options&&f.options.length?f.options:undefined}))}));}
+function saveCustomSystems(){try{localStorage.setItem(CUSTOM_LS,JSON.stringify(customDefs()));}catch(e){}}
+function buildCustomSys(d){
+  const fields=(d.fields||[]).map(f=>({key:f.key,label:f.label||f.key,type:f.type||'text',page:f.page||1,group:f.group||'识别字段',options:f.options||[]}));
+  const sys={id:d.id,name:d.name||'自建系统',emoji:d.emoji||'🧩',klass:'',custom:true,isNew:false,
+    tags:[(d.pagesPerRecord||1)+' 页/人','自建'],
+    desc:'自建系统：'+fields.length+' 个字段'+((d.pagesPerRecord||1)>1?('，每 '+d.pagesPerRecord+' 页一条记录'):'')+'。支持识别、核对、xlsx/txt 套对、导出。',
+    pagesPerRecord:d.pagesPerRecord||1,reviewMode:'generic',fields};
+  sys.KEYS=sys.fields.map(f=>f.key);sys.FBY={};sys.fields.forEach(f=>sys.FBY[f.key]=f);
+  return sys;
+}
+function loadCustomSystems(){
+  let arr=[];try{arr=JSON.parse(localStorage.getItem(CUSTOM_LS)||'[]');}catch(e){arr=[];}
+  if(!Array.isArray(arr))return;
+  arr.forEach(d=>{if(d&&d.id&&!SYS_BY[d.id]){const s=buildCustomSys(d);SYSTEMS.push(s);SYS_BY[s.id]=s;}});
+}
+function deleteCustomSystem(id){
+  const s=SYS_BY[id];if(!s||!s.custom)return;
+  if(!confirm('删除自建系统「'+s.name+'」？此操作不可撤销。'))return;
+  const i=SYSTEMS.indexOf(s);if(i>=0)SYSTEMS.splice(i,1);delete SYS_BY[id];
+  saveCustomSystems();renderLauncher();
+}
+function bCreateSystem(){
+  const name=$('bName').value.trim();
+  if(!name){toast('请填写系统名称');$('bName').focus();return;}
+  if(!builderFields.length){toast('请先识别或添加字段');return;}
+  const seen=new Set();const fields=[];
+  builderFields.forEach(f=>{
+    let k=bUniqueKey(bSanitizeKey(f.key||f.label),seen);seen.add(k);
+    const type=['text','number','select','date'].includes(f.type)?f.type:'text';
+    const fld={key:k,label:(f.label||k).trim()||k,type,page:Math.max(1,parseInt(f.page)||1),group:'识别字段'};
+    if(type==='select')fld.options=(f.options||[]).filter(Boolean);
+    fields.push(fld);
+  });
+  const pages=Math.max(1,parseInt($('bPages').value)||1);
+  const id='custom_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  const sys=buildCustomSys({id,name,emoji:($('bEmoji').value||'🧩').slice(0,2),pagesPerRecord:pages,fields});
+  SYSTEMS.push(sys);SYS_BY[id]=sys;saveCustomSystems();
+  builderFields=[];builderPages=[];$('bName').value='';$('bVarText').value='';
+  renderLauncher();openSystem(id);toast('已创建系统「'+name+'」');
+}
+
+/* —— 进入 Builder 视图 —— */
+function openBuilder(){
+  $('vLauncher').hidden=true;$('vSystem').hidden=true;$('vBuilder').hidden=false;$('backBtn').style.display='';
+  $('hmark').innerHTML='➕';$('hTitle').textContent='新建识别系统';
+  $('hSub').innerHTML='上传<b>一个人的样表</b> → AI 识别条目并自动生成<b>英文变量名</b> → 拖动改名 / 改填写位置 → 也可粘贴 txt 变量清单一键匹配 → 生成可识别·可核对·可套对的新系统。';
+  builderFields=[];builderPages=[];_bDrag=null;
+  $('bName').value='';$('bEmoji').value='🧩';$('bPages').value='1';$('bVarText').value='';
+  $('bShot').textContent='未上传';$('bClearShot').style.display='none';$('bDetect').disabled=true;
+  $('bStat').textContent='';$('bCreateStat').textContent='';bSetProg(-1);
+  renderBuilderFields();bUpdateAi();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -2157,11 +3232,34 @@ $('clearBtn').addEventListener('click',clearAll);
 $('impBtn').addEventListener('click',()=>$('impFile').click());
 $('impFile').addEventListener('change',e=>{if(e.target.files[0])handleImport(e.target.files[0]);e.target.value='';});
 $('impClearBtn').addEventListener('click',()=>clearImport(false));
+$('manualBtn').addEventListener('click',addManualRecord);
+/* 核对窗：Tab / 回车 跳到下一题（在字段区内循环，Shift+Tab 上一题） */
+function rvFocusables(){return [...$('rvFields').querySelectorAll('input,select,textarea')].filter(el=>!el.disabled&&el.offsetParent!==null);}
+function rvMoveFocus(dir){const f=rvFocusables();if(!f.length)return;let i=f.indexOf(document.activeElement);if(i<0)i=dir>0?-1:0;let n=i+dir;if(n<0)n=0;if(n>=f.length)n=f.length-1;const el=f[n];if(el){el.focus();if(el.tagName==='INPUT'&&el.select)try{el.select();}catch(_){}}}
+$('rvFields').addEventListener('keydown',e=>{
+  if(e.key==='Tab'){e.preventDefault();rvMoveFocus(e.shiftKey?-1:1);}
+  else if(e.key==='Enter'&&e.target&&e.target.tagName!=='TEXTAREA'){e.preventDefault();rvMoveFocus(1);}
+});
 $('xlsxBtn').addEventListener('click',doXlsx);
 $('tsvBtn').addEventListener('click',doTsv);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('rvBg').classList.contains('on'))closeReview();});
 
+/* —— Builder 绑定 —— */
+$('bDrop').addEventListener('click',()=>$('bFile').click());
+['dragenter','dragover'].forEach(ev=>$('bDrop').addEventListener(ev,e=>{e.preventDefault();$('bDrop').classList.add('over');}));
+$('bDrop').addEventListener('dragleave',e=>{e.preventDefault();$('bDrop').classList.remove('over');});
+$('bDrop').addEventListener('drop',e=>{e.preventDefault();$('bDrop').classList.remove('over');if(e.dataTransfer&&e.dataTransfer.files)bAddSample(e.dataTransfer.files);});
+$('bFile').addEventListener('change',e=>{bAddSample(e.target.files);e.target.value='';});
+$('bClearShot').addEventListener('click',bClearSample);
+$('bDetect').addEventListener('click',bDetectFields);
+$('bAddField').addEventListener('click',bAddField);
+$('bApplyVars').addEventListener('click',bApplyVarText);
+$('bVarFileBtn').addEventListener('click',()=>$('bVarFile').click());
+$('bVarFile').addEventListener('change',e=>{const f=e.target.files[0];if(f){const r=new FileReader();r.onload=()=>{$('bVarText').value=r.result;};r.readAsText(f);}e.target.value='';});
+$('bCreate').addEventListener('click',bCreateSystem);
+
 $('backBtn').style.display='none';
+loadCustomSystems();
 renderLauncher();
 selectProv(cfg.prov);
 updateAiStatus();
