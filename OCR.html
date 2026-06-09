@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>表单识别工作台 · 多系统（神经运动 / 体检 / 体成分 / 检验 / 知情同意 / 血常规 / 生长发育 / 荧屏调查 / 膳食运动睡眠行为）</title>
+<title>表单识别工作台 · 多系统（神经运动 / 体检 / 体成分含节段相位角 / 检验 / 知情同意 / 血常规 / 生长发育 / 荧屏调查 / 膳食运动睡眠行为）</title>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -1526,6 +1526,153 @@ const SYSTEMS=[
 【⑦生物电阻抗（type:table mode:aligned）】右下"生物电阻抗 Z(Ω)"表，6 行 × 5 列 = 30 个数值。键名 imp_<频率>_<节段>，举例：imp_1k_RA、imp_5k_TR、imp_50k_LA、imp_250k_RL、imp_500k_LL、imp_1000k_TR。频率前缀：1k / 5k / 50k / 250k / 500k / 1000k；节段后缀：RA / LA / TR / RL / LL。
 
 【⑧测量信息】measure_type 取最底部方括号脚注 [Touch Type, Standing Posture] 原样；institution 取顶部右"重庆医科大学附属永川医院 临床营养科"；keyboarder 若有则填，无则 null。`
+},
+{
+  id:'inbody_970', name:'成人体成分（InBody 970，含多节段相位角）', emoji:'🧬',
+  tags:['1 页/人','InBody 970','节段相位角'],
+  desc:'InBody 970 成人体成分分析报告。覆盖：基本信息、人体成分分析、肌肉脂肪分析、肥胖分析、肌肉均衡（5 节段 kg/%/ECW比率）、细胞外水分比率、节段脂肪分析（5 节段 kg/%）、体重控制目标、研究项目（ICW/ECW/BMR/WHR/BCM/SMI）、全身相位角（50kHz）、节段相位角（3 频率 × 5 节段）。',
+  pagesPerRecord:1, reviewMode:'generic',
+  fields:[
+    /* ─── 基本信息 ─── */
+    {key:'ID',label:'ID 编号',type:'text',group:'基本信息'},
+    {key:'name',label:'姓名',type:'text',hint:'手写姓名',group:'基本信息'},
+    {key:'height',label:'身高 (cm)',type:'number',group:'基本信息'},
+    {key:'age',label:'年龄',type:'number',group:'基本信息'},
+    {key:'gender',label:'性别',type:'select',options:['男','女'],group:'基本信息'},
+    {key:'test_date',label:'测试日期',type:'text',hint:'YYYY.MM.DD',group:'基本信息'},
+    {key:'test_time',label:'测试时间',type:'text',hint:'HH:MM',group:'基本信息'},
+    {key:'inbody_score',label:'InBody 评分（/100）',type:'number',hint:'如74',group:'基本信息'},
+
+    /* ─── ①人体成分分析 ─── */
+    {key:'TBW',label:'身体总水分 TBW (L)',type:'number',hint:'测量值',group:'①人体成分分析'},
+    {key:'Protein',label:'蛋白质 (kg)',type:'number',group:'①人体成分分析'},
+    {key:'Mineral',label:'无机盐 (kg)',type:'number',group:'①人体成分分析'},
+    {key:'BFM',label:'体脂肪 (kg)',type:'number',group:'①人体成分分析'},
+    {key:'FFM',label:'去脂体重 (kg)',type:'number',group:'①人体成分分析'},
+    {key:'Weight',label:'体重 (kg)',type:'number',group:'①人体成分分析'},
+
+    /* ─── ②肌肉脂肪分析 ─── */
+    {key:'SMM',label:'骨骼肌 (kg)',type:'number',group:'②肌肉脂肪分析'},
+
+    /* ─── ③肥胖分析 ─── */
+    {key:'BMI',label:'BMI (kg/m²)',type:'number',hint:'参考18.5~24.9',group:'③肥胖分析'},
+    {key:'PBF',label:'体脂百分比 (%)',type:'number',hint:'参考女18~28 男10~20',group:'③肥胖分析'},
+
+    /* ─── ④肌肉均衡（5 节段 × kg / % / ECW比率） ─── */
+    {key:'muscle_balance',label:'肌肉均衡（5 节段 × kg / % / ECW比率）',type:'table',mode:'aligned',cornerLabel:'节段',
+      group:'④肌肉均衡 — 5 节段',
+      columns:[
+        {key:'kg',label:'肌肉量 (kg)'},
+        {key:'pct',label:'百分比 (%)'},
+        {key:'ecw_ratio',label:'ECW比率'}
+      ],
+      rows:[
+        {key:'RA',label:'右上肢'},
+        {key:'LA',label:'左上肢'},
+        {key:'TR',label:'躯  干'},
+        {key:'RL',label:'右下肢'},
+        {key:'LL',label:'左下肢'}
+      ]
+    },
+
+    /* ─── ⑤细胞外水分比率（全身） ─── */
+    {key:'ECW_ratio',label:'全身细胞外水分比率',type:'number',hint:'正常 0.360~0.390',group:'⑤细胞外水分比率'},
+    {key:'edema_eval',label:'浮肿评估',type:'select',
+      options:['1','2','3'],
+      hint:'1 正常(<0.380)·2 轻度浮肿(0.380~0.400)·3 浮肿(>0.400)',
+      group:'⑤细胞外水分比率'},
+
+    /* ─── ⑥节段脂肪分析（5 节段 × kg / %） ─── */
+    {key:'seg_fat',label:'节段脂肪分析（5 节段 × kg / %）',type:'table',mode:'aligned',cornerLabel:'节段',
+      group:'⑥节段脂肪分析',
+      columns:[
+        {key:'kg',label:'脂肪量 (kg)'},
+        {key:'pct',label:'脂肪百分比 (%)'}
+      ],
+      rows:[
+        {key:'RA',label:'右上肢'},
+        {key:'LA',label:'左上肢'},
+        {key:'TR',label:'躯  干'},
+        {key:'RL',label:'右下肢'},
+        {key:'LL',label:'左下肢'}
+      ]
+    },
+
+    /* ─── ⑦内脏脂肪面积 ─── */
+    {key:'VFA',label:'内脏脂肪面积 VFA (cm²)',type:'number',hint:'正常 <100',group:'⑦内脏脂肪'},
+
+    /* ─── ⑧体重控制目标 ─── */
+    {key:'target_weight',label:'目标体重 (kg)',type:'number',group:'⑧体重控制目标'},
+    {key:'weight_ctrl',label:'体重控制 (kg)',type:'number',hint:'正负值',group:'⑧体重控制目标'},
+    {key:'fat_ctrl',label:'脂肪控制 (kg)',type:'number',hint:'负值为减脂',group:'⑧体重控制目标'},
+    {key:'muscle_ctrl',label:'肌肉控制 (kg)',type:'number',hint:'正值为增肌',group:'⑧体重控制目标'},
+
+    /* ─── ⑨研究项目 ─── */
+    {key:'ICW',label:'细胞内水分 ICW (L)',type:'number',hint:'参考 15.9~19.5',group:'⑨研究项目'},
+    {key:'ECW',label:'细胞外水分 ECW (L)',type:'number',hint:'参考 9.8~12.0',group:'⑨研究项目'},
+    {key:'BMR',label:'基础代谢率 (kcal)',type:'number',hint:'参考 1059~1212',group:'⑨研究项目'},
+    {key:'WHR',label:'腰臀比 WHR',type:'number',hint:'正常 0.75~0.85',group:'⑨研究项目'},
+    {key:'BCM',label:'身体细胞量 (kg)',type:'number',hint:'参考 22.9~27.9',group:'⑨研究项目'},
+    {key:'SMI',label:'骨骼肌指数 SMI (kg/m²)',type:'number',group:'⑨研究项目'},
+    {key:'kcal_recommend',label:'建议热量摄入 (kcal)',type:'number',group:'⑨研究项目'},
+
+    /* ─── ⑩全身相位角 ─── */
+    {key:'phase_whole',label:'全身相位角 ϕ 50kHz (°)',type:'number',hint:'正常成人约5~7°',group:'⑩全身相位角'},
+
+    /* ─── ⑪节段相位角（3 频率 × 5 节段） ─── */
+    {key:'phase_seg',label:'节段相位角 ϕ（3 频率 × 5 节段）',type:'table',mode:'aligned',cornerLabel:'频率 \\ 节段',
+      group:'⑪节段相位角 — 3 频率 × 5 节段',
+      columns:[
+        {key:'RA',label:'右上肢'},
+        {key:'LA',label:'左上肢'},
+        {key:'TR',label:'躯  干'},
+        {key:'RL',label:'右下肢'},
+        {key:'LL',label:'左下肢'}
+      ],
+      rows:[
+        {key:'5k',label:'5 kHz'},
+        {key:'50k',label:'50 kHz'},
+        {key:'250k',label:'250 kHz'}
+      ]
+    }
+  ],
+  extractHint:`这是 InBody 970（[InBody970]）成人体成分分析报告。按区域逐一精确提取，未找到填 null。
+
+【基本信息】顶部：ID 编号（方框内数字/字母串）、name 手写姓名、height 身高(cm)、age 年龄、gender 男/女、test_date 形如 2026.04.25、test_time 形如 11:38。右上角"InBody 评分"大字数字（如 74）→ inbody_score。
+
+【①人体成分分析】左上方"人体成分分析"表格中：TBW 身体总水分测量值(L)、蛋白质(kg)、无机盐(kg)、体脂肪(kg)、同行"去脂体重"列的去脂体重值(kg)、体重(kg)。
+
+【②肌肉脂肪分析】"肌肉脂肪分析"区：体重已在①提取；骨骼肌(kg) SMM；体脂肪 BFM（与①相同，可复用）。
+
+【③肥胖分析】"肥胖分析"区：BMI(kg/m²)、体脂百分比 PBF(%)。
+
+【④肌肉均衡（type:table mode:aligned）】"肌肉均衡"表，5 节段行 × 3 列：
+- kg 列：各节段 kg 数值（如右上肢 1.53）
+- pct 列：各节段 % 数值（如右上肢 91.1）
+- ecw_ratio 列：各节段右侧"细胞外水分比率"小数（如右上肢 0.383）
+键名 muscle_balance_<节段>_<列>，节段：RA/LA/TR/RL/LL，列：kg/pct/ecw_ratio。
+举例：muscle_balance_RA_kg=1.53，muscle_balance_TR_pct=98.3，muscle_balance_LL_ecw_ratio=0.396。
+
+【⑤细胞外水分比率】"细胞外水分比率分析"区单值 ECW_ratio（如 0.391）；edema_eval 判断：全部节段 ecw_ratio < 0.380 → 1，任意节段 0.380~0.400 → 2，任意节段 > 0.400 → 3。
+
+【⑥节段脂肪分析（type:table mode:aligned）】"节段脂肪分析"区，5 节段 × 2 列：
+- kg 列：各节段脂肪 kg（括号内数值，如右上肢 0.8）
+- pct 列：各节段脂肪百分比（折线图旁数值，如右上肢 96.1%）
+键名 seg_fat_<节段>_<列>，举例：seg_fat_RA_kg=0.8，seg_fat_TR_pct=118.1。
+
+【⑦内脏脂肪面积】右侧折线图旁标注的 VFA(cm²) 数值（如 55.8）。
+
+【⑧体重控制目标】右侧"体重控制"区：目标体重(kg)、体重控制(正负kg)、脂肪控制(负kg)、肌肉控制(正kg)。
+
+【⑨研究项目】右下"研究项目"表：ICW 细胞内水分(L)、ECW 细胞外水分(L)、基础代谢率(kcal) BMR、腰臀比 WHR、身体细胞量 BCM(kg)、骨骼肌指数 SMI(kg/m²)、建议热量摄入(kcal)。
+
+【⑩全身相位角】右下"全身相位角 ϕ(°) 50kHz"：单个数值（如 4.2）→ phase_whole。
+
+【⑪节段相位角（type:table mode:aligned）】右下"节段相位角"表，3 行（频率）× 5 列（节段）= 15 个数值：
+- 行：5kHz / 50kHz / 250kHz
+- 列：右上肢 RA / 左上肢 LA / 躯干 TR / 右下肢 RL / 左下肢 LL
+键名 phase_seg_<频率>_<节段>，举例：phase_seg_5k_RA=1.5、phase_seg_50k_TR=5.8、phase_seg_250k_LL=4.2。
+注意：报告中节段顺序为"右上肢 左上肢 躯干 右下肢 左下肢"，行顺序为 5kHz → 50kHz → 250kHz，与报告版面一致。`
 },
 {
   id:'lipid', name:'血糖血脂检验报告单', emoji:'🧪',
