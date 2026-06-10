@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>表单识别工作台 · 多系统（神经运动 / 体检 / 体成分含节段相位角 / 检验 / 知情同意 / 血常规 / 生长发育 / 荧屏调查 / 膳食运动睡眠行为）</title>
+<title>表单人工核对台 · 多系统（无需 API · 导入 Excel + 上传原件 + 左右人工核对）</title>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -59,7 +59,7 @@ header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
 .sys{position:relative;text-align:left;background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:16px 16px 14px;cursor:pointer;transition:.16s;box-shadow:0 1px 0 rgba(255,255,255,.6),0 8px 22px rgba(22,32,31,.05);overflow:hidden}
 .sys:hover{transform:translateY(-3px);border-color:var(--accent2);box-shadow:0 14px 34px rgba(22,32,31,.12)}
 .sys:active{transform:translateY(-1px)}
-.sys::after{content:'';position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(13,148,136,.10),transparent 70%)}
+.sys::after{content:'';position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(13,148,136,.10),transparent 70%);pointer-events:none}
 .sys.neo::after{background:radial-gradient(circle,rgba(194,65,12,.14),transparent 70%)}
 .sys-top{display:flex;align-items:center;gap:11px;margin-bottom:9px}
 .sys-emoji{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:21px;background:var(--paper);border:1px solid var(--line);flex-shrink:0}
@@ -234,6 +234,49 @@ header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
 .rv-toggle button{border:none;background:#fff;font-size:11px;font-weight:700;padding:3px 10px;cursor:pointer;color:var(--ink3)}
 .rv-toggle button.on{background:var(--accent2);color:#fff}
 
+/* ── 神经运动：统一发育项目积木块（同类外观一致，彻底消除大小不一） ── */
+.neuro-wrap{display:flex;flex-direction:column;gap:9px;padding:8px 4px}
+.neuro-item{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:9px 11px 11px;box-shadow:0 1px 0 rgba(255,255,255,.5)}
+.neuro-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.neuro-hd .qn{flex:0 0 auto;min-width:22px;height:22px;padding:0 6px;border-radius:7px;background:var(--accent2);color:#fff;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.neuro-hd .nm{font-size:13px;font-weight:800;color:var(--ink)}
+.neuro-mstrip{display:grid;grid-template-columns:64px repeat(12,1fr);gap:4px;align-items:center;margin-bottom:8px}
+.neuro-mlab,.neuro-rlab{font-size:10.5px;font-weight:800;color:var(--ink3)}
+.neuro-mcell{height:30px;border:1px solid var(--line2);border-radius:7px;background:#fff;font-size:12px}
+.neuro-mcell.on{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+.neuro-mcell.imp{background:#eef0ff;border-color:#a5a3f0;color:#4b49c9}
+.neuro-res{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rv-seg{display:inline-flex;flex-wrap:wrap;gap:6px;border-radius:9px}
+.rv-segbtn{display:inline-flex;align-items:center;gap:5px;min-width:78px;justify-content:center;height:32px;padding:0 12px;border:1px solid var(--line2);border-radius:9px;background:#fff;font-size:12.5px;font-weight:700;color:var(--ink2);cursor:pointer;transition:.12s}
+.rv-segbtn:hover{border-color:var(--accent2);background:rgba(13,148,136,.07)}
+.rv-segbtn.on{background:var(--accent2);border-color:var(--accent2);color:#fff;box-shadow:0 4px 12px rgba(13,148,136,.25)}
+.rv-segbtn i{font-style:normal;font-family:var(--mono);font-size:10px;opacity:.6}
+.rv-segbtn.on i{opacity:.85}
+.rv-seg.imp .rv-segbtn.on{background:#5856D6;border-color:#5856D6}
+
+/* ── 在「核对窗右侧」直接编辑字段（拖动排序 / 增 / 删 / 插入 / 改类型）── */
+.rv-rh .rv-edit-btn{flex:0 0 auto;border:1px solid var(--accent2);background:#fff;color:var(--accent2);border-radius:8px;padding:5px 11px;font-size:11.5px;font-weight:800;cursor:pointer}
+.rv-rh .rv-edit-btn.on{background:var(--accent2);color:#fff}
+.rv-fe{padding:8px 8px 70px}
+.rv-fe .fe-tip{font-size:11px;color:var(--ink2);background:rgba(194,65,12,.07);border:1px solid rgba(194,65,12,.2);border-radius:10px;padding:9px 11px;line-height:1.6;margin-bottom:10px}
+.rv-fe .fe-tip b{color:var(--accent)}
+.fe-row{display:grid;grid-template-columns:20px 46px 1.1fr 1.25fr 78px 1fr 26px;gap:6px;align-items:center;background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:6px;margin-bottom:6px}
+.fe-row.dragging{opacity:.4}
+.fe-row.over{border-color:var(--accent);box-shadow:0 0 0 2px rgba(194,65,12,.16)}
+.fe-row.is-neuro{border-left:3px solid var(--accent2)}
+.fe-drag{cursor:grab;text-align:center;color:var(--ink3);font-size:14px;user-select:none}
+.fe-row input,.fe-row select{width:100%;border:1px solid var(--line2);background:var(--paper);border-radius:7px;padding:5px 6px;font-size:11.5px;box-sizing:border-box;color:var(--ink)}
+.fe-row input.k{font-family:var(--mono);color:var(--accent)}
+.fe-row input:focus,.fe-row select:focus{outline:none;border-color:var(--accent)}
+.fe-row .fe-del{border:1px solid var(--line2);background:var(--paper2);color:var(--ink3);border-radius:7px;padding:4px 0;font-size:12px;cursor:pointer}
+.fe-row .fe-del:hover{border-color:var(--bad);color:var(--bad)}
+.fe-row .fe-opt.hide{visibility:hidden}
+.fe-vt{grid-column:3 / 7;font-size:10px;color:var(--accent2);font-weight:700;padding:0 2px}
+.fe-ins{width:100%;border:1px dashed var(--line2);background:transparent;color:var(--ink3);border-radius:8px;padding:4px;font-size:11px;cursor:pointer;margin-bottom:6px}
+.fe-ins:hover{border-color:var(--accent);color:var(--accent)}
+.fe-act{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.fe-head{display:grid;grid-template-columns:20px 46px 1.1fr 1.25fr 78px 1fr 26px;gap:6px;font-size:10px;font-weight:800;color:var(--ink3);padding:2px 6px 6px}
+
 /* health · 膳食频率行（点格频度 + 斤/两） */
 .rv-diethead{display:flex;align-items:center;gap:8px;padding:3px 9px;font-size:10px;color:var(--ink3);font-weight:700;border-bottom:1px solid var(--line)}
 .rv-diethead .rv-dietname{flex:1 1 160px;min-width:120px}
@@ -297,6 +340,18 @@ header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
 .rv-tbl input:focus{outline:1px solid var(--accent2);border-radius:4px}
 .rv-tbl input.imp{background:#eef0ff}
 
+/* ───── 核对窗左侧：上传原件 dropzone ───── */
+.rv-droporig{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px;cursor:pointer}
+.rv-droporig.over .rv-droporig-in{border-color:var(--accent2);background:rgba(13,148,136,.16)}
+.rv-droporig-in{border:2px dashed rgba(255,255,255,.34);border-radius:16px;padding:36px 28px;text-align:center;color:rgba(255,255,255,.92);max-width:480px;background:rgba(255,255,255,.04);transition:.15s;pointer-events:none}
+.rv-droporig-in *{pointer-events:auto}
+.rv-droporig-in .big{font-size:16px;font-weight:800;margin-bottom:10px}
+.rv-droporig-in .sub{font-size:12px;color:rgba(255,255,255,.62);line-height:1.75}
+.rv-droporig-in .sub b{color:#fff}
+.rv-droporig-in .sub2{font-size:11px;color:rgba(255,255,255,.42);margin-top:16px}
+.rv-droporig-in .btn.primary{margin-top:18px}
+.rv-zb.wide{width:auto;padding:0 10px;font-size:11px;font-weight:700;white-space:nowrap}
+
 /* ───── AI 服务设置弹窗 ───── */
 .set-bg{position:fixed;inset:0;z-index:90;background:rgba(22,32,31,.55);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:14px}
 .set-bg.on{display:flex}
@@ -340,9 +395,10 @@ select.set-key{font-family:var(--sans)}
 .sys{position:relative}
 .sys.builder{border:2px dashed var(--accent);background:linear-gradient(180deg,rgba(194,65,12,.05),var(--paper2))}
 .sys.builder .sys-emoji{background:rgba(194,65,12,.12)}
-.sys .sys-del{position:absolute;top:8px;right:8px;width:22px;height:22px;border:1px solid var(--line2);background:var(--paper2);color:var(--ink3);border-radius:7px;font-size:12px;line-height:20px;text-align:center;cursor:pointer;display:none;padding:0}
-.sys.custom:hover .sys-del{display:block}
+.sys .sys-del{position:absolute;top:8px;right:8px;width:22px;height:22px;border:1px solid var(--line2);background:var(--paper2);color:var(--ink3);border-radius:7px;font-size:12px;line-height:20px;text-align:center;cursor:pointer;display:none;padding:0;z-index:6}
+.sys.custom:hover .sys-del,.sys.deletable:hover .sys-del{display:block}
 .sys .sys-del:hover{border-color:var(--bad);color:var(--bad)}
+@media (hover:none){.sys.custom .sys-del,.sys.deletable .sys-del{display:block}}
 /* —— 新建系统 Builder —— */
 .bld-grid{display:flex;gap:12px;flex-wrap:wrap}
 .bld-f{display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px}
@@ -390,81 +446,59 @@ select.set-key{font-family:var(--sans)}
 
   <header>
     <button class="back-btn" id="backBtn" onclick="goLauncher()">‹ 返回系统列表</button>
-    <div class="mark" id="hmark">表单<br>OCR</div>
+    <div class="mark" id="hmark">人工<br>核对</div>
     <div class="htext">
-      <h1 id="hTitle">表单识别工作台 · 多系统</h1>
-      <p id="hSub">每一种表单 = 一个独立识别系统。点击进入后：上传 PDF → AI 按版面填空 → <b>核对窗</b>（左原件可缩放 / 右字段·量表点格即选·点页标题跳页）→ 导出英文变量名。</p>
+      <h1 id="hTitle">表单人工核对台 · 多系统</h1>
+      <p id="hSub">每一种表单 = 一个独立核对系统。点击进入后：<b>导入 Excel</b>（同名英文变量）→ 每行成为一条记录 → 点「核对」逐条打开：<b>左侧上传该条原件（图片 / PDF）</b>、右侧按版面人工核对、可改 → 导出。<b>无需联网、无需任何 API。</b></p>
     </div>
-    <button class="set-gear" onclick="openSet()" title="AI 服务设置 / 测试连接">⚙️</button>
   </header>
 
   <!-- ════════ Launcher ════════ -->
   <div id="vLauncher">
     <div class="lead">
-      🗂️ 下列为 <b>各自独立</b> 的识别系统，互不干扰、共用一套 AI 设置与核对面板。多页 PDF 会按「每人页数」<b>自动拆分</b>为多条记录：1 页表单逐页拆分、神经运动 2 页一人、荧屏调查 12 页一人、膳食运动睡眠行为 14 页一人。每个系统都支持导入同名变量的 <b>xlsx / txt</b> 做可视化套对。
+      🗂️ 下列为 <b>各自独立</b> 的核对系统，互不干扰。每个系统都<b>无需 API、不联网</b>：导入一份与本系统<b>同名英文变量</b>的 <b>xlsx / csv / txt</b>，每行自动成为一条记录；进入「核对」后，<b>左侧点击或拖入该条原件（图片 / PDF）</b>，与右侧字段<b>左右对照</b>，由你<b>人工核对、修改</b>，最后导出。字段结构与原识别系统完全一致。
     </div>
     <div class="grid" id="sysGrid"></div>
   </div>
 
   <!-- ════════ System page ════════ -->
   <div id="vSystem" hidden>
-    <!-- Upload -->
+    <!-- ① 导入 Excel（同名英文变量） -->
     <div class="card">
-      <div class="card-h"><span class="dot"></span><h2 id="upTitle">① 上传 PDF</h2><span class="meta" id="qmeta">—</span></div>
+      <div class="card-h"><span class="dot"></span><h2 id="upTitle">① 导入 Excel / CSV（同名英文变量表头）</h2><span class="meta" id="qmeta">—</span></div>
       <div class="card-b">
-        <div class="drop" id="drop">
-          <div class="big">📄 点击或拖入 PDF / 图片（可多选批量）</div>
-          <div class="sub" id="dropSub">每份 PDF 一个人；图片支持一页一份（JPG / PNG）。</div>
+        <div class="imp-sub" style="margin-bottom:12px">导入一份 <code>.xlsx</code> / <code>.csv</code> / <code>.txt</code>（首行为<b>英文变量名表头</b>，与本系统 key 一致）。<b>无需识别、无需 API</b>：每一行 = 一条记录，自动按顺序（或按 <code>ID</code>/编号）对齐填入并以 <span style="color:#4b49c9;font-weight:700">紫色</span> 标注；记录不够时自动新建。进入「核对」后<b>左侧上传该条原件</b>，与右侧字段左右对照人工核对。仅填空位，勾「覆盖」则覆盖已有值。</div>
+        <div class="drop" id="impDrop">
+          <div class="big">📥 点击或拖入 Excel / CSV（.xlsx / .csv / .txt）</div>
+          <div class="sub" id="dropSub">首行须为英文变量名表头，与本系统 key 一致；每一行 = 一条记录。</div>
         </div>
-        <input type="file" id="file" accept="application/pdf,image/*" multiple style="display:none">
-
-        <div class="splitnote"><span class="ico">✂️</span><span id="splitNote"></span></div>
-
-        <div class="ai-status" id="aiStatus">AI 服务：未配置 · 点右上角 ⚙ 设置</div>
-
+        <input type="file" id="impFile" accept=".xlsx,.xls,.csv,.txt,.tsv" style="display:none">
         <div class="btn-row">
-          <button class="btn primary" id="runBtn" disabled>▶ 开始识别</button>
-          <button class="btn ghost" id="clearBtn" disabled>清空队列</button>
+          <button class="btn" id="manualBtn">✍️ 手动新增一条（空白记录，直接录入）</button>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);cursor:pointer"><input type="checkbox" id="impOverwrite" style="width:15px;height:15px;accent-color:#5856D6">覆盖已有值</label>
+          <button class="btn ghost" id="impClearBtn" style="display:none">清除本次导入</button>
         </div>
-
-        <div class="prog" id="prog">
-          <div class="bar"><i id="barFill"></i></div>
-          <div class="lbl" id="progLbl">—</div>
-        </div>
+        <div class="imp-stat" id="impStat" style="margin-top:12px;line-height:1.7"></div>
       </div>
     </div>
 
-    <!-- Results -->
+    <!-- ② 记录列表（点核对：左上传原件 / 右人工核对） -->
     <div class="card">
-      <div class="card-h"><span class="dot" style="background:var(--accent2)"></span><h2>② 识别结果（点「核对」逐条对照修改）</h2><span class="meta" id="rmeta">0 条</span></div>
+      <div class="card-h"><span class="dot" style="background:var(--accent2)"></span><h2>② 记录列表 · 点「核对」逐条对照（左上传原件 · 右人工核对修改）</h2><span class="meta" id="rmeta">0 条</span></div>
       <div class="card-b" style="padding:0">
-        <div id="resWrap"><div class="empty">还没有结果。上传 PDF 后点「开始识别」。</div></div>
+        <div id="resWrap"><div class="empty">还没有记录。请在上方导入 Excel / CSV（同名英文变量），或「手动新增一条」录入。</div></div>
       </div>
       <div class="card-b" style="border-top:1px solid var(--line)">
         <div class="btn-row" style="margin-top:0">
-          <button class="btn dark" id="xlsxBtn" disabled>⬇ 导出 Excel（.xlsx）</button>
+          <button class="btn dark" id="xlsxBtn" disabled>⬇ 导出 Excel（数据 + 变量字典）</button>
           <button class="btn" id="tsvBtn" disabled>⧉ 复制为 TSV（粘进表格）</button>
-          <span style="font-size:11.5px;color:var(--ink3);align-self:center">表头为英文 key；每条记录一行。</span>
-        </div>
-
-        <!-- Import for visual cross-check -->
-        <div class="imp-panel">
-          <div class="imp-h">🔎 导入变量表 / 手动录入（可无原件）</div>
-          <div class="imp-sub">导入一份 <code>.xlsx</code> / <code>.csv</code> / <code>.txt</code>（首行为英文变量名表头，与本系统 key 一致）。<b>无需上传 PDF 或图片</b>：每行数据会按顺序（或按 <code>ID</code>/编号）填入对应记录的空位并以<span style="color:#4b49c9;font-weight:700">紫色</span>标注；记录不够时自动新建（核对窗左侧无原件即留空，只看右侧字段）。仅填空位，不覆盖已识别值（可勾「覆盖」）。也可「手动新增一条」直接录入，<b>核对窗内按 Tab / 回车跳下一题</b>。</div>
-          <div class="imp-row">
-            <button class="btn" id="impBtn">📥 导入 xlsx / csv / txt</button>
-            <input type="file" id="impFile" accept=".xlsx,.xls,.csv,.txt,.tsv" style="display:none">
-            <button class="btn" id="manualBtn">✍️ 手动新增一条</button>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);cursor:pointer"><input type="checkbox" id="impOverwrite" style="width:15px;height:15px;accent-color:#5856D6">覆盖已识别值</label>
-            <button class="btn ghost" id="impClearBtn" style="display:none">清除导入</button>
-            <span class="imp-stat" id="impStat"></span>
-          </div>
+          <span style="font-size:11.5px;color:var(--ink3);align-self:center">核对 / 修改后导出：Sheet1 数据（表头英文 key，每条记录一行）；Sheet2 变量字典（变量名 / 中文含义 / 选项赋值），与当前字段顺序一致。</span>
         </div>
       </div>
     </div>
 
     <p style="font-size:11.5px;color:var(--ink3);text-align:center;line-height:1.7">
-      多家免费视觉大模型可选（智谱 GLM-4.6V · 硅基 Qwen3-VL · OpenRouter · GitHub GPT-4o · NVIDIA · Gemini + 自定义）。点右上角 ⚙ 选服务、填自己的 API Key、测试连接。Key 只存在本机浏览器，不经任何中转。
+      本系统<b>不联网、不需任何 API Key</b>：导入与本系统同名英文变量的表格 → 每行成为一条记录 → 点「核对」逐条打开（左侧点击 / 拖入对应原件图片或 PDF，可缩放·拖动·双击放大；右侧按版面人工核对、可改）→ 导出。核对窗内 <b>Tab / 回车</b> 跳下一题。
     </p>
   </div>
 
@@ -478,30 +512,12 @@ select.set-key{font-family:var(--sans)}
           <label class="bld-f bld-emoji"><span>图标</span><input id="bEmoji" value="🧩" maxlength="2"></label>
           <label class="bld-f bld-pages"><span>每人份页数</span><input id="bPages" type="number" min="1" max="30" value="1"></label>
         </div>
-        <div class="bld-tip">先填名称与<b>每人份页数</b>（例如一个人占 2 页就填 2）。再上传<b>一个人的样表</b>（PDF 或图片），AI 会逐页找出所有要识别的字段并自动生成英文变量名。生成后此系统与内置系统完全一致：可识别、可核对、可 xlsx/txt 套对、可导出。</div>
+        <div class="bld-tip">先填<b>名称</b>与<b>每人份页数</b>（一个人占几页就填几，仅影响标注，可填 1）。<b>无需上传样表、无需 API</b>：在下方「<b>粘贴变量名清单</b>」框粘入英文变量名即可生成字段。创建后此系统即可<b>导入 Excel · 上传原件 · 左右人工核对 · 导出</b>。</div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-h"><span class="dot"></span><h2>② 上传样表并识别条目</h2><span class="meta" id="bShot">未上传</span></div>
-      <div class="card-b">
-        <div class="drop" id="bDrop">
-          <div class="big">📄 点击或拖入「一个人的样表」（PDF / JPG / PNG）</div>
-          <div class="sub">仅用于分析版面、生成字段，只需一份样本。多页样表会按页编号。</div>
-        </div>
-        <input type="file" id="bFile" accept="application/pdf,image/*" multiple style="display:none">
-        <div class="ai-status" id="bAiStatus">AI 服务：未配置 · 点右上角 ⚙ 设置</div>
-        <div class="bld-act">
-          <button class="btn primary" id="bDetect" disabled>② 识别条目，自动生成变量名</button>
-          <button class="btn ghost" id="bClearShot" style="display:none">清空样表</button>
-        </div>
-        <div class="prog" id="bProg"><div class="bar"><i id="bBarFill"></i></div><div class="lbl" id="bProgLbl">—</div></div>
-        <div class="bld-stat" id="bStat"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-h"><span class="dot"></span><h2>③ 字段与变量名（可拖动排序 / 改名 / 改填写位置）</h2><span class="meta" id="bCount">0 字段</span></div>
+      <div class="card-h"><span class="dot"></span><h2>③ 字段与变量名（可拖动排序 / 改名 / 改位置 / 增删）</h2><span class="meta" id="bCount">0 字段</span></div>
       <div class="card-b">
         <div class="bld-tip">拖动左侧 <b>⠿</b> 调整<b>顺序与填写位置</b>；可直接改<b>变量名</b>（key）、中文标签、所属页、类型。类型选「选项」时在最后一列填可选值（逗号分隔）。变量名只用小写字母 / 数字 / 下划线，创建时会自动规整并去重。</div>
         <div class="bf-head"><span></span><span>页</span><span>变量名 key</span><span>中文标签</span><span>类型</span><span>可选值</span><span></span></div>
@@ -511,14 +527,14 @@ select.set-key{font-family:var(--sans)}
     </div>
 
     <div class="card">
-      <div class="card-h"><span class="dot"></span><h2>④ 粘贴变量名清单，一键匹配</h2><span class="meta">txt · 每行一个</span></div>
+      <div class="card-h"><span class="dot"></span><h2>② 粘贴变量名清单，一键生成字段</h2><span class="meta">txt · 每行一个</span></div>
       <div class="card-b">
-        <div class="bld-tip">把所有英文变量名按顺序粘进下框（每行一个；可写成 <code>key 中文名</code> 或 <code>key=中文名</code>），点按钮即<b>按顺序套到上面的字段</b>（覆盖变量名，有中文名则一并更新）。行数多于字段时，多出的自动新增为字段。</div>
+        <div class="bld-tip">把所有英文变量名按顺序粘进下框（每行一个；可写成 <code>key 中文名</code> 或 <code>key=中文名</code>），点按钮即<b>按顺序套到下方③的字段</b>（覆盖变量名，有中文名则一并更新）。行数多于现有字段时，多出的自动新增为字段——所以全新系统可直接在此粘贴整份清单一次生成。</div>
         <textarea id="bVarText" class="bld-ta" placeholder="name 姓名&#10;gender 性别&#10;birth_date 出生日期&#10;..."></textarea>
         <div class="bld-act">
           <button class="btn" id="bVarFileBtn">📄 从 txt 文件载入</button>
           <input type="file" id="bVarFile" accept=".txt,.csv,.tsv" style="display:none">
-          <button class="btn primary" id="bApplyVars">④ 用上面文本一键匹配变量名</button>
+          <button class="btn primary" id="bApplyVars">② 一键生成 / 套用变量名到下方字段</button>
         </div>
       </div>
     </div>
@@ -550,6 +566,8 @@ select.set-key{font-family:var(--sans)}
         <div class="rv-ltool">
           <span class="rv-pgc" id="rvPgc">原件</span>
           <span class="rv-hint">滚轮+Ctrl / 双指捏合 缩放 · 拖动平移 · 双击放大</span>
+          <button class="rv-zb wide" id="rvOrigBtn" title="上传 / 更换本条原件">📎 上传原件</button>
+          <button class="rv-zb" id="rvOrigClear" title="清除本条原件" style="display:none">🗑</button>
           <div class="rv-zoom">
             <button class="rv-zb" onclick="rvZoom(-1)">－</button>
             <span class="rv-zl" id="rvZl">100%</span>
@@ -558,37 +576,13 @@ select.set-key{font-family:var(--sans)}
           </div>
         </div>
         <div class="rv-pages" id="rvPages"></div>
+        <input type="file" id="rvOrigFile" accept="application/pdf,image/*" multiple style="display:none">
       </div>
       <div class="rv-splt" id="rvSplt"></div>
       <div class="rv-right">
-        <div class="rv-rh"><span class="t" id="rvRightT">识别字段 · 量表点格即选 · 点页标题左图跳页</span><span class="f" id="rvFill">—</span></div>
+        <div class="rv-rh"><span class="t" id="rvRightT">识别字段 · 量表点格即选 · 点页标题左图跳页</span><button class="rv-edit-btn" id="rvEditBtn" onclick="toggleRvEdit()">✎ 编辑字段</button><span class="f" id="rvFill">—</span></div>
         <div class="rv-fields" id="rvFields"></div>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- AI 服务设置弹窗 -->
-<div class="set-bg" id="setBg" onclick="if(event.target===this)closeSet()">
-  <div class="set-card">
-    <div class="set-head"><div class="set-title">⚙ AI 服务设置</div><button class="set-x" onclick="closeSet()">✕</button></div>
-    <div class="set-body">
-      <div class="set-tip">🔐 <b>自带 Key · 只存在本机浏览器</b>，不经任何中转服务器。识别手写表单请选<b>视觉模型</b>。免费且识别较好：智谱 <code>GLM-4.6V-Flash</code>、硅基流动 <code>Qwen3-VL-30B</code>（国内直连）；OpenRouter <code>openrouter/free</code>（免翻墙）；GitHub <code>GPT-4o</code>、NVIDIA、Gemini（需翻墙/中转）。纯文本模型读不了图。</div>
-      <div class="set-tabs" id="setTabs"></div>
-      <div class="set-row"><input class="set-key" id="setKey" type="password" placeholder="粘贴 API Key …" autocomplete="off"><button class="set-save" onclick="saveKey()">保存</button></div>
-      <div id="setCustomBox" class="set-custom" style="display:none">
-        <div class="set-crow"><label>API 端点</label><input id="setCustomBase" placeholder="完整地址，如 https://你的网关/v1/chat/completions"></div>
-        <div class="set-crow"><label>接口类型</label><select id="setCustomType"><option value="openai">OpenAI 兼容（/chat/completions）</option><option value="anthropic-custom">Anthropic 兼容（/v1/messages）</option></select></div>
-      </div>
-      <div class="set-modelwrap">
-        <label class="set-lbl">使用的模型（可切换）</label>
-        <div class="set-modelrow">
-          <select class="set-key" id="setModel" onchange="onSetModel()"></select>
-          <input class="set-key" id="setModelCustom" placeholder="或输入自定义模型 ID…" oninput="onSetModelCustom()">
-        </div>
-      </div>
-      <div class="set-testrow"><button class="btn" id="setTestBtn" onclick="testConnection()" style="border:1px solid var(--accent2);color:var(--accent2);font-weight:700">🔗 测试连接</button><span class="set-testres" id="setTestRes"></span></div>
-      <div class="set-guide" id="setGuide"></div>
     </div>
   </div>
 </div>
@@ -639,28 +633,44 @@ function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clear
    婴幼儿神经运动检查记录表（NEW）— 项目定义
    每项生成两个字段：{key}_m 评估月龄(1-12) · {key}_r 结果/形式
 ════════════════════════════════════════════════════════════════ */
+/* ── 统一「值类型」注册表（重新设计的核心）──────────────────────
+   每个识别项只声明一种 vt（value-type），结果控件按 vt 统一渲染，
+   彻底解决「有/无 与 正常/异常 与 位置过小/过大 大小不一、样式不一」。
+   ★ 编码（数字 code）与旧版逐项完全一致，不影响既有数据库 / 导出。★ */
+const NEURO_VT={
+  yesno:  {name:'二态 · 有/无',          opts:[['有','1'],['无','0']]},
+  normab: {name:'二态 · 正常/异常',      opts:[['正常','1'],['异常','2']]},
+  tri:    {name:'三态 · 有/不持续/无',    opts:[['有','1'],['不持续','2'],['无','0']]},
+  triA:   {name:'三态 · +不对称',        opts:[['有','1'],['不持续','2'],['无','0'],['不对称','4']]},
+  reflex: {name:'反射分级 · 正常/无/过度',opts:[['正常','1'],['无','2'],['过度','3'],['不对称','4']]},
+  scarf:  {name:'位置形态 · 围巾征',      opts:[['正常形式','1'],['位置过小','2'],['位置过大','3'],['不对称','4']]},
+  angle:  {name:'角度 · 正常/过小/过大',  opts:[['正常形式','1'],['过小','2'],['过大','3'],['不对称','4']]},
+  dorsi:  {name:'角度 · 足背屈角',        opts:[['正常形式','1'],['慢>70°','2'],['快慢差>10°','3'],['不对称','4']]},
+  fist:   {name:'手握拳',                opts:[['正常形式','0'],['可能有','1'],['有','2'],['拇指交叉到手掌','3']]}
+};
+/* 每项仅声明 vt（统一类型）。opts 由 NEURO_VT[vt] 推导，确保同类外观一致。*/
 const NEURO_ITEMS=[
- {key:'red_ball',     no:1,  name:'对红球追踪',                 page:1, opts:[['有','1'],['无','0']]},
- {key:'face',         no:2,  name:'对人脸追踪',                 page:1, opts:[['有','1'],['无','0']]},
- {key:'sound',        no:3,  name:'对声音反应',                 page:1, opts:[['有','1'],['无','0']]},
- {key:'atnr',         no:4,  name:'非对称性紧张性颈反射(ATNR)', page:1, opts:[['无','0'],['有','1']]},
- {key:'hand_fist',    no:5,  name:'持续手握拳',                 page:1, opts:[['正常形式','0'],['可能有','1'],['有','2'],['拇指交叉到手掌','3']]},
- {key:'pull_to_sit',  no:6,  name:'拉坐姿势和头竖立',           page:1, opts:[['有','1'],['无','0']]},
- {key:'prone',        no:7,  name:'俯卧位',                     page:1, opts:[['正常','1'],['异常','2']]},
- {key:'scarf',        no:8,  name:'围巾征',                     page:1, opts:[['正常形式','1'],['位置过小','2'],['位置过大','3'],['不对称','4']]},
- {key:'adductor',     no:9,  name:'内收肌角',                   page:1, opts:[['正常形式','1'],['过小','2'],['过大','3'],['不对称','4']]},
- {key:'popliteal',    no:10, name:'腘窝角',                     page:2, opts:[['正常形式','1'],['过小','2'],['过大','3'],['不对称','4']]},
- {key:'dorsiflexion', no:11, name:'足背屈角',                   page:2, opts:[['正常形式','1'],['慢>70°','2'],['快慢差>10°','3'],['不对称','4']]},
- {key:'sit_alone',    no:12, name:'独坐≥30秒',                  page:2, opts:[['有','1'],['不持续','2'],['无','0']]},
- {key:'hand_grasp',   no:13, name:'手主动抓',                   page:2, opts:[['有','1'],['不持续','2'],['无','0']]},
- {key:'roll_over',    no:14, name:'翻身',                       page:2, opts:[['有','1'],['不持续','2'],['无','0']]},
- {key:'crawl',        no:15, name:'主动爬',                     page:2, opts:[['有','1'],['不持续','2'],['无','0']]},
- {key:'knee_reflex',  no:16, name:'膝反射',                     page:2, opts:[['正常','1'],['无','2'],['过度','3'],['不对称','4']]},
- {key:'lateral_prop', no:17, name:'侧面肢撑反应',               page:2, opts:[['有','1'],['不持续','2'],['无','0'],['不对称','4']]},
- {key:'parachute',    no:18, name:'降落伞反应',                 page:2, opts:[['有','1'],['不持续','2'],['无','0'],['不对称','4']]},
- {key:'vertical_susp',no:19, name:'立体悬垂反应',               page:2, opts:[['正常','1'],['异常','2']]},
- {key:'prone_susp',   no:20, name:'俯卧位悬垂反应',             page:2, opts:[['正常','1'],['异常','2']]}
-];
+ {key:'red_ball',     no:1,  name:'对红球追踪',                 page:1, vt:'yesno'},
+ {key:'face',         no:2,  name:'对人脸追踪',                 page:1, vt:'yesno'},
+ {key:'sound',        no:3,  name:'对声音反应',                 page:1, vt:'yesno'},
+ {key:'atnr',         no:4,  name:'非对称性紧张性颈反射(ATNR)', page:1, vt:'yesno'},
+ {key:'hand_fist',    no:5,  name:'持续手握拳',                 page:1, vt:'fist'},
+ {key:'pull_to_sit',  no:6,  name:'拉坐姿势和头竖立',           page:1, vt:'yesno'},
+ {key:'prone',        no:7,  name:'俯卧位',                     page:1, vt:'normab'},
+ {key:'scarf',        no:8,  name:'围巾征',                     page:1, vt:'scarf'},
+ {key:'adductor',     no:9,  name:'内收肌角',                   page:1, vt:'angle'},
+ {key:'popliteal',    no:10, name:'腘窝角',                     page:2, vt:'angle'},
+ {key:'dorsiflexion', no:11, name:'足背屈角',                   page:2, vt:'dorsi'},
+ {key:'sit_alone',    no:12, name:'独坐≥30秒',                  page:2, vt:'tri'},
+ {key:'hand_grasp',   no:13, name:'手主动抓',                   page:2, vt:'tri'},
+ {key:'roll_over',    no:14, name:'翻身',                       page:2, vt:'tri'},
+ {key:'crawl',        no:15, name:'主动爬',                     page:2, vt:'tri'},
+ {key:'knee_reflex',  no:16, name:'膝反射',                     page:2, vt:'reflex'},
+ {key:'lateral_prop', no:17, name:'侧面肢撑反应',               page:2, vt:'triA'},
+ {key:'parachute',    no:18, name:'降落伞反应',                 page:2, vt:'triA'},
+ {key:'vertical_susp',no:19, name:'立体悬垂反应',               page:2, vt:'normab'},
+ {key:'prone_susp',   no:20, name:'俯卧位悬垂反应',             page:2, vt:'normab'}
+].map(it=>({...it, opts:NEURO_VT[it.vt].opts}));
 const NEURO_IDENTITY=[
  {key:'name',           label:'姓名',                 type:'text',   page:1},
  {key:'gender',         label:'性别(1=男 2=女)',      type:'select', options:['1','2'], page:1},
@@ -675,12 +685,29 @@ const NEURO_IDENTITY=[
  {key:'examiner',       label:'检验者',               type:'text',   page:1}
 ];
 function buildNeuroFields(){
-  const F=[...NEURO_IDENTITY.map(f=>({...f}))];
+  const F=[...NEURO_IDENTITY.map(f=>({...f, group:f.group||'身份/检查记录', neuroId:true}))];
   NEURO_ITEMS.forEach(it=>{
-    F.push({key:it.key+'_m', label:`${it.no}.${it.name}·评估月龄`, type:'number', page:it.page, hint:'打勾所在月龄 1-12'});
-    F.push({key:it.key+'_r', label:`${it.no}.${it.name}·结果/形式`, type:'select', options:it.opts.map(o=>o[1]), optLabels:it.opts, page:it.page});
+    F.push({key:it.key+'_m', label:`${it.no}.${it.name}·评估月龄`, type:'number', page:it.page, hint:'打勾所在月龄 1-12',
+            group:'发育项目', neuroM:{no:it.no,name:it.name}});
+    F.push({key:it.key+'_r', label:`${it.no}.${it.name}·结果/形式`, type:'select', options:it.opts.map(o=>o[1]), optLabels:it.opts, page:it.page,
+            group:'发育项目', neuro:{no:it.no,name:it.name,vt:it.vt}});
   });
   return F;
+}
+/* 从「当前系统字段」动态派生某页的发育项目（顺序/增删/插入实时生效）。
+   结果字段（_r，带 .neuro）为锚，配对同前缀的 _m。*/
+function neuroItemsFromFields(sys,pg){
+  const out=[];
+  (sys.fields||[]).forEach(f=>{
+    if(f.neuro && (f.page||1)===pg){
+      const base=f.key.replace(/_r$/,'');
+      const mField=(sys.fields||[]).find(x=>x.key===base+'_m');
+      out.push({rField:f, mKey:mField?mField.key:base+'_m',
+                no:f.neuro.no, name:f.neuro.name,
+                opts:(f.optLabels&&f.optLabels.length)?f.optLabels:(f.options||[]).map(v=>[String(v),String(v)])});
+    }
+  });
+  return out;
 }
 function neuroPageHint(pg){
   if(pg===1) return '第1页：表头身份信息（姓名/性别/出生日期/预产期/纠正年龄）+ 顶部手写检查日期 + 检查记录表首行（现在年龄月、纠正年龄月、检查结果正常1/异常2/脑瘫3、异常项目号、检验者）+ 项目 1~9。每个项目是一张 1~12 月龄表，在某月格内打 ✓/√ 表示该月龄做了此项检查：把打勾的月龄数字填入 *_m；该项左侧"有/无/正常形式/过小/过大/不对称"等被勾选/圈住的形式填入 *_r（按下方选项编码）。空白项 *_m 与 *_r 一律 null。';
@@ -1889,594 +1916,8 @@ collectdata 报告/采集日期整理 YYYY-MM-DD 并拆 collect_year/month/day�
 ];
 const SYS_BY={};SYSTEMS.forEach(s=>{SYS_BY[s.id]=s; s.fields.forEach(f=>{if(f.page==null)f.page=1;}); s.KEYS=s.fields.map(f=>f.key); s.FBY={}; s.fields.forEach(f=>s.FBY[f.key]=f);});
 
-/* ════════════════════════════════════════════════════════════════
-   多供应商 AI 层（端口自 screen.html，逐字复用：PROVIDERS / cfg /
-   callAI·callOpenAICompat·callGemini·callAnthropicCompat / 设置UI /
-   callWithRetry）—— 与原系统完全一致的稳定调用栈与错误处理。
-════════════════════════════════════════════════════════════════ */
-const PROVIDERS = {
-  zhipu: {
-    name: '智谱AI', fullName: '智谱 GLM-4.6V-Flash',
-    emoji: '🤖', badges: ['完全免费','推荐'],
-    model: 'glm-4.6v-flash',
-    fallbackModels: ['glm-4.5v', 'glm-4v-flash'],
-    altModels: [
-      { id: 'glm-4.6v-flash',    tag: '✅', desc: '完全免费 · 9B/128K · 最新但可能慢' },
-      { id: 'glm-4v-flash',      tag: '⚡', desc: '上一代 · 免费 · 更快更稳定（推荐）' },
-      { id: 'glm-4.5v',          tag: '☑️', desc: '4.5代 · 也免费' },
-      { id: 'glm-4v-plus-0111',  tag: '💰', desc: '付费旗舰' }
-    ],
-    endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-    placeholder: 'xxxxxxxx.xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: true,
-    extraBody: { thinking: { type: 'disabled' } },
-    guide: `<strong>🤖 智谱 GLM-4.6V-Flash · 完全免费旗舰</strong>
-注册：<a href="https://bigmodel.cn" target="_blank">bigmodel.cn</a> → 「API密钥」→ 新建<br>
-2025年9月发布的 9B 视觉模型，128K 上下文，<strong>完全免费、国内秒连</strong>。<br>
-⚠️ <strong>如果 4.6v 响应慢</strong>，可能是服务器繁忙或触发了思考模式。建议切换到 <code>glm-4v-flash</code>（上一代，但速度更快更稳定）<br>
-<button onclick="fetchProviderModels('zhipu')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表</button>
-<div id="providerFetchResult_zhipu" style="margin-top:6px;font-size:11px"></div>
-<a href="https://docs.bigmodel.cn/cn/guide/models/free/glm-4.6v-flash" target="_blank">📖 官方文档</a>`
-  },
-  agnes: {
-    name: 'Agnes AI', fullName: 'Agnes AI · 2.0 Flash',
-    emoji: '🟣', badges: ['完全免费','OpenAI兼容'],
-    model: 'agnes-2.0-flash',
-    fallbackModels: [],
-    altModels: [
-      { id: 'agnes-2.0-flash', tag: '✅', desc: '全模态 Flash · 免费 · 支持图片输入（OCR 准确率请自测）' }
-    ],
-    endpoint: 'https://apihub.agnes-ai.com/v1/chat/completions',
-    placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 4000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🟣 Agnes AI · 2.0 Flash（全模态 · 免费）</strong>
-新加坡 Agnes AI，2026/6 起<strong>无限期免费</strong>开放 API。OpenAI 兼容、国内可直连、已开放跨域（浏览器可直接调，无需代理）。<br>
-注册：<a href="https://platform.agnes-ai.com" target="_blank">platform.agnes-ai.com</a> → 登录 → 创建 API Key（<code>sk-</code> 开头）<br>
-接口地址 <code>https://apihub.agnes-ai.com/v1</code> · 模型 <code>agnes-2.0-flash</code>。<br>
-⚠️ <strong>用于识别表单图片请先实测</strong>：Agnes 主打文本/Agent 与<strong>图片生成</strong>，<code>agnes-2.0-flash</code> 虽接受图片输入，但<strong>并非专门的 OCR 视觉模型</strong>。识别手写问卷的准确率，请先用「🧪 测试连接」+ 一张样表试一下；若不理想，建议仍用 GLM-4V / Qwen-VL / Gemini 等视觉模型。<br>
-<button onclick="fetchProviderModels('agnes')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
-<div id="providerFetchResult_agnes" style="margin-top:6px;font-size:11px"></div>
-<a href="https://agnes-ai.com/doc/" target="_blank">📖 官方文档</a>`
-  },
-  /* 通义/豆包/混元/百度 4 个国内服务已移到「自定义供应商 → 快速预设」中。 */
-  gemini: {
-    name: 'Gemini', fullName: 'Google Gemini',
-    emoji: '✨', badges: ['免费','需翻墙'],
-    apiType: 'gemini',
-    model: 'gemini-2.5-flash-lite',
-    altModels: [
-      { id: 'gemini-2.5-flash-lite',         tag: '✅', desc: '默认 · 1000次/天 · 大批量首选' },
-      { id: 'gemini-2.5-flash',              tag: '☑️', desc: '250次/天 · 质量更好' },
-      { id: 'gemini-2.5-pro',                tag: '💎', desc: '100次/天 · 最强' },
-      { id: 'gemini-3-flash-preview',        tag: '⚠️', desc: 'Preview · 限额严格' },
-      { id: 'gemini-3.1-flash-lite-preview', tag: '⚠️', desc: 'Preview · 限额严格' }
-    ],
-    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models',
-    placeholder: 'AIzaSy…',
-    rateLimit: 7000, maxTokens: 8192,
-    guide: `<strong>✨ Google Gemini</strong>
-注册：<a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> → Google 账号登录 → 「Get API Key」<br>
-⚠️ <strong>API 域名 generativelanguage.googleapis.com 对中国大陆 IP 严格封禁（403）</strong>，AI Studio 网页能用 ≠ API 能用。<br>
-👉 大陆用户改用「<strong>OpenRouter</strong>」走 Cloudflare 中转。<br>
-<a href="https://ai.google.dev/gemini-api/docs/rate-limits" target="_blank">📖 官方文档</a>`
-  },
-  groq: {
-    name: 'Groq', fullName: 'Groq · 极速推理',
-    emoji: '⚡', badges: ['免费','极速','需翻墙/中转'],
-    model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-    fallbackModels: [],
-    altModels: [
-      { id: 'meta-llama/llama-4-scout-17b-16e-instruct',     tag: '✅', desc: '默认 · Llama 4 Scout 17B/16E · 当前 Groq 唯一视觉模型 · 460+ t/s' }
-    ],
-    endpoint: 'https://api.groq.com/openai/v1/chat/completions',
-    placeholder: 'gsk_xxxxxxxxxxxxxxxx',
-    rateLimit: 6000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>⚡ Groq · 全球最快推理（免费）</strong>
-注册：<a href="https://console.groq.com" target="_blank">console.groq.com</a> → Google/GitHub 登录 → API Keys → 创建<br>
-<strong>视觉模型</strong>：Groq 目前<strong>仅 <code>llama-4-scout</code> 支持视觉</strong>（Maverick 已于 2026/02 下架，GPT-OSS 等文本模型不能识别图片）。<br>
-免费版限 1000次/天，<strong>无需信用卡</strong>。<br>
-⚠️ <strong>国内需翻墙</strong>。CORS 已通过同域 <code>/api/groq</code> 代理自动绕过（Pages 部署后生效）。<br>
-<button onclick="fetchProviderModels('groq')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
-<div id="providerFetchResult_groq" style="margin-top:6px;font-size:11px"></div>
-<a href="https://console.groq.com/docs/models" target="_blank">📖 模型列表</a> · <a href="https://console.groq.com/docs/vision" target="_blank">📖 视觉文档</a>`
-  },
-  github: {
-    name: 'GitHub', fullName: 'GitHub Models',
-    emoji: '🐙', badges: ['免费GPT-4o','需翻墙/中转'],
-    model: 'openai/gpt-4o',
-    fallbackModels: ['openai/gpt-4o-mini', 'openai/gpt-4.1-mini'],
-    altModels: [
-      { id: 'openai/gpt-4o',                            tag: '✅', desc: '默认 · GPT-4o · OCR 最强' },
-      { id: 'openai/gpt-4.1',                           tag: '💎', desc: 'GPT-4.1 · 更强（限额更少）' },
-      { id: 'openai/gpt-4.1-mini',                      tag: '⚡', desc: 'GPT-4.1 Mini · 性价比' },
-      { id: 'openai/gpt-4o-mini',                       tag: '⚡', desc: 'GPT-4o Mini · 更快' },
-      { id: 'meta/Llama-4-Scout-17B-16E-Instruct',      tag: '☑️', desc: 'Llama 4 Scout · 109B' },
-      { id: 'meta/Llama-4-Maverick-17B-128E-Instruct',  tag: '☑️', desc: 'Llama 4 Maverick · 400B 旗舰' },
-      { id: 'meta/Llama-3.2-90B-Vision-Instruct',       tag: '☑️', desc: 'Llama 3.2 90B Vision' },
-      { id: 'meta/Llama-3.2-11B-Vision-Instruct',       tag: '⚡', desc: 'Llama 3.2 11B Vision' },
-      { id: 'microsoft/Phi-4-multimodal-instruct',      tag: '☑️', desc: 'Phi-4 多模态 · 视觉+音频' },
-      { id: 'microsoft/Phi-3.5-vision-instruct',        tag: '⚡', desc: 'Phi-3.5 Vision · 轻量' }
-    ],
-    endpoint: 'https://models.github.ai/inference/chat/completions',
-    placeholder: 'github_pat_xxxxxxxx',
-    rateLimit: 8000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🐙 GitHub Models · 免费 GPT-4o 视觉</strong>
-前往：<a href="https://github.com/marketplace/models" target="_blank">github.com/marketplace/models</a><br>
-使用 GitHub Personal Access Token（PAT）认证 → Settings → Developer settings → Personal access tokens → Generate<br>
-高级模型（GPT-4o）限 <strong>10次/分, 50次/天</strong>，低级模型 150次/天。<br>
-⚠️ <strong>国内需翻墙</strong>。CORS 已通过同域 <code>/api/github</code> 代理自动绕过（Pages 部署后生效）。GPT-4o 的 OCR 识别质量非常高。<br>
-<button onclick="fetchProviderModels('github')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
-<div id="providerFetchResult_github" style="margin-top:6px;font-size:11px"></div>
-<a href="https://docs.github.com/en/github-models" target="_blank">📖 官方文档</a>`
-  },
-  nvidia: {
-    name: 'NVIDIA', fullName: 'NVIDIA NIM · 100+ 模型',
-    emoji: '🟢', badges: ['免费1000次','需翻墙'],
-    model: 'meta/llama-4-scout-17b-16e-instruct',
-    fallbackModels: [
-      'meta/llama-4-maverick-17b-128e-instruct',
-      'qwen/qwen2.5-vl-72b-instruct',
-      'nvidia/llama-3.1-nemotron-nano-vl-8b-v1'
-    ],
-    altModels: [
-      { id: 'meta/llama-4-maverick-17b-128e-instruct',     tag: '💎', desc: 'Llama 4 Maverick · 400B/128专家 · 最强' },
-      { id: 'qwen/qwen2.5-vl-72b-instruct',                tag: '💎', desc: 'Qwen2.5-VL 72B · OCR 推荐' },
-      { id: 'meta/llama-4-scout-17b-16e-instruct',         tag: '✅', desc: '默认 · Llama 4 Scout · 109B · 更快' },
-      { id: 'nvidia/llama-3.1-nemotron-nano-vl-8b-v1',     tag: '🔍', desc: 'Llama Nemotron Nano VL 8B · OCR 专精（DocVQA SOTA）' },
-      { id: 'nvidia/nemotron-nano-12b-v2-vl',              tag: '🔍', desc: 'Nemotron Nano 12B v2 VL · 多图理解' },
-      { id: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning', tag: '🧩', desc: 'Nemotron 3 Nano Omni · 全模态推理' },
-      { id: 'google/gemma-3-27b-it',                       tag: '☑️', desc: 'Gemma 3 27B · 谷歌开源' },
-      { id: 'google/gemma-3-12b-it',                       tag: '⚡', desc: 'Gemma 3 12B · 轻量' },
-      { id: 'mistralai/pixtral-12b',                       tag: '☑️', desc: 'Pixtral 12B · Mistral 视觉' },
-      { id: 'mistralai/pixtral-large-instruct-2411',       tag: '💎', desc: 'Pixtral Large · 124B · Mistral 旗舰' },
-      { id: 'microsoft/phi-3.5-vision-instruct',           tag: '⚡', desc: 'Phi-3.5 Vision · 轻量' },
-      { id: 'microsoft/phi-4-multimodal-instruct',         tag: '☑️', desc: 'Phi-4 多模态' }
-    ],
-    endpoint: 'https://integrate.api.nvidia.com/v1/chat/completions',
-    placeholder: 'nvapi-xxxxxxxxxxxxxxxx',
-    rateLimit: 4000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🟢 NVIDIA NIM · 100+ 免费模型</strong>
-注册：<a href="https://build.nvidia.com" target="_blank">build.nvidia.com</a> → 邮箱注册（NVIDIA Developer Program）→ 右上角头像 → 「API Keys」→ Generate（<code>nvapi-</code> 开头）<br>
-<strong>免费额度</strong>：注册赠 1000 credits（可申请到 5000）· 限速 40 RPM · 无需信用卡<br>
-<strong>视觉模型推荐</strong>：<code>llama-4-scout</code>（默认）· <code>qwen2.5-vl-72b</code>（最强）· <code>llama-3.1-nemotron-nano-vl-8b</code>（OCR专精，DocVQA SOTA）<br>
-⚠️ 国内需翻墙；浏览器 CORS 限制已通过 <strong>同域 /api/nvidia 代理</strong>自动绕过（部署到 Cloudflare Pages 后生效）。<br>
-<button onclick="fetchProviderModels('nvidia')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
-<div id="providerFetchResult_nvidia" style="margin-top:6px;font-size:11px"></div>
-<a href="https://build.nvidia.com/explore/vision" target="_blank">📖 视觉模型</a> · <a href="https://build.nvidia.com/models" target="_blank">📋 全部模型</a>`
-  },
-  openrouter: {
-    name: 'OpenRouter', fullName: 'OpenRouter 聚合',
-    emoji: '🌐', badges: ['国内可用','免费视觉'],
-    model: 'openrouter/free',
-    fallbackModels: [
-      'google/gemma-4-31b-it:free',
-      'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
-      'nvidia/nemotron-nano-12b-v2-vl:free',
-      'google/gemma-4-26b-a4b-it:free'
-    ],
-    altModels: [
-      { id: 'openrouter/free',                       tag: '✅', desc: '默认 · 自动路由 · 永不下线（强烈推荐，模型挂了自动换）' },
-      { id: 'google/gemma-4-31b-it:free',            tag: '💎', desc: 'Google Gemma 4 31B · 当前最佳免费视觉（2026/06）· 262K' },
-      { id: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free', tag: '🔍', desc: 'Nemotron Nano Omni 30B · 全模态 · OCR 强 · 256K' },
-      { id: 'nvidia/nemotron-nano-12b-v2-vl:free',   tag: '🔍', desc: 'Nemotron Nano 12B v2 VL · OCR/文档专精 · 128K' },
-      { id: 'google/gemma-4-26b-a4b-it:free',        tag: '☑️', desc: 'Google Gemma 4 26B MoE · 视觉 · 262K' },
-      { id: 'moonshotai/kimi-k2.6:free',             tag: '⚡', desc: 'Kimi K2.6 · 多模态 · 视觉+工具 · 262K' },
-      { id: 'google/gemini-2.5-flash-lite',          tag: '💰', desc: 'Gemini 2.5 Flash Lite · 付费' },
-      { id: 'google/gemini-2.5-flash',               tag: '💰', desc: 'Gemini 2.5 Flash · 付费' },
-      { id: 'anthropic/claude-sonnet-4',              tag: '💰', desc: 'Claude Sonnet 4 · 顶级付费' },
-      { id: 'openai/gpt-4.1',                        tag: '💰', desc: 'GPT-4.1 · 顶级付费' }
-    ],
-    endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-    placeholder: 'sk-or-v1-xxxxxxxxxxxxx',
-    rateLimit: 4000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🌐 OpenRouter · 国内可直连（推荐）</strong>
-注册：<a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a> → Google/GitHub 登录 → 创建 Key<br>
-走 Cloudflare 网络，<strong>无需翻墙</strong>。免费 <code>:free</code> 模型限 20次/分 · 200次/天。<br>
-✅ <strong>默认已设为 <code>openrouter/free</code>（自动路由）</strong>——自动从当前可用的免费视觉模型中挑选，模型下线也不会报错，<strong>无需手动维护</strong>。<br>
-💡 想用指定模型或看最新榜单，点下方按钮实时拉取（2026/06 最佳免费视觉：Gemma 4 31B、Nemotron Nano Omni/VL、Qwen3-VL）。<br>
-<button onclick="fetchOpenRouterModels()" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 实时拉取最新免费视觉模型</button>
-<div id="orFetchResult" style="margin-top:6px;font-size:11px"></div>
-<a href="https://openrouter.ai/models?max_price=0&modality=text%2Bimage-%3Etext" target="_blank">📖 在线查看免费视觉模型</a>`
-  },
-  siliconcloud: {
-    name: '硅基流动', fullName: 'SiliconCloud',
-    emoji: '🔮', badges: ['完全免费','国内'],
-    model: 'Qwen/Qwen3-VL-30B-A3B-Instruct',
-    fallbackModels: [
-      'Qwen/Qwen3-VL-8B-Instruct',
-      'Qwen/Qwen3-VL-30B-A3B-Thinking',
-      'Qwen/Qwen3-VL-235B-A22B-Instruct'
-    ],
-    altModels: [
-      { id: 'Qwen/Qwen3-VL-30B-A3B-Instruct',  tag: '✅', desc: '默认 · Qwen3-VL 30B · 免费视觉 · 256K · 国内快' },
-      { id: 'Qwen/Qwen3-VL-30B-A3B-Thinking',   tag: '🧩', desc: 'Qwen3-VL 30B · 思考模式 · OCR/推理更准' },
-      { id: 'Qwen/Qwen3-VL-8B-Instruct',         tag: '⚡', desc: 'Qwen3-VL 8B · 最快' },
-      { id: 'Qwen/Qwen3-VL-235B-A22B-Instruct',   tag: '💎', desc: 'Qwen3-VL 235B · 旗舰大参数' },
-      { id: 'Pro/Qwen/Qwen2.5-VL-7B-Instruct',   tag: '☑️', desc: 'Qwen2.5-VL 7B Pro · 注意带 Pro/ 前缀' }
-    ],
-    endpoint: 'https://api.siliconflow.cn/v1/chat/completions',
-    placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🔮 硅基流动 SiliconCloud · 完全免费</strong>
-注册：<a href="https://cloud.siliconflow.cn" target="_blank">cloud.siliconflow.cn</a> → 注册 → 「API 密钥」→ 创建<br>
-推荐 <strong>Qwen3-VL-30B</strong>（最新免费视觉模型），<strong>国内直连、速度快</strong>。<br>
-⚠️ <strong>注意</strong>：模型名称必须与平台完全一致（含大小写和前缀），可在 <a href="https://cloud.siliconflow.cn/models" target="_blank">模型广场</a> 搜索确认。<br>
-<button onclick="fetchProviderModels('siliconcloud')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
-<div id="providerFetchResult_siliconcloud" style="margin-top:6px;font-size:11px"></div>
-<a href="https://docs.siliconflow.cn/cn/userguide/capabilities/vision" target="_blank">📖 官方文档</a>`
-  }
-};
-
-/* ===== 自定义供应商（OpenAI/Anthropic 兼容，用户自填端点）===== */
-PROVIDERS.custom = {
-  name: '自定义', fullName: '自定义（OpenAI/Anthropic 兼容）', emoji: '⚙️', badges: ['自填端点'],
-  apiType: 'openai', model: '', endpoint: '', altModels: [], maxTokens: 8192, custom: true,
-  guide: '<strong>⚙️ 自定义服务（OpenAI / Anthropic 兼容）</strong><br>填入任意兼容服务的<strong>完整端点</strong>（如 <code>https://你的服务/v1/chat/completions</code>）、API Key、模型 ID。<br>支持 OpenRouter、本地 Ollama、各家代理、自建网关等。图片以 base64 image_url 方式发送，请选支持视觉的模型。'
-};
-
-/* ===== 配置（与数据库系统同样存在本机浏览器 localStorage）===== */
-let cfg = {
-  prov:  localStorage.getItem('phck_prov') || 'zhipu',
-  keys:  JSON.parse(localStorage.getItem('phck_keys')  || '{}'),
-  models:JSON.parse(localStorage.getItem('phck_models')|| '{}'),
-  custom:JSON.parse(localStorage.getItem('so_custom')  || '{}')
-};
-if (!PROVIDERS[cfg.prov]) cfg.prov = 'zhipu';
-
-function getEffectiveKey(){ const p=PROVIDERS[cfg.prov]; return (p && p.useOpenRouterKey) ? cfg.keys.openrouter : cfg.keys[cfg.prov]; }
-function getEffectiveModel(){ const p=PROVIDERS[cfg.prov]; return (cfg.models && cfg.models[cfg.prov]) || (p && p.model) || ''; }
-function syncCustomProvider(){ if(!PROVIDERS.custom) return; const c=cfg.custom||{}; PROVIDERS.custom.endpoint=(c.endpoint||'').trim(); PROVIDERS.custom.apiType=c.apiType||'openai'; PROVIDERS.custom.model=(cfg.models&&cfg.models.custom)||''; }
-
-async function callAI(b64, mime, prompt) {
-  const p = PROVIDERS[cfg.prov];
-  const key = p.useOpenRouterKey ? cfg.keys.openrouter : cfg.keys[cfg.prov];
-  if (!key) throw new Error(p.useOpenRouterKey ? '请先在「OpenRouter」中保存 API Key（共用该 Key）' : '请先配置 API Key');
-  if (p.apiType === 'gemini') return callGemini(p, key, b64, mime, prompt);
-  if (p.apiType === 'anthropic-custom') return callAnthropicCompat(p, key, b64, mime, prompt);
-  
-  // Try main model first, then fallbacks if model is invalid
-  const modelOverride = cfg.models?.[cfg.prov];
-  const primaryModel = modelOverride || p.model;
-  
-  try {
-    return await callOpenAICompat(p, key, b64, mime, prompt, primaryModel);
-  } catch(err) {
-    const isModelError = /not a valid model|model.*not found|model.*not exist|不存在|404|does not exist|invalid model|no endpoints/i.test(err.message);
-    // Build the fallback chain. For OpenRouter, always guarantee openrouter/free
-    // as the last resort so a stale free-model ID never hard-fails recognition.
-    let chain = (p.fallbackModels || []).slice();
-    if (cfg.prov === 'openrouter' && !chain.includes('openrouter/free') && primaryModel !== 'openrouter/free') {
-      chain.push('openrouter/free');
-    }
-    if (isModelError && chain.length) {
-      console.warn(`模型 ${primaryModel} 不可用，尝试备选模型...`);
-      for (const fallback of chain) {
-        if (fallback === primaryModel) continue;
-        try {
-          const result = await callOpenAICompat(p, key, b64, mime, prompt, fallback);
-          // Success! Auto-save this working model
-          toast(`⚡ 模型已自动切换到 ${fallback}`);
-          if (!cfg.models) cfg.models = {};
-          cfg.models[cfg.prov] = fallback;
-          localStorage.setItem('phck_models', JSON.stringify(cfg.models));
-          return result;
-        } catch(e2) {
-          const isModel2 = /not a valid model|model.*not found|model.*not exist|不存在|404|does not exist|invalid model|no endpoints/i.test(e2.message);
-          if (isModel2) continue; // try next fallback
-          throw e2; // non-model error, stop trying
-        }
-      }
-      throw new Error(`模型「${primaryModel}」及所有备选模型均不可用。\n\n💡 解决方案：\n1. 打开「设置」→ 切换到「openrouter/free」（自动路由，永远可用）\n2. 或点「🔄 实时拉取最新免费视觉模型」选一个当前可用的\n3. 免费模型经常更新换代，属于正常现象\n\n原始错误：${err.message}`);
-    }
-    throw err;
-  }
-}
-
-async function callGemini(provider, key, b64, mime, prompt) {
-  // Gemini uses different API format (not OpenAI-compatible)
-  const modelOverride = cfg.models?.[cfg.prov];
-  const useModel = modelOverride || provider.model;
-  const url = `${provider.endpoint}/${useModel}:generateContent?key=${key}`;
-
-  let res;
-  try {
-    res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: prompt },
-            { inline_data: { mime_type: mime, data: b64 } }
-          ]
-        }],
-        generationConfig: {
-          temperature: 0,
-          maxOutputTokens: provider.maxTokens || 8192,
-          // For 2.5 Flash family, response_mime_type forces JSON output
-          responseMimeType: 'application/json'
-        }
-      })
-    });
-  } catch(e) {
-    throw new Error(`网络错误：无法连接 Google Gemini API\n你可能需要 VPN/科学上网。\n💡 建议改用国内服务（智谱AI 完全免费且无需翻墙）`);
-  }
-  if (!res.ok) {
-    let er = {}; let raw = '';
-    try { raw = await res.text(); er = JSON.parse(raw); } catch(e){}
-    const m = er.error?.message || raw || `HTTP ${res.status}`;
-    if (res.status===400) throw new Error(`Gemini 请求错误（400）：${m}`);
-    if (res.status===401) throw new Error(`Key 无效（401）：${m}`);
-    if (res.status===403) {
-      // Region block is the most common cause for 403
-      throw new Error(`Google 已拒绝你所在区域的访问（403）。\n原因：API 域名 generativelanguage.googleapis.com 对中国大陆 IP 封禁，即使 AI Studio 网页能用，API 也会 403。\n\n💡 解决方案（按推荐排序）：\n1. 改用「OpenRouter」服务（在设置面板切换），同样能用 Gemini 2.5 Flash，国内可直连免费\n2. 改用国内服务（智谱AI、通义千问等，本地直连无封锁）\n3. 服务端用海外 VPS 中转 API 请求\n\n原始错误：${m}`);
-    }
-    if (res.status===429) throw new Error(`Gemini 频率超限（429）。${useModel} 限制：${useModel.includes('lite')?'15 RPM/1000次每天':useModel.includes('pro')?'5 RPM/100次每天':'10 RPM/250次每天'}\n💡 建议：切换到 gemini-2.5-flash-lite（限额更高）或国内服务`);
-    if (res.status===404) throw new Error(`模型「${useModel}」不存在（404）。可能已下架。\n💡 建议：在设置中切换到 gemini-2.5-flash 或 gemini-2.5-flash-lite`);
-    throw new Error(`${m} (HTTP ${res.status})`);
-  }
-  const d = await res.json();
-  if (d.promptFeedback?.blockReason) {
-    throw new Error('Google 安全策略拦截：' + d.promptFeedback.blockReason);
-  }
-  const t = d.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!t) {
-    const finish = d.candidates?.[0]?.finishReason;
-    if (finish === 'MAX_TOKENS') throw new Error('Gemini 输出被截断（max_tokens 不足），请精简模板');
-    if (finish === 'SAFETY') throw new Error('Gemini 安全策略拦截了输出');
-    throw new Error('Gemini 未返回内容：' + JSON.stringify(d).slice(0,200));
-  }
-  return t;
-}
-
-async function callAnthropicCompat(provider, key, b64, mime, prompt) {
-  const modelOverride = cfg.models?.[cfg.prov];
-  const useModel = modelOverride || provider.model;
-  
-  const content = [
-    { type: 'text', text: prompt },
-    { type: 'image', source: { type: 'base64', media_type: mime, data: b64 } }
-  ];
-
-  const body = {
-    model: useModel,
-    max_tokens: provider.maxTokens || 8192,
-    temperature: 0,
-    messages: [{ role: 'user', content }]
-  };
-
-  let res;
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 90000);
-    res = await fetch(provider.endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'Authorization': 'Bearer ' + key  // Some proxies use Bearer auth
-      },
-      body: JSON.stringify(body),
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-  } catch(e) {
-    if (e.name === 'AbortError') throw new Error('请求超时（90秒无响应）');
-    throw new Error(`网络错误：无法连接 ${provider.fullName}\n请检查基础地址是否正确，以及网络连接`);
-  }
-  if (!res.ok) {
-    let er = {}; let raw = '';
-    try { raw = await res.text(); er = JSON.parse(raw); } catch(e){}
-    const m = er.error?.message || er.message || raw || `HTTP ${res.status}`;
-    if (res.status === 401) throw new Error('API Key 无效（401）：' + m);
-    if (res.status === 403) throw new Error('访问被拒绝（403）：' + m);
-    if (res.status === 429) throw new Error('频率超限（429），稍候');
-    if (res.status === 400) throw new Error(`请求错误（400）：${m}\n💡 检查模型ID「${useModel}」是否正确`);
-    throw new Error(`${m} (HTTP ${res.status})`);
-  }
-  const d = await res.json();
-  // Anthropic format: content is array of blocks
-  const textBlock = d.content?.find(c => c.type === 'text');
-  if (!textBlock?.text) {
-    // Fallback: try OpenAI format response (some proxies normalize)
-    const t = d.choices?.[0]?.message?.content;
-    if (t) return t;
-    throw new Error('AI 未返回内容：' + JSON.stringify(d).slice(0, 200));
-  }
-  return textBlock.text;
-}
-
-async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
-  // Use provider-specific quirks: image order, max_tokens
-  const content = provider.imageFirst
-    ? [
-        { type:'image_url', image_url:{ url:`data:${mime};base64,${b64}` } },
-        { type:'text', text: prompt }
-      ]
-    : [
-        { type:'text', text: prompt },
-        { type:'image_url', image_url:{ url:`data:${mime};base64,${b64}` } }
-      ];
-
-  // Use passed model or resolve from config
-  if (!useModel) {
-    const modelOverride = cfg.models?.[cfg.prov];
-    useModel = modelOverride || provider.model;
-  }
-
-  const body = {
-    model: useModel,
-    max_tokens: provider.maxTokens || 2000,
-    temperature: 0,
-    messages: [{ role:'user', content }],
-    ...(provider.extraBody || {})
-  };
-
-  let res;
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s timeout
-    res = await fetch(provider.endpoint, {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-      body: JSON.stringify(body),
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-  } catch(e) {
-    if (e.name === 'AbortError') {
-      throw new Error(`请求超时（90秒无响应）。\n💡 可能原因：模型响应慢（如智谱4.6v思考模式）、网络不稳定。\n建议：切换到更快的模型（如 glm-4v-flash、硅基流动）或重试`);
-    }
-    throw new Error(`网络错误：无法连接 ${provider.fullName}\n请检查网络或换个服务\n💡 部分 API（如腾讯混元）可能存在浏览器 CORS 限制，建议改用智谱AI或硅基流动`);
-  }
-  if (!res.ok) {
-    let er = {}; let raw = '';
-    try { raw = await res.text(); er = JSON.parse(raw); } catch(e){}
-    const m = er.error?.message || er.message || raw || `HTTP ${res.status}`;
-    const code = er.error?.code || er.code || '';
-    if (res.status===401) throw new Error('API Key 无效（401）：' + m);
-    if (res.status===403) {
-      let hint = '';
-      if (/overdue|欠费|欠款/i.test(m)) hint = '\n💡 提示：账户欠费，需前往云平台「费用中心」充值或开通免费额度后再试';
-      else if (/forbidden|权限|permission/i.test(m)) hint = '\n💡 提示：API Key 无权访问此模型，请检查授权范围';
-      else if (/region|区域|地域/i.test(m)) hint = '\n💡 提示：区域限制，请检查 API Key 对应的服务区域';
-      throw new Error(`访问被拒绝（403 ${code}）：${m}${hint}`);
-    }
-    if (res.status===429) throw new Error('频率超限（429），稍候');
-    if (res.status===413) throw new Error('图片过大（413），请降低渲染质量');
-    if (res.status===404) throw new Error(`模型「${useModel}」不存在（404）。可能已下架，请在设置中切换其他模型`);
-    if (res.status===400) {
-      let hint = '';
-      const isModelErr = /not a valid model|model.*not found|invalid model|模型.*不存在/i.test(m);
-      if (isModelErr) hint = `\n💡 提示：模型「${useModel}」可能不可用，请在设置中切换其他模型`;
-      else if (/image|图片|picture/i.test(m)) hint = '\n💡 提示：可能图片过大，建议「图片最大宽度」改 1200px';
-      else if (/token|长度|length/i.test(m)) hint = '\n💡 提示：模板字段过多，请精简模板';
-      else if (/model|模型/i.test(m)) hint = `\n💡 提示：模型「${useModel}」可能不可用，请在设置中切换其他模型`;
-      throw new Error(`请求错误（400 ${code}）：${m}${hint}`);
-    }
-    throw new Error(`${m} (HTTP ${res.status} ${code})`);
-  }
-  const d = await res.json();
-  if (d.error) throw new Error(d.error.message || '未知错误');
-  const choice = d.choices?.[0];
-  const finishReason = choice?.finish_reason;
-  let t = choice?.message?.content;
-
-  // Fallback: if content is empty but reasoning_content exists, the model burned all tokens on thinking
-  if (!t && choice?.message?.reasoning_content) {
-    // Try to extract JSON from reasoning content (last resort)
-    const reasoning = choice.message.reasoning_content;
-    const jsonMatch = reasoning.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return jsonMatch[0];
-    }
-    throw new Error(`模型「${useModel}」开启了思考模式，将所有 token 用于思考，未输出最终结果。\n💡 解决：在「设置」中切换其他模型（如 glm-4v-flash），或开发者关闭思考模式。\n\n思考片段：${reasoning.slice(0, 200)}…`);
-  }
-
-  if (!t) {
-    if (finishReason === 'length') {
-      throw new Error(`输出被截断（max_tokens 不足）。可能是图片复杂或字段过多。\n💡 解决：精简模板字段，或切换到更简单的模型`);
-    }
-    throw new Error('AI 未返回内容：' + JSON.stringify(d).slice(0,200));
-  }
-  return t;
-}
-
-/* 在线拉取模型（精简版未内置，给出提示）*/
-function fetchProviderModels(){ toast('精简版未内置在线拉取；请用下拉选择或填自定义模型 ID'); }
-function fetchOpenRouterModels(){ fetchProviderModels(); }
-
-/* ===== 设置弹窗（暖色风格，沿用本系统配色）===== */
-const TINY_JPEG_B64 = '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAEAAQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7LooooA//2Q==';
-function openSet(){ selectProv(cfg.prov); $('setBg').classList.add('on'); }
-function closeSet(){ $('setBg').classList.remove('on'); }
-function renderSetTabs(){
-  const host=$('setTabs'); if(!host) return; host.innerHTML='';
-  Object.keys(PROVIDERS).forEach(id=>{
-    const p=PROVIDERS[id];
-    const b=document.createElement('button'); b.className='set-tab'+(id===cfg.prov?' on':'');
-    b.innerHTML=(p.emoji||'🔹')+' '+esc(p.name)+((p.badges&&p.badges[0])?('<span class="b">'+esc(p.badges[0])+'</span>'):'');
-    b.onclick=()=>selectProv(id);
-    host.appendChild(b);
-  });
-}
-function renderModelOptions(){
-  const p=PROVIDERS[cfg.prov]; const sel=$('setModel'); const ci=$('setModelCustom'); if(!sel) return;
-  const cur=(cfg.models&&cfg.models[cfg.prov])||p.model||'';
-  if(cfg.prov==='custom'){ sel.style.display='none'; if(ci){ci.style.display='';ci.value=cur;ci.placeholder='自定义模型 ID（如 gpt-4o / qwen-vl-max / google/gemini-2.5-flash）';} return; }
-  sel.style.display=''; sel.innerHTML='';
-  const models=p.altModels||[];
-  if(!models.length){ const o=document.createElement('option'); o.value=p.model||''; o.textContent=p.model||'(默认)'; sel.appendChild(o); }
-  let matched=false;
-  models.forEach(m=>{ const o=document.createElement('option'); o.value=m.id; o.textContent=(m.tag?m.tag+' ':'')+m.id+(m.desc?('  —  '+m.desc):''); if(m.id===cur){o.selected=true;matched=true;} sel.appendChild(o); });
-  if(ci){ ci.style.display=''; ci.placeholder='或输入自定义模型 ID…'; ci.value = matched?'':((cur&&cur!==p.model)?cur:''); }
-}
-function onSetModel(){ const v=$('setModel').value; cfg.models[cfg.prov]=v; if($('setModelCustom'))$('setModelCustom').value=''; localStorage.setItem('phck_models',JSON.stringify(cfg.models)); updateAiStatus(); }
-function onSetModelCustom(){ const v=($('setModelCustom').value||'').trim(); if(v){cfg.models[cfg.prov]=v;}else{delete cfg.models[cfg.prov];} localStorage.setItem('phck_models',JSON.stringify(cfg.models)); updateAiStatus(); }
-function renderGuide(){ const g=$('setGuide'); if(g) g.innerHTML = PROVIDERS[cfg.prov].guide || '填入 API Key 后点「测试连接」。'; }
-function selectProv(id){
-  if(!PROVIDERS[id]) id='zhipu';
-  cfg.prov=id; localStorage.setItem('phck_prov',id);
-  renderSetTabs();
-  const p=PROVIDERS[id];
-  const ki=$('setKey'); if(ki) ki.value = p.useOpenRouterKey ? (cfg.keys.openrouter||'') : (cfg.keys[id]||'');
-  const cb=$('setCustomBox'); if(cb) cb.style.display=(id==='custom')?'':'none';
-  if(id==='custom'){ const c=cfg.custom||{}; if($('setCustomBase'))$('setCustomBase').value=c.endpoint||''; if($('setCustomType'))$('setCustomType').value=c.apiType||'openai'; }
-  renderModelOptions(); renderGuide(); setTestResult('',''); updateAiStatus();
-}
-function saveKey(){
-  const v=($('setKey').value||'').trim(); const p=PROVIDERS[cfg.prov];
-  const target = p.useOpenRouterKey ? 'openrouter' : cfg.prov;
-  if(v) cfg.keys[target]=v; else delete cfg.keys[target];
-  localStorage.setItem('phck_keys',JSON.stringify(cfg.keys));
-  if(cfg.prov==='custom'){
-    cfg.custom=cfg.custom||{};
-    cfg.custom.endpoint=($('setCustomBase').value||'').trim();
-    cfg.custom.apiType=$('setCustomType').value;
-    localStorage.setItem('so_custom',JSON.stringify(cfg.custom));
-    const m=($('setModelCustom').value||'').trim(); if(m){cfg.models.custom=m;localStorage.setItem('phck_models',JSON.stringify(cfg.models));}
-    syncCustomProvider();
-  }
-  toast('✅ 已保存（只存在本机浏览器）'); updateAiStatus();
-}
-function setTestResult(msg,cls){ const el=$('setTestRes'); if(!el)return; el.textContent=msg; el.className='set-testres'+(cls?(' '+cls):''); }
-async function testConnection(){
-  if(cfg.prov==='custom') syncCustomProvider();
-  const p=PROVIDERS[cfg.prov]; const key=getEffectiveKey();
-  if(!key){ setTestResult('请先填写并「保存」API Key',  'bad'); return; }
-  if(cfg.prov==='custom' && !PROVIDERS.custom.endpoint){ setTestResult('请先填写并保存自定义 API 端点','bad'); return; }
-  const btn=$('setTestBtn'); if(btn)btn.disabled=true;
-  setTestResult('⏳ 测试中…（发送一张极小测试图）','run');
-  try{
-    const t=await callAI(TINY_JPEG_B64,'image/jpeg','这是连接测试，请只回复两个字：可用');
-    setTestResult('✅ 连接成功 · 模型「'+getEffectiveModel()+'」已响应：'+String(t).replace(/\s+/g,' ').slice(0,40),'ok');
-  }catch(e){ setTestResult('❌ 失败：'+((e&&e.message)||e),'bad'); }
-  if(btn)btn.disabled=false;
-}
-function updateAiStatus(){
-  const el=$('aiStatus'); if(!el) return;
-  const p=PROVIDERS[cfg.prov]; const m=getEffectiveModel()||'(未选模型)'; const hasKey=!!getEffectiveKey();
-  el.innerHTML='AI 服务：<b>'+esc(p?p.name:'-')+'</b> · 模型 <b>'+esc(m)+'</b> · '+(hasKey?'<span style="color:var(--ok)">已配置 Key</span>':'<span style="color:var(--bad)">未配置 Key</span>')+'<button class="gobtn" onclick="openSet()">⚙ 设置 / 测试连接</button>';
-}
-
-async function callWithRetry(prompt,b64,mime){
-  let last;
-  for(let a=0;a<=3;a++){
-    try{return await callAI(b64,mime,prompt);}
-    catch(e){
-      last=e;
-      const msg=e.message||'';
-      // 余额不足 / 模型不存在 → 不重试，直接抛（换模型才有用）
-      if(/balance|insufficient|not found|不支持|invalid_request|unauthor|401|403|404/i.test(msg))throw e;
-      const r=/rate|too many|429|overload|529/i.test(msg);
-      const s=/5\d\d|server/i.test(msg);
-      if((r||s)&&a<3){await sleep((r?5000:2500)*(a+1));continue;}
-      throw e;
-    }
-  }
-  throw last;
-}
+/* —— 无需 API：已移除全部 AI 识别 / 模型调用 / 设置面板代码。
+     本系统为「导入 Excel（同名英文变量）+ 逐条上传原件 + 人工左右核对」的纯前端工具，不联网、不需任何 API Key。 —— */
 
 /* ════════════════════════════════════════════════════════════════
    多系统引擎（本文件为新写：PDF 解析+按页拆分 / 逐系统提示词 /
@@ -2510,6 +1951,8 @@ let curSys=null;
 let running=false;
 let _impSnap=null;   // 套对快照（用于「清除套对」回滚）
 let _rvId=null,_rvZoom=1;
+let rvEditMode=false;   // 核对窗右侧是否处于「字段编辑」
+let _feDrag=null;       // 字段编辑拖动索引
 function curRec(){return records.find(x=>x.id===_rvId);}
 function uid(){return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 
@@ -2534,11 +1977,14 @@ ${sys.extractHint?('\n【本表说明】'+sys.extractHint):''}
 【输出】只输出一个紧凑 JSON 对象（${sys.expandKey?'务必按上面说明用 {"rows":[...]} 结构':'键为上面的英文变量名'}）：不换行、不缩进、无 Markdown、无注释、无多余文字。值一律用字符串；本页没填的字段省略或 null。`;
 }
 function neuroPrompt(sys,page){
-  const items=NEURO_ITEMS.filter(it=>it.page===page);
-  const idn = page===1 ? (NEURO_IDENTITY.map(f=>`- ${f.key}｜${f.label}`).join('\n')+'\n') : '';
-  const lines = items.map(it=>{
+  ensureMeta(sys);
+  const idFields=(sys.fields||[]).filter(f=>(f.page||1)===page && !f.neuro && !f.neuroM);
+  const idn=idFields.length?(idFields.map(f=>`- ${f.key}｜${f.label}`).join('\n')+'\n'):'';
+  const items=neuroItemsFromFields(sys,page);
+  const lines=items.map(it=>{
     const opt=it.opts.map(o=>`${o[1]}=${o[0]}`).join('、');
-    return `- ${it.key}_m｜${it.no}.${it.name}·打勾所在月龄(1-12)\n- ${it.key}_r｜${it.no}.${it.name}·结果/形式（${opt}）`;
+    const base=it.rField.key.replace(/_r$/,'');
+    return `- ${it.mKey}｜${it.no}.${it.name}·打勾所在月龄(1-12)\n- ${it.rField.key}｜${it.no}.${it.name}·结果/形式（${opt}）`;
   }).join('\n');
   return `你是表单转写器，正在识别《婴幼儿神经运动检查记录表》第 ${page} 页。按图填空并立即输出 JSON，禁止任何分析、推理或思考过程。
 
@@ -2628,7 +2074,7 @@ async function addFiles(fileList){
 
 /* ════════════ 识别队列 ════════════ */
 function setBusy(b){ $('runBtn').textContent=b?'识别中…':'▶ 开始识别'; refreshQueueUI(); }
-function setProg(frac,msg){const p=$('prog');if(frac<0){p.classList.remove('on');return;}p.classList.add('on');$('barFill').style.width=Math.round(Math.max(0,Math.min(1,frac))*100)+'%';$('progLbl').textContent=(msg||'');}
+function setProg(frac,msg){const p=$('prog');if(!p)return;if(frac<0){p.classList.remove('on');return;}p.classList.add('on');const bf=$('barFill');if(bf)bf.style.width=Math.round(Math.max(0,Math.min(1,frac))*100)+'%';const pl=$('progLbl');if(pl)pl.textContent=(msg||'');}
 
 async function runAll(){
   if(running)return;
@@ -2720,7 +2166,7 @@ function statPill(r){
 }
 function renderResults(){
   const wrap=$('resWrap');
-  if(!records.length){wrap.innerHTML='<div class="empty">还没有记录。上传 PDF / 图片后点「开始识别」，或在上方直接导入变量表 / 手动新增一条录入。</div>';$('rmeta').textContent='0 条';return;}
+  if(!records.length){wrap.innerHTML='<div class="empty">还没有记录。请在上方<b>导入 Excel / CSV</b>（同名英文变量），或「手动新增一条」录入。</div>';$('rmeta').textContent='0 条';return;}
   $('rmeta').textContent=records.length+' 条';
   const total=curSys.expandKey?0:curSys._leafKeys.length;
   let h='<table class="rtable"><thead><tr><th>文件 / 记录</th><th>ID</th><th>姓名 / 样本</th><th>状态</th><th>已填</th><th></th></tr></thead><tbody>';
@@ -2735,37 +2181,29 @@ function renderResults(){
       <td class="k">${fillTxt}</td>
       <td style="white-space:nowrap">
         ${r.data?`<button class="linkbtn" onclick="openReview('${r.id}')">🔍 点击核对</button>&nbsp;`:''}
-        ${r.status==='error'?`<button class="linkbtn" style="color:var(--warn)" onclick="retryRecord('${r.id}')">↻ 重试</button>&nbsp;`:''}
         <button class="linkbtn del" onclick="delRec('${r.id}')">删除</button>
       </td></tr>`;
   }
   h+='</tbody></table>';wrap.innerHTML=h;
 }
 function refreshQueueUI(){
-  $('qmeta').textContent=records.length?`${records.length} 条`:'—';
-  $('runBtn').disabled=running||!records.some(r=>r.status==='pending'||r.status==='error');
-  $('clearBtn').disabled=running||!records.length;
+  const qm=$('qmeta');if(qm)qm.textContent=records.length?`${records.length} 条`:'—';
   const ok=records.some(r=>r.data&&countFilled(r)>0);
-  $('xlsxBtn').disabled=!ok;$('tsvBtn').disabled=!ok;
+  const xb=$('xlsxBtn'),tb=$('tsvBtn');if(xb)xb.disabled=!ok;if(tb)tb.disabled=!ok;
 }
 
 /* ════════════ 核对窗（左原图无级缩放 / 右可改字段） ════════════ */
 function reviewableIds(){return records.filter(r=>r.data).map(r=>r.id);}
 function openReview(id){
   const r=records.find(x=>x.id===id);if(!r||!r.data)return;
-  _rvId=id;_rvZoom=1;setupSplitter();setupPanZoom();
+  _rvId=id;_rvZoom=1;rvEditMode=false;
+  const eb=$('rvEditBtn');if(eb){eb.classList.remove('on');eb.textContent='✎ 编辑字段';}
+  $('rvRightT').textContent='识别字段 · 量表点格即选 · 点页标题左图跳页';
+  setupSplitter();setupPanZoom();
   $('rvTitle').textContent='🔍 '+curSys.name+' · '+recLabel(r);
-  const pe=$('rvPages');pe.innerHTML='';
-  $('rvPgc').textContent=r.pages.length>1?`共 ${r.pages.length} 页`:'原件';
-  if(r.pages.length){
-    const layer=document.createElement('div');layer.className='rv-zlayer';layer.id='rvZlayer';
-    r.pages.forEach((p,i)=>{const w=document.createElement('div');w.className='rv-pw';
-      w.innerHTML=(r.pages.length>1?`<div class="rv-pn">第 ${i+1} / ${r.pages.length} 页</div>`:'')+`<img class="rv-img" src="${p.dataUrl}" draggable="false">`;
-      layer.appendChild(w);});
-    pe.appendChild(layer);
-    layer.querySelectorAll('img').forEach(img=>img.onload=()=>applyZoom());
-  }else pe.innerHTML='<div style="color:rgba(255,255,255,.6);padding:40px;text-align:center;font-size:13px">无原图</div>';
-  requestAnimationFrame(()=>{applyZoom();pe.scrollTop=0;pe.scrollLeft=0;});
+  if(!Array.isArray(r.pages))r.pages=[];
+  setupOrigDrop();
+  rvRenderLeft(r);
   renderFields(r);
   const ids=reviewableIds(),idx=ids.indexOf(id);
   $('rvPos').textContent=ids.length?`${idx+1} / ${ids.length}`:'—';
@@ -2775,8 +2213,70 @@ function openReview(id){
 function closeReview(){$('rvBg').classList.remove('on');document.body.style.overflow='';_rvId=null;renderResults();refreshQueueUI();}
 function reviewStep(d){const ids=reviewableIds(),i=ids.indexOf(_rvId)+d;if(i>=0&&i<ids.length)openReview(ids[i]);}
 
+/* —— 核对窗左侧：渲染原件 / 逐条上传原件（图片 / PDF）—— */
+function rvRenderLeft(r){
+  const pe=$('rvPages');if(!pe)return;pe.innerHTML='';
+  const n=(r.pages&&r.pages.length)||0;
+  const pgc=$('rvPgc');if(pgc)pgc.textContent=n>1?`原件 · 共 ${n} 页`:(n===1?'原件':'未上传原件');
+  const clr=$('rvOrigClear');if(clr)clr.style.display=n?'':'none';
+  const up=$('rvOrigBtn');if(up)up.textContent=n?'🔁 更换原件':'📎 上传原件';
+  if(n){
+    const layer=document.createElement('div');layer.className='rv-zlayer';layer.id='rvZlayer';
+    r.pages.forEach((pp,i)=>{const w=document.createElement('div');w.className='rv-pw';
+      w.innerHTML=(n>1?`<div class="rv-pn">第 ${i+1} / ${n} 页</div>`:'')+`<img class="rv-img" src="${pp.dataUrl}" draggable="false">`;
+      layer.appendChild(w);});
+    pe.appendChild(layer);
+    layer.querySelectorAll('img').forEach(img=>img.onload=()=>applyZoom());
+    requestAnimationFrame(()=>{applyZoom();pe.scrollTop=0;pe.scrollLeft=0;});
+  }else{
+    const dz=document.createElement('div');dz.className='rv-droporig';dz.id='rvDropOrig';
+    dz.innerHTML=`<div class="rv-droporig-in">
+      <div class="big">📎 点击或拖入「本条记录的原件」</div>
+      <div class="sub">支持 图片（JPG / PNG / WEBP）或 PDF，可多选多页。<br>上传后即可与右侧字段<b>左右对照</b>，由你人工核对（左原件 · 右数据）。</div>
+      <button class="btn primary" id="rvDropPick" type="button">选择文件</button>
+      <div class="sub2">本条暂无原件也可直接在右侧核对 / 修改数据。</div>
+    </div>`;
+    pe.appendChild(dz);
+    const pick=dz.querySelector('#rvDropPick');if(pick)pick.onclick=e=>{e.stopPropagation();$('rvOrigFile').click();};
+    dz.onclick=()=>$('rvOrigFile').click();
+  }
+}
+async function rvUploadOrigin(fileList){
+  const r=curRec();if(!r)return;
+  const isPdf=f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf';
+  const isImg=f=>/^image\//.test(f.type)||/\.(png|jpe?g|webp|gif|bmp)$/i.test(f.name);
+  const files=[...fileList].filter(f=>isPdf(f)||isImg(f));
+  if(!files.length){toast('请选择 图片 或 PDF 文件');return;}
+  toast('正在载入原件…');
+  const pages=[];
+  for(const f of files){
+    if(isPdf(f)){
+      try{const ps=await renderPdf(f);ps.forEach(pp=>pages.push({dataUrl:pp.dataUrl,b64:pp.b64,mime:'image/jpeg'}));}
+      catch(e){toast('PDF 解析失败：'+((e&&e.message)||e));}
+    }else{
+      try{const d=await bReadImage(f);pages.push({dataUrl:d,b64:d.split(',')[1],mime:f.type||'image/png'});}catch(_){}
+    }
+  }
+  if(!pages.length){toast('未读到可用页面');return;}
+  r.pages=pages;_rvZoom=1;
+  rvRenderLeft(r);
+  toast('原件已载入 '+pages.length+' 页（可缩放 / 拖动 / 双击放大）');
+}
+function rvClearOrigin(){
+  const r=curRec();if(!r||!(r.pages&&r.pages.length))return;
+  if(!confirm('清除本条记录已上传的原件？（不影响右侧数据）'))return;
+  r.pages=[];_rvZoom=1;rvRenderLeft(r);
+}
+function setupOrigDrop(){
+  const pe=$('rvPages');if(!pe||pe._od)return;pe._od=1;
+  ['dragenter','dragover'].forEach(ev=>pe.addEventListener(ev,e=>{e.preventDefault();const d=$('rvDropOrig');if(d)d.classList.add('over');}));
+  pe.addEventListener('dragleave',e=>{const d=$('rvDropOrig');if(d)d.classList.remove('over');});
+  pe.addEventListener('drop',e=>{e.preventDefault();const d=$('rvDropOrig');if(d)d.classList.remove('over');if(e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files.length)rvUploadOrigin(e.dataTransfer.files);});
+}
+
 function renderFields(r){
   const host=$('rvFields');host.innerHTML='';
+  if(rvEditMode){renderRvFieldEditor(host);return;}
   if(curSys.reviewMode==='neuro') neuroRender(host,r);
   else if(curSys.reviewMode==='screen') screenRender(host,r);
   else if(curSys.reviewMode==='health') healthRender(host,r);
@@ -2788,6 +2288,167 @@ function totalCount(){
   return curSys._leafKeys.length;
 }
 function updateFill(r){$('rvFill').textContent='已填 '+countFilled(r)+' / '+totalCount();}
+
+/* ════════════════════════════════════════════════════════════════
+   核对窗内·字段编辑器（拖动排序 / 改名 / 改类型 / 增 / 删 / 插入新变量）
+   作用于 curSys.fields，对「每个模块」生效，并持久化到本机。
+════════════════════════════════════════════════════════════════ */
+const OVERRIDE_LS='phck_overrides';   // 各系统字段结构覆盖（内置+自建都durable）
+function fieldsSnapshot(sys){
+  return (sys.fields||[]).map(f=>{
+    const o={key:f.key,label:f.label,type:f.type,page:f.page||1,group:f.group};
+    if(f.options&&f.options.length)o.options=f.options;
+    if(f.optLabels)o.optLabels=f.optLabels;
+    if(f.hint)o.hint=f.hint;
+    if(f.neuro)o.neuro=f.neuro;
+    if(f.neuroM)o.neuroM=f.neuroM;
+    if(f.neuroId)o.neuroId=f.neuroId;
+    if(f.kind)o.kind=f.kind;
+    if(f.columns)o.columns=f.columns;
+    if(f.rows)o.rows=f.rows;
+    return o;
+  });
+}
+function persistFields(sys){
+  let all={};try{all=JSON.parse(localStorage.getItem(OVERRIDE_LS)||'{}');}catch(_){}
+  all[sys.id]=fieldsSnapshot(sys);
+  try{localStorage.setItem(OVERRIDE_LS,JSON.stringify(all));}catch(e){toast('保存失败（本机存储已满？）');}
+  if(sys.custom&&typeof saveCustomSystems==='function')saveCustomSystems();
+}
+function applyOverrides(){
+  let all={};try{all=JSON.parse(localStorage.getItem(OVERRIDE_LS)||'{}');}catch(_){return;}
+  Object.keys(all).forEach(id=>{
+    const s=SYS_BY[id];if(s&&Array.isArray(all[id])&&all[id].length){s.fields=all[id];s._leaf=null;ensureMeta(s);}
+  });
+}
+function resetFields(sys){
+  let all={};try{all=JSON.parse(localStorage.getItem(OVERRIDE_LS)||'{}');}catch(_){}
+  delete all[sys.id];try{localStorage.setItem(OVERRIDE_LS,JSON.stringify(all));}catch(_){}
+}
+function refreshSysMeta(){curSys._leaf=null;ensureMeta(curSys);}
+
+function toggleRvEdit(){
+  rvEditMode=!rvEditMode;
+  const b=$('rvEditBtn');if(b){b.classList.toggle('on',rvEditMode);b.textContent=rvEditMode?'✓ 完成编辑':'✎ 编辑字段';}
+  $('rvRightT').textContent=rvEditMode?'编辑字段结构 · 拖 ⠿ 排序 · ＋插入 · ✕删除（改动对本模块永久生效）':'识别字段 · 量表点格即选 · 点页标题左图跳页';
+  if(!rvEditMode){persistFields(curSys);refreshSysMeta();}
+  renderFields(curRec());
+}
+function feSanitize(s){let k=String(s||'').trim().toLowerCase().replace(/[^a-z0-9_]+/g,'_').replace(/^_+|_+$/g,'').replace(/_+/g,'_');if(!k)k='field';if(/^[0-9]/.test(k))k='f_'+k;return k.slice(0,40);}
+function feUniqueKey(base,exclIdx){const seen=new Set(curSys.fields.map((f,i)=>i===exclIdx?null:f.key).filter(Boolean));let k=base,i=2;while(seen.has(k)){k=base+'_'+i;i++;}return k;}
+
+function renderRvFieldEditor(host){
+  const wrap=document.createElement('div');wrap.className='rv-fe';
+  const tip=document.createElement('div');tip.className='fe-tip';
+  tip.innerHTML=`正在编辑 <b>${esc(curSys.name)}</b> 的字段。拖动 <b>⠿</b> 调整顺序；改<b>变量名/标签/页/类型</b>；点行间 <b>＋</b> 在此处插入新变量；<b>✕</b> 删除该字段。神经运动项目（青色左条）成对的「评估月龄/结果」会一并删除。改动<b>对本模块永久生效</b>并保存在本机。`;
+  wrap.appendChild(tip);
+  const head=document.createElement('div');head.className='fe-head';
+  head.innerHTML='<span></span><span>页</span><span>变量名 key</span><span>中文标签</span><span>类型</span><span>可选值/类型</span><span></span>';
+  wrap.appendChild(head);
+
+  curSys.fields.forEach((f,i)=>{
+    /* 行间插入按钮 */
+    const ins=document.createElement('button');ins.className='fe-ins';ins.textContent='＋ 在此插入新变量';ins.onclick=()=>feInsert(i);wrap.appendChild(ins);
+
+    const isNeuro=!!(f.neuro||f.neuroM);
+    const row=document.createElement('div');row.className='fe-row'+(isNeuro?' is-neuro':'');row.dataset.i=i;
+    const optHide=f.type==='select'?'':' hide';
+    const neuroLock=!!f.neuro;  // 神经结果字段：选项跟随统一类型，锁定
+    row.innerHTML=`
+      <div class="fe-drag" title="拖动排序">⠿</div>
+      <input class="pg" type="number" min="1" value="${f.page||1}" data-i="${i}" data-f="page">
+      <input class="k" value="${esc(f.key)}" data-i="${i}" data-f="key" spellcheck="false">
+      <input value="${esc(f.label||'')}" data-i="${i}" data-f="label">
+      <select data-i="${i}" data-f="type"${isNeuro?' disabled':''}>
+        <option value="text"${f.type==='text'?' selected':''}>文本</option>
+        <option value="number"${f.type==='number'?' selected':''}>数字</option>
+        <option value="select"${f.type==='select'?' selected':''}>选项</option>
+        <option value="date"${f.type==='date'?' selected':''}>日期</option>
+      </select>
+      ${neuroLock
+        ? `<input class="fe-opt" value="${esc('统一类型：'+(NEURO_VT[f.neuro.vt]?NEURO_VT[f.neuro.vt].name:f.neuro.vt))}" disabled title="神经运动结果选项跟随统一值类型">`
+        : `<input class="fe-opt${optHide}" placeholder="逗号分隔" value="${esc((f.options||[]).join(','))}" data-i="${i}" data-f="options">`}
+      <button class="fe-del" data-i="${i}" title="删除字段">✕</button>`;
+    wrap.appendChild(row);
+  });
+  /* 末尾插入 */
+  const insEnd=document.createElement('button');insEnd.className='fe-ins';insEnd.textContent='＋ 在末尾添加新变量';insEnd.onclick=()=>feInsert(curSys.fields.length);wrap.appendChild(insEnd);
+
+  /* 操作区 */
+  const act=document.createElement('div');act.className='fe-act';
+  const addNeuro=(curSys.reviewMode==='neuro');
+  if(addNeuro){
+    const bn=document.createElement('button');bn.className='btn';bn.textContent='＋ 新增一个发育项目（统一类型）';bn.onclick=feAddNeuroItem;act.appendChild(bn);
+  }
+  const reset=document.createElement('button');reset.className='btn ghost';reset.textContent='↺ 恢复本模块默认字段';reset.onclick=feResetDefault;act.appendChild(reset);
+  const count=document.createElement('span');count.style.cssText='font-size:11.5px;color:var(--ink3);font-family:var(--mono)';count.textContent=curSys.fields.length+' 字段';act.appendChild(count);
+  wrap.appendChild(act);
+
+  /* 绑定编辑 / 删除 / 拖动 */
+  wrap.querySelectorAll('.fe-row input,.fe-row select').forEach(el=>el.addEventListener(el.tagName==='SELECT'?'change':'change',()=>feEdit(el)));
+  wrap.querySelectorAll('.fe-del').forEach(b=>b.addEventListener('click',()=>feDelete(+b.dataset.i)));
+  wrap.querySelectorAll('.fe-row').forEach(r=>{
+    const h=r.querySelector('.fe-drag');h.draggable=true;
+    h.addEventListener('dragstart',e=>{_feDrag=+r.dataset.i;r.classList.add('dragging');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',String(_feDrag));}catch(_){}});
+    h.addEventListener('dragend',()=>{_feDrag=null;wrap.querySelectorAll('.fe-row').forEach(x=>x.classList.remove('dragging','over'));});
+    r.addEventListener('dragover',e=>{if(_feDrag==null)return;e.preventDefault();r.classList.add('over');});
+    r.addEventListener('dragleave',()=>r.classList.remove('over'));
+    r.addEventListener('drop',e=>{e.preventDefault();r.classList.remove('over');const to=+r.dataset.i;const from=_feDrag;_feDrag=null;if(from==null||from===to)return;const moved=curSys.fields.splice(from,1)[0];curSys.fields.splice(to,0,moved);feCommit(true);});
+  });
+  host.appendChild(wrap);
+}
+function feEdit(el){
+  const i=+el.dataset.i,fld=curSys.fields[i];if(!fld)return;const f=el.dataset.f;
+  if(f==='page')fld.page=Math.max(1,parseInt(el.value)||1);
+  else if(f==='label')fld.label=el.value;
+  else if(f==='type'){fld.type=el.value;if(fld.type==='select'&&!fld.options)fld.options=[];feCommit(true);return;}
+  else if(f==='options'){fld.options=el.value.split(/[,，、|]/).map(s=>s.trim()).filter(Boolean);delete fld.optLabels;}
+  else if(f==='key'){
+    const nk=feUniqueKey(feSanitize(el.value),i);const ok=fld.key;
+    if(nk!==ok){records.forEach(r=>{if(r.data&&Object.prototype.hasOwnProperty.call(r.data,ok)){r.data[nk]=r.data[ok];delete r.data[ok];}});fld.key=nk;}
+    feCommit(true);return;
+  }
+  feCommit(false);
+}
+function feInsert(idx){
+  const nf={key:feUniqueKey('field',-1),label:'',type:'text',page:curSys.fields[Math.max(0,idx-1)]?.page||1,group:(curSys.reviewMode==='neuro'?'附加字段':'识别字段'),options:[]};
+  curSys.fields.splice(idx,0,nf);feCommit(true);
+}
+function feAddNeuroItem(){
+  const maxNo=Math.max(0,...curSys.fields.filter(f=>f.neuro).map(f=>f.neuro.no||0));
+  const no=maxNo+1;const base=feUniqueKey('item'+no,-1).replace(/_m$|_r$/,'');
+  const pg=Math.max(1,...curSys.fields.map(f=>f.page||1));
+  const opts=NEURO_VT.tri.opts;
+  curSys.fields.push({key:base+'_m',label:`${no}.新项目·评估月龄`,type:'number',page:pg,group:'发育项目',hint:'打勾所在月龄 1-12',neuroM:{no,name:'新项目'}});
+  curSys.fields.push({key:base+'_r',label:`${no}.新项目·结果/形式`,type:'select',options:opts.map(o=>o[1]),optLabels:opts,page:pg,group:'发育项目',neuro:{no,name:'新项目',vt:'tri'}});
+  feCommit(true);
+}
+function feDelete(i){
+  const fld=curSys.fields[i];if(!fld)return;
+  const base=fld.key.replace(/_[mr]$/,'');
+  const isPair=!!(fld.neuro||fld.neuroM);
+  if(isPair){
+    if(!confirm('删除发育项目「'+(fld.neuro?fld.neuro.name:fld.neuroM&&fld.neuroM.name||base)+'」及其评估月龄/结果两个字段？'))return;
+    curSys.fields=curSys.fields.filter(f=>f.key!==base+'_m'&&f.key!==base+'_r');
+  }else{
+    if(!confirm('删除字段「'+(fld.label||fld.key)+'」？'))return;
+    curSys.fields.splice(i,1);
+  }
+  feCommit(true);
+}
+function feResetDefault(){
+  if(!confirm('恢复「'+curSys.name+'」的默认字段结构？你对本模块字段的所有改动将被清除。'))return;
+  resetFields(curSys);
+  if(curSys.reviewMode==='neuro')curSys.fields=buildNeuroFields();
+  else if(curSys._defaultFields)curSys.fields=curSys._defaultFields.map(f=>({...f}));
+  else toast('该模块无内置默认快照');
+  refreshSysMeta();
+  renderFields(curRec());
+}
+function feCommit(rerender){
+  refreshSysMeta();persistFields(curSys);
+  if(rerender)renderFields(curRec());
+}
 
 /* —— 通用控件 —— */
 function makeRow(f,val,imp){
@@ -2815,9 +2476,10 @@ function onEdit(el){
   r.filled=countFilled(r);updateFill(r);
 }
 function toggleCell(cell){
-  const r=curRec();if(!r)return;const k=cell.dataset.k,v=cell.dataset.v;const tr=cell.closest('tr');
+  const r=curRec();if(!r)return;const k=cell.dataset.k,v=cell.dataset.v;
+  const row=cell.closest('tr')||cell.closest('.neuro-mstrip')||cell.parentElement;
   const already=cell.classList.contains('on');
-  tr.querySelectorAll('.rv-cell').forEach(c=>{c.classList.remove('on');c.classList.remove('imp');});
+  if(row)row.querySelectorAll('.rv-cell,.neuro-mcell').forEach(c=>{c.classList.remove('on');c.classList.remove('imp');});
   if(already){r.data[k]='';}else{cell.classList.add('on');r.data[k]=v;}
   if(r.imported)delete r.imported[k];
   r.filled=countFilled(r);updateFill(r);
@@ -2926,41 +2588,73 @@ function buildExpandRec(r,row,ri){
   box.appendChild(b);return box;
 }
 
-/* —— 神经运动：身份行 + 两页里程碑网格（点月龄格＝评估月龄，选结果/形式） —— */
+/* —— 神经运动：身份/附加字段（从当前系统字段渲染）+ 统一的发育项目积木块 —— */
 function neuroRender(host,r){
-  for(const pg of [1,2]){
-    const sec=document.createElement('div');sec.className='rv-sec'+(pg===1?' cur':'');sec.dataset.page=pg;
-    sec.textContent=`第 ${pg} 页 · ${pg===1?'身份/检查记录 + 项目 1–9':'项目 10–20'}（点此定位左侧原件）`;
-    sec.onclick=()=>jumpToPage(pg);host.appendChild(sec);
-    if(pg===1){
-      const cap=document.createElement('div');cap.className='rv-gcap';cap.textContent='身份信息 / 检查记录';host.appendChild(cap);
-      NEURO_IDENTITY.forEach(f=>host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key])));
+  const pages=[...new Set((curSys.fields||[]).map(f=>f.page||1))].sort((a,b)=>a-b);
+  (pages.length?pages:[1,2]).forEach((pg,idx)=>{
+    const sec=document.createElement('div');sec.className='rv-sec'+(idx===0?' cur':'');sec.dataset.page=pg;
+    sec.textContent=`第 ${pg} 页（点此定位左侧原件）`;sec.onclick=()=>jumpToPage(pg);host.appendChild(sec);
+    /* 身份 / 附加普通字段（非发育项目网格的字段），按 curSys.fields 顺序 */
+    const normalFields=curSys.fields.filter(f=>(f.page||1)===pg && !f.neuro && !f.neuroM);
+    if(normalFields.length){
+      const groups=[...new Set(normalFields.map(f=>f.group||'身份信息'))];
+      groups.forEach(g=>{
+        const cap=document.createElement('div');cap.className='rv-gcap';cap.textContent=g;host.appendChild(cap);
+        normalFields.filter(f=>(f.group||'身份信息')===g).forEach(f=>{
+          if(f.type==='table')host.appendChild(buildMiniTable(r,f));
+          else host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key]));
+        });
+      });
     }
-    const cap2=document.createElement('div');cap2.className='rv-gcap';cap2.textContent='发育项目（点 1–12 月龄格＝评估月龄，右侧选结果/形式）';host.appendChild(cap2);
-    host.appendChild(buildNeuroGrid(r,pg));
-  }
+    /* 发育项目：每项一个统一积木块 */
+    const items=neuroItemsFromFields(curSys,pg);
+    if(items.length){
+      const cap2=document.createElement('div');cap2.className='rv-gcap';cap2.textContent='发育项目（点 1–12 月龄格＝评估月龄；下方选结果/形式，同类外观一致）';host.appendChild(cap2);
+      host.appendChild(buildNeuroGrid(r,pg,items));
+    }
+  });
 }
-function buildNeuroGrid(r,pg){
-  const items=NEURO_ITEMS.filter(it=>it.page===pg);
-  const tbl=document.createElement('table');tbl.className='rv-gtbl';
-  const colg=document.createElement('colgroup');let cg='<col>';for(let i=0;i<12;i++)cg+='<col class="optcol">';cg+='<col style="width:130px">';colg.innerHTML=cg;tbl.appendChild(colg);
-  const thead=document.createElement('thead');let th='<tr><th class="q">项目</th>';for(let m=1;m<=12;m++)th+=`<th>${m}</th>`;th+='<th>结果/形式</th></tr>';thead.innerHTML=th;tbl.appendChild(thead);
-  const tb=document.createElement('tbody');
+function buildNeuroGrid(r,pg,items){
+  items=items||neuroItemsFromFields(curSys,pg);
+  const wrap=document.createElement('div');wrap.className='neuro-wrap';
   items.forEach(it=>{
-    const mk=it.key+'_m',rk=it.key+'_r';
+    const mk=it.mKey, rk=it.rField.key;
     const mv=r.data[mk]==null?'':String(r.data[mk]);
     const rv=r.data[rk]==null?'':String(r.data[rk]);
-    const tr=document.createElement('tr');tr.dataset.k=mk;
-    let h=`<td class="q"><span class="qn">${it.no}</span>${esc(it.name)}</td>`;
-    for(let m=1;m<=12;m++){const on=mv===String(m);const imp=on&&r.imported&&r.imported[mk]?' imp':'';h+=`<td><div class="rv-cell${on?' on':''}${imp}" data-k="${mk}" data-v="${m}">${m}</div></td>`;}
+    const block=document.createElement('div');block.className='neuro-item';block.dataset.k=mk;
+    /* 标题行 */
+    const hd=document.createElement('div');hd.className='neuro-hd';
+    hd.innerHTML=`<span class="qn">${esc(String(it.no))}</span><span class="nm">${esc(it.name)}</span>`;
+    block.appendChild(hd);
+    /* 月龄点选条 1–12 */
+    const ms=document.createElement('div');ms.className='neuro-mstrip';
+    let mh='<span class="neuro-mlab">评估月龄</span>';
+    for(let m=1;m<=12;m++){const on=mv===String(m);const imp=on&&r.imported&&r.imported[mk]?' imp':'';mh+=`<div class="neuro-mcell rv-cell${on?' on':''}${imp}" data-k="${mk}" data-v="${m}">${m}</div>`;}
+    ms.innerHTML=mh;block.appendChild(ms);
+    /* 统一分段结果控件 */
+    const rs=document.createElement('div');rs.className='neuro-res';
     const impr=r.imported&&r.imported[rk]?' imp':'';
-    let oh='<option value=""></option>';it.opts.forEach(o=>oh+=`<option value="${esc(o[1])}"${rv===o[1]?' selected':''}>${esc(o[1]+' '+o[0])}</option>`);
-    h+=`<td><select class="rv-sel${impr}" data-k="${rk}" onchange="onEdit(this)">${oh}</select></td>`;
-    tr.innerHTML=h;tb.appendChild(tr);
+    let rh=`<span class="neuro-rlab">结果/形式</span><div class="rv-seg${impr}" data-k="${rk}">`;
+    it.opts.forEach(o=>{const on=rv===String(o[1]);rh+=`<button type="button" class="rv-segbtn${on?' on':''}" data-k="${rk}" data-v="${esc(String(o[1]))}">${esc(o[0])}<i>${esc(String(o[1]))}</i></button>`;});
+    rh+='</div>';rs.innerHTML=rh;block.appendChild(rs);
+    wrap.appendChild(block);
   });
-  tbl.appendChild(tb);
-  tbl.addEventListener('click',e=>{const cell=e.target.closest('.rv-cell');if(cell)toggleCell(cell);});
-  return tbl;
+  /* 月龄格：点选/再点取消 */
+  wrap.addEventListener('click',e=>{
+    const cell=e.target.closest('.neuro-mcell');if(cell){toggleCell(cell);return;}
+    const seg=e.target.closest('.rv-segbtn');if(seg)setNeuroResult(seg);
+  });
+  return wrap;
+}
+/* 分段结果控件：点选写入 code，再点同项取消 */
+function setNeuroResult(btn){
+  const r=curRec();if(!r)return;const k=btn.dataset.k,v=btn.dataset.v;
+  const seg=btn.closest('.rv-seg');const already=btn.classList.contains('on');
+  seg.querySelectorAll('.rv-segbtn').forEach(b=>b.classList.remove('on'));
+  seg.classList.remove('imp');
+  if(already){r.data[k]='';}else{btn.classList.add('on');r.data[k]=v;}
+  if(r.imported)delete r.imported[k];
+  r.filled=countFilled(r);updateFill(r);
 }
 
 /* —— 荧屏调查：端口自原系统的设备块 + 量表网格（用 ST_* 数据） —— */
@@ -3169,8 +2863,8 @@ function applyImport(headers,dataRows){
     });
   }
   _impSnap=snap;
-  const cTxt=created?`（新建 <b>${created}</b> 条无原件记录）`:'';
-  $('impStat').innerHTML=`已导入 <b>${matched}</b> 条、填入 <b>${filled}</b> 个空位${cTxt}（紫色高亮）。点「核对」逐项查看 / 编辑（Tab / 回车跳下一题）。`;
+  const cTxt=created?`（自动新建 <b>${created}</b> 条记录）`:'';
+  $('impStat').innerHTML=`✅ 已导入 <b>${matched}</b> 条记录${cTxt}，填入 <b>${filled}</b> 个字段（<span style="color:#4b49c9;font-weight:700">紫色</span>＝本次导入）。请到下方列表点每条「核对」打开：<b>左侧上传该条原件</b>、右侧逐项人工核对（Tab / 回车跳下一题）。`;
   $('impClearBtn').style.display=(filled||created)?'':'none';
   renderResults();refreshQueueUI();if(_rvId)renderFields(curRec());
 }
@@ -3208,7 +2902,60 @@ function doXlsx(){
   const {cols,rows}=buildExportRows();if(!rows.length){toast('没有可导出的数据');return;}
   const ws=XLSX.utils.aoa_to_sheet([cols,...rows]);const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,(curSys.name||'data').replace(/[\\/?*\[\]:]/g,'').slice(0,28)||'data');
+  /* —— Sheet2：变量字典（变量名 / 中文含义 / 选项赋值）。与 Sheet1 列一一对应、顺序一致，
+        按「当前字段结构」生成：核对窗里拖动排序 / 增删 / 改名后导出即所见即所得。—— */
+  const d=buildDictRows();
+  const ws2=XLSX.utils.aoa_to_sheet([d.head,...d.rows]);
+  ws2['!cols']=[{wch:5},{wch:22},{wch:46},{wch:7},{wch:48},{wch:34},{wch:6},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws2,'变量字典');
   XLSX.writeFile(wb,`${curSys.id}_识别${rows.length}条_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast('已导出：Sheet1 数据 + Sheet2 变量字典');
+}
+
+/* ── 变量字典：每个导出列 → 变量名 / 中文含义 / 类型 / 选项赋值 / 提示 / 页 / 分组 ── */
+function _pairTxt(pairs){return (pairs||[]).map(o=>o[1]+'='+o[0]).join('；');}
+function _gridColsMap(sys){
+  /* 荧屏/膳食量表：从点格网格定义反查每个 key 的列赋值（如 1=从不…5=总是） */
+  const m={};const fns=[];
+  if(sys.reviewMode==='screen'&&typeof stGridGroups==='function')fns.push(stGridGroups);
+  if(sys.reviewMode==='health'&&typeof hGridGroups==='function')fns.push(hGridGroups);
+  if(!fns.length)return m;
+  const maxPg=Math.max(sys.maxPages||1,...(sys.fields||[]).map(f=>f.page||1));
+  fns.forEach(fn=>{for(let p=1;p<=maxPg;p++){let gs=[];try{gs=fn(p)||[];}catch(_){gs=[];}
+    gs.forEach(g=>{if(Array.isArray(g.cols)&&Array.isArray(g.keys))g.keys.forEach(k=>{if(!m[k])m[k]=g.cols;});});
+  }});
+  return m;
+}
+function _codeFromText(f){
+  /* 数字型 select：从 hint/label 里解析「1正常2缺乏3过量」或「同意1不同意0」式赋值说明 */
+  if(f.type!=='select'||!f.options||!f.options.length)return '';
+  const opt=f.options.map(String);if(opt.some(o=>!/^\d+$/.test(o)))return '';
+  const src=String(f.hint||f.label||'');
+  const h=src.replace(/第\s*\d+\s*[题问]/g,' ').replace(/[=＝:：()（）]/g,' ').trim();
+  if(!h)return '';
+  const tryPat=(re,di,li)=>{const got={};let mt;const r=new RegExp(re.source,'g');
+    while((mt=r.exec(h))){const dg=mt[di],lb=(mt[li]||'').trim();if(lb&&!got[dg])got[dg]=lb;}
+    return opt.every(o=>got[o])?opt.map(o=>o+'='+got[o]).join('；'):'';};
+  return tryPat(/(\d)\s*([^\d，,。;；、\/\s][^\d，,。;；、]{0,11})/,1,2)
+      || tryPat(/([^\d，,。;；、\s][^\d，,。;；、]{0,11}?)\s*(\d)(?=\D|$)/,2,1) || '';
+}
+function fieldCoding(f,gmap){
+  if(f.optLabels&&f.optLabels.length)return _pairTxt(f.optLabels);          /* 神经运动结果等 */
+  if(gmap&&gmap[f.key])return _pairTxt(gmap[f.key]);                        /* 量表点格列 */
+  if(f.neuroM)return '1–12（打勾所在月龄格）';
+  const t=_codeFromText(f);if(t)return t;                                   /* 从 hint/label 解析 */
+  if(f.kind==='toggle')return '1=是/勾选；0=否/未勾';
+  if(f.kind==='gender')return '1=男；2=女';
+  if(f.options&&f.options.length)return '可选：'+f.options.join(' / ');
+  return '';
+}
+function buildDictRows(){
+  ensureMeta(curSys);
+  const gmap=_gridColsMap(curSys);
+  const list=curSys.expandKey?curSys.fields:(curSys._leaf||curSys.fields||[]);
+  const head=['序号','变量名 key','中文含义','类型','选项赋值','填写提示','所在页','分组'];
+  const rows=list.map((f,i)=>[i+1,f.key,f.label||'',f.type||'text',fieldCoding(f,gmap),f.hint||'',f.page||1,f.group||'']);
+  return {head,rows};
 }
 function doTsv(){
   const {cols,rows}=buildExportRows();if(!rows.length){toast('没有可导出的数据');return;}
@@ -3217,56 +2964,79 @@ function doTsv(){
 }
 
 /* ════════════ 系统启动器 + 视图切换 ════════════ */
+/* —— 隐藏(内置)与删除(自建) —— */
+const HIDDEN_LS='phck_hidden';
+function getHidden(){try{const a=JSON.parse(localStorage.getItem(HIDDEN_LS)||'[]');return Array.isArray(a)?a:[];}catch(_){return [];}}
+function setHidden(a){try{localStorage.setItem(HIDDEN_LS,JSON.stringify(a));}catch(_){}}
+function hideSystem(id){const s=SYS_BY[id];if(!s)return;if(!confirm('从列表移除「'+s.name+'」？\n（内置模块为隐藏，可随时一键恢复；不会删除已识别数据。）'))return;const h=getHidden();if(!h.includes(id))h.push(id);setHidden(h);renderLauncher();}
+function unhideAll(){setHidden([]);renderLauncher();}
+function removeOrHide(id){const s=SYS_BY[id];if(!s)return;if(s.custom)deleteCustomSystem(id);else hideSystem(id);}
+
 function renderLauncher(){
   const g=$('sysGrid');g.innerHTML='';
   const bcard=document.createElement('button');bcard.className='sys builder';bcard.onclick=openBuilder;
   bcard.innerHTML=`
     <div class="sys-top"><div class="sys-emoji">➕</div>
-      <div><div class="sys-name">新建识别系统</div><div class="sys-tags"><span class="tag new">自定义</span><span class="tag p">任意页数</span></div></div></div>
-    <div class="sys-desc">上传任意表单样张，AI 自动识别条目并生成英文变量名；可拖动改名 / 改填写位置，或粘贴 txt 变量清单一键匹配，立即生成可识别·可核对·可套对的新系统。</div>
-    <div class="sys-foot"><span>OCR 建模</span><span>·</span><span>txt 一键匹配</span><span class="go">开始创建 →</span></div>`;
+      <div><div class="sys-name">新建核对系统</div><div class="sys-tags"><span class="tag new">自定义</span><span class="tag p">任意页数</span></div></div></div>
+    <div class="sys-desc">粘贴一份英文变量名清单（每行一个，或逗号分隔），即可一键生成对应字段——<b>无需样表、无需 API</b>。字段可拖动排序 / 改名 / 改类型。创建后此系统即可导入 Excel · 上传原件 · 左右人工核对 · 导出。整表可删除。</div>
+    <div class="sys-foot"><span>粘贴变量名生成</span><span>·</span><span>无需 API</span><span class="go">开始创建 →</span></div>`;
   g.appendChild(bcard);
+  const hidden=getHidden();
   SYSTEMS.forEach(s=>{
+    if(hidden.includes(s.id))return;
     ensureMeta(s);
-    const card=document.createElement('button');card.className='sys'+(s.klass==='neo'?' neo':'')+(s.custom?' custom':'');card.onclick=()=>openSystem(s.id);
+    const card=document.createElement('button');card.className='sys deletable'+(s.klass==='neo'?' neo':'')+(s.custom?' custom':'');card.onclick=()=>openSystem(s.id);
     const tags=(s.tags||[]).map((t)=>{const cls=((s.isNew&&t==='新增')||t==='自建')?'new':(/页/.test(t)?'p':'n');return `<span class="tag ${cls}">${esc(t)}</span>`;}).join('');
     const keyN=s.expandKey?(s.fields.length+' 字段/样本'):(s._leafKeys.length+' 字段');
+    const edited=hasOverride(s.id)?'<span class="tag n" title="本模块字段已自定义">✎ 已改字段</span>':'';
     card.innerHTML=`
       <div class="sys-top"><div class="sys-emoji">${s.emoji||'📄'}</div>
-        <div><div class="sys-name">${esc(s.name)}</div><div class="sys-tags">${tags}</div></div></div>
+        <div><div class="sys-name">${esc(s.name)}</div><div class="sys-tags">${tags}${edited}</div></div></div>
       <div class="sys-desc">${esc(s.desc||'')}</div>
       <div class="sys-foot"><span>${esc(keyN)}</span><span>·</span><span>${s.pagesPerRecord} 页/人</span><span class="go">进入系统 →</span></div>`;
-    if(s.custom){const del=document.createElement('span');del.className='sys-del';del.textContent='✕';del.title='删除自建系统';del.onclick=ev=>{ev.stopPropagation();deleteCustomSystem(s.id);};card.appendChild(del);}
+    const del=document.createElement('span');del.className='sys-del';del.textContent='✕';
+    del.title=s.custom?'删除自建系统':'从列表移除（可恢复）';
+    del.setAttribute('role','button');del.setAttribute('aria-label',del.title);
+    del.addEventListener('pointerdown',ev=>ev.stopPropagation());
+    del.onclick=ev=>{ev.preventDefault();ev.stopPropagation();removeOrHide(s.id);};
+    card.appendChild(del);
     g.appendChild(card);
   });
+  /* 恢复被隐藏的内置模块 */
+  let bar=$('hiddenBar');
+  if(hidden.length){
+    if(!bar){bar=document.createElement('div');bar.id='hiddenBar';bar.style.cssText='grid-column:1/-1;font-size:12px;color:var(--ink3);text-align:center;padding:4px';$('vLauncher').appendChild(bar);}
+    bar.innerHTML=`已隐藏 <b>${hidden.length}</b> 个内置模块 · <button class="linkbtn" onclick="unhideAll()">恢复全部</button>`;
+  }else if(bar){bar.remove();}
 }
+function hasOverride(id){try{const all=JSON.parse(localStorage.getItem(OVERRIDE_LS)||'{}');return !!(all&&all[id]);}catch(_){return false;}}
 function openSystem(id){
   const s=SYS_BY[id];if(!s)return;ensureMeta(s);
   curSys=s;records=[];running=false;_impSnap=null;
   $('vLauncher').hidden=true;$('vSystem').hidden=false;$('backBtn').style.display='';
-  $('hmark').innerHTML=s.emoji||'表单<br>OCR';
+  $('hmark').innerHTML=s.emoji||'人工<br>核对';
   $('hTitle').textContent=s.name;
-  $('hSub').innerHTML=`独立识别系统 · <b>${s.pagesPerRecord} 页 = 1 条记录</b>${s.pagesPerRecord>1?'（多页 PDF 自动按 '+s.pagesPerRecord+' 页拆分）':'（多页 PDF 自动逐页拆分为多条）'} · 核对窗左原件可无级缩放、量表点格即选、点页标题跳页。`;
-  $('upTitle').textContent=`① 上传 PDF / 图片（${s.pagesPerRecord} 页/人，可多选批量）`;
-  $('dropSub').textContent=s.pagesPerRecord>1?`每 ${s.pagesPerRecord} 页（或 ${s.pagesPerRecord} 张图）视为 1 个人；页序须与原表一致。`:'每页 / 每张图视为 1 条记录（一页一人）。';
-  $('splitNote').innerHTML=`本系统按 <b>${s.pagesPerRecord} 页 / 人</b> 自动拆分：含 N 页的 PDF 切分为 ⌈N/${s.pagesPerRecord}⌉ 条；拖入图片则<b>每张图＝一页</b>，${s.pagesPerRecord>1?('每 '+s.pagesPerRecord+' 张按顺序合为一条'):'每张图即一条记录'}${s.expandKey?'；且每页内多份样本会再展开为多行。':'。'}`;
+  $('hSub').innerHTML=`独立人工核对系统 · 无需 API · <b>每行 Excel = 1 条记录</b>。导入与本系统<b>同名英文变量</b>的表格 → 点「核对」逐条打开：<b>左侧上传该条原件（图片 / PDF）</b>、右侧按版面人工核对、可改 → 导出。`;
+  const fcount=s.expandKey?(s.fields.length+' 字段/样本'):(s._leafKeys.length+' 字段');
+  $('upTitle').textContent=`① 导入 Excel / CSV（${fcount}，同名英文变量表头）`;
+  const ds=$('dropSub');if(ds)ds.textContent=`首行为英文变量名表头，需与本系统 key 一致；每一行 = 一条记录${s.expandKey?'（每页含多样本的表会逐行展开）':''}。`;
   $('impStat').textContent='';$('impClearBtn').style.display='none';if($('impOverwrite'))$('impOverwrite').checked=false;
-  $('runBtn').textContent='▶ 开始识别';
-  renderResults();refreshQueueUI();updateAiStatus();setProg(-1);
+  renderResults();refreshQueueUI();setProg(-1);
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function goLauncher(){
   if(running){toast('识别中，请稍候');return;}
   $('vSystem').hidden=true;$('vBuilder').hidden=true;$('vLauncher').hidden=false;$('backBtn').style.display='none';
-  $('hmark').innerHTML='表单<br>OCR';$('hTitle').textContent='表单识别工作台 · 多系统';
-  $('hSub').innerHTML='每一种表单 = 一个独立识别系统。点击进入后：上传 PDF → AI 按版面填空 → <b>核对窗</b>（左原件可缩放 / 右字段·量表点格即选·点页标题跳页）→ 导出英文变量名。';
+  $('hmark').innerHTML='人工<br>核对';$('hTitle').textContent='表单人工核对台 · 多系统';
+  $('hSub').innerHTML='每一种表单 = 一个独立核对系统。点击进入后：<b>导入 Excel</b>（同名英文变量）→ 每行成为一条记录 → 点「核对」逐条打开：<b>左侧上传该条原件</b>、右侧按版面人工核对、可改 → 导出。<b>无需联网、无需任何 API。</b>';
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
 /* ════════════════════════════════════════════════════════════════
-   新建系统（System Builder）：上传样表 → AI 逐页识别条目 → 自动生成
-   英文变量名 → 可拖动改名/改填写位置 → txt 一键匹配 → 生成与内置系统
-   完全一致的自定义识别系统（持久化于本机 localStorage）。
+   新建系统（System Builder，无需 API）：粘贴英文变量名清单一键生成字段
+   → 可拖动改名 / 改类型 / 改填写位置 → 生成与内置系统完全一致的自定义
+   核对系统（可导入 Excel · 上传原件 · 左右人工核对 · 导出；持久化于本机
+   localStorage）。
 ════════════════════════════════════════════════════════════════ */
 let builderPages=[];     // [{dataUrl,b64,mime}]
 let builderFields=[];    // [{key,label,page,type,options:[...]}]
@@ -3274,7 +3044,7 @@ let _bDrag=null;
 const CUSTOM_LS='phck_custom';
 
 function bSetProg(p,lbl){const box=$('bProg');if(p<0){box.classList.remove('on');return;}box.classList.add('on');$('bBarFill').style.width=Math.round(p*100)+'%';if(lbl!=null)$('bProgLbl').textContent=lbl;}
-function bUpdateAi(){const el=$('bAiStatus');if(!el)return;const p=PROVIDERS[cfg.prov];const m=getEffectiveModel()||'(未选模型)';const hasKey=!!getEffectiveKey();el.innerHTML='AI 服务：<b>'+esc(p?p.name:'-')+'</b> · 模型 <b>'+esc(m)+'</b> · '+(hasKey?'<span style="color:var(--ok)">已配置 Key</span>':'<span style="color:var(--bad)">未配置 Key</span>')+'<button class="gobtn" onclick="openSet()">⚙ 设置</button>';}
+function bUpdateAi(){/* 无需 API：此函数已弃用，保留空体以兼容历史调用 */}
 
 function bSanitizeKey(s){let k=String(s||'').trim().toLowerCase().replace(/[^a-z0-9_]+/g,'_').replace(/^_+|_+$/g,'').replace(/_+/g,'_');if(!k)k='field';if(/^[0-9]/.test(k))k='f_'+k;return k.slice(0,40);}
 function bUniqueKey(base,seen){let k=base,i=2;while(seen.has(k)){k=base+'_'+i;i++;}return k;}
@@ -3426,6 +3196,7 @@ function deleteCustomSystem(id){
   const s=SYS_BY[id];if(!s||!s.custom)return;
   if(!confirm('删除自建系统「'+s.name+'」？此操作不可撤销。'))return;
   const i=SYSTEMS.indexOf(s);if(i>=0)SYSTEMS.splice(i,1);delete SYS_BY[id];
+  if(typeof resetFields==='function')resetFields(s);
   saveCustomSystems();renderLauncher();
 }
 function bCreateSystem(){
@@ -3451,28 +3222,25 @@ function bCreateSystem(){
 /* —— 进入 Builder 视图 —— */
 function openBuilder(){
   $('vLauncher').hidden=true;$('vSystem').hidden=true;$('vBuilder').hidden=false;$('backBtn').style.display='';
-  $('hmark').innerHTML='➕';$('hTitle').textContent='新建识别系统';
-  $('hSub').innerHTML='上传<b>一个人的样表</b> → AI 识别条目并自动生成<b>英文变量名</b> → 拖动改名 / 改填写位置 → 也可粘贴 txt 变量清单一键匹配 → 生成可识别·可核对·可套对的新系统。';
+  $('hmark').innerHTML='➕';$('hTitle').textContent='新建核对系统（无需 API）';
+  $('hSub').innerHTML='填名称与每人份页数 → 在「粘贴变量名清单」框粘入<b>英文变量名</b>（每行一个，可写 <code>key 中文名</code>）一键生成字段 → 也可手动增删 / 拖动排序 → 创建即得一个可<b>导入 Excel · 上传原件 · 人工核对 · 导出</b>的新系统。';
   builderFields=[];builderPages=[];_bDrag=null;
   $('bName').value='';$('bEmoji').value='🧩';$('bPages').value='1';$('bVarText').value='';
-  $('bShot').textContent='未上传';$('bClearShot').style.display='none';$('bDetect').disabled=true;
-  $('bStat').textContent='';$('bCreateStat').textContent='';bSetProg(-1);
-  renderBuilderFields();bUpdateAi();
+  const cs=$('bCreateStat');if(cs)cs.textContent='';
+  renderBuilderFields();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
 /* ════════════ 绑定 + 初始化 ════════════ */
-$('drop').addEventListener('click',()=>$('file').click());
-['dragenter','dragover'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.add('drag');}));
-['dragleave'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.remove('drag');}));
-$('drop').addEventListener('drop',e=>{e.preventDefault();$('drop').classList.remove('drag');if(e.dataTransfer&&e.dataTransfer.files)addFiles(e.dataTransfer.files);});
-$('file').addEventListener('change',e=>{addFiles(e.target.files);e.target.value='';});
-$('runBtn').addEventListener('click',runAll);
-$('clearBtn').addEventListener('click',clearAll);
-$('impBtn').addEventListener('click',()=>$('impFile').click());
+/* —— 导入 Excel/CSV / 手动新增 —— */
+$('impDrop').addEventListener('click',()=>$('impFile').click());
+['dragenter','dragover'].forEach(ev=>$('impDrop').addEventListener(ev,e=>{e.preventDefault();$('impDrop').classList.add('drag');}));
+$('impDrop').addEventListener('dragleave',e=>{e.preventDefault();$('impDrop').classList.remove('drag');});
+$('impDrop').addEventListener('drop',e=>{e.preventDefault();$('impDrop').classList.remove('drag');const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)handleImport(f);});
 $('impFile').addEventListener('change',e=>{if(e.target.files[0])handleImport(e.target.files[0]);e.target.value='';});
 $('impClearBtn').addEventListener('click',()=>clearImport(false));
 $('manualBtn').addEventListener('click',addManualRecord);
+
 /* 核对窗：Tab / 回车 跳到下一题（在字段区内循环，Shift+Tab 上一题） */
 function rvFocusables(){return [...$('rvFields').querySelectorAll('input,select,textarea')].filter(el=>!el.disabled&&el.offsetParent!==null);}
 function rvMoveFocus(dir){const f=rvFocusables();if(!f.length)return;let i=f.indexOf(document.activeElement);if(i<0)i=dir>0?-1:0;let n=i+dir;if(n<0)n=0;if(n>=f.length)n=f.length-1;const el=f[n];if(el){el.focus();if(el.tagName==='INPUT'&&el.select)try{el.select();}catch(_){}}}
@@ -3480,29 +3248,28 @@ $('rvFields').addEventListener('keydown',e=>{
   if(e.key==='Tab'){e.preventDefault();rvMoveFocus(e.shiftKey?-1:1);}
   else if(e.key==='Enter'&&e.target&&e.target.tagName!=='TEXTAREA'){e.preventDefault();rvMoveFocus(1);}
 });
+/* 核对窗左侧：上传 / 更换 / 清除原件（图片或 PDF） */
+$('rvOrigBtn').addEventListener('click',()=>$('rvOrigFile').click());
+$('rvOrigClear').addEventListener('click',rvClearOrigin);
+$('rvOrigFile').addEventListener('change',e=>{if(e.target.files&&e.target.files.length)rvUploadOrigin(e.target.files);e.target.value='';});
 $('xlsxBtn').addEventListener('click',doXlsx);
 $('tsvBtn').addEventListener('click',doTsv);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('rvBg').classList.contains('on'))closeReview();});
 
-/* —— Builder 绑定 —— */
-$('bDrop').addEventListener('click',()=>$('bFile').click());
-['dragenter','dragover'].forEach(ev=>$('bDrop').addEventListener(ev,e=>{e.preventDefault();$('bDrop').classList.add('over');}));
-$('bDrop').addEventListener('dragleave',e=>{e.preventDefault();$('bDrop').classList.remove('over');});
-$('bDrop').addEventListener('drop',e=>{e.preventDefault();$('bDrop').classList.remove('over');if(e.dataTransfer&&e.dataTransfer.files)bAddSample(e.dataTransfer.files);});
-$('bFile').addEventListener('change',e=>{bAddSample(e.target.files);e.target.value='';});
-$('bClearShot').addEventListener('click',bClearSample);
-$('bDetect').addEventListener('click',bDetectFields);
+/* —— Builder 绑定（无需 API：仅字段编辑 + 变量名清单一键生成）—— */
 $('bAddField').addEventListener('click',bAddField);
 $('bApplyVars').addEventListener('click',bApplyVarText);
 $('bVarFileBtn').addEventListener('click',()=>$('bVarFile').click());
 $('bVarFile').addEventListener('change',e=>{const f=e.target.files[0];if(f){const r=new FileReader();r.onload=()=>{$('bVarText').value=r.result;};r.readAsText(f);}e.target.value='';});
 $('bCreate').addEventListener('click',bCreateSystem);
 
+/* —— 初始化 —— */
 $('backBtn').style.display='none';
+function captureDefaults(){SYSTEMS.forEach(s=>{if(!s._defaultFields)s._defaultFields=fieldsSnapshot(s);});}
 loadCustomSystems();
+captureDefaults();   // 在套用覆盖前，记录每个模块的默认字段（供「恢复默认」）
+applyOverrides();    // 套用本机保存的字段结构改动（内置+自建均 durable）
 renderLauncher();
-selectProv(cfg.prov);
-updateAiStatus();
 
 </script>
 </body>
