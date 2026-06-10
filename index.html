@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>表单识别工作台 · 多系统（神经运动 / 体检 / 体成分 / 检验 / 知情同意 / 血常规 / 生长发育 / 荧屏调查）</title>
+<title>表单识别工作台 · 多系统（神经运动 / 体检 / 体成分含节段相位角 / 检验 / 知情同意 / 血常规 / 生长发育 / 荧屏调查 / 膳食运动睡眠行为）</title>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -234,6 +234,74 @@ header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
 .rv-toggle button{border:none;background:#fff;font-size:11px;font-weight:700;padding:3px 10px;cursor:pointer;color:var(--ink3)}
 .rv-toggle button.on{background:var(--accent2);color:#fff}
 
+/* ── 神经运动：统一发育项目积木块（同类外观一致，彻底消除大小不一） ── */
+.neuro-wrap{display:flex;flex-direction:column;gap:9px;padding:8px 4px}
+.neuro-item{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:9px 11px 11px;box-shadow:0 1px 0 rgba(255,255,255,.5)}
+.neuro-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.neuro-hd .qn{flex:0 0 auto;min-width:22px;height:22px;padding:0 6px;border-radius:7px;background:var(--accent2);color:#fff;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.neuro-hd .nm{font-size:13px;font-weight:800;color:var(--ink)}
+.neuro-mstrip{display:grid;grid-template-columns:64px repeat(12,1fr);gap:4px;align-items:center;margin-bottom:8px}
+.neuro-mlab,.neuro-rlab{font-size:10.5px;font-weight:800;color:var(--ink3)}
+.neuro-mcell{height:30px;border:1px solid var(--line2);border-radius:7px;background:#fff;font-size:12px}
+.neuro-mcell.on{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+.neuro-mcell.imp{background:#eef0ff;border-color:#a5a3f0;color:#4b49c9}
+.neuro-res{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rv-seg{display:inline-flex;flex-wrap:wrap;gap:6px;border-radius:9px}
+.rv-segbtn{display:inline-flex;align-items:center;gap:5px;min-width:78px;justify-content:center;height:32px;padding:0 12px;border:1px solid var(--line2);border-radius:9px;background:#fff;font-size:12.5px;font-weight:700;color:var(--ink2);cursor:pointer;transition:.12s}
+.rv-segbtn:hover{border-color:var(--accent2);background:rgba(13,148,136,.07)}
+.rv-segbtn.on{background:var(--accent2);border-color:var(--accent2);color:#fff;box-shadow:0 4px 12px rgba(13,148,136,.25)}
+.rv-segbtn i{font-style:normal;font-family:var(--mono);font-size:10px;opacity:.6}
+.rv-segbtn.on i{opacity:.85}
+.rv-seg.imp .rv-segbtn.on{background:#5856D6;border-color:#5856D6}
+
+/* ── 在「核对窗右侧」直接编辑字段（拖动排序 / 增 / 删 / 插入 / 改类型）── */
+.rv-rh .rv-edit-btn{flex:0 0 auto;border:1px solid var(--accent2);background:#fff;color:var(--accent2);border-radius:8px;padding:5px 11px;font-size:11.5px;font-weight:800;cursor:pointer}
+.rv-rh .rv-edit-btn.on{background:var(--accent2);color:#fff}
+.rv-fe{padding:8px 8px 70px}
+.rv-fe .fe-tip{font-size:11px;color:var(--ink2);background:rgba(194,65,12,.07);border:1px solid rgba(194,65,12,.2);border-radius:10px;padding:9px 11px;line-height:1.6;margin-bottom:10px}
+.rv-fe .fe-tip b{color:var(--accent)}
+.fe-row{display:grid;grid-template-columns:20px 46px 1.1fr 1.25fr 78px 1fr 26px;gap:6px;align-items:center;background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:6px;margin-bottom:6px}
+.fe-row.dragging{opacity:.4}
+.fe-row.over{border-color:var(--accent);box-shadow:0 0 0 2px rgba(194,65,12,.16)}
+.fe-row.is-neuro{border-left:3px solid var(--accent2)}
+.fe-drag{cursor:grab;text-align:center;color:var(--ink3);font-size:14px;user-select:none}
+.fe-row input,.fe-row select{width:100%;border:1px solid var(--line2);background:var(--paper);border-radius:7px;padding:5px 6px;font-size:11.5px;box-sizing:border-box;color:var(--ink)}
+.fe-row input.k{font-family:var(--mono);color:var(--accent)}
+.fe-row input:focus,.fe-row select:focus{outline:none;border-color:var(--accent)}
+.fe-row .fe-del{border:1px solid var(--line2);background:var(--paper2);color:var(--ink3);border-radius:7px;padding:4px 0;font-size:12px;cursor:pointer}
+.fe-row .fe-del:hover{border-color:var(--bad);color:var(--bad)}
+.fe-row .fe-opt.hide{visibility:hidden}
+.fe-vt{grid-column:3 / 7;font-size:10px;color:var(--accent2);font-weight:700;padding:0 2px}
+.fe-ins{width:100%;border:1px dashed var(--line2);background:transparent;color:var(--ink3);border-radius:8px;padding:4px;font-size:11px;cursor:pointer;margin-bottom:6px}
+.fe-ins:hover{border-color:var(--accent);color:var(--accent)}
+.fe-act{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.fe-head{display:grid;grid-template-columns:20px 46px 1.1fr 1.25fr 78px 1fr 26px;gap:6px;font-size:10px;font-weight:800;color:var(--ink3);padding:2px 6px 6px}
+
+/* health · 膳食频率行（点格频度 + 斤/两） */
+.rv-diethead{display:flex;align-items:center;gap:8px;padding:3px 9px;font-size:10px;color:var(--ink3);font-weight:700;border-bottom:1px solid var(--line)}
+.rv-diethead .rv-dietname{flex:1 1 160px;min-width:120px}
+.rv-diethead .rv-dietfreq-h{flex:0 0 auto;width:185px;text-align:center}
+.rv-diethead .rv-dietamt-h{flex:0 0 auto}
+.rv-dietline{display:flex;align-items:center;gap:8px;padding:5px 9px;font-size:11.5px;color:var(--ink2);flex-wrap:wrap;border-top:1px solid var(--line)}
+.rv-dietline:first-of-type{border-top:none}
+.rv-dietline:hover{background:rgba(13,148,136,.045)}
+.rv-dietname{flex:1 1 160px;min-width:120px;line-height:1.3}
+.rv-dietfreq{display:flex;gap:4px;flex:0 0 auto}
+.rv-fcell{width:30px;height:28px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line2);border-radius:6px;background:#fff;cursor:pointer;font-family:var(--mono);font-size:12px;color:var(--ink3);font-weight:700;transition:.08s}
+.rv-fcell:hover{border-color:var(--accent2)}
+.rv-fcell.on{background:var(--accent2);border-color:var(--accent2);color:#fff}
+.rv-fcell.imp{background:#6366f1;border-color:#6366f1;color:#fff}
+.rv-dietamt{display:flex;gap:10px;margin-left:auto;flex:0 0 auto;flex-wrap:wrap}
+
+/* health · 家庭成员疾病史 / 亲属过敏史表 */
+.rv-famtbl td.q,.rv-famtbl th.q{white-space:nowrap}
+.rv-famnum{width:54px;height:26px;text-align:center;border:1px solid var(--line2);border-radius:6px;font-family:var(--mono);font-size:12px;background:#fff}
+.rv-famnum.empty{background:#fffbeb;border-color:#fcd34d}
+.rv-famnum.imp{background:#eef0ff;border-color:#a5a3f0}
+.rv-gtbl col.ncol{width:62px}
+.rv-famtbl th{font-size:10px;padding:5px 4px;line-height:1.2}
+.rv-famtbl td{padding:4px}
+
 /* row-expand (lipid) */
 .rv-recs{display:flex;flex-direction:column;gap:8px}
 .rv-rec{border:1px solid var(--line2);border-radius:9px;background:#fff;overflow:hidden}
@@ -316,7 +384,7 @@ select.set-key{font-family:var(--sans)}
 .sys.builder{border:2px dashed var(--accent);background:linear-gradient(180deg,rgba(194,65,12,.05),var(--paper2))}
 .sys.builder .sys-emoji{background:rgba(194,65,12,.12)}
 .sys .sys-del{position:absolute;top:8px;right:8px;width:22px;height:22px;border:1px solid var(--line2);background:var(--paper2);color:var(--ink3);border-radius:7px;font-size:12px;line-height:20px;text-align:center;cursor:pointer;display:none;padding:0}
-.sys.custom:hover .sys-del{display:block}
+.sys.custom:hover .sys-del,.sys.deletable:hover .sys-del{display:block}
 .sys .sys-del:hover{border-color:var(--bad);color:var(--bad)}
 /* —— 新建系统 Builder —— */
 .bld-grid{display:flex;gap:12px;flex-wrap:wrap}
@@ -376,7 +444,7 @@ select.set-key{font-family:var(--sans)}
   <!-- ════════ Launcher ════════ -->
   <div id="vLauncher">
     <div class="lead">
-      🗂️ 下列为 <b>各自独立</b> 的识别系统，互不干扰、共用一套 AI 设置与核对面板。多页 PDF 会按「每人页数」<b>自动拆分</b>为多条记录：1 页表单逐页拆分、神经运动 2 页一人、荧屏调查 12 页一人。每个系统都支持导入同名变量的 <b>xlsx / txt</b> 做可视化套对。
+      🗂️ 下列为 <b>各自独立</b> 的识别系统，互不干扰、共用一套 AI 设置与核对面板。多页 PDF 会按「每人页数」<b>自动拆分</b>为多条记录：1 页表单逐页拆分、神经运动 2 页一人、荧屏调查 12 页一人、膳食运动睡眠行为 14 页一人。每个系统都支持导入同名变量的 <b>xlsx / txt</b> 做可视化套对。
     </div>
     <div class="grid" id="sysGrid"></div>
   </div>
@@ -536,7 +604,7 @@ select.set-key{font-family:var(--sans)}
       </div>
       <div class="rv-splt" id="rvSplt"></div>
       <div class="rv-right">
-        <div class="rv-rh"><span class="t" id="rvRightT">识别字段 · 量表点格即选 · 点页标题左图跳页</span><span class="f" id="rvFill">—</span></div>
+        <div class="rv-rh"><span class="t" id="rvRightT">识别字段 · 量表点格即选 · 点页标题左图跳页</span><button class="rv-edit-btn" id="rvEditBtn" onclick="toggleRvEdit()">✎ 编辑字段</button><span class="f" id="rvFill">—</span></div>
         <div class="rv-fields" id="rvFields"></div>
       </div>
     </div>
@@ -614,28 +682,44 @@ function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clear
    婴幼儿神经运动检查记录表（NEW）— 项目定义
    每项生成两个字段：{key}_m 评估月龄(1-12) · {key}_r 结果/形式
 ════════════════════════════════════════════════════════════════ */
+/* ── 统一「值类型」注册表（重新设计的核心）──────────────────────
+   每个识别项只声明一种 vt（value-type），结果控件按 vt 统一渲染，
+   彻底解决「有/无 与 正常/异常 与 位置过小/过大 大小不一、样式不一」。
+   ★ 编码（数字 code）与旧版逐项完全一致，不影响既有数据库 / 导出。★ */
+const NEURO_VT={
+  yesno:  {name:'二态 · 有/无',          opts:[['有','1'],['无','0']]},
+  normab: {name:'二态 · 正常/异常',      opts:[['正常','1'],['异常','2']]},
+  tri:    {name:'三态 · 有/不持续/无',    opts:[['有','1'],['不持续','2'],['无','0']]},
+  triA:   {name:'三态 · +不对称',        opts:[['有','1'],['不持续','2'],['无','0'],['不对称','4']]},
+  reflex: {name:'反射分级 · 正常/无/过度',opts:[['正常','1'],['无','2'],['过度','3'],['不对称','4']]},
+  scarf:  {name:'位置形态 · 围巾征',      opts:[['正常形式','1'],['位置过小','2'],['位置过大','3'],['不对称','4']]},
+  angle:  {name:'角度 · 正常/过小/过大',  opts:[['正常形式','1'],['过小','2'],['过大','3'],['不对称','4']]},
+  dorsi:  {name:'角度 · 足背屈角',        opts:[['正常形式','1'],['慢>70°','2'],['快慢差>10°','3'],['不对称','4']]},
+  fist:   {name:'手握拳',                opts:[['正常形式','0'],['可能有','1'],['有','2'],['拇指交叉到手掌','3']]}
+};
+/* 每项仅声明 vt（统一类型）。opts 由 NEURO_VT[vt] 推导，确保同类外观一致。*/
 const NEURO_ITEMS=[
- {key:'red_ball',     no:1,  name:'对红球追踪',                 page:1, opts:[['有','1'],['无','0']]},
- {key:'face',         no:2,  name:'对人脸追踪',                 page:1, opts:[['有','1'],['无','0']]},
- {key:'sound',        no:3,  name:'对声音反应',                 page:1, opts:[['有','1'],['无','0']]},
- {key:'atnr',         no:4,  name:'非对称性紧张性颈反射(ATNR)', page:1, opts:[['无','0'],['有','1']]},
- {key:'hand_fist',    no:5,  name:'持续手握拳',                 page:1, opts:[['正常形式','0'],['可能有','1'],['有','2'],['拇指交叉到手掌','3']]},
- {key:'pull_to_sit',  no:6,  name:'拉坐姿势和头竖立',           page:1, opts:[['有','1'],['无','0']]},
- {key:'prone',        no:7,  name:'俯卧位',                     page:1, opts:[['正常','1'],['异常','2']]},
- {key:'scarf',        no:8,  name:'围巾征',                     page:1, opts:[['正常形式','1'],['位置过小','2'],['位置过大','3'],['不对称','4']]},
- {key:'adductor',     no:9,  name:'内收肌角',                   page:1, opts:[['正常形式','1'],['过小','2'],['过大','3'],['不对称','4']]},
- {key:'popliteal',    no:10, name:'腘窝角',                     page:2, opts:[['正常形式','1'],['过小','2'],['过大','3'],['不对称','4']]},
- {key:'dorsiflexion', no:11, name:'足背屈角',                   page:2, opts:[['正常形式','1'],['慢>70°','2'],['快慢差>10°','3'],['不对称','4']]},
- {key:'sit_alone',    no:12, name:'独坐≥30秒',                  page:2, opts:[['有','1'],['不持续','2'],['无','0']]},
- {key:'hand_grasp',   no:13, name:'手主动抓',                   page:2, opts:[['有','1'],['不持续','2'],['无','0']]},
- {key:'roll_over',    no:14, name:'翻身',                       page:2, opts:[['有','1'],['不持续','2'],['无','0']]},
- {key:'crawl',        no:15, name:'主动爬',                     page:2, opts:[['有','1'],['不持续','2'],['无','0']]},
- {key:'knee_reflex',  no:16, name:'膝反射',                     page:2, opts:[['正常','1'],['无','2'],['过度','3'],['不对称','4']]},
- {key:'lateral_prop', no:17, name:'侧面肢撑反应',               page:2, opts:[['有','1'],['不持续','2'],['无','0'],['不对称','4']]},
- {key:'parachute',    no:18, name:'降落伞反应',                 page:2, opts:[['有','1'],['不持续','2'],['无','0'],['不对称','4']]},
- {key:'vertical_susp',no:19, name:'立体悬垂反应',               page:2, opts:[['正常','1'],['异常','2']]},
- {key:'prone_susp',   no:20, name:'俯卧位悬垂反应',             page:2, opts:[['正常','1'],['异常','2']]}
-];
+ {key:'red_ball',     no:1,  name:'对红球追踪',                 page:1, vt:'yesno'},
+ {key:'face',         no:2,  name:'对人脸追踪',                 page:1, vt:'yesno'},
+ {key:'sound',        no:3,  name:'对声音反应',                 page:1, vt:'yesno'},
+ {key:'atnr',         no:4,  name:'非对称性紧张性颈反射(ATNR)', page:1, vt:'yesno'},
+ {key:'hand_fist',    no:5,  name:'持续手握拳',                 page:1, vt:'fist'},
+ {key:'pull_to_sit',  no:6,  name:'拉坐姿势和头竖立',           page:1, vt:'yesno'},
+ {key:'prone',        no:7,  name:'俯卧位',                     page:1, vt:'normab'},
+ {key:'scarf',        no:8,  name:'围巾征',                     page:1, vt:'scarf'},
+ {key:'adductor',     no:9,  name:'内收肌角',                   page:1, vt:'angle'},
+ {key:'popliteal',    no:10, name:'腘窝角',                     page:2, vt:'angle'},
+ {key:'dorsiflexion', no:11, name:'足背屈角',                   page:2, vt:'dorsi'},
+ {key:'sit_alone',    no:12, name:'独坐≥30秒',                  page:2, vt:'tri'},
+ {key:'hand_grasp',   no:13, name:'手主动抓',                   page:2, vt:'tri'},
+ {key:'roll_over',    no:14, name:'翻身',                       page:2, vt:'tri'},
+ {key:'crawl',        no:15, name:'主动爬',                     page:2, vt:'tri'},
+ {key:'knee_reflex',  no:16, name:'膝反射',                     page:2, vt:'reflex'},
+ {key:'lateral_prop', no:17, name:'侧面肢撑反应',               page:2, vt:'triA'},
+ {key:'parachute',    no:18, name:'降落伞反应',                 page:2, vt:'triA'},
+ {key:'vertical_susp',no:19, name:'立体悬垂反应',               page:2, vt:'normab'},
+ {key:'prone_susp',   no:20, name:'俯卧位悬垂反应',             page:2, vt:'normab'}
+].map(it=>({...it, opts:NEURO_VT[it.vt].opts}));
 const NEURO_IDENTITY=[
  {key:'name',           label:'姓名',                 type:'text',   page:1},
  {key:'gender',         label:'性别(1=男 2=女)',      type:'select', options:['1','2'], page:1},
@@ -650,12 +734,29 @@ const NEURO_IDENTITY=[
  {key:'examiner',       label:'检验者',               type:'text',   page:1}
 ];
 function buildNeuroFields(){
-  const F=[...NEURO_IDENTITY.map(f=>({...f}))];
+  const F=[...NEURO_IDENTITY.map(f=>({...f, group:f.group||'身份/检查记录', neuroId:true}))];
   NEURO_ITEMS.forEach(it=>{
-    F.push({key:it.key+'_m', label:`${it.no}.${it.name}·评估月龄`, type:'number', page:it.page, hint:'打勾所在月龄 1-12'});
-    F.push({key:it.key+'_r', label:`${it.no}.${it.name}·结果/形式`, type:'select', options:it.opts.map(o=>o[1]), optLabels:it.opts, page:it.page});
+    F.push({key:it.key+'_m', label:`${it.no}.${it.name}·评估月龄`, type:'number', page:it.page, hint:'打勾所在月龄 1-12',
+            group:'发育项目', neuroM:{no:it.no,name:it.name}});
+    F.push({key:it.key+'_r', label:`${it.no}.${it.name}·结果/形式`, type:'select', options:it.opts.map(o=>o[1]), optLabels:it.opts, page:it.page,
+            group:'发育项目', neuro:{no:it.no,name:it.name,vt:it.vt}});
   });
   return F;
+}
+/* 从「当前系统字段」动态派生某页的发育项目（顺序/增删/插入实时生效）。
+   结果字段（_r，带 .neuro）为锚，配对同前缀的 _m。*/
+function neuroItemsFromFields(sys,pg){
+  const out=[];
+  (sys.fields||[]).forEach(f=>{
+    if(f.neuro && (f.page||1)===pg){
+      const base=f.key.replace(/_r$/,'');
+      const mField=(sys.fields||[]).find(x=>x.key===base+'_m');
+      out.push({rField:f, mKey:mField?mField.key:base+'_m',
+                no:f.neuro.no, name:f.neuro.name,
+                opts:(f.optLabels&&f.optLabels.length)?f.optLabels:(f.options||[]).map(v=>[String(v),String(v)])});
+    }
+  });
+  return out;
 }
 function neuroPageHint(pg){
   if(pg===1) return '第1页：表头身份信息（姓名/性别/出生日期/预产期/纠正年龄）+ 顶部手写检查日期 + 检查记录表首行（现在年龄月、纠正年龄月、检查结果正常1/异常2/脑瘫3、异常项目号、检验者）+ 项目 1~9。每个项目是一张 1~12 月龄表，在某月格内打 ✓/√ 表示该月龄做了此项检查：把打勾的月龄数字填入 *_m；该项左侧"有/无/正常形式/过小/过大/不对称"等被勾选/圈住的形式填入 *_r（按下方选项编码）。空白项 *_m 与 *_r 一律 null。';
@@ -754,6 +855,614 @@ const ST_PAGE_HINT={
 10:'生活质量 21-49。4列＝从不1·很少2·经常3·总是4。',
 11:'父亲 ff1-19（左）、母亲 fm1-19（右），4列＝非常不符1·基本不符2·基本符3·非常符4。下方生长发育 grow1-4 0/1 方框。',
 12:'问诊表：男生(gender=1)填 boy1-10，女生填 girl1-6，另一性别留空。每项0/1；=1 读右侧初始岁/月。底部 collectform/collectdata 原样照抄。'};
+/* ════════════════════════════════════════════════════════════════
+   膳食运动睡眠行为问卷（14 页/人）— SCHEMA / 分页 / 量表网格 / 渲染
+   reviewMode:'health'（结构沿用 screen 专用系统逻辑：分页·量表点格·频率行·跳页）
+════════════════════════════════════════════════════════════════ */
+
+/* ---- 多选题选项（□打✓=1 空=0），key 前缀 + 序号 ---- */
+const HQ_PUNISH=['挨打','罚站','挨饿','干家务','扣零花钱','增加补习时间','限制看电视/玩电脑等电子设备的时间','限制外出玩耍时间','被关小黑屋/厕所等狭小空间','挨骂','其他'];
+const HQ_GAMETOOL=['手机','电脑','平板','学习机','电话手表','其他'];
+const HQ_GAMEPLACE=['家里','学校','上学/放学的路上','同学家里','亲戚家里','其他'];
+const HQ_DISEASE=['哮喘','先天性心脏病','贫血','肾脏疾病','其他疾病'];
+const HQ_PREG_SMOKE=['无','主动(孕妇吸烟)','被动(家庭成员吸烟)'];
+const HQ_PREG_SUPP=['多元维生素(21金维他,善存)','维生素A','维生素D','其他'];
+const HQ_PREG_COMP=['妊娠糖尿病','妊娠高血压','其他'];
+const HQ_ALLERGY=['过敏性鼻炎','湿疹或特应性皮炎','鼻窦炎','哮喘','鼻息肉','其他','无过敏性疾病'];
+const HQ_WATER=['自来水烧开','家用净水器过滤水','桶装矿泉水/纯净水','瓶装矿泉水/纯净水','瓶装含糖饮料','现制奶茶/果茶','其他'];
+
+/* ---- 家庭成员疾病史表（成员×疾病勾选 + 身高体重腰围数值） ---- */
+const HFAM_MEMBERS=[['father','父亲'],['mother','母亲'],['gpa','爷爷'],['gma','奶奶'],['mgpa','外公'],['mgma','外婆']];
+const HFAM_DISEASES=[['htn','高血压'],['hlp','高血脂'],['dm','糖尿病'],['chd','冠心病'],['stroke','脑卒中'],['thy','甲状腺功能异常'],['fld','脂肪肝'],['tumor','肿瘤']];
+
+/* ---- 膳食频率表（食用频度 0-4 + 食用量），子项保持原表层级 ---- */
+const HDIET_ITEMS=[
+  ['diet1a','谷薯类·米饭/面食等'],['diet1b','谷薯类·粗粮(玉米/小米等)'],
+  ['diet2','新鲜蔬菜(不含胡萝卜)'],['diet3','胡萝卜'],
+  ['diet4a','水果·果脯/果干/板栗'],['diet4b','水果·山楂/鲜枣/甘蔗/榴莲/荔枝/桂圆/提子'],
+  ['diet4c','水果·波罗蜜/石榴/柿子/香蕉/芒果/哈密瓜'],
+  ['diet4d','水果·番石榴/橘子/猕猴桃/葡萄/梨/苹果/火龙果/广柑/桃子/橙子/桑葚/杨梅/甜瓜'],
+  ['diet4e','水果·菠萝/柚子/枇杷/杏子/李子/草莓/木瓜/柠檬/西瓜/西红柿/莲雾/樱桃/杨桃'],
+  ['diet5','猪牛羊肉'],['diet6','动物肝脏(猪肝/鸡鸭肝)'],['diet7','鸡鸭及其他禽肉'],
+  ['diet8','各种鱼虾贝类'],['diet9','鸡蛋/鸭蛋等蛋类'],['diet10','牛奶/酸奶等制品'],
+  ['diet11a','豆类·干豆类'],['diet11b','豆类·豆制品(豆腐干/丝/泡)'],['diet11c','豆类·豆腐/豆腐脑'],['diet11d','豆类·豆浆'],
+  ['diet12','各种坚果'],['diet12a','坚果·夏威夷果/榛子/碧根果/杏仁/巴旦木/腰果/澳洲坚果'],['diet12b','坚果·花生/瓜子/核桃/松子/南瓜子/开心果'],
+  ['diet13','菌藻类(菇类/木耳/银耳等)'],['diet14','食用油'],['diet15','咸菜'],
+  ['diet16','营养补充剂(钙片/维生素等)'],['diet17','辣椒'],['diet18','炸鸡汉堡等'],
+  ['diet19a','含糖饮料·含糖果汁或蔬菜汁'],['diet19b','含糖饮料·其他含糖饮料(可乐/雪碧等)'],['diet20','蜂蜜'],
+  ['diet_smoke','你吸烟吗(频度)'],['diet_baijiu','您饮白酒吗(频度)'],['diet_pijiu','您饮啤酒吗(频度)']
+];
+
+/* ---- 睡眠习惯量表 1-33 题（三选一：1通常 2有时 3很少） ---- */
+const HSLEEP33=['每晚入睡时间固定','在自己的床上睡','在父母/兄弟姐妹的床上睡','入睡时需要父母陪伴','到睡觉时间了不愿入睡','害怕一个人睡','上床后在20分钟内睡着','睡眠时间太短','睡眠时间充足','每天的睡眠时间长度大致相同','害怕在黑暗环境睡觉','在除了自己家以外的地方入睡困难','半夜跑到父母等家人的床上睡觉','半夜醒来1次','半夜醒来不止1次','夜间尿床','睡觉说梦话','睡觉不安稳,多动','夜间梦游','睡觉磨牙','夜间醒来尖叫/流汗/伤心难过','被噩梦吓醒','打鼾声音很大','睡觉时看着像呼吸停止了','睡觉时有打鼾和喘气状况','早上自己醒来','早上由家长或兄弟姐妹叫醒','早上醒来情绪稳定','早上起床困难','起床后要花很长时间才能清醒','白天看起来很困倦','看电视时,犯困/睡着了','坐车时,犯困/睡着了'];
+
+/* ---- 免疫频率题 1-6（5列：1从不 2有时 3偶尔 4常常 5绝大多数） ---- */
+const HIMMUNE_FREQ=['过去12个月突然高烧的频率','过去12个月腹泻的频率','过去12个月头痛的频率','过去12个月肌肉和关节疼痛的频率','过去12个月普通感冒的频率','过去12个月咳嗽的频率'];
+
+/* ---- 直系亲属过敏史（父/母/兄弟姐妹 × 4列勾选） ---- */
+const HFAM_ALLERGY_MEM=[['fa','父亲'],['ma','母亲'],['sib','兄弟姐妹']];
+const HFAM_ALLERGY_COL=[['rhin','过敏性鼻炎'],['asthma','哮喘'],['ecz','湿疹或特应性皮炎'],['none','无以上疾病'],['unk','不详']];
+
+function buildHealthSchema(){
+  const S=[];const P=(key,label,page,kind,opts)=>S.push({key,label,page,kind:kind||'text',opts});
+  /* 多选展开：prefix+1..n，每项 toggle */
+  const multi=(prefix,arr,page,label)=>arr.forEach((t,i)=>P(`${prefix}${i+1}`,`${label}·${i+1}.${t}`,page,'toggle'));
+
+  /* ───────── 第1页 一、儿童基本情况 ───────── */
+  P('no','序号 no',1,'text');
+  P('childname','儿童姓名 childname',1,'text');
+  P('gender','性别 gender(1=男 2=女)',1,'gender');
+  P('nation','民族 nation(1汉2彝3藏4羌5苗6其他)',1,'num');
+  P('nation1','民族其他说明 nation1',1,'text');
+  P('cIDcard','身份证号码 cIDcard',1,'text');
+  P('BIRTHDAY1','出生日期类型 BIRTHDAY1(1新历/阳历 2农历/旧历)',1,'num');
+  P('BIRTHDAY','出生日期 BIRTHDAY',1,'text');
+  P('school','就读学校 school',1,'text');
+  P('grade','年级 grade',1,'num');
+  P('class','班级 class',1,'num');
+  P('arriveschoolt','早上要求到校时间 arriveschoolt(如 800=8:00)',1,'text');
+  P('leaveschoolt','下午/晚上放学时间 leaveschoolt(如 1725=17:25)',1,'text');
+  P('live_school','是否住读 live_school(1是 0否)',1,'toggle');
+  P('chinese','语文成绩 chinese',1,'text');
+  P('math','数学成绩 math',1,'text');
+  P('english','英语成绩 english',1,'text');
+  P('study_dep_new','学习压力 study_dep_new(1无2较小3一般4较大5大)',1,'num');
+  P('parent_h','家长期望压力 parent_h(1无2轻度3中度4重度)',1,'num');
+  P('character','性格 character(1内向2外向3中间)',1,'num');
+  P('child_influence','受家长负性情绪影响 child_influence(1无2轻微3一般4较大5大)',1,'num');
+  P('punish','犯错/考差是否被惩罚 punish(1是 0否)',1,'toggle');
+  /* 惩罚方式多选 punish1-11，punish10a=其他说明 */
+  multi('punish',HQ_PUNISH,1,'惩罚方式 punish');
+  P('punish10a','惩罚其他说明 punish10a',1,'text');
+  P('play_g','是否玩游戏 play_g(0否 1是)',1,'toggle');
+
+  /* ───────── 第2页 游戏/疾病/保险/维生素/月经遗精 + 二、孕期喂养B1-B6 ───────── */
+  P('play_t1','上学期间每月玩游戏次数 play_t1',2,'num');
+  P('play_d1','上学期间每次时长(分) play_d1',2,'num');
+  P('play_t2','寒暑假每月玩游戏次数 play_t2',2,'num');
+  P('play_d2','寒暑假每次时长(分) play_d2',2,'num');
+  /* 玩游戏主要工具多选 play_gt1-6，play_gt6o=其他说明 */
+  multi('play_gt',HQ_GAMETOOL,2,'玩游戏主要工具 play_gt');
+  P('play_gt6o','游戏工具其他说明 play_gt6o',2,'text');
+  /* 玩游戏场所多选 play_gl1-6，play_gl6o=其他说明 */
+  multi('play_gl',HQ_GAMEPLACE,2,'玩游戏场所 play_gl');
+  P('play_gl6o','游戏场所其他说明 play_gl6o',2,'text');
+  P('disease','是否患以下疾病 disease(0否1是)',2,'toggle');
+  /* 疾病多选 disease1-7，disease_other=其他说明 */
+  P('disease1','疾病·哮喘 disease1',2,'toggle');
+  P('disease2','疾病·先天性心脏病 disease2',2,'toggle');
+  P('disease6','疾病·贫血 disease6',2,'toggle');
+  P('disease7','疾病·肾脏疾病 disease7',2,'toggle');
+  P('disease5','疾病·其他疾病 disease5',2,'toggle');
+  P('disease_other','疾病其他说明 disease_other',2,'text');
+  P('baseins','是否购买基本医疗保险 baseins(0否1是)',2,'toggle');
+  P('baseins1','基本医保第几档 baseins1',2,'text');
+  P('baseins2','基本医保每年花费(元) baseins2',2,'num');
+  P('busins','是否购买商业医疗保险 busins(0否1是)',2,'toggle');
+  P('busins1','商业保险每年花费(元) busins1',2,'num');
+  P('busins3','商业保险报销总额度(元) busins3',2,'num');
+  P('VA_SUPPLY','是否服用维生素A补充剂 VA_SUPPLY(0否1是)',2,'toggle');
+  P('VA_SUPPLY1','维生素A每日剂量(视黄醇当量RE) VA_SUPPLY1',2,'num');
+  P('VA_SUPPLY2','维生素A每日剂量(IU) VA_SUPPLY2',2,'num');
+  P('VD_SUPPLY','是否服用维生素D补充剂 VD_SUPPLY(0否1是)',2,'toggle');
+  P('VD_SUPPLY1','维生素D每日剂量(μg) VD_SUPPLY1',2,'num');
+  P('VD_SUPPLY2','维生素D每日剂量(IU) VD_SUPPLY2',2,'num');
+  P('menstr','(女)是否已来月经 menstr(0否1是)',2,'toggle');
+  P('menstr_y','月经初潮年龄·岁 menstr_y',2,'num');
+  P('menstr_m','月经初潮·月 menstr_m',2,'num');
+  P('spermat','(男)是否有遗精 spermat(0否1是)',2,'toggle');
+  P('spermat_y','首次遗精年龄·岁 spermat_y',2,'num');
+  P('spermat_m','首次遗精·月 spermat_m',2,'num');
+  P('PMAGE','B1·怀孕时母亲年龄(岁) PMAGE',2,'num');
+  P('PFAGE','B1·怀孕时父亲年龄(岁) PFAGE',2,'num');
+  P('BEFW','B2·母亲怀孕前体重(斤) BEFW',2,'num');
+  P('PROW','B2·分娩前体重(斤) PROW',2,'num');
+  P('PWEEK1','B3·分娩孕周(周) PWEEK1',2,'num');
+  P('PWEEK1_a','B3·分娩孕周(天) PWEEK1_a',2,'num');
+  P('PWEEK2','B3·是否足月 PWEEK2(0足月1早产)',2,'toggle');
+  P('BIRTHDAY2','B4·分娩日期(新历) BIRTHDAY2',2,'text');
+  P('BIRTHW','B5·分娩方式 BIRTHW(0顺产1剖腹产)',2,'toggle');
+  P('twins','B5·是否双胞胎 twins(1是0否)',2,'toggle');
+  P('BIRTHLEN','B6·出生身长(cm) BIRTHLEN',2,'num');
+  P('CBIRTHW','B6·出生体重(斤) CBIRTHW',2,'num');
+
+  /* ───────── 第3页 二、孕期 B7-B20 ───────── */
+  P('activesmoke','B7·怀孕前是否主动吸烟 activesmoke(0否1是)',3,'toggle');
+  P('activesmoke1','B7·平均每周(次) activesmoke1',3,'num');
+  P('activesmoke2','B7·平均每次(支) activesmoke2',3,'num');
+  P('activesmoke3','B7·烟龄(年) activesmoke3',3,'num');
+  P('SMOKE1','B8·孕期吸烟·无 SMOKE1(打✓=1)',3,'toggle');
+  P('SMOKE2','B8·孕期主动吸烟 SMOKE2(1是)',3,'toggle');
+  P('SMOKE2A','B8·主动吸烟每天(支) SMOKE2A',3,'num');
+  P('SMOKE3','B8·孕期被动吸烟 SMOKE3(1是)',3,'toggle');
+  P('SMOKE3A','B8·被动吸烟每天(支) SMOKE3A',3,'num');
+  P('drink','B9·孕期是否饮酒 drink(0否1是)',3,'toggle');
+  P('Wdrink','B9·白酒每次(ml) Wdrink',3,'num');
+  P('Wdrink1','B9·白酒每月(次) Wdrink1',3,'num');
+  P('Rdrink','B9·红酒每次(ml) Rdrink',3,'num');
+  P('Rdrink1','B9·红酒每月(次) Rdrink1',3,'num');
+  P('Bdrink','B9·啤酒每次(ml) Bdrink',3,'num');
+  P('Bdrink1','B9·啤酒每月(次) Bdrink1',3,'num');
+  P('druguse','B10·孕早期是否用致畸药物 druguse(0否1是)',3,'toggle');
+  P('druguse1','B10·用药时间孕(周) druguse1',3,'num');
+  P('druguse2','B10·药名 druguse2',3,'text');
+  P('PREHYPER','B11·孕期高血压 PREHYPER(0否1是)',3,'toggle');
+  P('PREHYPER1','B11·诊断孕周 PREHYPER1',3,'num');
+  P('PREDIAT','B12·孕期糖尿病 PREDIAT(0否1是)',3,'toggle');
+  P('PREDIAT1','B12·诊断孕周 PREDIAT1',3,'num');
+  P('NUTRISUP','B13·甲状腺功能异常 NUTRISUP(0否1是)',3,'toggle');
+  P('NUTRIM','B13·诊断孕周 NUTRIM',3,'num');
+  /* 注：NUTRIVA/NUTRIVD/NUTRIOTH/NUTRIOTH1-4 为B14·营养补充剂 */
+  P('NUTRIVA','B14·孕期是否服营养补充剂 NUTRIVA(0否1是)',3,'toggle');
+  P('NUTRIVD','B14·营养补充剂·多元维生素 NUTRIVD(1是)',3,'toggle');
+  P('NUTRIOTH','B14·营养补充剂·维生素A NUTRIOTH(1是)',3,'toggle');
+  P('NUTRIOTH1','B14·营养补充剂·维生素D NUTRIOTH1(1是)',3,'toggle');
+  P('NUTRIOTH2','B14·营养补充剂·其他 NUTRIOTH2(1是)',3,'toggle');
+  P('NUTRIOTH3','B14·营养补充剂·其他说明 NUTRIOTH3',3,'text');
+  P('NUTRIOTH4','B14·(备用) NUTRIOTH4',3,'text');
+  P('BLOODSUP','B15·分娩住院期间是否输血 BLOODSUP(0否1是)',3,'toggle');
+  P('mmilk','B16·母乳开始时间 mmilk(0未添加1出生时2出生后天)',3,'num');
+  P('mmilk1','B16·出生后(天) mmilk1',3,'num');
+  P('mmilk2','B16·母乳喂养到·岁 mmilk2',3,'num');
+  P('mmilk3','B16·母乳喂养到·月 mmilk3',3,'num');
+  P('milk','B17·配方奶开始时间 milk(0未添加1出生时2=天3=月)',3,'num');
+  P('milk2','B17·开始数值 milk2',3,'num');
+  P('milk1','B17·配方奶喂养到·岁 milk1',3,'num');
+  P('milk3','B17·配方奶喂养到·月 milk3',3,'num');
+  P('milk4','B18·添加辅食开始月龄 milk4',3,'num');
+  P('FOODS','B19·是否搬家/翻新 FOODS(0否1是)',3,'toggle');
+  P('move','B19·次数 move',3,'num');
+  P('movet','B19·每次装修后入住年份 movet',3,'text');
+  P('movet1','B20a·孕次总数 movet1',3,'num');
+  P('movet2','B20b·顺产(次) movet2',3,'num');
+  P('movet3','B20b·剖宫产(次) movet3',3,'num');
+  P('prenum','B20b·末次分娩方式 prenum(1阴道2剖宫)',3,'num');
+  P('natural','B20b·末次分娩时间 natural',3,'text');
+  P('cesarean','B20c·自然流产(次) cesarean',3,'num');
+  P('lastdelivery','B20c·人工流产(次) lastdelivery',3,'num');
+  P('lastdeliveryt','B20c·末次流产方式 lastdeliveryt(1手术2药物3自然)',3,'num');
+  P('abortion1','B20c·末次流产时间 abortion1',3,'text');
+  P('abortion2','B20d·早产(次) abortion2',3,'num');
+  P('lastabortion','B20d·死胎/产(次) lastabortion',3,'num');
+  P('lastabortiont','(备用) lastabortiont',3,'text');
+  P('premature','(备用) premature',3,'text');
+  P('stillbirth','(备用) stillbirth',3,'text');
+
+  /* ───────── 第4页 B21-B22 + 三、家庭基本情况1-7 ───────── */
+  P('complication_other','B21·生育其他孩子时是否妊娠并发症 complication_other(0否1是)',4,'toggle');
+  P('complication_other2','B21·妊娠糖尿病 complication_other2(1是)',4,'toggle');
+  P('complication_other3','B21·妊娠高血压 complication_other3(1是)',4,'toggle');
+  P('complication_other4','B21·其他并发症 complication_other4(1是)',4,'toggle');
+  P('complication_othero','B21·其他并发症说明 complication_othero',4,'text');
+  P('MBREAST','B22·母亲月经初潮年龄(岁) MBREAST',4,'num');
+  P('MMENTRA','(备用) MMENTRA',4,'text');
+  P('live','与哪些家庭成员同住 live(1-6)',4,'num');
+  P('live1','同住其他说明 live1',4,'text');
+  P('FAMILYN','家庭总人口数 FAMILYN',4,'num');
+  P('Siblings','兄弟姐妹个数(含自己) Siblings',4,'num');
+  P('CHILDREN_order','你是家中第几个孩子 CHILDREN_order',4,'num');
+  P('caregiver','主要照顾者 caregiver(1母2父3爷奶4外公婆5其他)',4,'num');
+  P('caregiver1','主要照顾者其他说明 caregiver1',4,'text');
+  P('MARRIAGE','父母婚姻状况 MARRIAGE(1双亲2离异未重组3离异/丧偶后重组4丧偶未重组5未婚)',4,'num');
+  P('MOCUP','母亲职业 MOCUP(1-10)',4,'num');
+  P('MOCUP1','母亲职业其他说明 MOCUP1',4,'text');
+  P('FOCUP','父亲职业 FOCUP(1-10)',4,'num');
+  P('FOCUP1','父亲职业其他说明 FOCUP1',4,'text');
+  P('MEDU','母亲受教育程度 MEDU(1初中及以下2高中/职高/中专3大专/本科4硕士及以上)',4,'num');
+  P('FEDU','父亲受教育程度 FEDU(1初中及以下2高中/职高/中专3大专/本科4硕士及以上)',4,'num');
+  P('fam_income','家庭年收入水平 fam_income(1-8)',4,'num');
+  P('FOODCOST','每月家庭饮食开支(元) FOODCOST',4,'num');
+  /* 家庭成员疾病史表：父/母/爷爷/奶奶/外公/外婆 × 身高/体重/腰围 + 9病勾选 + 其他 */
+  /* 键名规范：fhistoryH=身高 fhistoryW=体重 fhistoryWC=腰围 fhistory1=高血压 fhistory2=高血脂 fhistory3=糖尿病 fhistory4=冠心病 fhistory5=脑卒中 fhistory6=甲状腺 fhistory13=脂肪肝 fhistory13_a=其他说明
+     后缀：f=父亲 m=母亲 gf=爷爷 gm=奶奶 mgf=外公 mgm=外婆 */
+  HFAM_MEMBERS.forEach(([mk,mn])=>{
+    const sfx=mk==='father'?'f':mk==='mother'?'m':mk==='gpa'?'gf':mk==='gma'?'gm':mk==='mgpa'?'mgf':'mgm';
+    P(`fhistoryH${sfx}`,`家庭疾病史·${mn}·身高(cm) fhistoryH${sfx}`,4,'num');
+    P(`fhistoryW${sfx}`,`家庭疾病史·${mn}·体重(kg) fhistoryW${sfx}`,4,'num');
+    P(`fhistoryWC${sfx}`,`家庭疾病史·${mn}·腰围(cm) fhistoryWC${sfx}`,4,'num');
+    HFAM_DISEASES.forEach(([dk,dn],di)=>{
+      const dkey=[1,2,3,4,5,6,13,'13_a'][di]??di+1;
+      P(`fhistory${dkey}${sfx}`,`家庭疾病史·${mn}·${dn} fhistory${dkey}${sfx}`,4,'toggle');
+    });
+    P(`fhistory13${sfx}_a`,`家庭疾病史·${mn}·其他说明 fhistory13${sfx}_a`,4,'text');
+  });
+
+  /* ───────── 第5页 三、家庭8-12 + 四、儿童锻炼1-2 ───────── */
+  P('fhistory','家人最近一月在你面前吸烟 fhistory(1是0否)',5,'toggle');
+  P('fhistoryHf','吸烟者·父亲 fhistoryHf',5,'toggle');P('fhistoryWf','父亲每天(支) fhistoryWf',5,'num');
+  P('fhistoryWCf','吸烟者·爷爷或外公 fhistoryWCf',5,'toggle');P('fhistory1f','爷爷/外公每天(支) fhistory1f',5,'num');
+  P('fhistory2f','吸烟者·母亲 fhistory2f',5,'toggle');P('fhistory3f','母亲每天(支) fhistory3f',5,'num');
+  P('fhistory4f','吸烟者·奶奶或外婆 fhistory4f',5,'toggle');P('fhistory5f','奶奶/外婆每天(支) fhistory5f',5,'num');
+  P('fhistory6f','吸烟者·其他家人 fhistory6f',5,'toggle');P('fhistory13f','其他家人每天(支) fhistory13f',5,'num');
+  P('fhistory13f_a','吸烟其他家人说明 fhistory13f_a',5,'text');
+  /* 注：以下 fhistoryH/W/WC/1~13+m/gf/gm/mgf/mgm 已在第4页疾病史表生成，
+     此处仅保留第5页家庭地址/联系人字段（原问卷第5页第9-12题）*/
+  P('fhistoryHm','家庭现住址 fhistoryHm',5,'text');
+  P('fhistoryWm','目前居住房屋面积(平米) fhistoryWm',5,'num');
+  P('fhistoryWCm','住房500米内有污染工厂/臭水沟/大马路 fhistoryWCm(1是0否)',5,'toggle');
+  P('fhistory1m','母亲姓名 fhistory1m',5,'text');P('fhistory2m','母亲手机号码 fhistory2m',5,'text');
+  P('fhistory3m','父亲姓名 fhistory3m',5,'text');P('fhistory4m','父亲手机号码 fhistory4m',5,'text');
+  P('fhistory5m','其他照顾者姓名 fhistory5m',5,'text');P('fhistory6m','其他照顾者手机号 fhistory6m',5,'text');
+  P('fhistory13m','其他照顾者微信号 fhistory13m',5,'text');P('fhistory13m_a','(备用) fhistory13m_a',5,'text');
+  /* 锻炼：上学回家方式 3 项 */
+  const exC=[['fhistoryHgf','在楼下直接坐小汽车/公交车'],['fhistoryWgf','先步行一段到公交站再坐车'],['fhistoryWCgf','步行/骑自行车']];
+  exC.forEach(([k,n])=>{P(k,`上学回家·${n}·是否`,5,'toggle');P(k+'_d',`上学回家·${n}·每周(天)`,5,'num');P(k+'_t',`上学回家·${n}·每次(分)`,5,'num');});
+  /* 主要运动方式 1-3（快跑/骑车/慢跑） */
+  const sp1=[['fhistory1gf','快跑/跳绳'],['fhistory2gf','骑自行车/仰卧起坐/俯卧撑/引体向上'],['fhistory3gf','慢跑/足球/溜直排轮']];
+  sp1.forEach(([k,n])=>{P(k,`主要运动·${n}·是否`,5,'toggle');P(k+'_d',`主要运动·${n}·每周(天)`,5,'num');P(k+'_t',`主要运动·${n}·每次(分)`,5,'num');});
+
+  /* ───────── 第6页 四、运动方式4-13 + 家务 + 兴趣班 + 五、工作日作息 ───────── */
+  const sp2=[['fhistory4gf','篮球/游泳/跳远/跳高'],['fhistory5gf','羽毛球'],['fhistory6gf','乒乓球/体操'],['fhistory13gf','拉伸/瑜伽'],
+    ['fhistory13gf_a','逛街/逛超市'],['fhistoryHgm','散步'],['fhistoryWgm','学习(除上学)/玩电脑'],['fhistoryWCgm','吃饭/聊天/做手工'],['fhistory1gm','看电视/电影/听音乐'],['fhistory2gm','其他']];
+  sp2.forEach(([k,n])=>{P(k,`运动方式·${n}·是否`,6,'toggle');P(k+'_d',`运动方式·${n}·每周(天)`,6,'num');P(k+'_t',`运动方式·${n}·每次(分)`,6,'num');});
+  const chore=[['fhistory3gm','扫地'],['fhistory4gm','拖地'],['fhistory5gm','洗碗/倒垃圾/浇花等'],['fhistory6gm','遛狗/猫'],['fhistory13gm','其他']];
+  chore.forEach(([k,n])=>{P(k,`家务·${n}·是否`,6,'toggle');P(k+'_d',`家务·${n}·每周(天)`,6,'num');P(k+'_t',`家务·${n}·每次(分)`,6,'num');});
+  P('fhistory13gm_a','家务其他说明 fhistory13gm_a',6,'text');
+  const hobby=[['fhistoryHmgf','钢琴/风琴/小提琴'],['fhistoryWmgf','吉他/大提琴/长笛/木管乐器'],['fhistoryWCmgf','芭蕾舞/现代舞/爵士'],['fhistory1mgf','跆拳道/柔道/空手道'],['fhistory2mgf','其他']];
+  hobby.forEach(([k,n])=>{P(k,`兴趣班·${n}·是否`,6,'toggle');P(k+'_d',`兴趣班·${n}·每周(天)`,6,'num');P(k+'_t',`兴趣班·${n}·每次(分)`,6,'num');});
+  P('fhistory3mgf','工作日·早晨醒来·时 fhistory3mgf',6,'num');P('fhistory4mgf','工作日·早晨醒来·分 fhistory4mgf',6,'num');
+  P('fhistory5mgf','工作日·早晨起床·时 fhistory5mgf',6,'num');P('fhistory6mgf','工作日·早晨起床·分 fhistory6mgf',6,'num');
+  P('fhistory13mgf','工作日·早上吃饭·时 fhistory13mgf',6,'num');P('fhistory13mgf_a','工作日·早上吃饭·分 fhistory13mgf_a',6,'num');
+  P('fhistoryHmgm','工作日·午休时间长度(分) fhistoryHmgm',6,'num');
+  P('fhistoryWmgm','工作日·晚餐·时 fhistoryWmgm',6,'num');P('fhistoryWCmgm','工作日·晚餐·分 fhistoryWCmgm',6,'num');
+  P('fhistory1mgm','工作日·睡前最后进食·时 fhistory1mgm',6,'num');P('fhistory2mgm','工作日·睡前最后进食·分 fhistory2mgm',6,'num');
+  P('fhistory3mgm','工作日·晚上上床·时 fhistory3mgm',6,'num');P('fhistory4mgm','工作日·晚上上床·分 fhistory4mgm',6,'num');
+  P('fhistory5mgm','工作日·晚上入睡·时 fhistory5mgm',6,'num');P('fhistory6mgm','工作日·晚上入睡·分 fhistory6mgm',6,'num');
+
+  /* ───────── 第7页 工作日睡觉原因 + 休息日作息/原因 + 睡眠4题 ───────── */
+  const sleepReason=['家长规定','自己觉得困','这个时间点才能做完作业','想玩儿的玩够了','长期睡眠习惯','其他'];
+  multi('fhistory13mgm',sleepReason,7,'工作日晚睡原因 fhistory13mgm');
+  P('fhistory13mgm_a','工作日睡觉原因其他说明 fhistory13mgm_a',7,'text');
+  /* 休息日作息 */
+  P('wd_wake_h','休息日·早晨醒来·时 wd_wake_h',7,'num');P('wd_wake_m','休息日·早晨醒来·分 wd_wake_m',7,'num');
+  P('wd_getup_h','休息日·早晨起床·时 wd_getup_h',7,'num');P('wd_getup_m','休息日·早晨起床·分 wd_getup_m',7,'num');
+  P('wd_breakfast_h','休息日·早上吃饭·时 wd_breakfast_h',7,'num');P('wd_breakfast_m','休息日·早上吃饭·分 wd_breakfast_m',7,'num');
+  P('wd_nap_min','休息日·午休时间长度(分) wd_nap_min',7,'num');
+  P('wd_dinner_h','休息日·晚餐·时 wd_dinner_h',7,'num');P('wd_dinner_m','休息日·晚餐·分 wd_dinner_m',7,'num');
+  P('wd_lastfood_h','休息日·睡前最后进食·时 wd_lastfood_h',7,'num');P('wd_lastfood_m','休息日·睡前最后进食·分 wd_lastfood_m',7,'num');
+  P('wd_bed_h','休息日·晚上上床·时 wd_bed_h',7,'num');P('wd_bed_m','休息日·晚上上床·分 wd_bed_m',7,'num');
+  P('wd_sleep_h','休息日·晚上睡觉·时 wd_sleep_h',7,'num');P('wd_sleep_m','休息日·晚上睡觉·分 wd_sleep_m',7,'num');
+  multi('we_reason',sleepReason,7,'休息日晚睡原因 we_reason');
+  P('sleep_mood','睡前30分钟情绪 sleep_mood(1平静2较平静3中等4较激动5激动)',7,'num');
+  P('sleep_type','作息类型 sleep_type(1早睡早起2早睡晚起3晚睡早起4晚睡晚起5入睡不规律6起床不规律)',7,'num');
+  P('sleep_latency','入睡需多长时间 sleep_latency(1:0-5分2:6-15分3:16-30分4:31-45分5:46-60分6:超1小时)',7,'num');
+
+  /* ───────── 第8页 睡眠习惯量表 1-33（三选一 1通常2有时3很少）───────── */
+  HSLEEP33.forEach((t,i)=>P(`sleep${i+1}`,`睡眠习惯·${i+1}.${t} sleep${i+1}`,8,'scale'));
+
+  /* ───────── 第9-10页 五、膳食频率表（频度0-4 + 食用量斤/两/ml）───────── */
+  HDIET_ITEMS.forEach(([k,n])=>{
+    const pg=(['diet1a','diet1b','diet2','diet3','diet4a','diet4b','diet4c','diet4d','diet4e','diet5','diet6','diet7','diet8','diet9','diet10','diet11a','diet11b'].includes(k))?9:10;
+    P(k,`${n}·频度(0不吃1天2周3月4年)`,pg,'freq');
+    P(k+'_jin',`${n}·食用量(斤)`,pg,'num');
+    P(k+'_liang',`${n}·食用量(两/ml/次)`,pg,'num');
+  });
+
+  /* ───────── 第10页 膳食后半 1.1-8 ───────── */
+  P('meal_count_school','上学日每天吃几次食物 meal_count_school(2-6)',10,'num');
+  P('meal_count_rest','休息日每天吃几次食物 meal_count_rest(2-6)',10,'num');
+  P('binge','是否会暴饮暴食 binge(0否1是)',10,'toggle');P('binge_times','暴食平均(次/月) binge_times',10,'num');
+  P('taste','吃饭咸淡 taste(1很咸2偏咸3适中4偏淡5很淡)',10,'num');
+  P('breakfast','吃早餐情况 breakfast(0不吃1吃)',10,'toggle');P('breakfast_days','平均吃早餐(天/周) breakfast_days',10,'num');
+  P('stove','做饭主要灶具 stove(1燃气灶2电子设备3煤炉/土灶4其他)',10,'num');
+  P('cook_smoke','做饭时油烟大小 cook_smoke(1大2较大3一般4较小5小)',10,'num');
+  P('range_hood','厨房抽油烟设备 range_hood(1抽油烟机2排气扇3无9不知道)',10,'num');
+  P('range_hood_freq','抽油烟使用频率 range_hood_freq(1一直2经常3有时4几乎不5从不9不清楚)',10,'num');
+  multi('water',HQ_WATER,10,'日常饮水来源 water');
+
+  /* ───────── 第11页 八·习惯延续(9-16) + 六、甲状腺1-3 ───────── */
+  P('bottle_freq','饮用瓶装水/饮料频率 bottle_freq(1从不2每月1-3次3每周1-2次4每周3-5次5每天1次及以上)',11,'num');
+  P('takeout_freq','食用外卖/打包频率 takeout_freq(1从不2每月1-3次3每周1-2次4每周3-5次5每天1次及以上)',11,'num');
+  P('takeout_pour','外卖是否倒入自家餐具 takeout_pour(1每次倒2多数时候倒3偶尔倒4不倒直接用外卖盒)',11,'num');
+  P('disposable_tableware','一次性塑料餐具 disposable_tableware(1从不2仅外出/外卖时3家庭日常也频繁)',11,'num');
+  P('plastic_cup','孩子是否用塑料水杯/饭盒 plastic_cup(1是2否)',11,'num');
+  P('plastic_hot','塑料水杯装热水/热饮 plastic_hot(1从不2有时3偶尔4常常5绝大多数)',11,'num');
+  P('plastic_microwave','微波炉加热塑料饭盒食物 plastic_microwave(1从不2有时3偶尔4常常5绝大多数)',11,'num');
+  P('plastic_wrap','家庭使用保鲜膜 plastic_wrap(1从不2仅包裹冷鲜3包裹热食/加热)',11,'num');
+  P('prepackaged_freq','日常食用预包装食品频率 prepackaged_freq(1从不2每月1-3次3每周1-2次4每周3-5次5每天1次及以上)',11,'num');
+  P('teabag_freq','是否常用茶包/袋泡咖啡 teabag_freq(1从不2偶尔3经常)',11,'num');
+  P('thy_diagnosed','甲状腺相关·曾诊断疾病(填编号/文字) thy_diagnosed',11,'text');
+  P('thy_abnormal_check','近1年肝/甲状腺/血脂异常检查结果 thy_abnormal_check',11,'text');
+  P('thy_meds','近3个月服用药物(填编号,可多选/文字) thy_meds',11,'text');
+
+  /* ───────── 第12页 七、儿童免疫1-17 ───────── */
+  HIMMUNE_FREQ.forEach((t,i)=>P(`imm_freq${i+1}`,`免疫频率·${i+1}.${t} imm_freq${i+1}`,12,'scale'));
+  P('imm7_skin','是否有过皮炎/化脓性皮肤病/严重湿疹 imm7_skin(0否1是)',12,'toggle');
+  P('imm8_wheeze','是否反复发作喘息/哮鸣音 imm8_wheeze(0否1是)',12,'toggle');
+  P('imm9_drycough','是否反复干咳超过8周 imm9_drycough(0否1是)',12,'toggle');
+  P('imm10_allergy','是否被诊断过敏相关疾病 imm10_allergy(0否1是)',12,'toggle');
+  multi('imm10a',HQ_ALLERGY,12,'过敏相关疾病 imm10a');
+  P('imm11_test','是否做过过敏原检测 imm11_test(0否1是)',12,'toggle');P('imm11_substance','过敏物质 imm11_substance',12,'text');
+  P('imm12_ulcer','口腔溃疡 imm12_ulcer(1:1-2周愈合不留瘢2:1-2月或更长3:1-2周不留瘢)',12,'num');
+  P('imm13_renovate','工作/居住房间装修不超过半年 imm13_renovate(0否1是)',12,'toggle');
+  P('imm14_rickets','是否有严重佝偻病/严重营养不良 imm14_rickets(0否1是)',12,'toggle');
+  P('imm15_ascariasis','是否有过蛔虫病 imm15_ascariasis(0否1是)',12,'toggle');
+  P('imm16_food_allergy','是否有食物/花粉/疫苗过敏史 imm16_food_allergy(0否1是)',12,'toggle');P('imm16_name','过敏具体名称 imm16_name',12,'text');
+  P('imm17_tcm','是否喝过中药 imm17_tcm(0否1是)',12,'toggle');
+
+  /* ───────── 第13页 七、免疫18-27 ───────── */
+  HFAM_ALLERGY_MEM.forEach(([mk,mn])=>HFAM_ALLERGY_COL.forEach(([ck,cn])=>P(`imm18_${mk}_${ck}`,`亲属过敏史·${mn}·${cn}`,13,'toggle')));
+  P('imm19_brain','孩子是否有癫痫/脑发育异常/脑炎后遗症/颅内病变 imm19_brain(0否1是)',13,'toggle');
+  P('imm20_immune','孩子是否有癌症/白血病/艾滋病/其他免疫系统疾病 imm20_immune(0否1是)',13,'toggle');
+  P('imm21_steroid','过去3月是否用可的松/强的松/激素/抗肿瘤药或放疗 imm21_steroid(0否1是)',13,'toggle');
+  P('imm22_transfuse','过去1年是否输血/血制品/免疫球蛋白 imm22_transfuse(0否1是)',13,'toggle');
+  P('imm23_vaccine','是否按计划接种疫苗 imm23_vaccine(0否1是)',13,'toggle');
+  P('imm24_vaccine_reaction','疫苗后是否发生严重反应 imm24_vaccine_reaction(0否1是)',13,'toggle');P('imm24_symptom','具体症状 imm24_symptom',13,'text');
+  P('imm25_covid','是否接种新冠疫苗 imm25_covid(0否1是)',13,'toggle');
+  P('imm26_med_week','一周内是否在服药物 imm26_med_week(0否1是)',13,'toggle');P('imm26_med_name','药物类型/名称 imm26_med_name',13,'text');
+  P('imm27_anemia','孩子是否诊断过贫血 imm27_anemia(0否1是)',13,'toggle');P('imm27_anemia_med','是否服用过贫血治疗药物 imm27_anemia_med(0否1是)',13,'toggle');P('imm27_med_name','贫血具体药物 imm27_med_name',13,'text');
+
+  /* ───────── 第14页 八、环境暴露与生活习惯1-13 + 填表信息 ───────── */
+  P('env1_school_cup','学校喝水最常用杯子材质 env1_school_cup(1玻璃/不锈钢2硬塑料/太空杯3瓶装水/塑料杯奶茶)',14,'num');
+  P('env2_microwave_plastic','塑料饭盒/袋装热菜微波炉直接加热 env2_microwave_plastic(1从不/家里不用2偶尔会3经常这样)',14,'num');
+  P('env3_snack','多久吃一次包装零食 env3_snack(1很少每月<1次2有时每周1-2次3经常几乎每天)',14,'num');
+  P('env4_fastfood_paper','吃快餐直接放防油纸/纸盒上吃 env4_fastfood_paper(1很少这类快餐2吃但尽量不接触包装纸3经常直接拿着包装纸吃)',14,'num');
+  P('env5_bite','写作业/上课咬铅笔头/橡皮擦/指甲 env5_bite(1从来没有2以前有现在改了3现在经常这样)',14,'num');
+  P('env6_eraser','橡皮擦/文具是否特别软或浓烈香味 env6_eraser(1不是都普通2有一部分是3大部分特别香软)',14,'num');
+  P('env7_receipt','收银小票拿手里玩 env7_receipt(1从来不拿2有时拿手里玩3经常拿玩后不洗手吃东西)',14,'num');
+  P('env8_sunscreen','夏天常涂防晒霜/喷防晒雾 env8_sunscreen(1几乎不用2只上体育课/出去玩才用3每天都用)',14,'num');
+  P('env9_screen_time','每天玩手机/平板/坐电脑前时间 env9_screen_time(1不到1小时2:1-3小时3超过3小时)',14,'num');
+  P('env10_new_furniture','过去一年家里刷墙/买新大件家具 env10_new_furniture(1没有2有但不怎么闻到味道3有且能闻到明显新家具/油漆味)',14,'num');
+  P('env11_road','睡觉房间窗户外是否紧挨大马路 env11_road(1否2是)',14,'num');
+  P('env12_mosquito','夏天睡觉房间点电蚊香/烧蚊香 env12_mosquito(1很少用主要挂蚊帐2经常用每晚开电蚊香3经常用一般烧蚊香)',14,'num');
+  P('env13_nonstick','正餐是否用黑色涂层不粘锅 env13_nonstick(1从不用铁锅/陶瓷锅2偶尔使用3经常使用几乎每天)',14,'num');
+  P('collectform','填表人姓名 collectform',14,'text');P('collectdata','填表日期 collectdata',14,'text');P('keyboarder','录入员 keyboarder',14,'text');
+
+  return S;
+}
+
+/* ════════ 量表网格列定义 ════════ */
+const HCOL_SLEEP3=[['通常是这样','1'],['有时候这样','2'],['很少这样','3']];
+const HCOL_FREQ5=[['从不','1'],['有时','2'],['偶尔','3'],['常常','4'],['绝大多数','5']];
+const HCOL_DIET=[['不吃','0'],['天','1'],['周','2'],['月','3'],['年','4']];
+
+/* ════════ 每页量表分组（点格网格） ════════ */
+function hGridGroups(page){
+  const G=[];const mk=(id,cap,cols,keys,texts,extra)=>G.push(Object.assign({id,cap,cols,keys,texts},extra||{}));
+  if(page===8){
+    mk('h_sleep','四、睡眠习惯量表 1-33（1通常是这样·2有时候这样·3很少这样）',HCOL_SLEEP3,HSLEEP33.map((_,i)=>'sleep'+(i+1)),HSLEEP33);
+  }else if(page===12){
+    mk('h_imm','七、免疫·频率题 1-6（1从不·2有时·3偶尔·4常常·5绝大多数）',HCOL_FREQ5,HIMMUNE_FREQ.map((_,i)=>'imm_freq'+(i+1)),HIMMUNE_FREQ);
+  }else if(page===13){
+    mk('h_famallergy','18·直系亲属过敏史（父/母/兄弟姐妹 × 5列勾选）',null,null,null,{type:'famallergy'});
+  }
+  return G;
+}
+
+/* ════════ 频率行（食用频度点格 + 斤/两输入） ════════ */
+function hDietLine(item,r){
+  const [k,name]=item;
+  const wrap=document.createElement('div');wrap.className='rv-dietline';
+  const nm=document.createElement('div');nm.className='rv-dietname';nm.textContent=name;wrap.appendChild(nm);
+  /* 频度点格 0-4 */
+  const fr=document.createElement('div');fr.className='rv-dietfreq';
+  HCOL_DIET.forEach(([lbl,v])=>{
+    const on=String(r.data[k]??'')===v;const imp=on&&r.imported&&r.imported[k]?' imp':'';
+    const cell=document.createElement('span');cell.className='rv-fcell'+(on?' on':'')+(imp?' imp':'');cell.dataset.k=k;cell.dataset.v=v;cell.textContent=v;cell.title=lbl;
+    cell.onclick=()=>{const tr=cell.parentElement;const already=cell.classList.contains('on');tr.querySelectorAll('.rv-fcell').forEach(c=>{c.classList.remove('on');c.classList.remove('imp');});if(already){r.data[k]='';}else{cell.classList.add('on');r.data[k]=v;}if(r.imported)delete r.imported[k];r.filled=countFilled(r);updateFill(r);};
+    fr.appendChild(cell);
+  });
+  wrap.appendChild(fr);
+  /* 食用量 斤 / 两 */
+  const amt=document.createElement('div');amt.className='rv-dietamt';
+  const vj=r.data[k+'_jin']==null?'':String(r.data[k+'_jin']);
+  const vl=r.data[k+'_liang']==null?'':String(r.data[k+'_liang']);
+  const ji=document.createElement('span');ji.className='rv-freq';
+  ji.innerHTML=`<input data-k="${k}_jin" class="${vj===''?'empty':''}${r.imported&&r.imported[k+'_jin']?' imp':''}" value="${esc(vj)}"> 斤`;
+  ji.querySelector('input').oninput=function(){onEdit(this);};
+  const li=document.createElement('span');li.className='rv-freq';
+  li.innerHTML=`<input data-k="${k}_liang" class="${vl===''?'empty':''}${r.imported&&r.imported[k+'_liang']?' imp':''}" value="${esc(vl)}"> 两/ml`;
+  li.querySelector('input').oninput=function(){onEdit(this);};
+  amt.appendChild(ji);amt.appendChild(li);wrap.appendChild(amt);
+  return wrap;
+}
+
+/* ════════ 通用「是否+每周天/每次分」运动行块 ════════ */
+function hActivityBlock(items,groupLabel,r){
+  const box=document.createElement('div');
+  if(groupLabel){const gl=document.createElement('div');gl.className='rv-gcap';gl.textContent=groupLabel;box.appendChild(gl);}
+  items.forEach(([k,n])=>{
+    const line=document.createElement('div');line.className='rv-uline';
+    const on=String(r.data[k]??'')==='1';
+    const chk=document.createElement('span');chk.className='rv-chk'+(on?' on':'');chk.title='打勾=进行该项(1)';
+    chk.onclick=()=>{const cur=String(r.data[k]??'')==='1';setToggle(k,cur?'0':'1');chk.classList.toggle('on',!cur);};
+    line.appendChild(chk);
+    const nm=document.createElement('span');nm.className='rv-uname';nm.textContent=n;line.appendChild(nm);
+    /* 每周天 / 每次分 */
+    const bx=document.createElement('span');bx.style.cssText='display:flex;gap:14px;margin-left:auto;flex-wrap:wrap';
+    const vd=r.data[k+'_d']==null?'':String(r.data[k+'_d']);
+    const a=document.createElement('span');a.className='rv-freq';
+    a.innerHTML=`每周 <input data-k="${k}_d" class="${vd===''?'empty':''}${r.imported&&r.imported[k+'_d']?' imp':''}" value="${esc(vd)}"> 天`;
+    a.querySelector('input').oninput=function(){onEdit(this);};
+    const vt=r.data[k+'_t']==null?'':String(r.data[k+'_t']);
+    const b=document.createElement('span');b.className='rv-freq';
+    b.innerHTML=`每次 <input data-k="${k}_t" class="${vt===''?'empty':''}${r.imported&&r.imported[k+'_t']?' imp':''}" value="${esc(vt)}"> 分`;
+    b.querySelector('input').oninput=function(){onEdit(this);};
+    bx.appendChild(a);bx.appendChild(b);line.appendChild(bx);
+    box.appendChild(line);
+  });
+  return box;
+}
+
+/* ════════ 直系亲属过敏史网格 ════════ */
+function hBuildFamAllergyGrid(r){
+  const wrap=document.createElement('div');wrap.className='rv-grid';
+  const tbl=document.createElement('table');tbl.className='rv-gtbl';
+  const colg=document.createElement('colgroup');colg.innerHTML='<col>'+HFAM_ALLERGY_COL.map(()=>'<col class="optcol">').join('');tbl.appendChild(colg);
+  const thead=document.createElement('thead');let th='<tr><th class="q">亲属</th>'+HFAM_ALLERGY_COL.map(c=>`<th>${esc(c[1])}</th>`).join('')+'</tr>';thead.innerHTML=th;tbl.appendChild(thead);
+  const tb=document.createElement('tbody');
+  HFAM_ALLERGY_MEM.forEach(([mk,mn])=>{
+    const tr=document.createElement('tr');
+    let h=`<td class="q">${esc(mn)}</td>`;
+    HFAM_ALLERGY_COL.forEach(([ck])=>{const key=`imm18_${mk}_${ck}`;const on=String(r.data[key]??'')==='1';const imp=on&&r.imported&&r.imported[key]?' imp':'';h+=`<td><div class="rv-cell${on?' on':''}${imp}" data-fak="${key}">${on?'✓':''}</div></td>`;});
+    tr.innerHTML=h;tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);
+  tbl.addEventListener('click',e=>{const cell=e.target.closest('.rv-cell');if(!cell||!cell.dataset.fak)return;const key=cell.dataset.fak;const cur=String(r.data[key]??'')==='1';r.data[key]=cur?'':'1';cell.classList.toggle('on',!cur);cell.textContent=cur?'':'✓';if(r.imported)delete r.imported[key];r.filled=countFilled(r);updateFill(r);});
+  wrap.appendChild(tbl);return wrap;
+}
+
+/* ════════ 家庭成员疾病史网格（身高体重腰围 + 8病勾选 + 其他） ════════ */
+function hBuildFamDiseaseGrid(r){
+  const wrap=document.createElement('div');wrap.className='rv-grid';
+  const cap=document.createElement('div');cap.className='rv-gcap';cap.textContent='7·家庭成员疾病史（身高/体重/腰围数值 + 疾病勾选）';wrap.appendChild(cap);
+  const tbl=document.createElement('table');tbl.className='rv-gtbl rv-famtbl';
+  const colg=document.createElement('colgroup');colg.innerHTML='<col><col class="ncol"><col class="ncol"><col class="ncol">'+HFAM_DISEASES.map(()=>'<col class="optcol">').join('')+'<col>';tbl.appendChild(colg);
+  const thead=document.createElement('thead');
+  let th='<tr><th class="q">成员</th><th>身高</th><th>体重</th><th>腰围</th>'+HFAM_DISEASES.map(d=>`<th>${esc(d[1])}</th>`).join('')+'<th>其他</th></tr>';
+  thead.innerHTML=th;tbl.appendChild(thead);
+  const tb=document.createElement('tbody');
+  HFAM_MEMBERS.forEach(([mk,mn])=>{
+    const sfx=mk==='father'?'f':mk==='mother'?'m':mk==='gpa'?'gf':mk==='gma'?'gm':mk==='mgpa'?'mgf':'mgm';
+    const tr=document.createElement('tr');
+    const td0=document.createElement('td');td0.className='q';td0.textContent=mn;tr.appendChild(td0);
+    [`fhistoryH${sfx}`,`fhistoryW${sfx}`,`fhistoryWC${sfx}`].forEach(key=>{
+      const td=document.createElement('td');
+      const v=r.data[key]==null?'':String(r.data[key]);
+      td.innerHTML=`<input class="rv-famnum${v===''?' empty':''}${r.imported&&r.imported[key]?' imp':''}" data-k="${key}" value="${esc(v)}">`;
+      td.querySelector('input').oninput=function(){onEdit(this);};tr.appendChild(td);
+    });
+    HFAM_DISEASES.forEach(([dk],di)=>{
+      const dnum=[1,2,3,4,5,6,13][di]??di+1;
+      const key=`fhistory${dnum}${sfx}`;const on=String(r.data[key]??'')==='1';const imp=on&&r.imported&&r.imported[key]?' imp':'';
+      const td=document.createElement('td');td.innerHTML=`<div class="rv-cell${on?' on':''}${imp}" data-fdk="${key}">${on?'✓':''}</div>`;tr.appendChild(td);
+    });
+    const tdo=document.createElement('td');const key=`fhistory13${sfx}_a`;const vo=r.data[key]==null?'':String(r.data[key]);
+    tdo.innerHTML=`<input class="rv-famnum${vo===''?' empty':''}${r.imported&&r.imported[key]?' imp':''}" data-k="${key}" value="${esc(vo)}" style="width:64px">`;
+    tdo.querySelector('input').oninput=function(){onEdit(this);};tr.appendChild(tdo);
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);
+  tbl.addEventListener('click',e=>{const cell=e.target.closest('.rv-cell');if(!cell||!cell.dataset.fdk)return;const key=cell.dataset.fdk;const cur=String(r.data[key]??'')==='1';r.data[key]=cur?'':'1';cell.classList.toggle('on',!cur);cell.textContent=cur?'':'✓';if(r.imported)delete r.imported[key];r.filled=countFilled(r);updateFill(r);});
+  wrap.appendChild(tbl);return wrap;
+}
+
+/* ════════ 页标题 + 页提示 ════════ */
+const H_PAGE_TITLE={1:'一、基本情况(身份/成绩/压力/惩罚)',2:'游戏·疾病·保险·维生素·月经遗精 + 孕期B1-B6',3:'孕期 B7-B20',4:'B21-B22 + 家庭情况1-7(疾病史表)',5:'家庭8-12 + 锻炼·上学回家·运动1-3',6:'运动4-13·家务·兴趣班 + 工作日作息',7:'工作日睡因·休息日作息/睡因·睡眠4题',8:'睡眠习惯量表 1-33',9:'膳食频率表(谷薯/蔬果/肉蛋·上半)',10:'膳食频率表(豆坚果/油盐糖·下半) + 膳食1.1-8',11:'习惯9-16 + 甲状腺1-3',12:'免疫1-17(频率题+过敏)',13:'免疫18-27(亲属过敏史)',14:'环境暴露1-13 + 填表信息'};
+
+const H_PAGE_HINT={
+1:'一、儿童基本情况。ID/姓名/性别(方框1男2女)/民族/身份证号/出生日期/学校/年级/班级/到校放学时间/是否住读/语数英成绩/学习压力/家长期望压力/性格/负性情绪影响。第11题被惩罚方式为多选□打✓(punish1-11)；第12题是否玩游戏0否1是。方框内手写数字原样照抄。',
+2:'上半：游戏次数与时长、玩游戏工具(gametool1-6多选)、场所(gameplace1-6多选)、是否患疾病(disease1-5多选)、医保(基本/商业)、维生素A/D剂量、月经(女)/遗精(男)。下半：二、母亲怀孕到婴儿期 B1-B6(父母年龄/孕前体重/分娩孕周/足月早产/分娩日期/分娩方式/双胞胎/出生身长体重)。',
+3:'二、孕期 B7-B20。B7孕前吸烟、B8孕期吸烟(无/主动/被动多选+支数)、B9饮酒(白/红/啤酒ml与次)、B10致畸药、B11高血压B12糖尿病B13甲状腺(0/1+诊断孕周)、B14营养补充剂(b14sup1-4多选)、B15输血、B16母乳B17配方奶B18辅食、B19搬家装修、B20孕产史(孕次/顺剖/流产/早产死胎)。',
+4:'上半：B21妊娠并发症(b21comp1-3多选)、B22母亲初潮年龄。下半：二、家庭基本情况。同住成员/总人口/兄弟姐妹/第几孩/主要照顾者/父母婚姻/父母职业(1-10)/受教育程度/家庭年收入(1-8)/月饮食开支。第7题家庭成员疾病史表：父/母/爷/奶/外公/外婆 各填身高体重腰围 + 高血压/高血脂/糖尿病/冠心病/脑卒中/甲状腺/脂肪肝/肿瘤 勾选(fam_<成员>_<病>)。',
+5:'上半：二、家庭8-12。家人面前吸烟(吸烟者父/爷/母/奶/其他+支数)、现住址、房屋面积、500米内污染、父母及照顾者姓名电话。下半：三、儿童锻炼。上学回家方式3项(ex_*：是否□+每周天+每次分)、主要运动方式1-3(sport1-3同结构)。',
+6:'三、运动方式4-13(sport4-13)、做家务1-5(chore1-5)、兴趣班1-5(hobby1-5)，每项=是否□+每周天+每次分。下半：四、儿童睡眠·工作日(周一~周五)作息：醒来/起床/早餐/午休分钟/晚餐/睡前最后进食/上床/入睡 各时:分。24小时制。',
+7:'上半：工作日晚睡原因(wd_reason1-6多选□)。中：休息日(周六~周日)作息(we_*时:分)+休息日晚睡原因(we_reason1-6)。下半：睡前30分钟情绪(1-5)、作息类型(1-6)、入睡所需时间(1-6)。方框内数字原样。',
+8:'四、睡眠习惯量表 1-33 题。每题三选一在方框内填数字：1=通常是这样、2=有时候这样、3=很少这样。逐题读取手写数字。',
+9:'五、膳食频率表(上半 diet1a-diet11b)。每行：食用频度方框填0-4(0不吃1天2周3月4年) + 右侧食用量(斤/两，部分为ml)。频度与食用量分别照抄。',
+10:'五、膳食频率表(下半 diet11c-diet20 及吸烟饮酒频度) + 膳食1.1-8。频度0-4+食用量。下半：每天吃几次(上学日/休息日)、暴饮暴食、咸淡、早餐、灶具、油烟、抽油烟设备及频率、饮水来源(water1-7多选)。',
+11:'八习惯延续9-16(瓶装水/外卖/倒餐具/一次性餐具/塑料杯/塑料装热饮/微波炉塑料/保鲜膜/预包装/茶包，各填编号数字)。六、甲状腺1-3：曾诊断疾病、近1年异常检查、近3月用药——若写"不清楚"则原样填文字，否则填编号。',
+12:'七、儿童免疫。1-6频率题(imm_freq1-6，5列：1从不2有时3偶尔4常常5绝大多数)。7-17：皮炎/喘息/干咳/过敏诊断(imm10a1-7多选)/过敏原检测/口腔溃疡(1-3)/装修/佝偻/蛔虫/食物过敏/中药，0否1是或编号。',
+13:'七、免疫18-27。18直系亲属过敏史表(父/母/兄弟姐妹 × 过敏性鼻炎/哮喘/湿疹/无以上/不详 勾选，imm18_<成员>_<列>)。19-27：癫痫脑病/免疫疾病/激素抗肿瘤/输血免疫球蛋白/计划疫苗/疫苗反应/新冠疫苗/一周内服药/贫血及治疗药，0否1是。',
+14:'八、环境暴露与生活习惯1-13(env1-env13，各填编号数字)：学校杯子/微波塑料/零食/快餐包装/咬笔/橡皮香软/小票/防晒/屏幕时间/新家具/大马路/蚊香/不粘锅。底部填表人姓名/填表日期/录入员原样照抄。'};
+
+/* ════════ 逐页提示词（沿用 screen 结构） ════════ */
+function healthPrompt(sys,page){
+  const list=sys._leaf.filter(f=>f.page===page).map(f=>`- ${f.key}｜${f.label}`).join('\n');
+  return `你是表单转写器，正在识别《儿童膳食、运动、睡眠和行为健康评估问卷》第 ${page} 页。直接按图把下列字段填好，立即输出 JSON。禁止任何分析、推理、解释或思考过程，看到什么写什么。
+
+【本页字段】（key｜含义，键名必须原样使用）：
+${list}
+
+【读取规则】
+- 方框 □ / 下划线里手写的数字、字母、号码、姓名 → 原样照抄框内内容。
+- 复选框 □ 内打了 ✓/√/对勾 = 选中（该项填 1）；空框 = 未选（填 0 或省略）。
+- 单选编码题（如 1=… 2=… 3=…）→ 读方框内手写的那个数字。
+- 量表每行在某一列打 ✓/填数字 → 该行填对应数字（列从左到右 1,2,3,…）。
+- 「是否使用/是否进行」=0 时，其下次数、分钟、用途一律 0 或省略，不要编造。
+- 手写阿拉伯数字按字面照抄，注意区分 0/O、1/7、5/6、6/0。
+- 看不清或空白的字段 → 直接省略该键，不要猜测、不要编造。
+
+【本页版面】${H_PAGE_HINT[page]||''}
+
+【输出】只输出一个紧凑 JSON 对象：不换行、不缩进、无 Markdown、无注释。值用字符串，只输出本页确实填写了的字段。`;
+}
+
+/* ════════ 核对窗渲染（分页 → 行/运动块/膳食频率/量表网格） ════════ */
+function healthRender(host,r){
+  const pages=[...new Set(curSys._leaf.map(f=>f.page))].sort((a,b)=>a-b);
+  for(const pg of pages){
+    const sec=document.createElement('div');sec.className='rv-sec';sec.dataset.page=pg;sec.textContent=`第 ${pg} 页 · ${H_PAGE_TITLE[pg]||''}（点此定位左侧原件）`;sec.onclick=()=>jumpToPage(pg);host.appendChild(sec);
+
+    /* 本页量表网格涉及的 key（避免重复渲染） */
+    const groups=hGridGroups(pg);
+    const handledKeys=new Set();
+    groups.forEach(g=>{
+      (g.keys||[]).forEach(k=>handledKeys.add(k));
+      if(g.type==='famallergy')HFAM_ALLERGY_MEM.forEach(([mk])=>HFAM_ALLERGY_COL.forEach(([ck])=>handledKeys.add(`imm18_${mk}_${ck}`)));
+    });
+
+    /* 第4页家庭疾病史表：用专用网格 */
+    let famDiseaseKeys=new Set();
+    if(pg===4){HFAM_MEMBERS.forEach(([mk])=>{
+      const sfx=mk==='father'?'f':mk==='mother'?'m':mk==='gpa'?'gf':mk==='gma'?'gm':mk==='mgpa'?'mgf':'mgm';
+      [`fhistoryH${sfx}`,`fhistoryW${sfx}`,`fhistoryWC${sfx}`,`fhistory13${sfx}_a`].forEach(k=>famDiseaseKeys.add(k));
+      [1,2,3,4,5,6,13].forEach(n=>famDiseaseKeys.add(`fhistory${n}${sfx}`));
+    });}
+
+    /* 运动/家务/兴趣班/上学回家：用活动块（是否+每周天+每次分） */
+    const actGroups=[];
+    if(pg===5){
+      actGroups.push({label:'上学/放学回家方式',items:[['fhistoryHgf','在楼下直接坐小汽车/公交车'],['fhistoryWgf','先步行一段到公交站再坐车'],['fhistoryWCgf','步行/骑自行车']]});
+      actGroups.push({label:'主要运动方式 1-3',items:[['fhistory1gf','快跑/跳绳'],['fhistory2gf','骑自行车/仰卧起坐/俯卧撑/引体向上'],['fhistory3gf','慢跑/足球/溜直排轮']]});
+    }else if(pg===6){
+      actGroups.push({label:'运动方式 4-13',items:[['fhistory4gf','篮球/游泳/跳远/跳高'],['fhistory5gf','羽毛球'],['fhistory6gf','乒乓球/体操'],['fhistory13gf','拉伸/瑜伽'],['fhistory13gf_a','逛街/逛超市'],['fhistoryHgm','散步'],['fhistoryWgm','学习(除上学)/玩电脑'],['fhistoryWCgm','吃饭/聊天/做手工'],['fhistory1gm','看电视/电影/听音乐'],['fhistory2gm','其他']]});
+      actGroups.push({label:'做家务 1-5',items:[['fhistory3gm','扫地'],['fhistory4gm','拖地'],['fhistory5gm','洗碗/倒垃圾/浇花等'],['fhistory6gm','遛狗/猫'],['fhistory13gm','其他']]});
+      actGroups.push({label:'兴趣班 1-5',items:[['fhistoryHmgf','钢琴/风琴/小提琴'],['fhistoryWmgf','吉他/大提琴/长笛/木管乐器'],['fhistoryWCmgf','芭蕾舞/现代舞/爵士'],['fhistory1mgf','跆拳道/柔道/空手道'],['fhistory2mgf','其他']]});
+    }
+    const actKeys=new Set();actGroups.forEach(ag=>ag.items.forEach(([k])=>{actKeys.add(k);actKeys.add(k+'_d');actKeys.add(k+'_t');}));
+
+    /* 膳食频率行：本页所有 diet* 主项 */
+    const dietItems=HDIET_ITEMS.filter(([k])=>curSys._fby[k]&&curSys._fby[k].page===pg);
+    const dietKeys=new Set();dietItems.forEach(([k])=>{dietKeys.add(k);dietKeys.add(k+'_jin');dietKeys.add(k+'_liang');});
+
+    /* 1) 先渲染普通字段行（排除以上专用块的 key） */
+    curSys._leaf.filter(f=>f.page===pg && !handledKeys.has(f.key) && !famDiseaseKeys.has(f.key) && !actKeys.has(f.key) && !dietKeys.has(f.key))
+      .forEach(f=>host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key])));
+
+    /* 2) 家庭疾病史表 */
+    if(pg===4)host.appendChild(hBuildFamDiseaseGrid(r));
+
+    /* 3) 活动块 */
+    actGroups.forEach(ag=>host.appendChild(hActivityBlock(ag.items,ag.label,r)));
+
+    /* 4) 膳食频率块 */
+    if(dietItems.length){
+      const dwrap=document.createElement('div');dwrap.className='rv-grid';
+      const dcap=document.createElement('div');dcap.className='rv-gcap';dcap.textContent='五、膳食频率（点选频度0-4 + 填食用量）';dwrap.appendChild(dcap);
+      const dhead=document.createElement('div');dhead.className='rv-diethead';dhead.innerHTML='<span class="rv-dietname">食物</span><span class="rv-dietfreq-h">不吃0·天1·周2·月3·年4</span><span class="rv-dietamt-h">食用量</span>';dwrap.appendChild(dhead);
+      dietItems.forEach(it=>dwrap.appendChild(hDietLine(it,r)));
+      host.appendChild(dwrap);
+    }
+
+    /* 5) 量表网格 */
+    groups.forEach(g=>{
+      if(g.type==='famallergy'){host.appendChild(hBuildFamAllergyGrid(r));}
+      else host.appendChild(stBuildGrid(g,r));
+    });
+  }
+}
+
 /* ════════════════════════════════════════════════════════════════
    SYSTEMS — 每个独立识别系统
    pagesPerRecord: 每"一个人/一条记录"占多少页 → 多页 PDF 自动拆分依据
@@ -988,6 +1697,153 @@ const SYSTEMS=[
 【⑧测量信息】measure_type 取最底部方括号脚注 [Touch Type, Standing Posture] 原样；institution 取顶部右"重庆医科大学附属永川医院 临床营养科"；keyboarder 若有则填，无则 null。`
 },
 {
+  id:'inbody_970', name:'成人体成分（InBody 970，含多节段相位角）', emoji:'🧬',
+  tags:['1 页/人','InBody 970','节段相位角'],
+  desc:'InBody 970 成人体成分分析报告。覆盖：基本信息、人体成分分析、肌肉脂肪分析、肥胖分析、肌肉均衡（5 节段 kg/%/ECW比率）、细胞外水分比率、节段脂肪分析（5 节段 kg/%）、体重控制目标、研究项目（ICW/ECW/BMR/WHR/BCM/SMI）、全身相位角（50kHz）、节段相位角（3 频率 × 5 节段）。',
+  pagesPerRecord:1, reviewMode:'generic',
+  fields:[
+    /* ─── 基本信息 ─── */
+    {key:'ID',label:'ID 编号',type:'text',group:'基本信息'},
+    {key:'name',label:'姓名',type:'text',hint:'手写姓名',group:'基本信息'},
+    {key:'height',label:'身高 (cm)',type:'number',group:'基本信息'},
+    {key:'age',label:'年龄',type:'number',group:'基本信息'},
+    {key:'gender',label:'性别',type:'select',options:['男','女'],group:'基本信息'},
+    {key:'test_date',label:'测试日期',type:'text',hint:'YYYY.MM.DD',group:'基本信息'},
+    {key:'test_time',label:'测试时间',type:'text',hint:'HH:MM',group:'基本信息'},
+    {key:'inbody_score',label:'InBody 评分（/100）',type:'number',hint:'如74',group:'基本信息'},
+
+    /* ─── ①人体成分分析 ─── */
+    {key:'TBW',label:'身体总水分 TBW (L)',type:'number',hint:'测量值',group:'①人体成分分析'},
+    {key:'Protein',label:'蛋白质 (kg)',type:'number',group:'①人体成分分析'},
+    {key:'Mineral',label:'无机盐 (kg)',type:'number',group:'①人体成分分析'},
+    {key:'BFM',label:'体脂肪 (kg)',type:'number',group:'①人体成分分析'},
+    {key:'FFM',label:'去脂体重 (kg)',type:'number',group:'①人体成分分析'},
+    {key:'Weight',label:'体重 (kg)',type:'number',group:'①人体成分分析'},
+
+    /* ─── ②肌肉脂肪分析 ─── */
+    {key:'SMM',label:'骨骼肌 (kg)',type:'number',group:'②肌肉脂肪分析'},
+
+    /* ─── ③肥胖分析 ─── */
+    {key:'BMI',label:'BMI (kg/m²)',type:'number',hint:'参考18.5~24.9',group:'③肥胖分析'},
+    {key:'PBF',label:'体脂百分比 (%)',type:'number',hint:'参考女18~28 男10~20',group:'③肥胖分析'},
+
+    /* ─── ④肌肉均衡（5 节段 × kg / % / ECW比率） ─── */
+    {key:'muscle_balance',label:'肌肉均衡（5 节段 × kg / % / ECW比率）',type:'table',mode:'aligned',cornerLabel:'节段',
+      group:'④肌肉均衡 — 5 节段',
+      columns:[
+        {key:'kg',label:'肌肉量 (kg)'},
+        {key:'pct',label:'百分比 (%)'},
+        {key:'ecw_ratio',label:'ECW比率'}
+      ],
+      rows:[
+        {key:'RA',label:'右上肢'},
+        {key:'LA',label:'左上肢'},
+        {key:'TR',label:'躯  干'},
+        {key:'RL',label:'右下肢'},
+        {key:'LL',label:'左下肢'}
+      ]
+    },
+
+    /* ─── ⑤细胞外水分比率（全身） ─── */
+    {key:'ECW_ratio',label:'全身细胞外水分比率',type:'number',hint:'正常 0.360~0.390',group:'⑤细胞外水分比率'},
+    {key:'edema_eval',label:'浮肿评估',type:'select',
+      options:['1','2','3'],
+      hint:'1 正常(<0.380)·2 轻度浮肿(0.380~0.400)·3 浮肿(>0.400)',
+      group:'⑤细胞外水分比率'},
+
+    /* ─── ⑥节段脂肪分析（5 节段 × kg / %） ─── */
+    {key:'seg_fat',label:'节段脂肪分析（5 节段 × kg / %）',type:'table',mode:'aligned',cornerLabel:'节段',
+      group:'⑥节段脂肪分析',
+      columns:[
+        {key:'kg',label:'脂肪量 (kg)'},
+        {key:'pct',label:'脂肪百分比 (%)'}
+      ],
+      rows:[
+        {key:'RA',label:'右上肢'},
+        {key:'LA',label:'左上肢'},
+        {key:'TR',label:'躯  干'},
+        {key:'RL',label:'右下肢'},
+        {key:'LL',label:'左下肢'}
+      ]
+    },
+
+    /* ─── ⑦内脏脂肪面积 ─── */
+    {key:'VFA',label:'内脏脂肪面积 VFA (cm²)',type:'number',hint:'正常 <100',group:'⑦内脏脂肪'},
+
+    /* ─── ⑧体重控制目标 ─── */
+    {key:'target_weight',label:'目标体重 (kg)',type:'number',group:'⑧体重控制目标'},
+    {key:'weight_ctrl',label:'体重控制 (kg)',type:'number',hint:'正负值',group:'⑧体重控制目标'},
+    {key:'fat_ctrl',label:'脂肪控制 (kg)',type:'number',hint:'负值为减脂',group:'⑧体重控制目标'},
+    {key:'muscle_ctrl',label:'肌肉控制 (kg)',type:'number',hint:'正值为增肌',group:'⑧体重控制目标'},
+
+    /* ─── ⑨研究项目 ─── */
+    {key:'ICW',label:'细胞内水分 ICW (L)',type:'number',hint:'参考 15.9~19.5',group:'⑨研究项目'},
+    {key:'ECW',label:'细胞外水分 ECW (L)',type:'number',hint:'参考 9.8~12.0',group:'⑨研究项目'},
+    {key:'BMR',label:'基础代谢率 (kcal)',type:'number',hint:'参考 1059~1212',group:'⑨研究项目'},
+    {key:'WHR',label:'腰臀比 WHR',type:'number',hint:'正常 0.75~0.85',group:'⑨研究项目'},
+    {key:'BCM',label:'身体细胞量 (kg)',type:'number',hint:'参考 22.9~27.9',group:'⑨研究项目'},
+    {key:'SMI',label:'骨骼肌指数 SMI (kg/m²)',type:'number',group:'⑨研究项目'},
+    {key:'kcal_recommend',label:'建议热量摄入 (kcal)',type:'number',group:'⑨研究项目'},
+
+    /* ─── ⑩全身相位角 ─── */
+    {key:'phase_whole',label:'全身相位角 ϕ 50kHz (°)',type:'number',hint:'正常成人约5~7°',group:'⑩全身相位角'},
+
+    /* ─── ⑪节段相位角（3 频率 × 5 节段） ─── */
+    {key:'phase_seg',label:'节段相位角 ϕ（3 频率 × 5 节段）',type:'table',mode:'aligned',cornerLabel:'频率 \\ 节段',
+      group:'⑪节段相位角 — 3 频率 × 5 节段',
+      columns:[
+        {key:'RA',label:'右上肢'},
+        {key:'LA',label:'左上肢'},
+        {key:'TR',label:'躯  干'},
+        {key:'RL',label:'右下肢'},
+        {key:'LL',label:'左下肢'}
+      ],
+      rows:[
+        {key:'5k',label:'5 kHz'},
+        {key:'50k',label:'50 kHz'},
+        {key:'250k',label:'250 kHz'}
+      ]
+    }
+  ],
+  extractHint:`这是 InBody 970（[InBody970]）成人体成分分析报告。按区域逐一精确提取，未找到填 null。
+
+【基本信息】顶部：ID 编号（方框内数字/字母串）、name 手写姓名、height 身高(cm)、age 年龄、gender 男/女、test_date 形如 2026.04.25、test_time 形如 11:38。右上角"InBody 评分"大字数字（如 74）→ inbody_score。
+
+【①人体成分分析】左上方"人体成分分析"表格中：TBW 身体总水分测量值(L)、蛋白质(kg)、无机盐(kg)、体脂肪(kg)、同行"去脂体重"列的去脂体重值(kg)、体重(kg)。
+
+【②肌肉脂肪分析】"肌肉脂肪分析"区：体重已在①提取；骨骼肌(kg) SMM；体脂肪 BFM（与①相同，可复用）。
+
+【③肥胖分析】"肥胖分析"区：BMI(kg/m²)、体脂百分比 PBF(%)。
+
+【④肌肉均衡（type:table mode:aligned）】"肌肉均衡"表，5 节段行 × 3 列：
+- kg 列：各节段 kg 数值（如右上肢 1.53）
+- pct 列：各节段 % 数值（如右上肢 91.1）
+- ecw_ratio 列：各节段右侧"细胞外水分比率"小数（如右上肢 0.383）
+键名 muscle_balance_<节段>_<列>，节段：RA/LA/TR/RL/LL，列：kg/pct/ecw_ratio。
+举例：muscle_balance_RA_kg=1.53，muscle_balance_TR_pct=98.3，muscle_balance_LL_ecw_ratio=0.396。
+
+【⑤细胞外水分比率】"细胞外水分比率分析"区单值 ECW_ratio（如 0.391）；edema_eval 判断：全部节段 ecw_ratio < 0.380 → 1，任意节段 0.380~0.400 → 2，任意节段 > 0.400 → 3。
+
+【⑥节段脂肪分析（type:table mode:aligned）】"节段脂肪分析"区，5 节段 × 2 列：
+- kg 列：各节段脂肪 kg（括号内数值，如右上肢 0.8）
+- pct 列：各节段脂肪百分比（折线图旁数值，如右上肢 96.1%）
+键名 seg_fat_<节段>_<列>，举例：seg_fat_RA_kg=0.8，seg_fat_TR_pct=118.1。
+
+【⑦内脏脂肪面积】右侧折线图旁标注的 VFA(cm²) 数值（如 55.8）。
+
+【⑧体重控制目标】右侧"体重控制"区：目标体重(kg)、体重控制(正负kg)、脂肪控制(负kg)、肌肉控制(正kg)。
+
+【⑨研究项目】右下"研究项目"表：ICW 细胞内水分(L)、ECW 细胞外水分(L)、基础代谢率(kcal) BMR、腰臀比 WHR、身体细胞量 BCM(kg)、骨骼肌指数 SMI(kg/m²)、建议热量摄入(kcal)。
+
+【⑩全身相位角】右下"全身相位角 ϕ(°) 50kHz"：单个数值（如 4.2）→ phase_whole。
+
+【⑪节段相位角（type:table mode:aligned）】右下"节段相位角"表，3 行（频率）× 5 列（节段）= 15 个数值：
+- 行：5kHz / 50kHz / 250kHz
+- 列：右上肢 RA / 左上肢 LA / 躯干 TR / 右下肢 RL / 左下肢 LL
+键名 phase_seg_<频率>_<节段>，举例：phase_seg_5k_RA=1.5、phase_seg_50k_TR=5.8、phase_seg_250k_LL=4.2。
+注意：报告中节段顺序为"右上肢 左上肢 躯干 右下肢 左下肢"，行顺序为 5kHz → 50kHz → 250kHz，与报告版面一致。`
+},
+{
   id:'lipid', name:'血糖血脂检验报告单', emoji:'🧪',
   tags:['1 页/人','一页多样本','整页展开'],
   desc:'检验报告单：每页含若干样本（通常 8 条），每条样本＝一行记录。编号 / Glu / TC / TG / HDL-C / LDL-C，整页自动展开为多行。',
@@ -1097,6 +1953,14 @@ collectdata 报告/采集日期整理 YYYY-MM-DD 并拆 collect_year/month/day�
   pagesPerRecord:12, reviewMode:'screen',
   maxPages:12,
   fields:buildScreenSchema().map(f=>({key:f.key,label:f.label,type:(f.kind==='gender'?'select':(f.kind==='num'||f.kind==='scale'||f.kind==='toggle')?'number':'text'),options:f.kind==='gender'?['1','2']:undefined,page:f.page,kind:f.kind}))
+},
+{
+  id:'health_survey', name:'儿童膳食、运动、睡眠和行为健康评估问卷', emoji:'🍎', klass:'neo', isNew:true,
+  tags:['14 页/人','新增','量表点格·跳页'],
+  desc:'完整版（约 609 字段）：基本情况/惩罚/游戏 + 孕期 B1-B22 + 家庭情况与成员疾病史表 + 锻炼·运动·家务·兴趣班 + 工作日/休息日作息 + 睡眠习惯量表 1-33 + 膳食频率表(频度0-4+食用量) + 甲状腺 + 免疫(频率题/亲属过敏史) + 环境暴露 1-13。',
+  pagesPerRecord:14, reviewMode:'health',
+  maxPages:14,
+  fields:buildHealthSchema().map(f=>({key:f.key,label:f.label,type:(f.kind==='gender'?'select':(f.kind==='num'||f.kind==='scale'||f.kind==='toggle'||f.kind==='freq')?'number':'text'),options:f.kind==='gender'?['1','2']:undefined,page:f.page,kind:f.kind}))
 }
 ];
 const SYS_BY={};SYSTEMS.forEach(s=>{SYS_BY[s.id]=s; s.fields.forEach(f=>{if(f.page==null)f.page=1;}); s.KEYS=s.fields.map(f=>f.key); s.FBY={}; s.fields.forEach(f=>s.FBY[f.key]=f);});
@@ -1722,6 +2586,8 @@ let curSys=null;
 let running=false;
 let _impSnap=null;   // 套对快照（用于「清除套对」回滚）
 let _rvId=null,_rvZoom=1;
+let rvEditMode=false;   // 核对窗右侧是否处于「字段编辑」
+let _feDrag=null;       // 字段编辑拖动索引
 function curRec(){return records.find(x=>x.id===_rvId);}
 function uid(){return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 
@@ -1746,11 +2612,14 @@ ${sys.extractHint?('\n【本表说明】'+sys.extractHint):''}
 【输出】只输出一个紧凑 JSON 对象（${sys.expandKey?'务必按上面说明用 {"rows":[...]} 结构':'键为上面的英文变量名'}）：不换行、不缩进、无 Markdown、无注释、无多余文字。值一律用字符串；本页没填的字段省略或 null。`;
 }
 function neuroPrompt(sys,page){
-  const items=NEURO_ITEMS.filter(it=>it.page===page);
-  const idn = page===1 ? (NEURO_IDENTITY.map(f=>`- ${f.key}｜${f.label}`).join('\n')+'\n') : '';
-  const lines = items.map(it=>{
+  ensureMeta(sys);
+  const idFields=(sys.fields||[]).filter(f=>(f.page||1)===page && !f.neuro && !f.neuroM);
+  const idn=idFields.length?(idFields.map(f=>`- ${f.key}｜${f.label}`).join('\n')+'\n'):'';
+  const items=neuroItemsFromFields(sys,page);
+  const lines=items.map(it=>{
     const opt=it.opts.map(o=>`${o[1]}=${o[0]}`).join('、');
-    return `- ${it.key}_m｜${it.no}.${it.name}·打勾所在月龄(1-12)\n- ${it.key}_r｜${it.no}.${it.name}·结果/形式（${opt}）`;
+    const base=it.rField.key.replace(/_r$/,'');
+    return `- ${it.mKey}｜${it.no}.${it.name}·打勾所在月龄(1-12)\n- ${it.rField.key}｜${it.no}.${it.name}·结果/形式（${opt}）`;
   }).join('\n');
   return `你是表单转写器，正在识别《婴幼儿神经运动检查记录表》第 ${page} 页。按图填空并立即输出 JSON，禁止任何分析、推理或思考过程。
 
@@ -1787,6 +2656,7 @@ ${list}
 function buildPromptFor(sys,page){
   if(sys.reviewMode==='neuro') return neuroPrompt(sys,page);
   if(sys.reviewMode==='screen') return screenPrompt(sys,page);
+  if(sys.reviewMode==='health') return healthPrompt(sys,page);
   return genericPrompt(sys,page);
 }
 
@@ -1964,7 +2834,10 @@ function refreshQueueUI(){
 function reviewableIds(){return records.filter(r=>r.data).map(r=>r.id);}
 function openReview(id){
   const r=records.find(x=>x.id===id);if(!r||!r.data)return;
-  _rvId=id;_rvZoom=1;setupSplitter();setupPanZoom();
+  _rvId=id;_rvZoom=1;rvEditMode=false;
+  const eb=$('rvEditBtn');if(eb){eb.classList.remove('on');eb.textContent='✎ 编辑字段';}
+  $('rvRightT').textContent='识别字段 · 量表点格即选 · 点页标题左图跳页';
+  setupSplitter();setupPanZoom();
   $('rvTitle').textContent='🔍 '+curSys.name+' · '+recLabel(r);
   const pe=$('rvPages');pe.innerHTML='';
   $('rvPgc').textContent=r.pages.length>1?`共 ${r.pages.length} 页`:'原件';
@@ -1988,8 +2861,10 @@ function reviewStep(d){const ids=reviewableIds(),i=ids.indexOf(_rvId)+d;if(i>=0&
 
 function renderFields(r){
   const host=$('rvFields');host.innerHTML='';
+  if(rvEditMode){renderRvFieldEditor(host);return;}
   if(curSys.reviewMode==='neuro') neuroRender(host,r);
   else if(curSys.reviewMode==='screen') screenRender(host,r);
+  else if(curSys.reviewMode==='health') healthRender(host,r);
   else genericRender(host,r);
   updateFill(r);
 }
@@ -1998,6 +2873,166 @@ function totalCount(){
   return curSys._leafKeys.length;
 }
 function updateFill(r){$('rvFill').textContent='已填 '+countFilled(r)+' / '+totalCount();}
+
+/* ════════════════════════════════════════════════════════════════
+   核对窗内·字段编辑器（拖动排序 / 改名 / 改类型 / 增 / 删 / 插入新变量）
+   作用于 curSys.fields，对「每个模块」生效，并持久化到本机。
+════════════════════════════════════════════════════════════════ */
+const OVERRIDE_LS='phck_overrides';   // 各系统字段结构覆盖（内置+自建都durable）
+function fieldsSnapshot(sys){
+  return (sys.fields||[]).map(f=>{
+    const o={key:f.key,label:f.label,type:f.type,page:f.page||1,group:f.group};
+    if(f.options&&f.options.length)o.options=f.options;
+    if(f.optLabels)o.optLabels=f.optLabels;
+    if(f.hint)o.hint=f.hint;
+    if(f.neuro)o.neuro=f.neuro;
+    if(f.neuroM)o.neuroM=f.neuroM;
+    if(f.neuroId)o.neuroId=f.neuroId;
+    if(f.columns)o.columns=f.columns;
+    if(f.rows)o.rows=f.rows;
+    return o;
+  });
+}
+function persistFields(sys){
+  let all={};try{all=JSON.parse(localStorage.getItem(OVERRIDE_LS)||'{}');}catch(_){}
+  all[sys.id]=fieldsSnapshot(sys);
+  try{localStorage.setItem(OVERRIDE_LS,JSON.stringify(all));}catch(e){toast('保存失败（本机存储已满？）');}
+  if(sys.custom&&typeof saveCustomSystems==='function')saveCustomSystems();
+}
+function applyOverrides(){
+  let all={};try{all=JSON.parse(localStorage.getItem(OVERRIDE_LS)||'{}');}catch(_){return;}
+  Object.keys(all).forEach(id=>{
+    const s=SYS_BY[id];if(s&&Array.isArray(all[id])&&all[id].length){s.fields=all[id];s._leaf=null;ensureMeta(s);}
+  });
+}
+function resetFields(sys){
+  let all={};try{all=JSON.parse(localStorage.getItem(OVERRIDE_LS)||'{}');}catch(_){}
+  delete all[sys.id];try{localStorage.setItem(OVERRIDE_LS,JSON.stringify(all));}catch(_){}
+}
+function refreshSysMeta(){curSys._leaf=null;ensureMeta(curSys);}
+
+function toggleRvEdit(){
+  rvEditMode=!rvEditMode;
+  const b=$('rvEditBtn');if(b){b.classList.toggle('on',rvEditMode);b.textContent=rvEditMode?'✓ 完成编辑':'✎ 编辑字段';}
+  $('rvRightT').textContent=rvEditMode?'编辑字段结构 · 拖 ⠿ 排序 · ＋插入 · ✕删除（改动对本模块永久生效）':'识别字段 · 量表点格即选 · 点页标题左图跳页';
+  if(!rvEditMode){persistFields(curSys);refreshSysMeta();}
+  renderFields(curRec());
+}
+function feSanitize(s){let k=String(s||'').trim().toLowerCase().replace(/[^a-z0-9_]+/g,'_').replace(/^_+|_+$/g,'').replace(/_+/g,'_');if(!k)k='field';if(/^[0-9]/.test(k))k='f_'+k;return k.slice(0,40);}
+function feUniqueKey(base,exclIdx){const seen=new Set(curSys.fields.map((f,i)=>i===exclIdx?null:f.key).filter(Boolean));let k=base,i=2;while(seen.has(k)){k=base+'_'+i;i++;}return k;}
+
+function renderRvFieldEditor(host){
+  const wrap=document.createElement('div');wrap.className='rv-fe';
+  const tip=document.createElement('div');tip.className='fe-tip';
+  tip.innerHTML=`正在编辑 <b>${esc(curSys.name)}</b> 的字段。拖动 <b>⠿</b> 调整顺序；改<b>变量名/标签/页/类型</b>；点行间 <b>＋</b> 在此处插入新变量；<b>✕</b> 删除该字段。神经运动项目（青色左条）成对的「评估月龄/结果」会一并删除。改动<b>对本模块永久生效</b>并保存在本机。`;
+  wrap.appendChild(tip);
+  const head=document.createElement('div');head.className='fe-head';
+  head.innerHTML='<span></span><span>页</span><span>变量名 key</span><span>中文标签</span><span>类型</span><span>可选值/类型</span><span></span>';
+  wrap.appendChild(head);
+
+  curSys.fields.forEach((f,i)=>{
+    /* 行间插入按钮 */
+    const ins=document.createElement('button');ins.className='fe-ins';ins.textContent='＋ 在此插入新变量';ins.onclick=()=>feInsert(i);wrap.appendChild(ins);
+
+    const isNeuro=!!(f.neuro||f.neuroM);
+    const row=document.createElement('div');row.className='fe-row'+(isNeuro?' is-neuro':'');row.dataset.i=i;
+    const optHide=f.type==='select'?'':' hide';
+    const neuroLock=!!f.neuro;  // 神经结果字段：选项跟随统一类型，锁定
+    row.innerHTML=`
+      <div class="fe-drag" title="拖动排序">⠿</div>
+      <input class="pg" type="number" min="1" value="${f.page||1}" data-i="${i}" data-f="page">
+      <input class="k" value="${esc(f.key)}" data-i="${i}" data-f="key" spellcheck="false">
+      <input value="${esc(f.label||'')}" data-i="${i}" data-f="label">
+      <select data-i="${i}" data-f="type"${isNeuro?' disabled':''}>
+        <option value="text"${f.type==='text'?' selected':''}>文本</option>
+        <option value="number"${f.type==='number'?' selected':''}>数字</option>
+        <option value="select"${f.type==='select'?' selected':''}>选项</option>
+        <option value="date"${f.type==='date'?' selected':''}>日期</option>
+      </select>
+      ${neuroLock
+        ? `<input class="fe-opt" value="${esc('统一类型：'+(NEURO_VT[f.neuro.vt]?NEURO_VT[f.neuro.vt].name:f.neuro.vt))}" disabled title="神经运动结果选项跟随统一值类型">`
+        : `<input class="fe-opt${optHide}" placeholder="逗号分隔" value="${esc((f.options||[]).join(','))}" data-i="${i}" data-f="options">`}
+      <button class="fe-del" data-i="${i}" title="删除字段">✕</button>`;
+    wrap.appendChild(row);
+  });
+  /* 末尾插入 */
+  const insEnd=document.createElement('button');insEnd.className='fe-ins';insEnd.textContent='＋ 在末尾添加新变量';insEnd.onclick=()=>feInsert(curSys.fields.length);wrap.appendChild(insEnd);
+
+  /* 操作区 */
+  const act=document.createElement('div');act.className='fe-act';
+  const addNeuro=(curSys.reviewMode==='neuro');
+  if(addNeuro){
+    const bn=document.createElement('button');bn.className='btn';bn.textContent='＋ 新增一个发育项目（统一类型）';bn.onclick=feAddNeuroItem;act.appendChild(bn);
+  }
+  const reset=document.createElement('button');reset.className='btn ghost';reset.textContent='↺ 恢复本模块默认字段';reset.onclick=feResetDefault;act.appendChild(reset);
+  const count=document.createElement('span');count.style.cssText='font-size:11.5px;color:var(--ink3);font-family:var(--mono)';count.textContent=curSys.fields.length+' 字段';act.appendChild(count);
+  wrap.appendChild(act);
+
+  /* 绑定编辑 / 删除 / 拖动 */
+  wrap.querySelectorAll('.fe-row input,.fe-row select').forEach(el=>el.addEventListener(el.tagName==='SELECT'?'change':'change',()=>feEdit(el)));
+  wrap.querySelectorAll('.fe-del').forEach(b=>b.addEventListener('click',()=>feDelete(+b.dataset.i)));
+  wrap.querySelectorAll('.fe-row').forEach(r=>{
+    const h=r.querySelector('.fe-drag');h.draggable=true;
+    h.addEventListener('dragstart',e=>{_feDrag=+r.dataset.i;r.classList.add('dragging');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',String(_feDrag));}catch(_){}});
+    h.addEventListener('dragend',()=>{_feDrag=null;wrap.querySelectorAll('.fe-row').forEach(x=>x.classList.remove('dragging','over'));});
+    r.addEventListener('dragover',e=>{if(_feDrag==null)return;e.preventDefault();r.classList.add('over');});
+    r.addEventListener('dragleave',()=>r.classList.remove('over'));
+    r.addEventListener('drop',e=>{e.preventDefault();r.classList.remove('over');const to=+r.dataset.i;if(_feDrag==null||_feDrag===to)return;const moved=curSys.fields.splice(_feDrag,1)[0];curSys.fields.splice(to,0,moved);feCommit(false);});
+  });
+  host.appendChild(wrap);
+}
+function feEdit(el){
+  const i=+el.dataset.i,fld=curSys.fields[i];if(!fld)return;const f=el.dataset.f;
+  if(f==='page')fld.page=Math.max(1,parseInt(el.value)||1);
+  else if(f==='label')fld.label=el.value;
+  else if(f==='type'){fld.type=el.value;if(fld.type==='select'&&!fld.options)fld.options=[];feCommit(true);return;}
+  else if(f==='options'){fld.options=el.value.split(/[,，、|]/).map(s=>s.trim()).filter(Boolean);delete fld.optLabels;}
+  else if(f==='key'){
+    const nk=feUniqueKey(feSanitize(el.value),i);const ok=fld.key;
+    if(nk!==ok){records.forEach(r=>{if(r.data&&Object.prototype.hasOwnProperty.call(r.data,ok)){r.data[nk]=r.data[ok];delete r.data[ok];}});fld.key=nk;}
+    feCommit(true);return;
+  }
+  feCommit(false);
+}
+function feInsert(idx){
+  const nf={key:feUniqueKey('field',-1),label:'',type:'text',page:curSys.fields[Math.max(0,idx-1)]?.page||1,group:(curSys.reviewMode==='neuro'?'附加字段':'识别字段'),options:[]};
+  curSys.fields.splice(idx,0,nf);feCommit(true);
+}
+function feAddNeuroItem(){
+  const maxNo=Math.max(0,...curSys.fields.filter(f=>f.neuro).map(f=>f.neuro.no||0));
+  const no=maxNo+1;const base=feUniqueKey('item'+no,-1).replace(/_m$|_r$/,'');
+  const pg=Math.max(1,...curSys.fields.map(f=>f.page||1));
+  const opts=NEURO_VT.tri.opts;
+  curSys.fields.push({key:base+'_m',label:`${no}.新项目·评估月龄`,type:'number',page:pg,group:'发育项目',hint:'打勾所在月龄 1-12',neuroM:{no,name:'新项目'}});
+  curSys.fields.push({key:base+'_r',label:`${no}.新项目·结果/形式`,type:'select',options:opts.map(o=>o[1]),optLabels:opts,page:pg,group:'发育项目',neuro:{no,name:'新项目',vt:'tri'}});
+  feCommit(true);
+}
+function feDelete(i){
+  const fld=curSys.fields[i];if(!fld)return;
+  const base=fld.key.replace(/_[mr]$/,'');
+  const isPair=!!(fld.neuro||fld.neuroM);
+  if(isPair){
+    if(!confirm('删除发育项目「'+(fld.neuro?fld.neuro.name:fld.neuroM&&fld.neuroM.name||base)+'」及其评估月龄/结果两个字段？'))return;
+    curSys.fields=curSys.fields.filter(f=>f.key!==base+'_m'&&f.key!==base+'_r');
+  }else{
+    if(!confirm('删除字段「'+(fld.label||fld.key)+'」？'))return;
+    curSys.fields.splice(i,1);
+  }
+  feCommit(true);
+}
+function feResetDefault(){
+  if(!confirm('恢复「'+curSys.name+'」的默认字段结构？你对本模块字段的所有改动将被清除。'))return;
+  resetFields(curSys);
+  if(curSys.reviewMode==='neuro')curSys.fields=buildNeuroFields();
+  else if(curSys._defaultFields)curSys.fields=curSys._defaultFields.map(f=>({...f}));
+  else toast('该模块无内置默认快照');
+  refreshSysMeta();
+  renderFields(curRec());
+}
+function feCommit(rerender){
+  refreshSysMeta();persistFields(curSys);
+  if(rerender)renderFields(curRec());
+}
 
 /* —— 通用控件 —— */
 function makeRow(f,val,imp){
@@ -2025,9 +3060,10 @@ function onEdit(el){
   r.filled=countFilled(r);updateFill(r);
 }
 function toggleCell(cell){
-  const r=curRec();if(!r)return;const k=cell.dataset.k,v=cell.dataset.v;const tr=cell.closest('tr');
+  const r=curRec();if(!r)return;const k=cell.dataset.k,v=cell.dataset.v;
+  const row=cell.closest('tr')||cell.closest('.neuro-mstrip')||cell.parentElement;
   const already=cell.classList.contains('on');
-  tr.querySelectorAll('.rv-cell').forEach(c=>{c.classList.remove('on');c.classList.remove('imp');});
+  if(row)row.querySelectorAll('.rv-cell,.neuro-mcell').forEach(c=>{c.classList.remove('on');c.classList.remove('imp');});
   if(already){r.data[k]='';}else{cell.classList.add('on');r.data[k]=v;}
   if(r.imported)delete r.imported[k];
   r.filled=countFilled(r);updateFill(r);
@@ -2136,41 +3172,73 @@ function buildExpandRec(r,row,ri){
   box.appendChild(b);return box;
 }
 
-/* —— 神经运动：身份行 + 两页里程碑网格（点月龄格＝评估月龄，选结果/形式） —— */
+/* —— 神经运动：身份/附加字段（从当前系统字段渲染）+ 统一的发育项目积木块 —— */
 function neuroRender(host,r){
-  for(const pg of [1,2]){
-    const sec=document.createElement('div');sec.className='rv-sec'+(pg===1?' cur':'');sec.dataset.page=pg;
-    sec.textContent=`第 ${pg} 页 · ${pg===1?'身份/检查记录 + 项目 1–9':'项目 10–20'}（点此定位左侧原件）`;
-    sec.onclick=()=>jumpToPage(pg);host.appendChild(sec);
-    if(pg===1){
-      const cap=document.createElement('div');cap.className='rv-gcap';cap.textContent='身份信息 / 检查记录';host.appendChild(cap);
-      NEURO_IDENTITY.forEach(f=>host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key])));
+  const pages=[...new Set((curSys.fields||[]).map(f=>f.page||1))].sort((a,b)=>a-b);
+  (pages.length?pages:[1,2]).forEach((pg,idx)=>{
+    const sec=document.createElement('div');sec.className='rv-sec'+(idx===0?' cur':'');sec.dataset.page=pg;
+    sec.textContent=`第 ${pg} 页（点此定位左侧原件）`;sec.onclick=()=>jumpToPage(pg);host.appendChild(sec);
+    /* 身份 / 附加普通字段（非发育项目网格的字段），按 curSys.fields 顺序 */
+    const normalFields=curSys.fields.filter(f=>(f.page||1)===pg && !f.neuro && !f.neuroM);
+    if(normalFields.length){
+      const groups=[...new Set(normalFields.map(f=>f.group||'身份信息'))];
+      groups.forEach(g=>{
+        const cap=document.createElement('div');cap.className='rv-gcap';cap.textContent=g;host.appendChild(cap);
+        normalFields.filter(f=>(f.group||'身份信息')===g).forEach(f=>{
+          if(f.type==='table')host.appendChild(buildMiniTable(r,f));
+          else host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key]));
+        });
+      });
     }
-    const cap2=document.createElement('div');cap2.className='rv-gcap';cap2.textContent='发育项目（点 1–12 月龄格＝评估月龄，右侧选结果/形式）';host.appendChild(cap2);
-    host.appendChild(buildNeuroGrid(r,pg));
-  }
+    /* 发育项目：每项一个统一积木块 */
+    const items=neuroItemsFromFields(curSys,pg);
+    if(items.length){
+      const cap2=document.createElement('div');cap2.className='rv-gcap';cap2.textContent='发育项目（点 1–12 月龄格＝评估月龄；下方选结果/形式，同类外观一致）';host.appendChild(cap2);
+      host.appendChild(buildNeuroGrid(r,pg,items));
+    }
+  });
 }
-function buildNeuroGrid(r,pg){
-  const items=NEURO_ITEMS.filter(it=>it.page===pg);
-  const tbl=document.createElement('table');tbl.className='rv-gtbl';
-  const colg=document.createElement('colgroup');let cg='<col>';for(let i=0;i<12;i++)cg+='<col class="optcol">';cg+='<col style="width:130px">';colg.innerHTML=cg;tbl.appendChild(colg);
-  const thead=document.createElement('thead');let th='<tr><th class="q">项目</th>';for(let m=1;m<=12;m++)th+=`<th>${m}</th>`;th+='<th>结果/形式</th></tr>';thead.innerHTML=th;tbl.appendChild(thead);
-  const tb=document.createElement('tbody');
+function buildNeuroGrid(r,pg,items){
+  items=items||neuroItemsFromFields(curSys,pg);
+  const wrap=document.createElement('div');wrap.className='neuro-wrap';
   items.forEach(it=>{
-    const mk=it.key+'_m',rk=it.key+'_r';
+    const mk=it.mKey, rk=it.rField.key;
     const mv=r.data[mk]==null?'':String(r.data[mk]);
     const rv=r.data[rk]==null?'':String(r.data[rk]);
-    const tr=document.createElement('tr');tr.dataset.k=mk;
-    let h=`<td class="q"><span class="qn">${it.no}</span>${esc(it.name)}</td>`;
-    for(let m=1;m<=12;m++){const on=mv===String(m);const imp=on&&r.imported&&r.imported[mk]?' imp':'';h+=`<td><div class="rv-cell${on?' on':''}${imp}" data-k="${mk}" data-v="${m}">${m}</div></td>`;}
+    const block=document.createElement('div');block.className='neuro-item';block.dataset.k=mk;
+    /* 标题行 */
+    const hd=document.createElement('div');hd.className='neuro-hd';
+    hd.innerHTML=`<span class="qn">${esc(String(it.no))}</span><span class="nm">${esc(it.name)}</span>`;
+    block.appendChild(hd);
+    /* 月龄点选条 1–12 */
+    const ms=document.createElement('div');ms.className='neuro-mstrip';
+    let mh='<span class="neuro-mlab">评估月龄</span>';
+    for(let m=1;m<=12;m++){const on=mv===String(m);const imp=on&&r.imported&&r.imported[mk]?' imp':'';mh+=`<div class="neuro-mcell rv-cell${on?' on':''}${imp}" data-k="${mk}" data-v="${m}">${m}</div>`;}
+    ms.innerHTML=mh;block.appendChild(ms);
+    /* 统一分段结果控件 */
+    const rs=document.createElement('div');rs.className='neuro-res';
     const impr=r.imported&&r.imported[rk]?' imp':'';
-    let oh='<option value=""></option>';it.opts.forEach(o=>oh+=`<option value="${esc(o[1])}"${rv===o[1]?' selected':''}>${esc(o[1]+' '+o[0])}</option>`);
-    h+=`<td><select class="rv-sel${impr}" data-k="${rk}" onchange="onEdit(this)">${oh}</select></td>`;
-    tr.innerHTML=h;tb.appendChild(tr);
+    let rh=`<span class="neuro-rlab">结果/形式</span><div class="rv-seg${impr}" data-k="${rk}">`;
+    it.opts.forEach(o=>{const on=rv===String(o[1]);rh+=`<button type="button" class="rv-segbtn${on?' on':''}" data-k="${rk}" data-v="${esc(String(o[1]))}">${esc(o[0])}<i>${esc(String(o[1]))}</i></button>`;});
+    rh+='</div>';rs.innerHTML=rh;block.appendChild(rs);
+    wrap.appendChild(block);
   });
-  tbl.appendChild(tb);
-  tbl.addEventListener('click',e=>{const cell=e.target.closest('.rv-cell');if(cell)toggleCell(cell);});
-  return tbl;
+  /* 月龄格：点选/再点取消 */
+  wrap.addEventListener('click',e=>{
+    const cell=e.target.closest('.neuro-mcell');if(cell){toggleCell(cell);return;}
+    const seg=e.target.closest('.rv-segbtn');if(seg)setNeuroResult(seg);
+  });
+  return wrap;
+}
+/* 分段结果控件：点选写入 code，再点同项取消 */
+function setNeuroResult(btn){
+  const r=curRec();if(!r)return;const k=btn.dataset.k,v=btn.dataset.v;
+  const seg=btn.closest('.rv-seg');const already=btn.classList.contains('on');
+  seg.querySelectorAll('.rv-segbtn').forEach(b=>b.classList.remove('on'));
+  seg.classList.remove('imp');
+  if(already){r.data[k]='';}else{btn.classList.add('on');r.data[k]=v;}
+  if(r.imported)delete r.imported[k];
+  r.filled=countFilled(r);updateFill(r);
 }
 
 /* —— 荧屏调查：端口自原系统的设备块 + 量表网格（用 ST_* 数据） —— */
@@ -2427,29 +3495,50 @@ function doTsv(){
 }
 
 /* ════════════ 系统启动器 + 视图切换 ════════════ */
+/* —— 隐藏(内置)与删除(自建) —— */
+const HIDDEN_LS='phck_hidden';
+function getHidden(){try{const a=JSON.parse(localStorage.getItem(HIDDEN_LS)||'[]');return Array.isArray(a)?a:[];}catch(_){return [];}}
+function setHidden(a){try{localStorage.setItem(HIDDEN_LS,JSON.stringify(a));}catch(_){}}
+function hideSystem(id){const s=SYS_BY[id];if(!s)return;if(!confirm('从列表移除「'+s.name+'」？\n（内置模块为隐藏，可随时一键恢复；不会删除已识别数据。）'))return;const h=getHidden();if(!h.includes(id))h.push(id);setHidden(h);renderLauncher();}
+function unhideAll(){setHidden([]);renderLauncher();}
+function removeOrHide(id){const s=SYS_BY[id];if(!s)return;if(s.custom)deleteCustomSystem(id);else hideSystem(id);}
+
 function renderLauncher(){
   const g=$('sysGrid');g.innerHTML='';
   const bcard=document.createElement('button');bcard.className='sys builder';bcard.onclick=openBuilder;
   bcard.innerHTML=`
     <div class="sys-top"><div class="sys-emoji">➕</div>
       <div><div class="sys-name">新建识别系统</div><div class="sys-tags"><span class="tag new">自定义</span><span class="tag p">任意页数</span></div></div></div>
-    <div class="sys-desc">上传任意表单样张，AI 自动识别条目并生成英文变量名；可拖动改名 / 改填写位置，或粘贴 txt 变量清单一键匹配，立即生成可识别·可核对·可套对的新系统。</div>
+    <div class="sys-desc">上传任意表单样张，AI 自动识别条目并生成英文变量名；可拖动改名 / 改填写位置，或粘贴 txt 变量清单一键匹配，立即生成可识别·可核对·可套对的新系统。整表可删除。</div>
     <div class="sys-foot"><span>OCR 建模</span><span>·</span><span>txt 一键匹配</span><span class="go">开始创建 →</span></div>`;
   g.appendChild(bcard);
+  const hidden=getHidden();
   SYSTEMS.forEach(s=>{
+    if(hidden.includes(s.id))return;
     ensureMeta(s);
-    const card=document.createElement('button');card.className='sys'+(s.klass==='neo'?' neo':'')+(s.custom?' custom':'');card.onclick=()=>openSystem(s.id);
+    const card=document.createElement('button');card.className='sys deletable'+(s.klass==='neo'?' neo':'')+(s.custom?' custom':'');card.onclick=()=>openSystem(s.id);
     const tags=(s.tags||[]).map((t)=>{const cls=((s.isNew&&t==='新增')||t==='自建')?'new':(/页/.test(t)?'p':'n');return `<span class="tag ${cls}">${esc(t)}</span>`;}).join('');
     const keyN=s.expandKey?(s.fields.length+' 字段/样本'):(s._leafKeys.length+' 字段');
+    const edited=hasOverride(s.id)?'<span class="tag n" title="本模块字段已自定义">✎ 已改字段</span>':'';
     card.innerHTML=`
       <div class="sys-top"><div class="sys-emoji">${s.emoji||'📄'}</div>
-        <div><div class="sys-name">${esc(s.name)}</div><div class="sys-tags">${tags}</div></div></div>
+        <div><div class="sys-name">${esc(s.name)}</div><div class="sys-tags">${tags}${edited}</div></div></div>
       <div class="sys-desc">${esc(s.desc||'')}</div>
       <div class="sys-foot"><span>${esc(keyN)}</span><span>·</span><span>${s.pagesPerRecord} 页/人</span><span class="go">进入系统 →</span></div>`;
-    if(s.custom){const del=document.createElement('span');del.className='sys-del';del.textContent='✕';del.title='删除自建系统';del.onclick=ev=>{ev.stopPropagation();deleteCustomSystem(s.id);};card.appendChild(del);}
+    const del=document.createElement('span');del.className='sys-del';del.textContent='✕';
+    del.title=s.custom?'删除自建系统':'从列表移除（可恢复）';
+    del.onclick=ev=>{ev.stopPropagation();removeOrHide(s.id);};
+    card.appendChild(del);
     g.appendChild(card);
   });
+  /* 恢复被隐藏的内置模块 */
+  let bar=$('hiddenBar');
+  if(hidden.length){
+    if(!bar){bar=document.createElement('div');bar.id='hiddenBar';bar.style.cssText='grid-column:1/-1;font-size:12px;color:var(--ink3);text-align:center;padding:4px';$('vLauncher').appendChild(bar);}
+    bar.innerHTML=`已隐藏 <b>${hidden.length}</b> 个内置模块 · <button class="linkbtn" onclick="unhideAll()">恢复全部</button>`;
+  }else if(bar){bar.remove();}
 }
+function hasOverride(id){try{const all=JSON.parse(localStorage.getItem(OVERRIDE_LS)||'{}');return !!(all&&all[id]);}catch(_){return false;}}
 function openSystem(id){
   const s=SYS_BY[id];if(!s)return;ensureMeta(s);
   curSys=s;records=[];running=false;_impSnap=null;
@@ -2636,6 +3725,7 @@ function deleteCustomSystem(id){
   const s=SYS_BY[id];if(!s||!s.custom)return;
   if(!confirm('删除自建系统「'+s.name+'」？此操作不可撤销。'))return;
   const i=SYSTEMS.indexOf(s);if(i>=0)SYSTEMS.splice(i,1);delete SYS_BY[id];
+  if(typeof resetFields==='function')resetFields(s);
   saveCustomSystems();renderLauncher();
 }
 function bCreateSystem(){
@@ -2709,7 +3799,10 @@ $('bVarFile').addEventListener('change',e=>{const f=e.target.files[0];if(f){cons
 $('bCreate').addEventListener('click',bCreateSystem);
 
 $('backBtn').style.display='none';
+function captureDefaults(){SYSTEMS.forEach(s=>{if(!s._defaultFields)s._defaultFields=fieldsSnapshot(s);});}
 loadCustomSystems();
+captureDefaults();   // 在套用覆盖前，记录每个模块的默认字段（供「恢复默认」）
+applyOverrides();    // 套用本机保存的字段结构改动（内置+自建均 durable）
 renderLauncher();
 selectProv(cfg.prov);
 updateAiStatus();
