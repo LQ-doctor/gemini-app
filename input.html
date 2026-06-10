@@ -811,373 +811,285 @@ const ST_PAGE_HINT={
    reviewMode:'health'（结构沿用 screen 专用系统逻辑：分页·量表点格·频率行·跳页）
 ════════════════════════════════════════════════════════════════ */
 
-/* ---- 多选题选项（□打✓=1 空=0），key 前缀 + 序号 ---- */
-const HQ_PUNISH=['挨打','罚站','挨饿','干家务','扣零花钱','增加补习时间','限制看电视/玩电脑等电子设备的时间','限制外出玩耍时间','被关小黑屋/厕所等狭小空间','挨骂','其他'];
+/* ════════════════════════════════════════════════════════════════
+   膳食 / 运动 / 睡眠 / 行为 模块  —— 变量名与顺序严格 = 用户权威清单
+   kind: text | num | gender | toggle | freq | scale
+════════════════════════════════════════════════════════════════ */
+const HQ_PUNISH=['挨打','罚站','挨饿','干家务','扣零花钱','增加补习时间','限制看电视/玩电脑等电子设备的时间','限制外出玩耍时间','被关小黑屋/厕所等狭小空间','挨骂'];
 const HQ_GAMETOOL=['手机','电脑','平板','学习机','电话手表','其他'];
 const HQ_GAMEPLACE=['家里','学校','上学/放学的路上','同学家里','亲戚家里','其他'];
-const HQ_DISEASE=['哮喘','先天性心脏病','贫血','肾脏疾病','其他疾病'];
-const HQ_PREG_SMOKE=['无','主动(孕妇吸烟)','被动(家庭成员吸烟)'];
-const HQ_PREG_SUPP=['多元维生素(21金维他,善存)','维生素A','维生素D','其他'];
-const HQ_PREG_COMP=['妊娠糖尿病','妊娠高血压','其他'];
 const HQ_ALLERGY=['过敏性鼻炎','湿疹或特应性皮炎','鼻窦炎','哮喘','鼻息肉','其他','无过敏性疾病'];
-const HQ_WATER=['自来水烧开','家用净水器过滤水','桶装矿泉水/纯净水','瓶装矿泉水/纯净水','瓶装含糖饮料','现制奶茶/果茶','其他'];
+const HQ_DIAG=['无下述疾病','脂肪肝','肝功能异常','病毒性肝炎','其他肝脏疾病','甲状腺功能亢进/减退/甲状腺炎','甲状腺结节','肥胖症','高血压','糖尿病','血脂异常','肾病综合征','库欣综合征','其他内分泌/代谢疾病'];
+const HQ_MEDS=['无长期用药','糖皮质激素类(强的松/普米克令舒/艾洛松等)','甲状腺激素类(优甲乐/赛治等)','降脂药(阿托伐他汀钙片/瑞舒伐他汀钙片等)','降糖药(盐酸二甲双胍片/胰岛素注射液等)','降压药(络活喜/缬沙坦胶囊等)','抗生素(阿莫西林胶囊/头孢克肟分散片等)','中成药/保健品(蒲地蓝消炎口服液等)','其他'];
+const HFAM_MEMBERS=[['f','父亲'],['m','母亲'],['gf','爷爷'],['gm','奶奶'],['mgf','外公'],['mgm','外婆']];
+const HFAM_DIS=[['1','高血压'],['2','高血脂'],['3','糖尿病'],['4','冠心病'],['5','脑卒中'],['6','肿瘤']];
+const HSMOKE=[['f','父亲'],['gf','爷爷或外公'],['m','母亲'],['gm','奶奶或外婆']];
+const H_SCHOOLW=[['school_w1','在楼下直接坐小汽车/公交车'],['school_w2','先步行一段到公交站再坐车'],['school_w3','步行/骑自行车']];
+const H_PE=[['pe_1','快跑、跳绳'],['pe_2','骑自行车/仰卧起坐/俯卧撑/引体向上'],['pe_3','慢跑/足球/溜直排轮'],['pe_4','篮球/游泳/跳远/跳高'],['pe_5','羽毛球'],['pe_6','乒乓球/体操'],['pe_7','拉伸/瑜伽'],['pe_8','逛街/逛超市'],['pe_9','散步'],['pe_10','学习(除上学)/玩电脑'],['pe_11','吃饭/聊天/做手工'],['pe_12','看电视/电影/听音乐']];
+const H_PH=[['ph_1','扫地'],['ph_2','拖地'],['ph_3','洗碗/倒垃圾/浇花等'],['ph_4','遛狗/猫']];
+const H_PI=[['pi_1','钢琴/风琴/小提琴'],['pi_2','吉他/大提琴/长笛/木管乐器'],['pi_3','芭蕾舞/现代舞/爵士'],['pi_4','跆拳道/柔道/空手道']];
+const HSLEEP_REASON=['家长规定','自己觉得困','这个时间点才做完作业','想玩儿的玩够了','长期睡眠习惯'];
+const HSLEEP33=['每晚入睡时间固定','在自己的床上睡','在父母/兄弟姐妹的床上睡','入睡时需要父母陪伴','到睡觉时间了不愿入睡','害怕一个人睡','上床后在20分钟内睡着','睡眠时间太短','睡眠时间充足','每天的睡眠时间长度大致相同','害怕在黑暗环境睡觉','在除了自己家以外的地方入睡困难','半夜跑到父母等家人的床上睡觉','半夜醒来1次','半夜醒来不止1次','夜间尿床','睡觉说梦话','睡觉不安稳,多动','夜间梦游','睡觉磨牙','夜间醒来尖叫/流汗/伤心难过','被噩梦吓醒','打鼾声音很大','睡觉时看着像呼吸停止了','睡觉时有打鼾和喘气状况','早上自己醒来','早上由家长或兄弟姐妹叫醒','早上醒来情绪稳定','早上起床困难','起床后要花很长时间才能清醒','白天看起来很困倦','看电视时,犯困/睡着了','坐车时,犯困/睡着了'];
+const HIMMUNE_FREQ=['过去12个月突然高烧的频率','过去12个月腹泻的频率','过去12个月头痛的频率','过去12个月肌肉和关节疼痛的频率','过去12个月普通感冒的频率','过去12个月咳嗽的频率'];
+const HFAM_ALLERGY_MEM=[['father','父亲'],['mom','母亲'],['siblings','兄弟姐妹']];
+const HFAM_ALLERGY_COL=['过敏性鼻炎','哮喘','湿疹或特应性皮炎','无以上疾病','不详'];
+function hFamAllergyKey(mk,idx){return mk==='father'?`allergic_father${idx+1}`:mk==='mom'?`allergic_mom${idx+1}`:`siblings_${idx+1}`;}
 
-/* ---- 家庭成员疾病史表（成员×疾病勾选 + 身高体重腰围数值） ---- */
-const HFAM_MEMBERS=[['father','父亲'],['mother','母亲'],['gpa','爷爷'],['gma','奶奶'],['mgpa','外公'],['mgma','外婆']];
-const HFAM_DISEASES=[['htn','高血压'],['hlp','高血脂'],['dm','糖尿病'],['chd','冠心病'],['stroke','脑卒中'],['thy','甲状腺功能异常'],['fld','脂肪肝'],['tumor','肿瘤']];
-
-/* ---- 膳食频率表（食用频度 0-4 + 食用量），子项保持原表层级 ---- */
-const HDIET_ITEMS=[
-  ['diet1a','谷薯类·米饭/面食等'],['diet1b','谷薯类·粗粮(玉米/小米等)'],
-  ['diet2','新鲜蔬菜(不含胡萝卜)'],['diet3','胡萝卜'],
-  ['diet4a','水果·果脯/果干/板栗'],['diet4b','水果·山楂/鲜枣/甘蔗/榴莲/荔枝/桂圆/提子'],
-  ['diet4c','水果·波罗蜜/石榴/柿子/香蕉/芒果/哈密瓜'],
-  ['diet4d','水果·番石榴/橘子/猕猴桃/葡萄/梨/苹果/火龙果/广柑/桃子/橙子/桑葚/杨梅/甜瓜'],
-  ['diet4e','水果·菠萝/柚子/枇杷/杏子/李子/草莓/木瓜/柠檬/西瓜/西红柿/莲雾/樱桃/杨桃'],
-  ['diet5','猪牛羊肉'],['diet6','动物肝脏(猪肝/鸡鸭肝)'],['diet7','鸡鸭及其他禽肉'],
-  ['diet8','各种鱼虾贝类'],['diet9','鸡蛋/鸭蛋等蛋类'],['diet10','牛奶/酸奶等制品'],
-  ['diet11a','豆类·干豆类'],['diet11b','豆类·豆制品(豆腐干/丝/泡)'],['diet11c','豆类·豆腐/豆腐脑'],['diet11d','豆类·豆浆'],
-  ['diet12','各种坚果'],['diet12a','坚果·夏威夷果/榛子/碧根果/杏仁/巴旦木/腰果/澳洲坚果'],['diet12b','坚果·花生/瓜子/核桃/松子/南瓜子/开心果'],
-  ['diet13','菌藻类(菇类/木耳/银耳等)'],['diet14','食用油'],['diet15','咸菜'],
-  ['diet16','营养补充剂(钙片/维生素等)'],['diet17','辣椒'],['diet18','炸鸡汉堡等'],
-  ['diet19a','含糖饮料·含糖果汁或蔬菜汁'],['diet19b','含糖饮料·其他含糖饮料(可乐/雪碧等)'],['diet20','蜂蜜'],
-  ['diet_smoke','你吸烟吗(频度)'],['diet_baijiu','您饮白酒吗(频度)'],['diet_pijiu','您饮啤酒吗(频度)']
+const HDIET=[
+ ['diet1','米饭、面食',[['diet1a','斤'],['diet1b','两']]],
+ ['grain','粗粮(玉米、小米等)',[['graina','斤'],['grainb','两']]],
+ ['diet2','新鲜蔬菜(不含胡萝卜)',[['diet2a','斤'],['diet2b','两']]],
+ ['carrot','胡萝卜',[['carrota','斤'],['carrotb','两']]],
+ ['diet3_1','果脯、果干、板栗',[['diet3a_1','斤'],['diet3b_1','两']]],
+ ['diet3_2','山楂、鲜枣、甘蔗、榴莲、荔枝、桂圆、提子',[['diet3a_2','斤'],['diet3b_2','两']]],
+ ['diet3_3','菠萝蜜、石榴、柿子、香蕉、芒果、哈密瓜',[['diet3a_3','斤'],['diet3b_3','两']]],
+ ['diet3_4','番石榴、橘子、猕猴桃、葡萄、梨、苹果、火龙果、广柑、桃子、橙子、桑葚、杨梅、甜瓜',[['diet3a_4','斤'],['diet3b_4','两']]],
+ ['diet3_5','菠萝、柚子、枇杷、杏子、李子、草莓、木瓜、柠檬、西瓜、西红柿、莲雾、樱桃、杨桃',[['diet3a_5','斤'],['diet3b_5','两']]],
+ ['diet4','猪牛羊肉',[['diet4a','斤'],['diet4b','两']]],
+ ['liver','动物肝脏(猪肝、鸡鸭肝)',[['livera','斤'],['liverb','两']]],
+ ['diet5','鸡、鸭及其他禽肉',[['diet5a','斤'],['diet5b','两']]],
+ ['diet6','鱼虾贝类',[['diet6a','斤'],['diet6b','两']]],
+ ['diet7','鸡蛋、鸭蛋等蛋类',[['diet7a','斤'],['diet7b','两']]],
+ ['diet8','牛奶、酸奶等制品',[['diet8a','ml']]],
+ ['bean1','干豆类',[['bean1a','斤'],['bean1b','两']]],
+ ['bean2','豆制品(豆腐干、丝、泡)',[['bean2a','斤'],['bean2b','两']]],
+ ['bean3','豆腐或豆腐脑',[['bean3a','斤'],['bean3b','两']]],
+ ['bean4','豆浆',[['bean4a','斤'],['bean4b','两']]],
+ ['diet10','各种坚果',[['diet10a','斤'],['diet10b','两']]],
+ ['diet10_1','夏威夷果、榛子、碧根果、杏仁、巴旦木、腰果、澳洲坚果',[['diet10a_1','斤'],['diet10b_1','两']]],
+ ['diet10_2','花生、瓜子、核桃、松子、南瓜子、开心果',[['diet10a_2','斤'],['diet10b_2','两']]],
+ ['diet11','菌藻类食物(菇类、木耳、银耳等)',[['diet11a','斤'],['diet11b','两']]],
+ ['diet12','食用油',[['diet12a','斤'],['diet12b','两']]],
+ ['diet13','咸菜',[['diet13a','斤'],['diet13b','两']]],
+ ['nutrisupply','营养补充剂(钙片、维生素等)',[['nutrisupplya','片'],['nutrisupplyb','ml/mg']]],
+ ['pepper','辣椒',[['peppera','次']]],
+ ['friedc','汉堡炸鸡等',[['friedca','斤'],['friedcb','两']]],
+ ['juice','含糖果汁或蔬菜汁',[['juicea','ml']]],
+ ['diet15','其他含糖饮料(可乐、雪碧等)',[['diet15a','ml']]],
+ ['diet16','蜂蜜',[['diet16a','两']]],
 ];
 
-/* ---- 睡眠习惯量表 1-33 题（三选一：1通常 2有时 3很少） ---- */
-const HSLEEP33=['每晚入睡时间固定','在自己的床上睡','在父母/兄弟姐妹的床上睡','入睡时需要父母陪伴','到睡觉时间了不愿入睡','害怕一个人睡','上床后在20分钟内睡着','睡眠时间太短','睡眠时间充足','每天的睡眠时间长度大致相同','害怕在黑暗环境睡觉','在除了自己家以外的地方入睡困难','半夜跑到父母等家人的床上睡觉','半夜醒来1次','半夜醒来不止1次','夜间尿床','睡觉说梦话','睡觉不安稳,多动','夜间梦游','睡觉磨牙','夜间醒来尖叫/流汗/伤心难过','被噩梦吓醒','打鼾声音很大','睡觉时看着像呼吸停止了','睡觉时有打鼾和喘气状况','早上自己醒来','早上由家长或兄弟姐妹叫醒','早上醒来情绪稳定','早上起床困难','起床后要花很长时间才能清醒','白天看起来很困倦','看电视时,犯困/睡着了','坐车时,犯困/睡着了'];
-
-/* ---- 免疫频率题 1-6（5列：1从不 2有时 3偶尔 4常常 5绝大多数） ---- */
-const HIMMUNE_FREQ=['过去12个月突然高烧的频率','过去12个月腹泻的频率','过去12个月头痛的频率','过去12个月肌肉和关节疼痛的频率','过去12个月普通感冒的频率','过去12个月咳嗽的频率'];
-
-/* ---- 直系亲属过敏史（父/母/兄弟姐妹 × 4列勾选） ---- */
-const HFAM_ALLERGY_MEM=[['fa','父亲'],['ma','母亲'],['sib','兄弟姐妹']];
-const HFAM_ALLERGY_COL=[['rhin','过敏性鼻炎'],['asthma','哮喘'],['ecz','湿疹或特应性皮炎'],['none','无以上疾病'],['unk','不详']];
-
 function buildHealthSchema(){
-  const S=[];const P=(key,label,page,kind,opts)=>S.push({key,label,page,kind:kind||'text',opts});
-  /* 多选展开：prefix+1..n，每项 toggle */
-  const multi=(prefix,arr,page,label)=>arr.forEach((t,i)=>P(`${prefix}${i+1}`,`${label}·${i+1}.${t}`,page,'toggle'));
+  const S=[]; const P=(key,label,page,kind,opts)=>S.push({key,label,page,kind:kind||'text',opts});
+  const multi=(prefix,arr,page,label)=>arr.forEach((t,i)=>P(`${prefix}${i+1}`,`${label}·${t}`,page,'toggle'));
 
-  /* ───────── 第1页 一、儿童基本情况 ───────── */
-  P('no','序号 no',1,'text');
-  P('childname','儿童姓名 childname',1,'text');
+  /* ── 第1页 一、儿童基本情况 ── */
+  P('ID','调查对象编号 ID',1); P('no','序号 no',1); P('childname','儿童姓名 childname',1);
   P('gender','性别 gender(1=男 2=女)',1,'gender');
-  P('nation','民族 nation(1汉2彝3藏4羌5苗6其他)',1,'num');
-  P('nation1','民族其他说明 nation1',1,'text');
-  P('cIDcard','身份证号码 cIDcard',1,'text');
-  P('BIRTHDAY1','出生日期类型 BIRTHDAY1(1新历/阳历 2农历/旧历)',1,'num');
-  P('BIRTHDAY','出生日期 BIRTHDAY',1,'text');
-  P('school','就读学校 school',1,'text');
-  P('grade','年级 grade',1,'num');
-  P('class','班级 class',1,'num');
-  P('arriveschoolt','早上要求到校时间 arriveschoolt(如 800=8:00)',1,'text');
-  P('leaveschoolt','下午/晚上放学时间 leaveschoolt(如 1725=17:25)',1,'text');
-  P('live_school','是否住读 live_school(1是 0否)',1,'toggle');
-  P('chinese','语文成绩 chinese',1,'text');
-  P('math','数学成绩 math',1,'text');
-  P('english','英语成绩 english',1,'text');
+  P('nation','民族 nation(1汉2彝3藏4羌5苗6其他)',1,'num'); P('nation1','其他民族(注明) nation1',1);
+  P('cIDcard','身份证号码 cIDcard',1);
+  P('BIRTHDAY1','出生日期_阴历或阳历 BIRTHDAY1(1新历2农历)',1,'num'); P('BIRTHDAY','出生日期 BIRTHDAY',1);
+  P('school','就读学校 school',1); P('grade','年级 grade',1,'num'); P('class','班级 class',1,'num');
+  P('arriveschoolt','早上要求到校时间 arriveschoolt',1); P('leaveschoolt','下午/晚上放学时间 leaveschoolt',1);
+  P('live_school','是否住读 live_school(1是0否)',1,'toggle');
+  P('chinese','语文成绩 chinese',1); P('math','数学 math',1); P('english','英语 english',1);
   P('study_dep_new','学习压力 study_dep_new(1无2较小3一般4较大5大)',1,'num');
   P('parent_h','家长期望压力 parent_h(1无2轻度3中度4重度)',1,'num');
-  P('character','性格 character(1内向2外向3中间)',1,'num');
-  P('child_influence','受家长负性情绪影响 child_influence(1无2轻微3一般4较大5大)',1,'num');
-  P('punish','犯错/考差是否被惩罚 punish(1是 0否)',1,'toggle');
-  /* 惩罚方式多选 punish1-11，punish10a=其他说明 */
-  multi('punish',HQ_PUNISH,1,'惩罚方式 punish');
-  P('punish10a','惩罚其他说明 punish10a',1,'text');
-  P('play_g','是否玩游戏 play_g(0否 1是)',1,'toggle');
+  P('character','你的性格 character(1内向2外向3中间)',1,'num');
+  P('child_influence','受家长负面情绪影响 child_influence(1无2轻微3一般4较大5大)',1,'num');
+  P('punish','犯错/考差是否被惩罚 punish(1是0否)',1,'toggle');
+  multi('punish',HQ_PUNISH,1,'惩罚类型 punish');
+  P('punish10a','惩罚类型_其他惩罚 punish10a',1,'toggle'); P('punish11','惩罚类型_其他惩罚(注明) punish11',1);
+  P('play_g','是否玩游戏 play_g(0否1是)',1,'toggle');
 
-  /* ───────── 第2页 游戏/疾病/保险/维生素/月经遗精 + 二、孕期喂养B1-B6 ───────── */
-  P('play_t1','上学期间每月玩游戏次数 play_t1',2,'num');
-  P('play_d1','上学期间每次时长(分) play_d1',2,'num');
-  P('play_t2','寒暑假每月玩游戏次数 play_t2',2,'num');
-  P('play_d2','寒暑假每次时长(分) play_d2',2,'num');
-  /* 玩游戏主要工具多选 play_gt1-6，play_gt6o=其他说明 */
-  multi('play_gt',HQ_GAMETOOL,2,'玩游戏主要工具 play_gt');
-  P('play_gt6o','游戏工具其他说明 play_gt6o',2,'text');
-  /* 玩游戏场所多选 play_gl1-6，play_gl6o=其他说明 */
-  multi('play_gl',HQ_GAMEPLACE,2,'玩游戏场所 play_gl');
-  P('play_gl6o','游戏场所其他说明 play_gl6o',2,'text');
-  P('disease','是否患以下疾病 disease(0否1是)',2,'toggle');
-  /* 疾病多选 disease1-7，disease_other=其他说明 */
-  P('disease1','疾病·哮喘 disease1',2,'toggle');
-  P('disease2','疾病·先天性心脏病 disease2',2,'toggle');
-  P('disease6','疾病·贫血 disease6',2,'toggle');
-  P('disease7','疾病·肾脏疾病 disease7',2,'toggle');
-  P('disease5','疾病·其他疾病 disease5',2,'toggle');
-  P('disease_other','疾病其他说明 disease_other',2,'text');
-  P('baseins','是否购买基本医疗保险 baseins(0否1是)',2,'toggle');
-  P('baseins1','基本医保第几档 baseins1',2,'text');
-  P('baseins2','基本医保每年花费(元) baseins2',2,'num');
-  P('busins','是否购买商业医疗保险 busins(0否1是)',2,'toggle');
-  P('busins1','商业保险每年花费(元) busins1',2,'num');
-  P('busins3','商业保险报销总额度(元) busins3',2,'num');
-  P('VA_SUPPLY','是否服用维生素A补充剂 VA_SUPPLY(0否1是)',2,'toggle');
-  P('VA_SUPPLY1','维生素A每日剂量(视黄醇当量RE) VA_SUPPLY1',2,'num');
-  P('VA_SUPPLY2','维生素A每日剂量(IU) VA_SUPPLY2',2,'num');
-  P('VD_SUPPLY','是否服用维生素D补充剂 VD_SUPPLY(0否1是)',2,'toggle');
-  P('VD_SUPPLY1','维生素D每日剂量(μg) VD_SUPPLY1',2,'num');
-  P('VD_SUPPLY2','维生素D每日剂量(IU) VD_SUPPLY2',2,'num');
-  P('menstr','(女)是否已来月经 menstr(0否1是)',2,'toggle');
-  P('menstr_y','月经初潮年龄·岁 menstr_y',2,'num');
-  P('menstr_m','月经初潮·月 menstr_m',2,'num');
-  P('spermat','(男)是否有遗精 spermat(0否1是)',2,'toggle');
-  P('spermat_y','首次遗精年龄·岁 spermat_y',2,'num');
-  P('spermat_m','首次遗精·月 spermat_m',2,'num');
-  P('PMAGE','B1·怀孕时母亲年龄(岁) PMAGE',2,'num');
-  P('PFAGE','B1·怀孕时父亲年龄(岁) PFAGE',2,'num');
-  P('BEFW','B2·母亲怀孕前体重(斤) BEFW',2,'num');
-  P('PROW','B2·分娩前体重(斤) PROW',2,'num');
-  P('PWEEK1','B3·分娩孕周(周) PWEEK1',2,'num');
-  P('PWEEK1_a','B3·分娩孕周(天) PWEEK1_a',2,'num');
+  /* ── 第2页 游戏/疾病/保险/维生素/月经遗精 + 孕期B1-B6 ── */
+  P('play_t1','上学期间游戏频率(次/月) play_t1',2,'num'); P('play_d1','上学期间每次时长(分钟) play_d1',2,'num');
+  P('play_t2','寒暑假游戏频率(次/月) play_t2',2,'num'); P('play_d2','寒暑假每次时长(分钟) play_d2',2,'num');
+  multi('play_gt',HQ_GAMETOOL,2,'玩游戏主要工具 play_gt'); P('play_gt6o','玩游戏工具_其他(注明) play_gt6o',2);
+  multi('play_gl',HQ_GAMEPLACE,2,'玩游戏的场所 play_gl'); P('play_gl6o','玩游戏场所_其他(注明) play_gl6o',2);
+  P('disease','是否患有以下疾病 disease(0否1是)',2,'toggle');
+  P('disease1','所患疾病_哮喘 disease1',2,'toggle'); P('disease2','所患疾病_先天性心脏病 disease2',2,'toggle');
+  P('disease6','所患疾病_贫血 disease6',2,'toggle'); P('disease7','所患疾病_肾脏疾病 disease7',2,'toggle');
+  P('disease5','所患疾病_其他疾病 disease5',2,'toggle'); P('disease_other','所患疾病_其他(注明) disease_other',2);
+  P('baseins','是否购买基本医疗保险 baseins(0否1是)',2,'toggle'); P('baseins1','基本医保档数_档 baseins1',2);
+  P('baseins2','基本医保每年花费_元/年 baseins2',2,'num');
+  P('busins','是否购买商业医疗保险 busins(0否1是)',2,'toggle'); P('busins1','商业医保每年花费_元/年 busins1',2,'num');
+  P('busins3','商业医保报销总额度_元/年 busins3',2,'num');
+  P('VA_SUPPLY','最近是否服用维生素A补充剂 VA_SUPPLY(0否1是)',2,'toggle');
+  P('VA_SUPPLY1','维A每日剂量_视黄醇当量RE VA_SUPPLY1',2,'num'); P('VA_SUPPLY2','维A每日剂量_IU VA_SUPPLY2',2,'num');
+  P('VD_SUPPLY','最近是否服用维生素D补充剂 VD_SUPPLY(0否1是)',2,'toggle');
+  P('VD_SUPPLY1','维D每日剂量_ug VD_SUPPLY1',2,'num'); P('VD_SUPPLY2','维D每日剂量_IU VD_SUPPLY2',2,'num');
+  P('menstr','(女)现在是否来月经 menstr(0否1是)',2,'toggle'); P('menstr_y','月经初潮_岁 menstr_y',2,'num'); P('menstr_m','月经初潮_月 menstr_m',2,'num');
+  P('spermat','(男)现在是否遗精 spermat(0否1是)',2,'toggle'); P('spermat_y','首次遗精_岁 spermat_y',2,'num'); P('spermat_m','首次遗精_月 spermat_m',2,'num');
+  P('PMAGE','B1·怀孕时母亲年龄 PMAGE',2,'num'); P('PFAGE','B1·怀孕时父亲年龄 PFAGE',2,'num');
+  P('BEFW','B2·母亲怀孕前体重(斤) BEFW',2,'num'); P('PROW','B2·分娩前体重(斤) PROW',2,'num');
+  P('PWEEK1','B3·分娩孕周_周 PWEEK1',2,'num'); P('PWEEK1_a','B3·分娩孕周_天 PWEEK1_a',2,'num');
   P('PWEEK2','B3·是否足月 PWEEK2(0足月1早产)',2,'toggle');
-  P('BIRTHDAY2','B4·分娩日期(新历) BIRTHDAY2',2,'text');
-  P('BIRTHW','B5·分娩方式 BIRTHW(0顺产1剖腹产)',2,'toggle');
-  P('twins','B5·是否双胞胎 twins(1是0否)',2,'toggle');
-  P('BIRTHLEN','B6·出生身长(cm) BIRTHLEN',2,'num');
-  P('CBIRTHW','B6·出生体重(斤) CBIRTHW',2,'num');
+  P('BIRTHDAY2','B4·分娩日期(新历) BIRTHDAY2',2); P('BIRTHW','B5·分娩方式 BIRTHW(0顺产1剖腹产)',2,'toggle');
+  P('twins','B5·是否双胞胎 twins(1是0否)',2,'toggle'); P('BIRTHLEN','B6·出生身长(cm) BIRTHLEN',2,'num'); P('CBIRTHW','B6·出生体重(斤) CBIRTHW',2,'num');
 
-  /* ───────── 第3页 二、孕期 B7-B20 ───────── */
+  /* ── 第3页 孕期 B7-B20 ── */
   P('activesmoke','B7·怀孕前是否主动吸烟 activesmoke(0否1是)',3,'toggle');
-  P('activesmoke1','B7·平均每周(次) activesmoke1',3,'num');
-  P('activesmoke2','B7·平均每次(支) activesmoke2',3,'num');
-  P('activesmoke3','B7·烟龄(年) activesmoke3',3,'num');
-  P('SMOKE1','B8·孕期吸烟·无 SMOKE1(打✓=1)',3,'toggle');
-  P('SMOKE2','B8·孕期主动吸烟 SMOKE2(1是)',3,'toggle');
-  P('SMOKE2A','B8·主动吸烟每天(支) SMOKE2A',3,'num');
-  P('SMOKE3','B8·孕期被动吸烟 SMOKE3(1是)',3,'toggle');
-  P('SMOKE3A','B8·被动吸烟每天(支) SMOKE3A',3,'num');
+  P('activesmoke1','B7·平均每周_次 activesmoke1',3,'num'); P('activesmoke2','B7·平均每次_支 activesmoke2',3,'num'); P('activesmoke3','B7·烟龄_年 activesmoke3',3,'num');
+  P('SMOKE1','B8·孕期没有抽烟 SMOKE1(✓=1)',3,'toggle'); P('SMOKE2','B8·孕期主动吸烟 SMOKE2(✓=1)',3,'toggle'); P('SMOKE2A','B8·主动每天_支 SMOKE2A',3,'num');
+  P('SMOKE3','B8·孕期被动吸烟 SMOKE3(✓=1)',3,'toggle'); P('SMOKE3A','B8·被动每天_支 SMOKE3A',3,'num');
   P('drink','B9·孕期是否饮酒 drink(0否1是)',3,'toggle');
-  P('Wdrink','B9·白酒每次(ml) Wdrink',3,'num');
-  P('Wdrink1','B9·白酒每月(次) Wdrink1',3,'num');
-  P('Rdrink','B9·红酒每次(ml) Rdrink',3,'num');
-  P('Rdrink1','B9·红酒每月(次) Rdrink1',3,'num');
-  P('Bdrink','B9·啤酒每次(ml) Bdrink',3,'num');
-  P('Bdrink1','B9·啤酒每月(次) Bdrink1',3,'num');
-  P('druguse','B10·孕早期是否用致畸药物 druguse(0否1是)',3,'toggle');
-  P('druguse1','B10·用药时间孕(周) druguse1',3,'num');
-  P('druguse2','B10·药名 druguse2',3,'text');
-  P('PREHYPER','B11·孕期高血压 PREHYPER(0否1是)',3,'toggle');
-  P('PREHYPER1','B11·诊断孕周 PREHYPER1',3,'num');
-  P('PREDIAT','B12·孕期糖尿病 PREDIAT(0否1是)',3,'toggle');
-  P('PREDIAT1','B12·诊断孕周 PREDIAT1',3,'num');
-  P('NUTRISUP','B13·甲状腺功能异常 NUTRISUP(0否1是)',3,'toggle');
-  P('NUTRIM','B13·诊断孕周 NUTRIM',3,'num');
-  /* 注：NUTRIVA/NUTRIVD/NUTRIOTH/NUTRIOTH1-4 为B14·营养补充剂 */
-  P('NUTRIVA','B14·孕期是否服营养补充剂 NUTRIVA(0否1是)',3,'toggle');
-  P('NUTRIVD','B14·营养补充剂·多元维生素 NUTRIVD(1是)',3,'toggle');
-  P('NUTRIOTH','B14·营养补充剂·维生素A NUTRIOTH(1是)',3,'toggle');
-  P('NUTRIOTH1','B14·营养补充剂·维生素D NUTRIOTH1(1是)',3,'toggle');
-  P('NUTRIOTH2','B14·营养补充剂·其他 NUTRIOTH2(1是)',3,'toggle');
-  P('NUTRIOTH3','B14·营养补充剂·其他说明 NUTRIOTH3',3,'text');
-  P('NUTRIOTH4','B14·(备用) NUTRIOTH4',3,'text');
-  P('BLOODSUP','B15·分娩住院期间是否输血 BLOODSUP(0否1是)',3,'toggle');
-  P('mmilk','B16·母乳开始时间 mmilk(0未添加1出生时2出生后天)',3,'num');
-  P('mmilk1','B16·出生后(天) mmilk1',3,'num');
-  P('mmilk2','B16·母乳喂养到·岁 mmilk2',3,'num');
-  P('mmilk3','B16·母乳喂养到·月 mmilk3',3,'num');
-  P('milk','B17·配方奶开始时间 milk(0未添加1出生时2=天3=月)',3,'num');
-  P('milk2','B17·开始数值 milk2',3,'num');
-  P('milk1','B17·配方奶喂养到·岁 milk1',3,'num');
-  P('milk3','B17·配方奶喂养到·月 milk3',3,'num');
-  P('milk4','B18·添加辅食开始月龄 milk4',3,'num');
-  P('FOODS','B19·是否搬家/翻新 FOODS(0否1是)',3,'toggle');
-  P('move','B19·次数 move',3,'num');
-  P('movet','B19·每次装修后入住年份 movet',3,'text');
-  P('movet1','B20a·孕次总数 movet1',3,'num');
-  P('movet2','B20b·顺产(次) movet2',3,'num');
-  P('movet3','B20b·剖宫产(次) movet3',3,'num');
-  P('prenum','B20b·末次分娩方式 prenum(1阴道2剖宫)',3,'num');
-  P('natural','B20b·末次分娩时间 natural',3,'text');
-  P('cesarean','B20c·自然流产(次) cesarean',3,'num');
-  P('lastdelivery','B20c·人工流产(次) lastdelivery',3,'num');
-  P('lastdeliveryt','B20c·末次流产方式 lastdeliveryt(1手术2药物3自然)',3,'num');
-  P('abortion1','B20c·末次流产时间 abortion1',3,'text');
-  P('abortion2','B20d·早产(次) abortion2',3,'num');
-  P('lastabortion','B20d·死胎/产(次) lastabortion',3,'num');
-  P('lastabortiont','(备用) lastabortiont',3,'text');
-  P('premature','(备用) premature',3,'text');
-  P('stillbirth','(备用) stillbirth',3,'text');
+  P('Wdrink','B9·白酒每次_ml Wdrink',3,'num'); P('Wdrink1','B9·白酒每月_次 Wdrink1',3,'num');
+  P('Rdrink','B9·红酒每次_ml Rdrink',3,'num'); P('Rdrink1','B9·红酒每月_次 Rdrink1',3,'num');
+  P('Bdrink','B9·啤酒每次_ml Bdrink',3,'num'); P('Bdrink1','B9·啤酒每月_次 Bdrink1',3,'num');
+  P('druguse','B10·孕早期是否服致畸药物 druguse(0否1是)',3,'toggle'); P('druguse1','B10·服药孕周 druguse1',3,'num'); P('druguse2','B10·药名 druguse2',3);
+  P('PREHYPER','B11·孕期高血压 PREHYPER(0否1是)',3,'toggle'); P('PREHYPER1','B11·诊断孕周 PREHYPER1',3,'num');
+  P('PREDIAT','B12·孕期糖尿病 PREDIAT(0否1是)',3,'toggle'); P('PREDIAT1','B12·诊断孕周 PREDIAT1',3,'num');
+  P('NUTRISUP','B14·孕期是否服营养补充剂 NUTRISUP(0否1是)',3,'toggle');
+  P('NUTRIM','B14·营养剂_多元维生素 NUTRIM(✓=1)',3,'toggle'); P('NUTRIVA','B14·营养剂_维生素A NUTRIVA(✓=1)',3,'toggle');
+  P('NUTRIVD','B14·营养剂_维生素D NUTRIVD(✓=1)',3,'toggle'); P('NUTRIOTH','B14·营养剂_其他 NUTRIOTH(✓=1)',3,'toggle');
+  P('NUTRIOTH1','B14·营养剂_其他1(注明) NUTRIOTH1',3); P('NUTRIOTH2','B14·营养剂_其他2(注明) NUTRIOTH2',3);
+  P('NUTRIOTH3','B14·营养剂_其他3(注明) NUTRIOTH3',3); P('NUTRIOTH4','B14·营养剂_其他4(注明) NUTRIOTH4',3);
+  P('BLOODSUP','B15·分娩住院是否输血 BLOODSUP(0否1是)',3,'toggle');
+  P('mmilk','B16·母乳起始时间 mmilk(0未添加1出生时2出生后天)',3,'num'); P('mmilk1','B16·出生后_天 mmilk1',3,'num'); P('mmilk2','B16·母乳终止_岁 mmilk2',3,'num'); P('mmilk3','B16·母乳终止_月 mmilk3',3,'num');
+  P('milk','B17·配方奶起始 milk(0未添加1出生时2天3月)',3,'num'); P('milk2','B17·配方奶起始_天 milk2',3,'num'); P('milk1','B17·配方奶起始_月 milk1',3,'num'); P('milk3','B17·配方奶终止_岁 milk3',3,'num'); P('milk4','B17·配方奶终止_月 milk4',3,'num');
+  P('FOODS','B18·添加辅食开始_月 FOODS',3,'num');
+  P('move','B19·是否搬家/翻新 move(0否1是)',3,'toggle'); P('movet','B19·搬家/翻新次数_次 movet',3,'num');
+  P('movet1','B19·入住年份1_年 movet1',3); P('movet2','B19·入住年份2_年 movet2',3); P('movet3','B19·入住年份3_年 movet3',3);
+  P('prenum','B20a·孕次(顺+剖+流/引)_次 prenum',3,'num'); P('natural','B20b·顺产次数_次 natural',3,'num'); P('cesarean','B20b·剖宫产次数_次 cesarean',3,'num');
+  P('lastdelivery','B20b·末次分娩方式 lastdelivery(1阴道2剖宫)',3,'num'); P('lastdeliveryt','B20b·末次分娩时间 lastdeliveryt',3);
+  P('abortion1','B20c·自然流产次数_次 abortion1',3,'num'); P('abortion2','B20c·人工流产次数_次 abortion2',3,'num');
+  P('lastabortion','B20c·末次流产方式 lastabortion(1手术2药物3自然)',3,'num'); P('lastabortiont','B20c·末次流产时间 lastabortiont',3);
+  P('premature','B20d·早产次数_次 premature',3,'num'); P('stillbirth','B20d·死胎(产)次数_次 stillbirth',3,'num');
 
-  /* ───────── 第4页 B21-B22 + 三、家庭基本情况1-7 ───────── */
-  P('complication_other','B21·生育其他孩子时是否妊娠并发症 complication_other(0否1是)',4,'toggle');
-  P('complication_other2','B21·妊娠糖尿病 complication_other2(1是)',4,'toggle');
-  P('complication_other3','B21·妊娠高血压 complication_other3(1是)',4,'toggle');
-  P('complication_other4','B21·其他并发症 complication_other4(1是)',4,'toggle');
-  P('complication_othero','B21·其他并发症说明 complication_othero',4,'text');
-  P('MBREAST','B22·母亲月经初潮年龄(岁) MBREAST',4,'num');
-  P('MMENTRA','(备用) MMENTRA',4,'text');
-  P('live','与哪些家庭成员同住 live(1-6)',4,'num');
-  P('live1','同住其他说明 live1',4,'text');
-  P('FAMILYN','家庭总人口数 FAMILYN',4,'num');
-  P('Siblings','兄弟姐妹个数(含自己) Siblings',4,'num');
-  P('CHILDREN_order','你是家中第几个孩子 CHILDREN_order',4,'num');
-  P('caregiver','主要照顾者 caregiver(1母2父3爷奶4外公婆5其他)',4,'num');
-  P('caregiver1','主要照顾者其他说明 caregiver1',4,'text');
+  /* ── 第4页 B21-B22 + 家庭1-7(疾病史表) ── */
+  P('complication_other','B21·生育其他孩子时妊娠并发症 complication_other(0否1是)',4,'toggle');
+  P('complication_other2','B21·并发症_妊娠糖尿病 complication_other2(✓=1)',4,'toggle');
+  P('complication_other3','B21·并发症_妊娠高血压 complication_other3(✓=1)',4,'toggle');
+  P('complication_other4','B21·并发症_其他 complication_other4(✓=1)',4,'toggle');
+  P('complication_othero','B21·并发症_其他(说明) complication_othero',4);
+  P('MBREAST','(备用字段) MBREAST',4); P('MMENTRA','B22·孩子母亲月经初潮_岁 MMENTRA',4,'num');
+  P('live','与哪些家庭成员同住 live(1-6)',4,'num'); P('live1','其他同住成员(说明) live1',4);
+  P('FAMILYN','家庭总人口数_人 FAMILYN',4,'num'); P('Siblings','兄弟姐妹个数(含自己)_个 Siblings',4,'num'); P('CHILDREN_order','家中第几个孩子 CHILDREN_order',4,'num');
+  P('caregiver','最主要照顾者 caregiver(1母2父3爷奶4外公婆5其他)',4,'num'); P('caregiver1','照顾者其他(说明) caregiver1',4);
   P('MARRIAGE','父母婚姻状况 MARRIAGE(1双亲2离异未重组3离异/丧偶后重组4丧偶未重组5未婚)',4,'num');
-  P('MOCUP','母亲职业 MOCUP(1-10)',4,'num');
-  P('MOCUP1','母亲职业其他说明 MOCUP1',4,'text');
-  P('FOCUP','父亲职业 FOCUP(1-10)',4,'num');
-  P('FOCUP1','父亲职业其他说明 FOCUP1',4,'text');
-  P('MEDU','母亲受教育程度 MEDU(1初中及以下2高中/职高/中专3大专/本科4硕士及以上)',4,'num');
-  P('FEDU','父亲受教育程度 FEDU(1初中及以下2高中/职高/中专3大专/本科4硕士及以上)',4,'num');
-  P('fam_income','家庭年收入水平 fam_income(1-8)',4,'num');
-  P('FOODCOST','每月家庭饮食开支(元) FOODCOST',4,'num');
-  /* 家庭成员疾病史表：父/母/爷爷/奶奶/外公/外婆 × 身高/体重/腰围 + 9病勾选 + 其他 */
-  /* 键名规范：fhistoryH=身高 fhistoryW=体重 fhistoryWC=腰围 fhistory1=高血压 fhistory2=高血脂 fhistory3=糖尿病 fhistory4=冠心病 fhistory5=脑卒中 fhistory6=甲状腺 fhistory13=脂肪肝 fhistory13_a=其他说明
-     后缀：f=父亲 m=母亲 gf=爷爷 gm=奶奶 mgf=外公 mgm=外婆 */
-  HFAM_MEMBERS.forEach(([mk,mn])=>{
-    const sfx=mk==='father'?'f':mk==='mother'?'m':mk==='gpa'?'gf':mk==='gma'?'gm':mk==='mgpa'?'mgf':'mgm';
-    P(`fhistoryH${sfx}`,`家庭疾病史·${mn}·身高(cm) fhistoryH${sfx}`,4,'num');
-    P(`fhistoryW${sfx}`,`家庭疾病史·${mn}·体重(kg) fhistoryW${sfx}`,4,'num');
-    P(`fhistoryWC${sfx}`,`家庭疾病史·${mn}·腰围(cm) fhistoryWC${sfx}`,4,'num');
-    HFAM_DISEASES.forEach(([dk,dn],di)=>{
-      const dkey=[1,2,3,4,5,6,13,'13_a'][di]??di+1;
-      P(`fhistory${dkey}${sfx}`,`家庭疾病史·${mn}·${dn} fhistory${dkey}${sfx}`,4,'toggle');
-    });
-    P(`fhistory13${sfx}_a`,`家庭疾病史·${mn}·其他说明 fhistory13${sfx}_a`,4,'text');
+  P('MOCUP','母亲职业 MOCUP(1-10)',4,'num'); P('MOCUP1','母亲职业_其他(说明) MOCUP1',4);
+  P('FOCUP','父亲职业 FOCUP(1-10)',4,'num'); P('FOCUP1','父亲职业_其他(说明) FOCUP1',4);
+  P('MEDU','母亲受教育程度 MEDU(1初中及以下2高中3大专/本科4硕士及以上)',4,'num');
+  P('FEDU','父亲受教育程度 FEDU(1初中及以下2高中3大专/本科4硕士及以上)',4,'num');
+  P('fam_income','家庭年收入水平 fam_income(1-8)',4,'num'); P('FOODCOST','每月家庭饮食开支_元 FOODCOST',4,'num');
+  P('fhistory','家族史 fhistory(0无1有)',4,'toggle');
+  HFAM_MEMBERS.forEach(([sfx,mn])=>{
+    P(`fhistoryH${sfx}`,`家族史·${mn}_身高(cm) fhistoryH${sfx}`,4,'num');
+    P(`fhistoryW${sfx}`,`家族史·${mn}_体重(kg) fhistoryW${sfx}`,4,'num');
+    P(`fhistoryWC${sfx}`,`家族史·${mn}_腰围(cm) fhistoryWC${sfx}`,4,'num');
+    HFAM_DIS.forEach(([dn,dl])=>P(`fhistory${dn}${sfx}`,`家族史·${mn}_${dl} fhistory${dn}${sfx}`,4,'toggle'));
+    P(`fhistory13${sfx}`,`家族史·${mn}_其他(请说明) fhistory13${sfx}`,4,'toggle');
+    P(`fhistory13${sfx}_a`,`家族史·${mn}_疾病说明 fhistory13${sfx}_a`,4);
   });
 
-  /* ───────── 第5页 三、家庭8-12 + 四、儿童锻炼1-2 ───────── */
-  P('fhistory','家人最近一月在你面前吸烟 fhistory(1是0否)',5,'toggle');
-  P('fhistoryHf','吸烟者·父亲 fhistoryHf',5,'toggle');P('fhistoryWf','父亲每天(支) fhistoryWf',5,'num');
-  P('fhistoryWCf','吸烟者·爷爷或外公 fhistoryWCf',5,'toggle');P('fhistory1f','爷爷/外公每天(支) fhistory1f',5,'num');
-  P('fhistory2f','吸烟者·母亲 fhistory2f',5,'toggle');P('fhistory3f','母亲每天(支) fhistory3f',5,'num');
-  P('fhistory4f','吸烟者·奶奶或外婆 fhistory4f',5,'toggle');P('fhistory5f','奶奶/外婆每天(支) fhistory5f',5,'num');
-  P('fhistory6f','吸烟者·其他家人 fhistory6f',5,'toggle');P('fhistory13f','其他家人每天(支) fhistory13f',5,'num');
-  P('fhistory13f_a','吸烟其他家人说明 fhistory13f_a',5,'text');
-  /* 注：以下 fhistoryH/W/WC/1~13+m/gf/gm/mgf/mgm 已在第4页疾病史表生成，
-     此处仅保留第5页家庭地址/联系人字段（原问卷第5页第9-12题）*/
-  P('fhistoryHm','家庭现住址 fhistoryHm',5,'text');
-  P('fhistoryWm','目前居住房屋面积(平米) fhistoryWm',5,'num');
-  P('fhistoryWCm','住房500米内有污染工厂/臭水沟/大马路 fhistoryWCm(1是0否)',5,'toggle');
-  P('fhistory1m','母亲姓名 fhistory1m',5,'text');P('fhistory2m','母亲手机号码 fhistory2m',5,'text');
-  P('fhistory3m','父亲姓名 fhistory3m',5,'text');P('fhistory4m','父亲手机号码 fhistory4m',5,'text');
-  P('fhistory5m','其他照顾者姓名 fhistory5m',5,'text');P('fhistory6m','其他照顾者手机号 fhistory6m',5,'text');
-  P('fhistory13m','其他照顾者微信号 fhistory13m',5,'text');P('fhistory13m_a','(备用) fhistory13m_a',5,'text');
-  /* 锻炼：上学回家方式 3 项 */
-  const exC=[['fhistoryHgf','在楼下直接坐小汽车/公交车'],['fhistoryWgf','先步行一段到公交站再坐车'],['fhistoryWCgf','步行/骑自行车']];
-  exC.forEach(([k,n])=>{P(k,`上学回家·${n}·是否`,5,'toggle');P(k+'_d',`上学回家·${n}·每周(天)`,5,'num');P(k+'_t',`上学回家·${n}·每次(分)`,5,'num');});
-  /* 主要运动方式 1-3（快跑/骑车/慢跑） */
-  const sp1=[['fhistory1gf','快跑/跳绳'],['fhistory2gf','骑自行车/仰卧起坐/俯卧撑/引体向上'],['fhistory3gf','慢跑/足球/溜直排轮']];
-  sp1.forEach(([k,n])=>{P(k,`主要运动·${n}·是否`,5,'toggle');P(k+'_d',`主要运动·${n}·每周(天)`,5,'num');P(k+'_t',`主要运动·${n}·每次(分)`,5,'num');});
+  /* ── 第5页 家庭8-12 + 锻炼1(上学方式)+运动1-3 ── */
+  P('smokeu','同住成员最近一月在你面前吸烟 smokeu(1是0否)',5,'toggle');
+  HSMOKE.forEach(([sfx,mn])=>{ P(`smokeu_${sfx}`,`吸烟者_${mn} smokeu_${sfx}`,5,'toggle'); P(`smokeu_${sfx}1`,`${mn}每天平均_支 smokeu_${sfx}1`,5,'num'); });
+  P('smokeu_other','吸烟者_其他家人 smokeu_other',5,'toggle'); P('smokeu_othera','吸烟者_其他家人(注明) smokeu_othera',5); P('smokeu_other1','其他家人每天平均_支 smokeu_other1',5,'num');
+  P('address','家庭现住址 address',5); P('larea','目前居住房屋面积_平方米 larea',5,'num');
+  P('pollution','住房500米内有污染工厂/臭水沟/大马路 pollution(1是0否)',5,'toggle');
+  P('NAMEM','母亲姓名 NAMEM',5); P('TELEM','母亲电话号码 TELEM',5); P('TELEM1','母亲微信号码 TELEM1',5);
+  P('NAMEF','父亲姓名 NAMEF',5); P('TELEF','父亲电话号码 TELEF',5); P('TELEF1','父亲微信号码 TELEF1',5);
+  P('NAMEO','其他照顾者姓名 NAMEO',5); P('TELEO','其他照顾者手机号 TELEO',5); P('TELEO1','其他照顾者微信号 TELEO1',5);
+  H_SCHOOLW.forEach(([k,n])=>{ P(`${k}a`,`上学方式_${n} ${k}a`,5,'toggle'); P(`${k}b`,`${n}_天/周 ${k}b`,5,'num'); P(`${k}c`,`${n}_每天往返总时长 ${k}c`,5,'num'); });
+  H_PE.slice(0,3).forEach(([k,n])=>{ P(`${k}a`,`主要运动_${n} ${k}a`,5,'toggle'); P(`${k}b`,`${n}_天/周 ${k}b`,5,'num'); P(`${k}c`,`${n}_每次分钟 ${k}c`,5,'num'); });
 
-  /* ───────── 第6页 四、运动方式4-13 + 家务 + 兴趣班 + 五、工作日作息 ───────── */
-  const sp2=[['fhistory4gf','篮球/游泳/跳远/跳高'],['fhistory5gf','羽毛球'],['fhistory6gf','乒乓球/体操'],['fhistory13gf','拉伸/瑜伽'],
-    ['fhistory13gf_a','逛街/逛超市'],['fhistoryHgm','散步'],['fhistoryWgm','学习(除上学)/玩电脑'],['fhistoryWCgm','吃饭/聊天/做手工'],['fhistory1gm','看电视/电影/听音乐'],['fhistory2gm','其他']];
-  sp2.forEach(([k,n])=>{P(k,`运动方式·${n}·是否`,6,'toggle');P(k+'_d',`运动方式·${n}·每周(天)`,6,'num');P(k+'_t',`运动方式·${n}·每次(分)`,6,'num');});
-  const chore=[['fhistory3gm','扫地'],['fhistory4gm','拖地'],['fhistory5gm','洗碗/倒垃圾/浇花等'],['fhistory6gm','遛狗/猫'],['fhistory13gm','其他']];
-  chore.forEach(([k,n])=>{P(k,`家务·${n}·是否`,6,'toggle');P(k+'_d',`家务·${n}·每周(天)`,6,'num');P(k+'_t',`家务·${n}·每次(分)`,6,'num');});
-  P('fhistory13gm_a','家务其他说明 fhistory13gm_a',6,'text');
-  const hobby=[['fhistoryHmgf','钢琴/风琴/小提琴'],['fhistoryWmgf','吉他/大提琴/长笛/木管乐器'],['fhistoryWCmgf','芭蕾舞/现代舞/爵士'],['fhistory1mgf','跆拳道/柔道/空手道'],['fhistory2mgf','其他']];
-  hobby.forEach(([k,n])=>{P(k,`兴趣班·${n}·是否`,6,'toggle');P(k+'_d',`兴趣班·${n}·每周(天)`,6,'num');P(k+'_t',`兴趣班·${n}·每次(分)`,6,'num');});
-  P('fhistory3mgf','工作日·早晨醒来·时 fhistory3mgf',6,'num');P('fhistory4mgf','工作日·早晨醒来·分 fhistory4mgf',6,'num');
-  P('fhistory5mgf','工作日·早晨起床·时 fhistory5mgf',6,'num');P('fhistory6mgf','工作日·早晨起床·分 fhistory6mgf',6,'num');
-  P('fhistory13mgf','工作日·早上吃饭·时 fhistory13mgf',6,'num');P('fhistory13mgf_a','工作日·早上吃饭·分 fhistory13mgf_a',6,'num');
-  P('fhistoryHmgm','工作日·午休时间长度(分) fhistoryHmgm',6,'num');
-  P('fhistoryWmgm','工作日·晚餐·时 fhistoryWmgm',6,'num');P('fhistoryWCmgm','工作日·晚餐·分 fhistoryWCmgm',6,'num');
-  P('fhistory1mgm','工作日·睡前最后进食·时 fhistory1mgm',6,'num');P('fhistory2mgm','工作日·睡前最后进食·分 fhistory2mgm',6,'num');
-  P('fhistory3mgm','工作日·晚上上床·时 fhistory3mgm',6,'num');P('fhistory4mgm','工作日·晚上上床·分 fhistory4mgm',6,'num');
-  P('fhistory5mgm','工作日·晚上入睡·时 fhistory5mgm',6,'num');P('fhistory6mgm','工作日·晚上入睡·分 fhistory6mgm',6,'num');
+  /* ── 第6页 运动4-12 + 其他 + 家务 + 兴趣班 + 工作日作息 ── */
+  H_PE.slice(3).forEach(([k,n])=>{ P(`${k}a`,`主要运动_${n} ${k}a`,6,'toggle'); P(`${k}b`,`${n}_天/周 ${k}b`,6,'num'); P(`${k}c`,`${n}_每次分钟 ${k}c`,6,'num'); });
+  P('pe_13','主要运动_其他(注明) pe_13',6); P('pe_13a','主要运动_其他 pe_13a',6,'toggle'); P('pe_13b','其他运动_天/周 pe_13b',6,'num'); P('pe_13c','其他运动_每次分钟 pe_13c',6,'num');
+  H_PH.forEach(([k,n])=>{ P(`${k}a`,`做家务_${n} ${k}a`,6,'toggle'); P(`${k}b`,`${n}_天/周 ${k}b`,6,'num'); P(`${k}c`,`${n}_每次分钟 ${k}c`,6,'num'); });
+  P('ph_5','做家务_其他(注明) ph_5',6); P('ph_5a','做家务_其他 ph_5a',6,'toggle'); P('ph_5b','其他家务_天/周 ph_5b',6,'num'); P('ph_5c','其他家务_每次分钟 ph_5c',6,'num');
+  H_PI.forEach(([k,n])=>{ P(`${k}a`,`兴趣班_${n} ${k}a`,6,'toggle'); P(`${k}b`,`${n}_天/周 ${k}b`,6,'num'); P(`${k}c`,`${n}_每次分钟 ${k}c`,6,'num'); });
+  P('pi_5','兴趣班_其他(注明) pi_5',6); P('pi_5a','兴趣班_其他 pi_5a',6,'toggle'); P('pi_5b','其他兴趣班_天/周 pi_5b',6,'num'); P('pi_5c','其他兴趣班_每次分钟 pi_5c',6,'num');
+  P('waket1','工作日_早上醒来时间 waket1',6); P('sleept1','工作日_早上起床时间 sleept1',6); P('eatt1','工作日_早餐时间 eatt1',6);
+  P('sleept3','工作日_午休时间长度(分钟) sleept3',6,'num'); P('eatt2','工作日_晚餐时间 eatt2',6); P('eatt3','工作日_睡前最后进食时间 eatt3',6);
+  P('bedt2','工作日_晚上上床时间 bedt2',6); P('sleept2','工作日_晚上睡觉时间 sleept2',6);
 
-  /* ───────── 第7页 工作日睡觉原因 + 休息日作息/原因 + 睡眠4题 ───────── */
-  const sleepReason=['家长规定','自己觉得困','这个时间点才能做完作业','想玩儿的玩够了','长期睡眠习惯','其他'];
-  multi('fhistory13mgm',sleepReason,7,'工作日晚睡原因 fhistory13mgm');
-  P('fhistory13mgm_a','工作日睡觉原因其他说明 fhistory13mgm_a',7,'text');
-  /* 休息日作息 */
-  P('wd_wake_h','休息日·早晨醒来·时 wd_wake_h',7,'num');P('wd_wake_m','休息日·早晨醒来·分 wd_wake_m',7,'num');
-  P('wd_getup_h','休息日·早晨起床·时 wd_getup_h',7,'num');P('wd_getup_m','休息日·早晨起床·分 wd_getup_m',7,'num');
-  P('wd_breakfast_h','休息日·早上吃饭·时 wd_breakfast_h',7,'num');P('wd_breakfast_m','休息日·早上吃饭·分 wd_breakfast_m',7,'num');
-  P('wd_nap_min','休息日·午休时间长度(分) wd_nap_min',7,'num');
-  P('wd_dinner_h','休息日·晚餐·时 wd_dinner_h',7,'num');P('wd_dinner_m','休息日·晚餐·分 wd_dinner_m',7,'num');
-  P('wd_lastfood_h','休息日·睡前最后进食·时 wd_lastfood_h',7,'num');P('wd_lastfood_m','休息日·睡前最后进食·分 wd_lastfood_m',7,'num');
-  P('wd_bed_h','休息日·晚上上床·时 wd_bed_h',7,'num');P('wd_bed_m','休息日·晚上上床·分 wd_bed_m',7,'num');
-  P('wd_sleep_h','休息日·晚上睡觉·时 wd_sleep_h',7,'num');P('wd_sleep_m','休息日·晚上睡觉·分 wd_sleep_m',7,'num');
-  multi('we_reason',sleepReason,7,'休息日晚睡原因 we_reason');
-  P('sleep_mood','睡前30分钟情绪 sleep_mood(1平静2较平静3中等4较激动5激动)',7,'num');
-  P('sleep_type','作息类型 sleep_type(1早睡早起2早睡晚起3晚睡早起4晚睡晚起5入睡不规律6起床不规律)',7,'num');
-  P('sleep_latency','入睡需多长时间 sleep_latency(1:0-5分2:6-15分3:16-30分4:31-45分5:46-60分6:超1小时)',7,'num');
+  /* ── 第7页 工作日睡因 + 休息日作息/睡因 + 情绪/作息/入睡 + 睡眠1-4 ── */
+  multi('reason',HSLEEP_REASON,7,'工作日晚睡原因 reason'); P('reason6','工作日晚睡原因_其他 reason6',7,'toggle'); P('reason6_other','工作日晚睡原因_其他(注明) reason6_other',7);
+  P('waket1s','休息日_早上醒来时间 waket1s',7); P('sleept1s','休息日_早上起床时间 sleept1s',7); P('eatt1s','休息日_早餐时间 eatt1s',7);
+  P('sleept3s','休息日_午休时间长度(分钟) sleept3s',7,'num'); P('eatt2s','休息日_晚餐时间 eatt2s',7); P('eatt3s','休息日_睡前最后进食时间 eatt3s',7);
+  P('bedt2s','休息日_晚上上床时间 bedt2s',7); P('sleept2s','休息日_晚上睡觉时间 sleept2s',7);
+  HSLEEP_REASON.forEach((t,i)=>P(`reason${i+1}s`,`休息日晚睡原因·${t} reason${i+1}s`,7,'toggle'));
+  P('reason6s','休息日晚睡原因_其他 reason6s',7,'toggle'); P('reason6s_other','休息日晚睡原因_其他(注明) reason6s_other',7);
+  P('bedtimemood','睡前30分钟情绪 bedtimemood(1平静2较平静3中等4较激动5激动)',7,'num');
+  P('sleepschedulet','作息类型 sleepschedulet(1早睡早起2早睡晚起3晚睡早起4晚睡晚起5入睡不规律6起床不规律)',7,'num');
+  P('fallasleept','入睡需多长时间 fallasleept(1:0-5分2:6-15分3:16-30分4:31-45分5:46-60分6:超1小时)',7,'num');
+  for(let i=1;i<=4;i++) P(`sleep${i}`,`睡眠习惯·${i}.${HSLEEP33[i-1]} sleep${i}`,7,'scale');
 
-  /* ───────── 第8页 睡眠习惯量表 1-33（三选一 1通常2有时3很少）───────── */
-  HSLEEP33.forEach((t,i)=>P(`sleep${i+1}`,`睡眠习惯·${i+1}.${t} sleep${i+1}`,8,'scale'));
+  /* ── 第8页 睡眠习惯5-33 ── */
+  for(let i=5;i<=33;i++) P(`sleep${i}`,`睡眠习惯·${i}.${HSLEEP33[i-1]} sleep${i}`,8,'scale');
 
-  /* ───────── 第9-10页 五、膳食频率表（频度0-4 + 食用量斤/两/ml）───────── */
-  HDIET_ITEMS.forEach(([k,n])=>{
-    const pg=(['diet1a','diet1b','diet2','diet3','diet4a','diet4b','diet4c','diet4d','diet4e','diet5','diet6','diet7','diet8','diet9','diet10','diet11a','diet11b'].includes(k))?9:10;
-    P(k,`${n}·频度(0不吃1天2周3月4年)`,pg,'freq');
-    P(k+'_jin',`${n}·食用量(斤)`,pg,'num');
-    P(k+'_liang',`${n}·食用量(两/ml/次)`,pg,'num');
+  /* ── 第9-10页 膳食频率表 ── */
+  HDIET.forEach((d,idx)=>{
+    const pg = idx<=16 ? 9 : 10;
+    P(d[0],`${d[1]}_食用频度 ${d[0]}`,pg,'freq');
+    d[2].forEach(([ak,unit])=>P(ak,`${d[1]}_食用量(${unit}) ${ak}`,pg,'num'));
   });
+  /* ── 第10页 膳食后 1.1-8 ── */
+  P('food25','上学日每天吃几顿 food25(2-6)',10,'num'); P('food25_1','休息日每天吃几顿 food25_1(2-6)',10,'num');
+  P('food26','是否暴饮暴食 food26(0否1是)',10,'toggle'); P('food26_1','暴食频率_次/月 food26_1',10,'num');
+  P('salt','吃饭咸淡 salt(1很咸2偏咸3适中4偏淡5很淡)',10,'num');
+  P('breakfast','是否吃早餐 breakfast(0不吃1吃)',10,'toggle'); P('breakfasta','吃早餐_天/周 breakfasta',10,'num');
+  P('cookert','做饭主要灶具 cookert(1燃气灶2电子设备3煤炉/土灶4其他)',10,'num'); P('cookert1','其他灶具类型 cookert1',10);
+  P('PM','做饭油烟大小 PM(1大2较大3一般4较小5小)',10,'num');
+  P('fume','常用抽油烟设备 fume(1抽油烟机2排气扇3无4不知道)',10,'num'); P('fumefre','抽油烟设备使用频率 fumefre(1一直2经常3有时4几乎不5从不9不清楚)',10,'num');
+  ['自来水烧开','家用净水器过滤水','桶装矿泉水/纯净水','瓶装矿泉水/纯净水','瓶装含糖饮料','现制奶茶/果茶','其他'].forEach((lbl,i)=>P(`watersource${i+1}`,`日常饮水来源_${lbl} watersource${i+1}`,10,'toggle'));
+  P('watersource7_1','日常饮水来源_其他(说明) watersource7_1',10);
 
-  /* ───────── 第10页 膳食后半 1.1-8 ───────── */
-  P('meal_count_school','上学日每天吃几次食物 meal_count_school(2-6)',10,'num');
-  P('meal_count_rest','休息日每天吃几次食物 meal_count_rest(2-6)',10,'num');
-  P('binge','是否会暴饮暴食 binge(0否1是)',10,'toggle');P('binge_times','暴食平均(次/月) binge_times',10,'num');
-  P('taste','吃饭咸淡 taste(1很咸2偏咸3适中4偏淡5很淡)',10,'num');
-  P('breakfast','吃早餐情况 breakfast(0不吃1吃)',10,'toggle');P('breakfast_days','平均吃早餐(天/周) breakfast_days',10,'num');
-  P('stove','做饭主要灶具 stove(1燃气灶2电子设备3煤炉/土灶4其他)',10,'num');
-  P('cook_smoke','做饭时油烟大小 cook_smoke(1大2较大3一般4较小5小)',10,'num');
-  P('range_hood','厨房抽油烟设备 range_hood(1抽油烟机2排气扇3无9不知道)',10,'num');
-  P('range_hood_freq','抽油烟使用频率 range_hood_freq(1一直2经常3有时4几乎不5从不9不清楚)',10,'num');
-  multi('water',HQ_WATER,10,'日常饮水来源 water');
+  /* ── 第11页 八(9-16)塑料/包装 + 六、甲状腺 ── */
+  P('drink_freq','饮用瓶装水/饮料频率 drink_freq(1从不2每月1-3次3每周1-2次4每周3-5次5每天1次及以上)',11,'num');
+  P('package_freq','食用外卖/打包频率 package_freq(同上1-5)',11,'num');
+  P('hot_takeout','外卖热食是否倒入自家餐具 hot_takeout(1每次倒2多数倒3偶尔倒4不倒直接用)',11,'num');
+  P('disp_plast','是否用一次性塑料餐具 disp_plast(1从不2仅外出/外卖3家庭日常也频繁)',11,'num');
+  P('plast_use','孩子是否用塑料水杯/饭盒 plast_use(1是2否)',11,'num');
+  P('hotwater_plast','塑料水杯装热水/热饮 hotwater_plast(1从不2有时3偶尔4常常5绝大多数)',11,'num');
+  P('mw_plast','微波炉加热塑料饭盒食物 mw_plast(1从不2有时3偶尔4常常5绝大多数)',11,'num');
+  P('plast_wrap','家庭使用保鲜膜 plast_wrap(1从不2仅包裹冷鲜3包裹热食/加热)',11,'num');
+  P('prepack','日常食用预包装食品频率 prepack(1从不2每月1-3次3每周1-2次4每周3-5次5每天1次及以上)',11,'num');
+  P('bagdrink','是否常食茶包/袋泡咖啡 bagdrink(1从不2偶尔3经常)',11,'num');
+  multi('diag_disease',HQ_DIAG,11,'曾诊断疾病 diag_disease'); P('diag_disease14_1','其他内分泌/代谢疾病(说明) diag_disease14_1',11);
+  P('abnorm_lab_1y','近1年肝/甲状腺/血脂异常检查结果 abnorm_lab_1y(1无2肝功能异常3甲状腺异常4血脂异常5多项异常)',11,'num');
+  multi('meds_use_3m',HQ_MEDS,11,'近3个月用药 meds_use_3m'); P('meds_use_3m9_1','近3个月服用其他药物(说明) meds_use_3m9_1',11);
 
-  /* ───────── 第11页 八·习惯延续(9-16) + 六、甲状腺1-3 ───────── */
-  P('bottle_freq','饮用瓶装水/饮料频率 bottle_freq(1从不2每月1-3次3每周1-2次4每周3-5次5每天1次及以上)',11,'num');
-  P('takeout_freq','食用外卖/打包频率 takeout_freq(1从不2每月1-3次3每周1-2次4每周3-5次5每天1次及以上)',11,'num');
-  P('takeout_pour','外卖是否倒入自家餐具 takeout_pour(1每次倒2多数时候倒3偶尔倒4不倒直接用外卖盒)',11,'num');
-  P('disposable_tableware','一次性塑料餐具 disposable_tableware(1从不2仅外出/外卖时3家庭日常也频繁)',11,'num');
-  P('plastic_cup','孩子是否用塑料水杯/饭盒 plastic_cup(1是2否)',11,'num');
-  P('plastic_hot','塑料水杯装热水/热饮 plastic_hot(1从不2有时3偶尔4常常5绝大多数)',11,'num');
-  P('plastic_microwave','微波炉加热塑料饭盒食物 plastic_microwave(1从不2有时3偶尔4常常5绝大多数)',11,'num');
-  P('plastic_wrap','家庭使用保鲜膜 plastic_wrap(1从不2仅包裹冷鲜3包裹热食/加热)',11,'num');
-  P('prepackaged_freq','日常食用预包装食品频率 prepackaged_freq(1从不2每月1-3次3每周1-2次4每周3-5次5每天1次及以上)',11,'num');
-  P('teabag_freq','是否常用茶包/袋泡咖啡 teabag_freq(1从不2偶尔3经常)',11,'num');
-  P('thy_diagnosed','甲状腺相关·曾诊断疾病(填编号/文字) thy_diagnosed',11,'text');
-  P('thy_abnormal_check','近1年肝/甲状腺/血脂异常检查结果 thy_abnormal_check',11,'text');
-  P('thy_meds','近3个月服用药物(填编号,可多选/文字) thy_meds',11,'text');
+  /* ── 第12页 七、免疫1-17 ── */
+  for(let i=1;i<=6;i++) P(`frequency${i}`,`免疫频率·${i}.${HIMMUNE_FREQ[i-1]} frequency${i}`,12,'scale');
+  P('skin','是否有过皮炎/化脓性皮肤病/严重湿疹 skin(0否1是)',12,'toggle');
+  P('asthma','是否反复发作喘息/哮鸣音 asthma(0否1是)',12,'toggle');
+  P('cough','是否反复干咳超过8周 cough(0否1是)',12,'toggle');
+  P('allergy','是否被诊断过敏相关疾病 allergy(0否1是)',12,'toggle');
+  HQ_ALLERGY.forEach((t,i)=>P(`allergy_${i+1}`,`过敏相关疾病_${t} allergy_${i+1}`,12,'toggle'));
+  P('allergy_6_1','过敏相关疾病_其他(说明) allergy_6_1',12);
+  P('test','是否做过过敏原检测 test(0否1是)',12,'toggle'); P('test_1','过敏物质类型 test_1',12);
+  P('oral ulcer','是否有过口腔溃疡 oral ulcer(0否1是)',12,'toggle');
+  P('oral ulcer1','口腔溃疡_约1-2周愈合不留瘢痕 oral ulcer1',12,'toggle');
+  P('oral ulcer2','口腔溃疡_1-2月甚至更长愈合后可留瘢痕 oral ulcer2',12,'toggle');
+  P('oral ulcer3','口腔溃疡_病程约1-2周愈合后不留瘢痕 oral ulcer3',12,'toggle');
+  P('use','经常工作/居住房间装修不超过半年 use(0否1是)',12,'toggle');
+  P('malnurition','是否患严重佝偻病/严重营养不良 malnurition(0否1是)',12,'toggle');
+  P('ascariasis','是否有过蛔虫病 ascariasis(0否1是)',12,'toggle');
+  P('allergic_a','是否有食物/花粉/疫苗过敏史 allergic_a(0否1是)',12,'toggle'); P('allergic_1','过敏原具体名称 allergic_1',12);
+  P('TCM','是否喝过中药 TCM(0否1是)',12,'toggle');
 
-  /* ───────── 第12页 七、儿童免疫1-17 ───────── */
-  HIMMUNE_FREQ.forEach((t,i)=>P(`imm_freq${i+1}`,`免疫频率·${i+1}.${t} imm_freq${i+1}`,12,'scale'));
-  P('imm7_skin','是否有过皮炎/化脓性皮肤病/严重湿疹 imm7_skin(0否1是)',12,'toggle');
-  P('imm8_wheeze','是否反复发作喘息/哮鸣音 imm8_wheeze(0否1是)',12,'toggle');
-  P('imm9_drycough','是否反复干咳超过8周 imm9_drycough(0否1是)',12,'toggle');
-  P('imm10_allergy','是否被诊断过敏相关疾病 imm10_allergy(0否1是)',12,'toggle');
-  multi('imm10a',HQ_ALLERGY,12,'过敏相关疾病 imm10a');
-  P('imm11_test','是否做过过敏原检测 imm11_test(0否1是)',12,'toggle');P('imm11_substance','过敏物质 imm11_substance',12,'text');
-  P('imm12_ulcer','口腔溃疡 imm12_ulcer(1:1-2周愈合不留瘢2:1-2月或更长3:1-2周不留瘢)',12,'num');
-  P('imm13_renovate','工作/居住房间装修不超过半年 imm13_renovate(0否1是)',12,'toggle');
-  P('imm14_rickets','是否有严重佝偻病/严重营养不良 imm14_rickets(0否1是)',12,'toggle');
-  P('imm15_ascariasis','是否有过蛔虫病 imm15_ascariasis(0否1是)',12,'toggle');
-  P('imm16_food_allergy','是否有食物/花粉/疫苗过敏史 imm16_food_allergy(0否1是)',12,'toggle');P('imm16_name','过敏具体名称 imm16_name',12,'text');
-  P('imm17_tcm','是否喝过中药 imm17_tcm(0否1是)',12,'toggle');
+  /* ── 第13页 七、免疫18-27 ── */
+  P('allergic','直系亲属是否患过敏性鼻炎/哮喘/湿疹等 allergic(0否1是)',13,'toggle');
+  HFAM_ALLERGY_MEM.forEach(([mk,mn])=>HFAM_ALLERGY_COL.forEach((cn,ci)=>P(hFamAllergyKey(mk,ci),`亲属过敏史·${mn}_${cn}`,13,'toggle')));
+  P('brain','孩子是否癫痫/脑发育异常/脑炎后遗症/颅内病变 brain(0否1是)',13,'toggle');
+  P('immunodeficiency','孩子是否癌症/白血病/艾滋病/其他免疫系统疾病 immunodeficiency(0否1是)',13,'toggle');
+  P('treat','过去3月可的松/强的松/激素/抗肿瘤药或放疗 treat(0否1是)',13,'toggle');
+  P('blood','过去1年输血/血制品/免疫球蛋白 blood(0否1是)',13,'toggle');
+  P('vaccine','是否按计划接种疫苗 vaccine(0否1是)',13,'toggle');
+  P('vaccine-f','疫苗后是否严重反应 vaccine-f(0否1是)',13,'toggle'); P('vaccine_f1','疫苗后严重反应症状 vaccine_f1',13);
+  P('COVID','是否接种新冠疫苗 COVID(0否1是)',13,'toggle');
+  P('Medicine','一周内是否服药 Medicine(0否1是)',13,'toggle'); P('Medicine_type','服用药物类型/名称 Medicine_type',13);
+  P('anemia','是否诊断过贫血 anemia(0否1是)',13,'toggle'); P('anemia_m','是否服用贫血治疗药物 anemia_m(0否1是)',13,'toggle'); P('anemia_1','贫血药物具体名称 anemia_1',13);
 
-  /* ───────── 第13页 七、免疫18-27 ───────── */
-  HFAM_ALLERGY_MEM.forEach(([mk,mn])=>HFAM_ALLERGY_COL.forEach(([ck,cn])=>P(`imm18_${mk}_${ck}`,`亲属过敏史·${mn}·${cn}`,13,'toggle')));
-  P('imm19_brain','孩子是否有癫痫/脑发育异常/脑炎后遗症/颅内病变 imm19_brain(0否1是)',13,'toggle');
-  P('imm20_immune','孩子是否有癌症/白血病/艾滋病/其他免疫系统疾病 imm20_immune(0否1是)',13,'toggle');
-  P('imm21_steroid','过去3月是否用可的松/强的松/激素/抗肿瘤药或放疗 imm21_steroid(0否1是)',13,'toggle');
-  P('imm22_transfuse','过去1年是否输血/血制品/免疫球蛋白 imm22_transfuse(0否1是)',13,'toggle');
-  P('imm23_vaccine','是否按计划接种疫苗 imm23_vaccine(0否1是)',13,'toggle');
-  P('imm24_vaccine_reaction','疫苗后是否发生严重反应 imm24_vaccine_reaction(0否1是)',13,'toggle');P('imm24_symptom','具体症状 imm24_symptom',13,'text');
-  P('imm25_covid','是否接种新冠疫苗 imm25_covid(0否1是)',13,'toggle');
-  P('imm26_med_week','一周内是否在服药物 imm26_med_week(0否1是)',13,'toggle');P('imm26_med_name','药物类型/名称 imm26_med_name',13,'text');
-  P('imm27_anemia','孩子是否诊断过贫血 imm27_anemia(0否1是)',13,'toggle');P('imm27_anemia_med','是否服用过贫血治疗药物 imm27_anemia_med(0否1是)',13,'toggle');P('imm27_med_name','贫血具体药物 imm27_med_name',13,'text');
-
-  /* ───────── 第14页 八、环境暴露与生活习惯1-13 + 填表信息 ───────── */
-  P('env1_school_cup','学校喝水最常用杯子材质 env1_school_cup(1玻璃/不锈钢2硬塑料/太空杯3瓶装水/塑料杯奶茶)',14,'num');
-  P('env2_microwave_plastic','塑料饭盒/袋装热菜微波炉直接加热 env2_microwave_plastic(1从不/家里不用2偶尔会3经常这样)',14,'num');
-  P('env3_snack','多久吃一次包装零食 env3_snack(1很少每月<1次2有时每周1-2次3经常几乎每天)',14,'num');
-  P('env4_fastfood_paper','吃快餐直接放防油纸/纸盒上吃 env4_fastfood_paper(1很少这类快餐2吃但尽量不接触包装纸3经常直接拿着包装纸吃)',14,'num');
-  P('env5_bite','写作业/上课咬铅笔头/橡皮擦/指甲 env5_bite(1从来没有2以前有现在改了3现在经常这样)',14,'num');
-  P('env6_eraser','橡皮擦/文具是否特别软或浓烈香味 env6_eraser(1不是都普通2有一部分是3大部分特别香软)',14,'num');
-  P('env7_receipt','收银小票拿手里玩 env7_receipt(1从来不拿2有时拿手里玩3经常拿玩后不洗手吃东西)',14,'num');
-  P('env8_sunscreen','夏天常涂防晒霜/喷防晒雾 env8_sunscreen(1几乎不用2只上体育课/出去玩才用3每天都用)',14,'num');
-  P('env9_screen_time','每天玩手机/平板/坐电脑前时间 env9_screen_time(1不到1小时2:1-3小时3超过3小时)',14,'num');
-  P('env10_new_furniture','过去一年家里刷墙/买新大件家具 env10_new_furniture(1没有2有但不怎么闻到味道3有且能闻到明显新家具/油漆味)',14,'num');
-  P('env11_road','睡觉房间窗户外是否紧挨大马路 env11_road(1否2是)',14,'num');
-  P('env12_mosquito','夏天睡觉房间点电蚊香/烧蚊香 env12_mosquito(1很少用主要挂蚊帐2经常用每晚开电蚊香3经常用一般烧蚊香)',14,'num');
-  P('env13_nonstick','正餐是否用黑色涂层不粘锅 env13_nonstick(1从不用铁锅/陶瓷锅2偶尔使用3经常使用几乎每天)',14,'num');
-  P('collectform','填表人姓名 collectform',14,'text');P('collectdata','填表日期 collectdata',14,'text');P('keyboarder','录入员 keyboarder',14,'text');
+  /* ── 第14页 填表信息 + 八、环境暴露1-13 ── */
+  P('collectform','填表人姓名 collectform',14); P('collectdata','填表日期 collectdata',14); P('keyboarder','录入人姓名 keyboarder',14);
+  P('cup_mat','学校喝水最常用杯子材质 cup_mat(1玻璃/不锈钢2硬塑料/太空杯3瓶装水/塑料杯奶茶)',14,'num');
+  P('mw_plast_freq','塑料饭盒/袋装热菜微波炉直接加热 mw_plast_freq(1从不/家里不用2偶尔会3经常)',14,'num');
+  P('snack_freq','多久吃一次包装零食 snack_freq(1很少每月<1次2有时每周1-2次3经常几乎每天)',14,'num');
+  P('fried_paper','吃快餐直接放防油纸/纸盒上吃 fried_paper(1很少2吃但尽量不接触3经常直接拿着吃)',14,'num');
+  P('chew_habit','写作业/上课咬铅笔/橡皮/指甲 chew_habit(1从来没有2以前有现在改了3现在经常)',14,'num');
+  P('soft_scent_items','橡皮/文具特别软或浓烈香味 soft_scent_items(1不是都普通2有一部分是3大部分特别香软)',14,'num');
+  P('receipt','收银小票拿手里玩 receipt(1从来不拿2有时拿玩3经常拿玩后不洗手吃东西)',14,'num');
+  P('sunscreen','夏天常涂防晒霜/喷防晒雾 sunscreen(1几乎不用2只上体育课/出去玩才用3每天都用)',14,'num');
+  P('screent','每天玩手机/平板/电脑时间 screent(1不到1小时2:1-3小时3超过3小时)',14,'num');
+  P('renov_furn','过去一年刷墙/买新大件家具 renov_furn(1没有2有但不怎么闻到味道3有且能闻到明显味)',14,'num');
+  P('near_road','睡觉房间窗外是否紧挨大马路 near_road(1否2是)',14,'num');
+  P('mosq_repel','夏天睡觉房间点电蚊香/烧蚊香 mosq_repel(1很少用主要挂蚊帐2经常用电蚊香3经常烧蚊香)',14,'num');
+  P('nonstick_pan','正餐是否用黑色涂层不粘锅 nonstick_pan(1从不用铁锅/陶瓷锅2偶尔使用3经常使用)',14,'num');
 
   return S;
 }
@@ -1190,22 +1102,23 @@ const HCOL_DIET=[['不吃','0'],['天','1'],['周','2'],['月','3'],['年','4']]
 /* ════════ 每页量表分组（点格网格） ════════ */
 function hGridGroups(page){
   const G=[];const mk=(id,cap,cols,keys,texts,extra)=>G.push(Object.assign({id,cap,cols,keys,texts},extra||{}));
-  if(page===8){
-    mk('h_sleep','四、睡眠习惯量表 1-33（1通常是这样·2有时候这样·3很少这样）',HCOL_SLEEP3,HSLEEP33.map((_,i)=>'sleep'+(i+1)),HSLEEP33);
+  if(page===7){
+    mk('h_sleep_a','四、睡眠习惯量表 1-4（1通常是这样·2有时候这样·3很少这样）',HCOL_SLEEP3,[1,2,3,4].map(i=>'sleep'+i),HSLEEP33.slice(0,4));
+  }else if(page===8){
+    mk('h_sleep_b','四、睡眠习惯量表 5-33（1通常是这样·2有时候这样·3很少这样）',HCOL_SLEEP3,Array.from({length:29},(_,i)=>'sleep'+(i+5)),HSLEEP33.slice(4));
   }else if(page===12){
-    mk('h_imm','七、免疫·频率题 1-6（1从不·2有时·3偶尔·4常常·5绝大多数）',HCOL_FREQ5,HIMMUNE_FREQ.map((_,i)=>'imm_freq'+(i+1)),HIMMUNE_FREQ);
+    mk('h_imm','七、免疫·频率题 1-6（1从不·2有时·3偶尔·4常常·5绝大多数）',HCOL_FREQ5,HIMMUNE_FREQ.map((_,i)=>'frequency'+(i+1)),HIMMUNE_FREQ);
   }else if(page===13){
     mk('h_famallergy','18·直系亲属过敏史（父/母/兄弟姐妹 × 5列勾选）',null,null,null,{type:'famallergy'});
   }
   return G;
 }
 
-/* ════════ 频率行（食用频度点格 + 斤/两输入） ════════ */
+/* ════════ 膳食频率行（频度0-4点格 + 食用量输入，量字段来自 HDIET 条目定义） ════════ */
 function hDietLine(item,r){
-  const [k,name]=item;
+  const k=item[0],name=item[1],amts=item[2]||[];
   const wrap=document.createElement('div');wrap.className='rv-dietline';
   const nm=document.createElement('div');nm.className='rv-dietname';nm.textContent=name;wrap.appendChild(nm);
-  /* 频度点格 0-4 */
   const fr=document.createElement('div');fr.className='rv-dietfreq';
   HCOL_DIET.forEach(([lbl,v])=>{
     const on=String(r.data[k]??'')===v;const imp=on&&r.imported&&r.imported[k]?' imp':'';
@@ -1214,40 +1127,38 @@ function hDietLine(item,r){
     fr.appendChild(cell);
   });
   wrap.appendChild(fr);
-  /* 食用量 斤 / 两 */
   const amt=document.createElement('div');amt.className='rv-dietamt';
-  const vj=r.data[k+'_jin']==null?'':String(r.data[k+'_jin']);
-  const vl=r.data[k+'_liang']==null?'':String(r.data[k+'_liang']);
-  const ji=document.createElement('span');ji.className='rv-freq';
-  ji.innerHTML=`<input data-k="${k}_jin" class="${vj===''?'empty':''}${r.imported&&r.imported[k+'_jin']?' imp':''}" value="${esc(vj)}"> 斤`;
-  ji.querySelector('input').oninput=function(){onEdit(this);};
-  const li=document.createElement('span');li.className='rv-freq';
-  li.innerHTML=`<input data-k="${k}_liang" class="${vl===''?'empty':''}${r.imported&&r.imported[k+'_liang']?' imp':''}" value="${esc(vl)}"> 两/ml`;
-  li.querySelector('input').oninput=function(){onEdit(this);};
-  amt.appendChild(ji);amt.appendChild(li);wrap.appendChild(amt);
+  amts.forEach(([ak,unit])=>{
+    const v=r.data[ak]==null?'':String(r.data[ak]);
+    const sp=document.createElement('span');sp.className='rv-freq';
+    sp.innerHTML=`<input data-k="${ak}" class="${v===''?'empty':''}${r.imported&&r.imported[ak]?' imp':''}" value="${esc(v)}"> ${unit}`;
+    sp.querySelector('input').oninput=function(){onEdit(this);};
+    amt.appendChild(sp);
+  });
+  wrap.appendChild(amt);
   return wrap;
 }
 
-/* ════════ 通用「是否+每周天/每次分」运动行块 ════════ */
+/* ════════ 通用「是否+每周天/每次分」运动行块（toggle=base+a, 天/周=base+b, 分=base+c） ════════ */
 function hActivityBlock(items,groupLabel,r){
   const box=document.createElement('div');
   if(groupLabel){const gl=document.createElement('div');gl.className='rv-gcap';gl.textContent=groupLabel;box.appendChild(gl);}
-  items.forEach(([k,n])=>{
+  items.forEach(([base,n])=>{
+    const ka=base+'a',kb=base+'b',kc=base+'c';
     const line=document.createElement('div');line.className='rv-uline';
-    const on=String(r.data[k]??'')==='1';
+    const on=String(r.data[ka]??'')==='1';
     const chk=document.createElement('span');chk.className='rv-chk'+(on?' on':'');chk.title='打勾=进行该项(1)';
-    chk.onclick=()=>{const cur=String(r.data[k]??'')==='1';setToggle(k,cur?'0':'1');chk.classList.toggle('on',!cur);};
+    chk.onclick=()=>{const cur=String(r.data[ka]??'')==='1';setToggle(ka,cur?'0':'1');chk.classList.toggle('on',!cur);};
     line.appendChild(chk);
     const nm=document.createElement('span');nm.className='rv-uname';nm.textContent=n;line.appendChild(nm);
-    /* 每周天 / 每次分 */
     const bx=document.createElement('span');bx.style.cssText='display:flex;gap:14px;margin-left:auto;flex-wrap:wrap';
-    const vd=r.data[k+'_d']==null?'':String(r.data[k+'_d']);
+    const vd=r.data[kb]==null?'':String(r.data[kb]);
     const a=document.createElement('span');a.className='rv-freq';
-    a.innerHTML=`每周 <input data-k="${k}_d" class="${vd===''?'empty':''}${r.imported&&r.imported[k+'_d']?' imp':''}" value="${esc(vd)}"> 天`;
+    a.innerHTML=`每周 <input data-k="${kb}" class="${vd===''?'empty':''}${r.imported&&r.imported[kb]?' imp':''}" value="${esc(vd)}"> 天`;
     a.querySelector('input').oninput=function(){onEdit(this);};
-    const vt=r.data[k+'_t']==null?'':String(r.data[k+'_t']);
+    const vt=r.data[kc]==null?'':String(r.data[kc]);
     const b=document.createElement('span');b.className='rv-freq';
-    b.innerHTML=`每次 <input data-k="${k}_t" class="${vt===''?'empty':''}${r.imported&&r.imported[k+'_t']?' imp':''}" value="${esc(vt)}"> 分`;
+    b.innerHTML=`每次 <input data-k="${kc}" class="${vt===''?'empty':''}${r.imported&&r.imported[kc]?' imp':''}" value="${esc(vt)}"> 分`;
     b.querySelector('input').oninput=function(){onEdit(this);};
     bx.appendChild(a);bx.appendChild(b);line.appendChild(bx);
     box.appendChild(line);
@@ -1260,12 +1171,11 @@ function hBuildFamAllergyGrid(r){
   const wrap=document.createElement('div');wrap.className='rv-grid';
   const tbl=document.createElement('table');tbl.className='rv-gtbl';
   const colg=document.createElement('colgroup');colg.innerHTML='<col>'+HFAM_ALLERGY_COL.map(()=>'<col class="optcol">').join('');tbl.appendChild(colg);
-  const thead=document.createElement('thead');let th='<tr><th class="q">亲属</th>'+HFAM_ALLERGY_COL.map(c=>`<th>${esc(c[1])}</th>`).join('')+'</tr>';thead.innerHTML=th;tbl.appendChild(thead);
+  const thead=document.createElement('thead');thead.innerHTML='<tr><th class="q">亲属</th>'+HFAM_ALLERGY_COL.map(c=>`<th>${esc(c)}</th>`).join('')+'</tr>';tbl.appendChild(thead);
   const tb=document.createElement('tbody');
   HFAM_ALLERGY_MEM.forEach(([mk,mn])=>{
-    const tr=document.createElement('tr');
-    let h=`<td class="q">${esc(mn)}</td>`;
-    HFAM_ALLERGY_COL.forEach(([ck])=>{const key=`imm18_${mk}_${ck}`;const on=String(r.data[key]??'')==='1';const imp=on&&r.imported&&r.imported[key]?' imp':'';h+=`<td><div class="rv-cell${on?' on':''}${imp}" data-fak="${key}">${on?'✓':''}</div></td>`;});
+    const tr=document.createElement('tr');let h=`<td class="q">${esc(mn)}</td>`;
+    HFAM_ALLERGY_COL.forEach((cn,ci)=>{const key=hFamAllergyKey(mk,ci);const on=String(r.data[key]??'')==='1';const imp=on&&r.imported&&r.imported[key]?' imp':'';h+=`<td><div class="rv-cell${on?' on':''}${imp}" data-fak="${key}">${on?'✓':''}</div></td>`;});
     tr.innerHTML=h;tb.appendChild(tr);
   });
   tbl.appendChild(tb);
@@ -1273,31 +1183,29 @@ function hBuildFamAllergyGrid(r){
   wrap.appendChild(tbl);return wrap;
 }
 
-/* ════════ 家庭成员疾病史网格（身高体重腰围 + 8病勾选 + 其他） ════════ */
+/* ════════ 家庭成员疾病史网格（身高体重腰围 + 6病勾选 + 其他勾选 + 说明） ════════ */
 function hBuildFamDiseaseGrid(r){
   const wrap=document.createElement('div');wrap.className='rv-grid';
   const cap=document.createElement('div');cap.className='rv-gcap';cap.textContent='7·家庭成员疾病史（身高/体重/腰围数值 + 疾病勾选）';wrap.appendChild(cap);
   const tbl=document.createElement('table');tbl.className='rv-gtbl rv-famtbl';
-  const colg=document.createElement('colgroup');colg.innerHTML='<col><col class="ncol"><col class="ncol"><col class="ncol">'+HFAM_DISEASES.map(()=>'<col class="optcol">').join('')+'<col>';tbl.appendChild(colg);
+  const colg=document.createElement('colgroup');colg.innerHTML='<col><col class="ncol"><col class="ncol"><col class="ncol">'+HFAM_DIS.map(()=>'<col class="optcol">').join('')+'<col class="optcol"><col>';tbl.appendChild(colg);
   const thead=document.createElement('thead');
-  let th='<tr><th class="q">成员</th><th>身高</th><th>体重</th><th>腰围</th>'+HFAM_DISEASES.map(d=>`<th>${esc(d[1])}</th>`).join('')+'<th>其他</th></tr>';
-  thead.innerHTML=th;tbl.appendChild(thead);
+  thead.innerHTML='<tr><th class="q">成员</th><th>身高</th><th>体重</th><th>腰围</th>'+HFAM_DIS.map(d=>`<th>${esc(d[1])}</th>`).join('')+'<th>其他</th><th>说明</th></tr>';tbl.appendChild(thead);
   const tb=document.createElement('tbody');
-  HFAM_MEMBERS.forEach(([mk,mn])=>{
-    const sfx=mk==='father'?'f':mk==='mother'?'m':mk==='gpa'?'gf':mk==='gma'?'gm':mk==='mgpa'?'mgf':'mgm';
+  HFAM_MEMBERS.forEach(([sfx,mn])=>{
     const tr=document.createElement('tr');
     const td0=document.createElement('td');td0.className='q';td0.textContent=mn;tr.appendChild(td0);
     [`fhistoryH${sfx}`,`fhistoryW${sfx}`,`fhistoryWC${sfx}`].forEach(key=>{
-      const td=document.createElement('td');
-      const v=r.data[key]==null?'':String(r.data[key]);
+      const td=document.createElement('td');const v=r.data[key]==null?'':String(r.data[key]);
       td.innerHTML=`<input class="rv-famnum${v===''?' empty':''}${r.imported&&r.imported[key]?' imp':''}" data-k="${key}" value="${esc(v)}">`;
       td.querySelector('input').oninput=function(){onEdit(this);};tr.appendChild(td);
     });
-    HFAM_DISEASES.forEach(([dk],di)=>{
-      const dnum=[1,2,3,4,5,6,13][di]??di+1;
-      const key=`fhistory${dnum}${sfx}`;const on=String(r.data[key]??'')==='1';const imp=on&&r.imported&&r.imported[key]?' imp':'';
+    HFAM_DIS.forEach(([dn])=>{
+      const key=`fhistory${dn}${sfx}`;const on=String(r.data[key]??'')==='1';const imp=on&&r.imported&&r.imported[key]?' imp':'';
       const td=document.createElement('td');td.innerHTML=`<div class="rv-cell${on?' on':''}${imp}" data-fdk="${key}">${on?'✓':''}</div>`;tr.appendChild(td);
     });
+    const ko=`fhistory13${sfx}`;const oon=String(r.data[ko]??'')==='1';const oimp=oon&&r.imported&&r.imported[ko]?' imp':'';
+    const tdoc=document.createElement('td');tdoc.innerHTML=`<div class="rv-cell${oon?' on':''}${oimp}" data-fdk="${ko}">${oon?'✓':''}</div>`;tr.appendChild(tdoc);
     const tdo=document.createElement('td');const key=`fhistory13${sfx}_a`;const vo=r.data[key]==null?'':String(r.data[key]);
     tdo.innerHTML=`<input class="rv-famnum${vo===''?' empty':''}${r.imported&&r.imported[key]?' imp':''}" data-k="${key}" value="${esc(vo)}" style="width:64px">`;
     tdo.querySelector('input').oninput=function(){onEdit(this);};tr.appendChild(tdo);
@@ -1309,30 +1217,30 @@ function hBuildFamDiseaseGrid(r){
 }
 
 /* ════════ 页标题 + 页提示 ════════ */
-const H_PAGE_TITLE={1:'一、基本情况(身份/成绩/压力/惩罚)',2:'游戏·疾病·保险·维生素·月经遗精 + 孕期B1-B6',3:'孕期 B7-B20',4:'B21-B22 + 家庭情况1-7(疾病史表)',5:'家庭8-12 + 锻炼·上学回家·运动1-3',6:'运动4-13·家务·兴趣班 + 工作日作息',7:'工作日睡因·休息日作息/睡因·睡眠4题',8:'睡眠习惯量表 1-33',9:'膳食频率表(谷薯/蔬果/肉蛋·上半)',10:'膳食频率表(豆坚果/油盐糖·下半) + 膳食1.1-8',11:'习惯9-16 + 甲状腺1-3',12:'免疫1-17(频率题+过敏)',13:'免疫18-27(亲属过敏史)',14:'环境暴露1-13 + 填表信息'};
+const H_PAGE_TITLE={1:'一、基本情况(身份/成绩/压力/惩罚)',2:'游戏·疾病·保险·维生素·月经遗精 + 孕期B1-B6',3:'孕期 B7-B20',4:'B21-B22 + 家庭情况1-7(疾病史表)',5:'家庭8-12 + 锻炼·上学回家·运动1-3',6:'运动4-12·家务·兴趣班 + 工作日作息',7:'工作日睡因·休息日作息/睡因·睡眠1-4',8:'睡眠习惯量表 5-33',9:'膳食频率表(谷薯/蔬果/肉蛋·上半)',10:'膳食频率表(豆坚果/油盐糖·下半) + 膳食1.1-8',11:'习惯9-16 + 甲状腺1-3',12:'免疫1-17(频率题+过敏)',13:'免疫18-27(亲属过敏史)',14:'填表信息 + 环境暴露1-13'};
 
 const H_PAGE_HINT={
-1:'一、儿童基本情况。ID/姓名/性别(方框1男2女)/民族/身份证号/出生日期/学校/年级/班级/到校放学时间/是否住读/语数英成绩/学习压力/家长期望压力/性格/负性情绪影响。第11题被惩罚方式为多选□打✓(punish1-11)；第12题是否玩游戏0否1是。方框内手写数字原样照抄。',
-2:'上半：游戏次数与时长、玩游戏工具(gametool1-6多选)、场所(gameplace1-6多选)、是否患疾病(disease1-5多选)、医保(基本/商业)、维生素A/D剂量、月经(女)/遗精(男)。下半：二、母亲怀孕到婴儿期 B1-B6(父母年龄/孕前体重/分娩孕周/足月早产/分娩日期/分娩方式/双胞胎/出生身长体重)。',
-3:'二、孕期 B7-B20。B7孕前吸烟、B8孕期吸烟(无/主动/被动多选+支数)、B9饮酒(白/红/啤酒ml与次)、B10致畸药、B11高血压B12糖尿病B13甲状腺(0/1+诊断孕周)、B14营养补充剂(b14sup1-4多选)、B15输血、B16母乳B17配方奶B18辅食、B19搬家装修、B20孕产史(孕次/顺剖/流产/早产死胎)。',
-4:'上半：B21妊娠并发症(b21comp1-3多选)、B22母亲初潮年龄。下半：二、家庭基本情况。同住成员/总人口/兄弟姐妹/第几孩/主要照顾者/父母婚姻/父母职业(1-10)/受教育程度/家庭年收入(1-8)/月饮食开支。第7题家庭成员疾病史表：父/母/爷/奶/外公/外婆 各填身高体重腰围 + 高血压/高血脂/糖尿病/冠心病/脑卒中/甲状腺/脂肪肝/肿瘤 勾选(fam_<成员>_<病>)。',
-5:'上半：二、家庭8-12。家人面前吸烟(吸烟者父/爷/母/奶/其他+支数)、现住址、房屋面积、500米内污染、父母及照顾者姓名电话。下半：三、儿童锻炼。上学回家方式3项(ex_*：是否□+每周天+每次分)、主要运动方式1-3(sport1-3同结构)。',
-6:'三、运动方式4-13(sport4-13)、做家务1-5(chore1-5)、兴趣班1-5(hobby1-5)，每项=是否□+每周天+每次分。下半：四、儿童睡眠·工作日(周一~周五)作息：醒来/起床/早餐/午休分钟/晚餐/睡前最后进食/上床/入睡 各时:分。24小时制。',
-7:'上半：工作日晚睡原因(wd_reason1-6多选□)。中：休息日(周六~周日)作息(we_*时:分)+休息日晚睡原因(we_reason1-6)。下半：睡前30分钟情绪(1-5)、作息类型(1-6)、入睡所需时间(1-6)。方框内数字原样。',
-8:'四、睡眠习惯量表 1-33 题。每题三选一在方框内填数字：1=通常是这样、2=有时候这样、3=很少这样。逐题读取手写数字。',
-9:'五、膳食频率表(上半 diet1a-diet11b)。每行：食用频度方框填0-4(0不吃1天2周3月4年) + 右侧食用量(斤/两，部分为ml)。频度与食用量分别照抄。',
-10:'五、膳食频率表(下半 diet11c-diet20 及吸烟饮酒频度) + 膳食1.1-8。频度0-4+食用量。下半：每天吃几次(上学日/休息日)、暴饮暴食、咸淡、早餐、灶具、油烟、抽油烟设备及频率、饮水来源(water1-7多选)。',
-11:'八习惯延续9-16(瓶装水/外卖/倒餐具/一次性餐具/塑料杯/塑料装热饮/微波炉塑料/保鲜膜/预包装/茶包，各填编号数字)。六、甲状腺1-3：曾诊断疾病、近1年异常检查、近3月用药——若写"不清楚"则原样填文字，否则填编号。',
-12:'七、儿童免疫。1-6频率题(imm_freq1-6，5列：1从不2有时3偶尔4常常5绝大多数)。7-17：皮炎/喘息/干咳/过敏诊断(imm10a1-7多选)/过敏原检测/口腔溃疡(1-3)/装修/佝偻/蛔虫/食物过敏/中药，0否1是或编号。',
-13:'七、免疫18-27。18直系亲属过敏史表(父/母/兄弟姐妹 × 过敏性鼻炎/哮喘/湿疹/无以上/不详 勾选，imm18_<成员>_<列>)。19-27：癫痫脑病/免疫疾病/激素抗肿瘤/输血免疫球蛋白/计划疫苗/疫苗反应/新冠疫苗/一周内服药/贫血及治疗药，0否1是。',
-14:'八、环境暴露与生活习惯1-13(env1-env13，各填编号数字)：学校杯子/微波塑料/零食/快餐包装/咬笔/橡皮香软/小票/防晒/屏幕时间/新家具/大马路/蚊香/不粘锅。底部填表人姓名/填表日期/录入员原样照抄。'};
+1:'一、儿童基本情况。ID/no/childname/性别gender(方框1男2女)/民族nation/身份证cIDcard/出生日期/学校年级班级/到校放学时间/是否住读/语数英成绩/学习压力/家长期望压力/性格/负面情绪影响。第11题被惩罚方式多选□打✓填1(punish1-10，punish10a=其他□，punish11=其他注明)；第12题是否玩游戏play_g(0否1是)。',
+2:'上半：游戏次数/时长、玩游戏工具(play_gt1-6多选)、场所(play_gl1-6多选)、是否患疾病(disease1/2/6/7/5多选)、医保baseins/busins、维生素A/D剂量、月经menstr(女)/遗精spermat(男)。下半：B1-B6(父母年龄PMAGE/PFAGE、孕前体重BEFW/分娩前PROW、分娩孕周PWEEK1、足月PWEEK2、分娩日期BIRTHDAY2、分娩方式BIRTHW、双胞胎twins、出生身长BIRTHLEN/体重CBIRTHW)。',
+3:'二、孕期 B7-B20。B7孕前吸烟activesmoke、B8孕期吸烟(SMOKE1无/SMOKE2主动/SMOKE3被动+支数)、B9饮酒(白Wdrink/红Rdrink/啤Bdrink+ml与次)、B10致畸药druguse、B11高血压PREHYPER B12糖尿病PREDIAT、B14营养补充剂NUTRISUP(NUTRIM多元/NUTRIVA维A/NUTRIVD维D/NUTRIOTH其他)、B15输血BLOODSUP、B16母乳mmilk B17配方奶milk B18辅食FOODS、B19搬家move、B20孕产史(prenum/natural/cesarean/abortion1/2/premature/stillbirth)。',
+4:'上半：B21妊娠并发症complication_other(2糖尿病/3高血压/4其他多选)、B22母亲初潮MMENTRA。下半：家庭基本情况。同住live/总人口FAMILYN/兄弟姐妹Siblings/第几孩CHILDREN_order/照顾者caregiver/父母婚姻MARRIAGE/职业MOCUP/FOCUP/受教育MEDU/FEDU/年收入fam_income/月饮食开支FOODCOST。第7题家族史fhistory + 疾病史表：父f/母m/爷gf/奶gm/外公mgf/外婆mgm 各填身高fhistoryH/体重fhistoryW/腰围fhistoryWC + 高血压fhistory1/高血脂2/糖尿病3/冠心病4/脑卒中5/肿瘤6/其他fhistory13 勾选。',
+5:'上半：家庭8-12。家人面前吸烟smokeu(吸烟者smokeu_f父/gf爷外公/m母/gm奶外婆/other其他+支数)、现住址address、面积larea、500米内污染pollution、母父及其他照顾者姓名电话(NAMEM/TELEM/NAMEF/TELEF/NAMEO/TELEO)。下半：三、儿童锻炼。上学回家方式3项(school_w1/2/3：a=是否□+b=每周天+c=每次分)、主要运动方式1-3(pe_1/2/3同结构a/b/c)。',
+6:'三、运动方式4-12(pe_4~pe_12，a是否/b天/c分)+其他pe_13、做家务1-4(ph_1~ph_4)+其他ph_5、兴趣班1-4(pi_1~pi_4)+其他pi_5。下半：四、睡眠·工作日(周一~周五)作息：醒来waket1/起床sleept1/早餐eatt1/午休sleept3分/晚餐eatt2/睡前最后进食eatt3/上床bedt2/入睡sleept2 各时:分(24小时制)。',
+7:'上半：工作日晚睡原因(reason1-6多选□，reason6_other注明)。中：休息日(周六日)作息(waket1s/sleept1s/eatt1s/sleept3s/eatt2s/eatt3s/bedt2s/sleept2s)+休息日晚睡原因(reason1s-6s)。下半：睡前情绪bedtimemood(1-5)、作息类型sleepschedulet(1-6)、入睡所需fallasleept(1-6)、睡眠习惯量表第1-4题(sleep1-sleep4，1通常2有时3很少)。',
+8:'四、睡眠习惯量表 5-33 题(sleep5-sleep33)。每题三选一在方框内填数字：1=通常是这样、2=有时候这样、3=很少这样。逐题读取手写数字。',
+9:'五、膳食频率表(上半 diet1~bean2)。每行：食用频度方框填0-4(0不吃1天2周3月4年) + 右侧食用量(斤=xxa/两=xxb，牛奶diet8a为ml)。频度与食用量分别照抄。',
+10:'五、膳食频率表(下半 bean3~diet16) + 膳食1.1-8。频度0-4+食用量。下半：每天吃几次(food25上学/food25_1休息)、暴食food26、咸淡salt、早餐breakfast/breakfasta、灶具cookert、油烟PM、抽油烟fume/fumefre、饮水来源(watersource1-7多选)。',
+11:'八习惯9-16(瓶装水drink_freq/外卖package_freq/倒餐具hot_takeout/一次性disp_plast/塑料杯plast_use/装热饮hotwater_plast/微波mw_plast/保鲜膜plast_wrap/预包装prepack/茶包bagdrink，各填编号)。六、甲状腺：曾诊断疾病diag_disease1-14(多选)、近1年异常abnorm_lab_1y、近3月用药meds_use_3m1-9(多选)——若写“不清楚”原样填文字。',
+12:'七、免疫。1-6频率题(frequency1-6，5列：1从不2有时3偶尔4常常5绝大多数)。7-17：皮炎skin/喘息asthma/干咳cough/过敏诊断allergy(allergy_1-7多选)/过敏原检测test/口腔溃疡oral ulcer(及1-3)/装修use/佝偻malnurition/蛔虫ascariasis/食物过敏allergic_a/中药TCM，0否1是或编号。',
+13:'七、免疫18-27。18直系亲属过敏史allergic表(父allergic_father1-5/母allergic_mom1-5/兄弟姐妹siblings_1-5 × 过敏性鼻炎/哮喘/湿疹/无以上/不详 勾选)。19-27：癫痫脑病brain/免疫疾病immunodeficiency/激素抗肿瘤treat/输血免疫球蛋白blood/计划疫苗vaccine/疫苗反应vaccine-f/新冠COVID/一周内服药Medicine/贫血anemia及治疗药anemia_m，0否1是。',
+14:'填表人collectform/填表日期collectdata/录入人keyboarder。八、环境暴露1-13(各填编号)：学校杯子cup_mat/微波塑料mw_plast_freq/零食snack_freq/快餐包装fried_paper/咬笔chew_habit/橡皮香软soft_scent_items/小票receipt/防晒sunscreen/屏幕screent/新家具renov_furn/大马路near_road/蚊香mosq_repel/不粘锅nonstick_pan。'};
 
 /* ════════ 逐页提示词（沿用 screen 结构） ════════ */
 function healthPrompt(sys,page){
   const list=sys._leaf.filter(f=>f.page===page).map(f=>`- ${f.key}｜${f.label}`).join('\n');
   return `你是表单转写器，正在识别《儿童膳食、运动、睡眠和行为健康评估问卷》第 ${page} 页。直接按图把下列字段填好，立即输出 JSON。禁止任何分析、推理、解释或思考过程，看到什么写什么。
 
-【本页字段】（key｜含义，键名必须原样使用）：
+【本页字段】（key｜含义，键名必须原样使用，含空格的键如"oral ulcer"也原样作为 JSON 键）：
 ${list}
 
 【读取规则】
@@ -1341,6 +1249,7 @@ ${list}
 - 单选编码题（如 1=… 2=… 3=…）→ 读方框内手写的那个数字。
 - 量表每行在某一列打 ✓/填数字 → 该行填对应数字（列从左到右 1,2,3,…）。
 - 「是否使用/是否进行」=0 时，其下次数、分钟、用途一律 0 或省略，不要编造。
+- 时间字段（如 waket1、sleept1）按"时:分"或表上手写格式照抄。
 - 手写阿拉伯数字按字面照抄，注意区分 0/O、1/7、5/6、6/0。
 - 看不清或空白的字段 → 直接省略该键，不要猜测、不要编造。
 
@@ -1355,39 +1264,37 @@ function healthRender(host,r){
   for(const pg of pages){
     const sec=document.createElement('div');sec.className='rv-sec';sec.dataset.page=pg;sec.textContent=`第 ${pg} 页 · ${H_PAGE_TITLE[pg]||''}（点此定位左侧原件）`;sec.onclick=()=>jumpToPage(pg);host.appendChild(sec);
 
-    /* 本页量表网格涉及的 key（避免重复渲染） */
     const groups=hGridGroups(pg);
     const handledKeys=new Set();
     groups.forEach(g=>{
       (g.keys||[]).forEach(k=>handledKeys.add(k));
-      if(g.type==='famallergy')HFAM_ALLERGY_MEM.forEach(([mk])=>HFAM_ALLERGY_COL.forEach(([ck])=>handledKeys.add(`imm18_${mk}_${ck}`)));
+      if(g.type==='famallergy')HFAM_ALLERGY_MEM.forEach(([mk])=>HFAM_ALLERGY_COL.forEach((_,ci)=>handledKeys.add(hFamAllergyKey(mk,ci))));
     });
 
-    /* 第4页家庭疾病史表：用专用网格 */
+    /* 第4页家庭疾病史表 */
     let famDiseaseKeys=new Set();
-    if(pg===4){HFAM_MEMBERS.forEach(([mk])=>{
-      const sfx=mk==='father'?'f':mk==='mother'?'m':mk==='gpa'?'gf':mk==='gma'?'gm':mk==='mgpa'?'mgf':'mgm';
-      [`fhistoryH${sfx}`,`fhistoryW${sfx}`,`fhistoryWC${sfx}`,`fhistory13${sfx}_a`].forEach(k=>famDiseaseKeys.add(k));
-      [1,2,3,4,5,6,13].forEach(n=>famDiseaseKeys.add(`fhistory${n}${sfx}`));
+    if(pg===4){HFAM_MEMBERS.forEach(([sfx])=>{
+      [`fhistoryH${sfx}`,`fhistoryW${sfx}`,`fhistoryWC${sfx}`,`fhistory13${sfx}`,`fhistory13${sfx}_a`].forEach(k=>famDiseaseKeys.add(k));
+      HFAM_DIS.forEach(([dn])=>famDiseaseKeys.add(`fhistory${dn}${sfx}`));
     });}
 
-    /* 运动/家务/兴趣班/上学回家：用活动块（是否+每周天+每次分） */
+    /* 运动/家务/兴趣班/上学回家：活动块（base a/b/c） */
     const actGroups=[];
     if(pg===5){
-      actGroups.push({label:'上学/放学回家方式',items:[['fhistoryHgf','在楼下直接坐小汽车/公交车'],['fhistoryWgf','先步行一段到公交站再坐车'],['fhistoryWCgf','步行/骑自行车']]});
-      actGroups.push({label:'主要运动方式 1-3',items:[['fhistory1gf','快跑/跳绳'],['fhistory2gf','骑自行车/仰卧起坐/俯卧撑/引体向上'],['fhistory3gf','慢跑/足球/溜直排轮']]});
+      actGroups.push({label:'上学/放学回家方式',items:H_SCHOOLW});
+      actGroups.push({label:'主要运动方式 1-3',items:H_PE.slice(0,3)});
     }else if(pg===6){
-      actGroups.push({label:'运动方式 4-13',items:[['fhistory4gf','篮球/游泳/跳远/跳高'],['fhistory5gf','羽毛球'],['fhistory6gf','乒乓球/体操'],['fhistory13gf','拉伸/瑜伽'],['fhistory13gf_a','逛街/逛超市'],['fhistoryHgm','散步'],['fhistoryWgm','学习(除上学)/玩电脑'],['fhistoryWCgm','吃饭/聊天/做手工'],['fhistory1gm','看电视/电影/听音乐'],['fhistory2gm','其他']]});
-      actGroups.push({label:'做家务 1-5',items:[['fhistory3gm','扫地'],['fhistory4gm','拖地'],['fhistory5gm','洗碗/倒垃圾/浇花等'],['fhistory6gm','遛狗/猫'],['fhistory13gm','其他']]});
-      actGroups.push({label:'兴趣班 1-5',items:[['fhistoryHmgf','钢琴/风琴/小提琴'],['fhistoryWmgf','吉他/大提琴/长笛/木管乐器'],['fhistoryWCmgf','芭蕾舞/现代舞/爵士'],['fhistory1mgf','跆拳道/柔道/空手道'],['fhistory2mgf','其他']]});
+      actGroups.push({label:'主要运动方式 4-12',items:H_PE.slice(3)});
+      actGroups.push({label:'做家务 1-4',items:H_PH});
+      actGroups.push({label:'兴趣班 1-4',items:H_PI});
     }
-    const actKeys=new Set();actGroups.forEach(ag=>ag.items.forEach(([k])=>{actKeys.add(k);actKeys.add(k+'_d');actKeys.add(k+'_t');}));
+    const actKeys=new Set();actGroups.forEach(ag=>ag.items.forEach(([base])=>{actKeys.add(base+'a');actKeys.add(base+'b');actKeys.add(base+'c');}));
 
-    /* 膳食频率行：本页所有 diet* 主项 */
-    const dietItems=HDIET_ITEMS.filter(([k])=>curSys._fby[k]&&curSys._fby[k].page===pg);
-    const dietKeys=new Set();dietItems.forEach(([k])=>{dietKeys.add(k);dietKeys.add(k+'_jin');dietKeys.add(k+'_liang');});
+    /* 膳食频率行：本页所有 HDIET 主项 */
+    const dietItems=HDIET.filter(d=>curSys._fby[d[0]]&&curSys._fby[d[0]].page===pg);
+    const dietKeys=new Set();dietItems.forEach(d=>{dietKeys.add(d[0]);(d[2]||[]).forEach(([ak])=>dietKeys.add(ak));});
 
-    /* 1) 先渲染普通字段行（排除以上专用块的 key） */
+    /* 1) 普通字段行 */
     curSys._leaf.filter(f=>f.page===pg && !handledKeys.has(f.key) && !famDiseaseKeys.has(f.key) && !actKeys.has(f.key) && !dietKeys.has(f.key))
       .forEach(f=>host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key])));
 
@@ -1420,6 +1327,130 @@ function healthRender(host,r){
    reviewMode: generic | neuro | screen
    字段可带 group(分节标题) / type(text,number,select,date,table)
 ════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════
+   小儿发育筛查表（DDST / 丹佛）—— 逐条里程碑录入
+   四能区：个人-社会 ps / 精细动作-适应性 fm / 语言 la / 大运动 gm
+   每条结果编码：1通过 2未过 3拒绝 4无机会（空=未测/未到该项）
+   表头：身份+测量（姓名/性别/年龄/日期/体重/身长/头围）
+   另含：各能区发育年龄(月)/发育商 + 总发育商 + 筛查结果，便于算 DQ
+════════════════════════════════════════════════════════════════ */
+const DDST_RES=[['通过','1'],['未过','2'],['拒绝','3'],['无机会','4']];
+/* [key, 项目名, 约对应月龄(50%通过, 仅作核对参考)] —— R=家长报告项 */
+const DDST_PS=[
+ ['ps1','注视人脸',1],['ps2','R 应答性微笑',1.5],['ps3','R 自发地微笑',3],['ps4','注视自己的手',3],
+ ['ps5','抵抗玩具被拉走',5],['ps6','R 自己吃饼干',5],['ps7','试图拿够不到的玩具',6],['ps8','R 开始认生',7],
+ ['ps9','玩躲猫猫游戏',8],['ps10','R 玩拍手或挥手再见',10],['ps11','R 会表示需要',11],['ps12','R 用杯子喝水',12],
+ ['ps13','R 模仿做家务',14],['ps14','R 用匙自喂少撒落',16],['ps15','R 在家帮做简单事',18],['ps16','R 去穿外衣',20],
+ ['ps17','R 玩交互性游戏',22],['ps18','R 会洗手并擦干手',24],['ps19','R 能容易地与母亲分开',30],['ps20','R 在协助下穿衣',36],
+ ['ps21','会扣扣子',42],['ps22','R 会自己穿衣',48]
+];
+const DDST_FM=[
+ ['fm1','跟至中线',1],['fm2','跟过中线',2],['fm3','R 两手在一起',3],['fm4','视线随物180°',3],
+ ['fm5','抓住拨浪鼓',4],['fm6','伸手要抓东西',5],['fm7','注视小丸',5],['fm8','坐位找绒球',6],
+ ['fm9','耙弄/把抓小丸',7],['fm10','R 坐位拿两块积木',8],['fm11','R 积木一手传另一手',8],['fm12','拇指其他指对捏',10],
+ ['fm13','R 对敲二手中积木',11],['fm14','拇食指捏小丸',12],['fm15','自发地乱涂',14],['fm16','搭两层塔',15],
+ ['fm17','按示范倒小丸',15],['fm18','搭四层塔',18],['fm19','自发地倒小丸',18],['fm20','搭八层塔',24],
+ ['fm21','模仿搭桥',30],['fm22','模仿垂直直线(30°内)',30],['fm23','临摹"O"圆形',36],['fm24','挑较长线条三次都对',42],
+ ['fm25','临摹"+"字形',48],['fm26','模仿"口"形(示范)',48],['fm27','画人画"3"部位',54],['fm28','临摹"口"形',60],['fm29','画人画"6"部位',66]
+];
+const DDST_LA=[
+ ['la1','对铃声有应答',1],['la2','R 发声不是哭声',2],['la3','R 出声笑',3],['la4','R 尖声叫',4],
+ ['la5','转向声源',6],['la6','R 无意识说 DaDaMa',8],['la7','R 学样发语音',10],['la8','R 有意识叫 BaBaMaMa',11],
+ ['la9','R 除爸妈外还会三个词',14],['la10','R 说出身体一个部分',18],['la11','R 组合二个不同的词',22],['la12','五张画中说出一张名字',24],
+ ['la13','按吩咐做三件事中二件',24],['la14','R 说出姓名',30],['la15','理解冷/累/饿三个对二个',36],['la16','理解介词四个对三个',42],
+ ['la17','会说两个反义词',48],['la18','R 认识四种颜色中三种',48],['la19','说出东西是什么做的三种',54],['la20','会对9个词中6个下定义',60]
+];
+const DDST_GM=[
+ ['gm1','R 俯卧抬头',1],['gm2','俯卧抬头45°',2],['gm3','俯卧抬头90°',3],['gm4','坐位头稳定',3],
+ ['gm5','俯卧手撑胸',4],['gm6','拉坐头不后垂',4],['gm7','腿能支持一点重量',5],['gm8','R 翻身',6],
+ ['gm9','自己坐',7],['gm10','R 扶东西站',8],['gm11','R 拉物站起',9],['gm12','R 能自己坐起',10],
+ ['gm13','R 扶家具走',11],['gm14','R 独站瞬间',12],['gm15','R 独站稳',13],['gm16','R 弯腰再站起来',15],
+ ['gm17','R 走得好',15],['gm18','R 倒退走',18],['gm19','R 会上台阶',21],['gm20','R 踢球向前',24],
+ ['gm21','并足就地跳',24],['gm22','举手过肩扔球',30],['gm23','独足站一秒钟',30],['gm24','并足向前跳22cm',36],
+ ['gm25','R 骑三轮车',36],['gm26','独脚跳',42],['gm27','独足站5秒三次中二次',48],['gm28','脚跟对脚尖向前走',48],
+ ['gm29','抓住蹦跳的球三次中二次',54],['gm30','脚跟对着脚尖退走',54],['gm31','独足立10秒三次中二次',60]
+];
+const DDST_DOMAINS=[['个人-社会',DDST_PS,'ps'],['精细动作-适应性',DDST_FM,'fm'],['语言',DDST_LA,'la'],['大运动',DDST_GM,'gm']];
+
+function buildDdstFields(){
+  const F=[]; const P=(key,label,type,opts)=>F.push({key,label,page:1,type:type||'text',group:'',options:opts});
+  /* 表头：身份 + 测量 */
+  P('name','姓名 name','text');
+  P('gender','性别 gender(1=男 2=女)','select',['1','2']);
+  P('age','年龄(如 9月25天 / 2岁3月) age','text');
+  P('exam_date','检查日期 exam_date(如 2025.8.11)','text');
+  P('weight','体重(kg) weight','number');
+  P('height','身长/身高(cm) height','number');
+  P('head_circ','头围(cm) head_circ','number');
+  /* 四能区逐条 */
+  DDST_DOMAINS.forEach(([dn,items])=>{
+    items.forEach(([k,nm,age])=>P(k,`${dn}·${nm}(约${age}月) ${k}`,'select',['1','2','3','4']));
+  });
+  /* 各能区发育年龄/发育商 + 总评 */
+  DDST_DOMAINS.forEach(([dn,_,pfx])=>{
+    P(`da_${pfx}`,`${dn}·发育年龄(月) da_${pfx}`,'number');
+    P(`dq_${pfx}`,`${dn}·发育商DQ dq_${pfx}`,'number');
+  });
+  P('dq_total','总发育商 dq_total','number');
+  P('screen_result','筛查结果 screen_result(1正常2可疑3异常4无法解释)','select',['1','2','3','4']);
+  return F;
+}
+
+/* ════════ DDST 单条目行（项目名 + 月龄 + 通过/未过/拒绝/无机会 四选一点格） ════════ */
+function ddstItemRow(item,r){
+  const [k,nm,age]=item;
+  const line=document.createElement('div');line.className='rv-dietline';
+  const lab=document.createElement('div');lab.className='rv-dietname';lab.innerHTML=`${esc(nm)} <span style="color:var(--ink3);font-size:11px">·约${age}月</span>`;line.appendChild(lab);
+  const fr=document.createElement('div');fr.className='rv-dietfreq';fr.style.flexWrap='wrap';
+  DDST_RES.forEach(([lbl,v])=>{
+    const on=String(r.data[k]??'')===v;const imp=on&&r.imported&&r.imported[k]?' imp':'';
+    const cell=document.createElement('span');cell.className='rv-fcell'+(on?' on':'')+(imp?' imp':'');cell.dataset.k=k;cell.dataset.v=v;
+    cell.style.minWidth='52px';cell.textContent=lbl;cell.title=lbl+'='+v;
+    cell.onclick=()=>{const already=cell.classList.contains('on');fr.querySelectorAll('.rv-fcell').forEach(c=>{c.classList.remove('on');c.classList.remove('imp');});if(already){r.data[k]='';}else{cell.classList.add('on');r.data[k]=v;}if(r.imported)delete r.imported[k];r.filled=countFilled(r);updateFill(r);};
+    fr.appendChild(cell);
+  });
+  line.appendChild(fr);
+  return line;
+}
+
+/* ════════ DDST 核对窗渲染 ════════ */
+function ddstRender(host,r){
+  /* 表头区 */
+  const sec0=document.createElement('div');sec0.className='rv-sec';sec0.textContent='表头 · 身份与测量（点此定位左侧原件）';sec0.onclick=()=>jumpToPage(1);host.appendChild(sec0);
+  ['name','gender','age','exam_date','weight','height','head_circ'].forEach(key=>{const f=curSys._fby[key];if(f)host.appendChild(makeRow(f,r.data[key],r.imported&&r.imported[key]));});
+  /* 四能区 */
+  DDST_DOMAINS.forEach(([dn,items])=>{
+    const sec=document.createElement('div');sec.className='rv-sec';sec.textContent=`能区 · ${dn}（每条：通过/未过/拒绝/无机会，按左图叉号逐条核对）`;host.appendChild(sec);
+    const wrap=document.createElement('div');wrap.className='rv-grid';
+    const head=document.createElement('div');head.className='rv-diethead';head.innerHTML='<span class="rv-dietname">里程碑项目</span><span class="rv-dietfreq-h">通过1 · 未过2 · 拒绝3 · 无机会4</span>';wrap.appendChild(head);
+    items.forEach(it=>wrap.appendChild(ddstItemRow(it,r)));
+    host.appendChild(wrap);
+  });
+  /* 汇总：发育年龄/发育商 + 总评 */
+  const secS=document.createElement('div');secS.className='rv-sec';secS.textContent='汇总 · 各能区发育年龄/发育商 + 总评';host.appendChild(secS);
+  DDST_DOMAINS.forEach(([_,__,pfx])=>{ [`da_${pfx}`,`dq_${pfx}`].forEach(key=>{const f=curSys._fby[key];if(f)host.appendChild(makeRow(f,r.data[key],r.imported&&r.imported[key]));}); });
+  ['dq_total','screen_result'].forEach(key=>{const f=curSys._fby[key];if(f)host.appendChild(makeRow(f,r.data[key],r.imported&&r.imported[key]));});
+}
+
+/* ════════ DDST 识别提示词（单页） ════════ */
+function ddstPrompt(sys,page){
+  const head=DDST_DOMAINS.map(([dn,items,pfx])=>`【${dn}】`+items.map(([k,nm])=>k).join('/')).join('  ');
+  return `你是表单转写器，正在识别《小儿发育筛查表（DDST/丹佛发育筛查）》。这是一张发育里程碑图：横轴为月龄(1月~6岁)，纵轴自上而下四个能区——个人-社会 / 精细动作-适应性 / 语言 / 大运动；每个能区有一串里程碑方框，检查者会在测查到的项目上画"叉(×)/对勾"等标记表示结果。直接输出 JSON，禁止任何分析或解释。
+
+【表头字段】name 姓名｜gender 性别(1男2女)｜age 年龄(如"9月25天")｜exam_date 检查日期(顶部手写,如2025.8.11)｜weight 体重kg｜height 身长cm｜head_circ 头围cm。下划线/方框内手写原样照抄。
+
+【里程碑字段】每条用对应 key，结果编码：1=通过(框上画对勾/标P/明确通过)，2=未过(画叉×/标F/明确不通过)，3=拒绝(标R)，4=无机会(标NO)。**没有任何标记的方框=该项未测，省略该键，绝不要编造。**只输出图上确实有标记的项目。键名清单（按能区）：
+${head}
+
+【读取要点】
+- 项目方框从左(月龄小)到右(月龄大)排列；多数项目方框内印有项目名(可能有"R"前缀=家长报告)，据印刷文字定位到对应 key。
+- 标记常见为手写"×"或"✓"穿过方框：穿过/压在框上=该项测了。结合标记形状判断通过(1)还是未过(2)。难以区分对勾与叉时，优先按"明显的×=2、明显对勾/横杠=1"，仍不确定则省略。
+- 底部"画人"图(猫/鸟/马/狗/人)与几何图形(○ ‖ + □)是给孩子临摹用的，不是字段，忽略。
+- da_*/dq_*/dq_total/screen_result：若图上没有写发育年龄/发育商/结论，一律省略，不要计算或编造。
+
+【输出】只输出一个紧凑 JSON 对象：不换行、不缩进、无 Markdown、无注释。值用字符串，只含确有标记/填写的字段。`;
+}
+
 const SYSTEMS=[
 {
   id:'neuro', name:'婴幼儿神经运动检查记录表', emoji:'🧠', klass:'neo', isNew:true,
@@ -1912,6 +1943,13 @@ collectdata 报告/采集日期整理 YYYY-MM-DD 并拆 collect_year/month/day�
   pagesPerRecord:14, reviewMode:'health',
   maxPages:14,
   fields:buildHealthSchema().map(f=>({key:f.key,label:f.label,type:(f.kind==='gender'?'select':(f.kind==='num'||f.kind==='scale'||f.kind==='toggle'||f.kind==='freq')?'number':'text'),options:f.kind==='gender'?['1','2']:undefined,page:f.page,kind:f.kind}))
+},
+{
+  id:'ddst', name:'小儿发育筛查表（DDST/丹佛）', emoji:'🧒', klass:'neo', isNew:true,
+  tags:['1 页/人','新增','逐条里程碑·点格'],
+  desc:'丹佛发育筛查 DDST 里程碑图：四能区（个人-社会/精细动作-适应性/语言/大运动）共 102 条里程碑，逐条录 通过/未过/拒绝/无机会；表头身份+测量(姓名/性别/年龄/日期/体重/身长/头围)；另含各能区发育年龄/发育商与总评，便于算 DQ。',
+  pagesPerRecord:1, reviewMode:'ddst', maxPages:1,
+  fields:buildDdstFields()
 }
 ];
 const SYS_BY={};SYSTEMS.forEach(s=>{SYS_BY[s.id]=s; s.fields.forEach(f=>{if(f.page==null)f.page=1;}); s.KEYS=s.fields.map(f=>f.key); s.FBY={}; s.fields.forEach(f=>s.FBY[f.key]=f);});
@@ -2022,6 +2060,7 @@ function buildPromptFor(sys,page){
   if(sys.reviewMode==='neuro') return neuroPrompt(sys,page);
   if(sys.reviewMode==='screen') return screenPrompt(sys,page);
   if(sys.reviewMode==='health') return healthPrompt(sys,page);
+  if(sys.reviewMode==='ddst') return ddstPrompt(sys,page);
   return genericPrompt(sys,page);
 }
 
@@ -2280,6 +2319,7 @@ function renderFields(r){
   if(curSys.reviewMode==='neuro') neuroRender(host,r);
   else if(curSys.reviewMode==='screen') screenRender(host,r);
   else if(curSys.reviewMode==='health') healthRender(host,r);
+  else if(curSys.reviewMode==='ddst') ddstRender(host,r);
   else genericRender(host,r);
   updateFill(r);
 }
