@@ -59,7 +59,7 @@ header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
 .sys{position:relative;text-align:left;background:var(--paper2);border:1px solid var(--line);border-radius:16px;padding:16px 16px 14px;cursor:pointer;transition:.16s;box-shadow:0 1px 0 rgba(255,255,255,.6),0 8px 22px rgba(22,32,31,.05);overflow:hidden}
 .sys:hover{transform:translateY(-3px);border-color:var(--accent2);box-shadow:0 14px 34px rgba(22,32,31,.12)}
 .sys:active{transform:translateY(-1px)}
-.sys::after{content:'';position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(13,148,136,.10),transparent 70%)}
+.sys::after{content:'';position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(13,148,136,.10),transparent 70%);pointer-events:none}
 .sys.neo::after{background:radial-gradient(circle,rgba(194,65,12,.14),transparent 70%)}
 .sys-top{display:flex;align-items:center;gap:11px;margin-bottom:9px}
 .sys-emoji{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:21px;background:var(--paper);border:1px solid var(--line);flex-shrink:0}
@@ -383,9 +383,10 @@ select.set-key{font-family:var(--sans)}
 .sys{position:relative}
 .sys.builder{border:2px dashed var(--accent);background:linear-gradient(180deg,rgba(194,65,12,.05),var(--paper2))}
 .sys.builder .sys-emoji{background:rgba(194,65,12,.12)}
-.sys .sys-del{position:absolute;top:8px;right:8px;width:22px;height:22px;border:1px solid var(--line2);background:var(--paper2);color:var(--ink3);border-radius:7px;font-size:12px;line-height:20px;text-align:center;cursor:pointer;display:none;padding:0}
+.sys .sys-del{position:absolute;top:8px;right:8px;width:22px;height:22px;border:1px solid var(--line2);background:var(--paper2);color:var(--ink3);border-radius:7px;font-size:12px;line-height:20px;text-align:center;cursor:pointer;display:none;padding:0;z-index:6}
 .sys.custom:hover .sys-del,.sys.deletable:hover .sys-del{display:block}
 .sys .sys-del:hover{border-color:var(--bad);color:var(--bad)}
+@media (hover:none){.sys.custom .sys-del,.sys.deletable .sys-del{display:block}}
 /* —— 新建系统 Builder —— */
 .bld-grid{display:flex;gap:12px;flex-wrap:wrap}
 .bld-f{display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px}
@@ -485,9 +486,9 @@ select.set-key{font-family:var(--sans)}
       </div>
       <div class="card-b" style="border-top:1px solid var(--line)">
         <div class="btn-row" style="margin-top:0">
-          <button class="btn dark" id="xlsxBtn" disabled>⬇ 导出 Excel（.xlsx）</button>
+          <button class="btn dark" id="xlsxBtn" disabled>⬇ 导出 Excel（数据 + 变量字典）</button>
           <button class="btn" id="tsvBtn" disabled>⧉ 复制为 TSV（粘进表格）</button>
-          <span style="font-size:11.5px;color:var(--ink3);align-self:center">表头为英文 key；每条记录一行。</span>
+          <span style="font-size:11.5px;color:var(--ink3);align-self:center">Sheet1 数据（表头英文 key，每条记录一行）；Sheet2 变量字典（变量名 / 中文含义 / 选项赋值），与当前字段顺序一致。</span>
         </div>
 
         <!-- Import for visual cross-check -->
@@ -2888,6 +2889,7 @@ function fieldsSnapshot(sys){
     if(f.neuro)o.neuro=f.neuro;
     if(f.neuroM)o.neuroM=f.neuroM;
     if(f.neuroId)o.neuroId=f.neuroId;
+    if(f.kind)o.kind=f.kind;
     if(f.columns)o.columns=f.columns;
     if(f.rows)o.rows=f.rows;
     return o;
@@ -2977,7 +2979,7 @@ function renderRvFieldEditor(host){
     h.addEventListener('dragend',()=>{_feDrag=null;wrap.querySelectorAll('.fe-row').forEach(x=>x.classList.remove('dragging','over'));});
     r.addEventListener('dragover',e=>{if(_feDrag==null)return;e.preventDefault();r.classList.add('over');});
     r.addEventListener('dragleave',()=>r.classList.remove('over'));
-    r.addEventListener('drop',e=>{e.preventDefault();r.classList.remove('over');const to=+r.dataset.i;if(_feDrag==null||_feDrag===to)return;const moved=curSys.fields.splice(_feDrag,1)[0];curSys.fields.splice(to,0,moved);feCommit(false);});
+    r.addEventListener('drop',e=>{e.preventDefault();r.classList.remove('over');const to=+r.dataset.i;const from=_feDrag;_feDrag=null;if(from==null||from===to)return;const moved=curSys.fields.splice(from,1)[0];curSys.fields.splice(to,0,moved);feCommit(true);});
   });
   host.appendChild(wrap);
 }
@@ -3486,7 +3488,60 @@ function doXlsx(){
   const {cols,rows}=buildExportRows();if(!rows.length){toast('没有可导出的数据');return;}
   const ws=XLSX.utils.aoa_to_sheet([cols,...rows]);const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,(curSys.name||'data').replace(/[\\/?*\[\]:]/g,'').slice(0,28)||'data');
+  /* —— Sheet2：变量字典（变量名 / 中文含义 / 选项赋值）。与 Sheet1 列一一对应、顺序一致，
+        按「当前字段结构」生成：核对窗里拖动排序 / 增删 / 改名后导出即所见即所得。—— */
+  const d=buildDictRows();
+  const ws2=XLSX.utils.aoa_to_sheet([d.head,...d.rows]);
+  ws2['!cols']=[{wch:5},{wch:22},{wch:46},{wch:7},{wch:48},{wch:34},{wch:6},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws2,'变量字典');
   XLSX.writeFile(wb,`${curSys.id}_识别${rows.length}条_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast('已导出：Sheet1 数据 + Sheet2 变量字典');
+}
+
+/* ── 变量字典：每个导出列 → 变量名 / 中文含义 / 类型 / 选项赋值 / 提示 / 页 / 分组 ── */
+function _pairTxt(pairs){return (pairs||[]).map(o=>o[1]+'='+o[0]).join('；');}
+function _gridColsMap(sys){
+  /* 荧屏/膳食量表：从点格网格定义反查每个 key 的列赋值（如 1=从不…5=总是） */
+  const m={};const fns=[];
+  if(sys.reviewMode==='screen'&&typeof stGridGroups==='function')fns.push(stGridGroups);
+  if(sys.reviewMode==='health'&&typeof hGridGroups==='function')fns.push(hGridGroups);
+  if(!fns.length)return m;
+  const maxPg=Math.max(sys.maxPages||1,...(sys.fields||[]).map(f=>f.page||1));
+  fns.forEach(fn=>{for(let p=1;p<=maxPg;p++){let gs=[];try{gs=fn(p)||[];}catch(_){gs=[];}
+    gs.forEach(g=>{if(Array.isArray(g.cols)&&Array.isArray(g.keys))g.keys.forEach(k=>{if(!m[k])m[k]=g.cols;});});
+  }});
+  return m;
+}
+function _codeFromText(f){
+  /* 数字型 select：从 hint/label 里解析「1正常2缺乏3过量」或「同意1不同意0」式赋值说明 */
+  if(f.type!=='select'||!f.options||!f.options.length)return '';
+  const opt=f.options.map(String);if(opt.some(o=>!/^\d+$/.test(o)))return '';
+  const src=String(f.hint||f.label||'');
+  const h=src.replace(/第\s*\d+\s*[题问]/g,' ').replace(/[=＝:：()（）]/g,' ').trim();
+  if(!h)return '';
+  const tryPat=(re,di,li)=>{const got={};let mt;const r=new RegExp(re.source,'g');
+    while((mt=r.exec(h))){const dg=mt[di],lb=(mt[li]||'').trim();if(lb&&!got[dg])got[dg]=lb;}
+    return opt.every(o=>got[o])?opt.map(o=>o+'='+got[o]).join('；'):'';};
+  return tryPat(/(\d)\s*([^\d，,。;；、\/\s][^\d，,。;；、]{0,11})/,1,2)
+      || tryPat(/([^\d，,。;；、\s][^\d，,。;；、]{0,11}?)\s*(\d)(?=\D|$)/,2,1) || '';
+}
+function fieldCoding(f,gmap){
+  if(f.optLabels&&f.optLabels.length)return _pairTxt(f.optLabels);          /* 神经运动结果等 */
+  if(gmap&&gmap[f.key])return _pairTxt(gmap[f.key]);                        /* 量表点格列 */
+  if(f.neuroM)return '1–12（打勾所在月龄格）';
+  const t=_codeFromText(f);if(t)return t;                                   /* 从 hint/label 解析 */
+  if(f.kind==='toggle')return '1=是/勾选；0=否/未勾';
+  if(f.kind==='gender')return '1=男；2=女';
+  if(f.options&&f.options.length)return '可选：'+f.options.join(' / ');
+  return '';
+}
+function buildDictRows(){
+  ensureMeta(curSys);
+  const gmap=_gridColsMap(curSys);
+  const list=curSys.expandKey?curSys.fields:(curSys._leaf||curSys.fields||[]);
+  const head=['序号','变量名 key','中文含义','类型','选项赋值','填写提示','所在页','分组'];
+  const rows=list.map((f,i)=>[i+1,f.key,f.label||'',f.type||'text',fieldCoding(f,gmap),f.hint||'',f.page||1,f.group||'']);
+  return {head,rows};
 }
 function doTsv(){
   const {cols,rows}=buildExportRows();if(!rows.length){toast('没有可导出的数据');return;}
@@ -3527,7 +3582,9 @@ function renderLauncher(){
       <div class="sys-foot"><span>${esc(keyN)}</span><span>·</span><span>${s.pagesPerRecord} 页/人</span><span class="go">进入系统 →</span></div>`;
     const del=document.createElement('span');del.className='sys-del';del.textContent='✕';
     del.title=s.custom?'删除自建系统':'从列表移除（可恢复）';
-    del.onclick=ev=>{ev.stopPropagation();removeOrHide(s.id);};
+    del.setAttribute('role','button');del.setAttribute('aria-label',del.title);
+    del.addEventListener('pointerdown',ev=>ev.stopPropagation());
+    del.onclick=ev=>{ev.preventDefault();ev.stopPropagation();removeOrHide(s.id);};
     card.appendChild(del);
     g.appendChild(card);
   });
