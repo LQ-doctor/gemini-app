@@ -127,7 +127,7 @@ header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
 .linkbtn{background:none;border:none;color:var(--accent2);font-weight:700;cursor:pointer;font-size:12.5px;padding:0}
 .linkbtn:hover{text-decoration:underline}
 .linkbtn.del{color:var(--bad)}
-.empty{padding:26px;text-align:center;color:var(--ink3);font-size:13px}
+div.empty{padding:26px;text-align:center;color:var(--ink3);font-size:13px}
 
 /* import panel */
 .imp-panel{margin-top:12px;padding:12px 13px;border:1px dashed #8b89e0;border-radius:12px;background:rgba(88,86,214,.05)}
@@ -1308,68 +1308,65 @@ ${list}
 【输出】只输出一个紧凑 JSON 对象：不换行、不缩进、无 Markdown、无注释。值用字符串，只输出本页确实填写了的字段。`;
 }
 
-/* ════════ 核对窗渲染（分页 → 行/运动块/膳食频率/量表网格） ════════ */
+/* ════════ 页内显示顺序覆盖（仅个别页：数据字典顺序≠PDF版面顺序时使用） ════════ */
+const H_PAGE_DISPLAY={
+  14:['cup_mat','mw_plast_freq','snack_freq','fried_paper','chew_habit','soft_scent_items','receipt','sunscreen','screent','renov_furn','near_road','mosq_repel','nonstick_pan','collectform','collectdata','keyboarder']
+};
+
+/* ════════ 核对窗渲染（严格按 schema=PDF 自上而下单遍渲染；控件插在其首字段位置） ════════ */
 function healthRender(host,r){
   const pages=[...new Set(curSys._leaf.map(f=>f.page))].sort((a,b)=>a-b);
   for(const pg of pages){
     const sec=document.createElement('div');sec.className='rv-sec';sec.dataset.page=pg;sec.textContent=`第 ${pg} 页 · ${H_PAGE_TITLE[pg]||''}（点此定位左侧原件）`;sec.onclick=()=>jumpToPage(pg);host.appendChild(sec);
 
-    const groups=hGridGroups(pg);
-    const handledKeys=new Set();
-    groups.forEach(g=>{
-      (g.keys||[]).forEach(k=>handledKeys.add(k));
-      if(g.type==='famallergy')HFAM_ALLERGY_MEM.forEach(([mk])=>HFAM_ALLERGY_COL.forEach((_,ci)=>handledKeys.add(hFamAllergyKey(mk,ci))));
-    });
+    /* 本页字段：默认按 schema 顺序；个别页用 H_PAGE_DISPLAY 覆盖显示顺序 */
+    let pageFields=curSys._leaf.filter(f=>f.page===pg);
+    const ord=H_PAGE_DISPLAY[pg];
+    if(ord){const ix=k=>{const i=ord.indexOf(k);return i<0?9999:i;};pageFields=pageFields.slice().sort((a,b)=>ix(a.key)-ix(b.key));}
 
-    /* 第4页家庭疾病史表 */
-    let famDiseaseKeys=new Set();
-    if(pg===4){HFAM_MEMBERS.forEach(([sfx])=>{
-      [`fhistoryH${sfx}`,`fhistoryW${sfx}`,`fhistoryWC${sfx}`,`fhistory13${sfx}`,`fhistory13${sfx}_a`].forEach(k=>famDiseaseKeys.add(k));
-      HFAM_DIS.forEach(([dn])=>famDiseaseKeys.add(`fhistory${dn}${sfx}`));
-    });}
+    /* 控件登记：keys 集合 + 渲染函数；按 keys 在显示序中首次出现的位置整块插入 */
+    const widgets=[];const keyW=new Map();
+    const addW=(keys,emit)=>{const w={keys:new Set(keys),emit,done:false};widgets.push(w);keys.forEach(k=>keyW.set(k,w));};
 
-    /* 运动/家务/兴趣班/上学回家：活动块（base a/b/c） */
-    const actGroups=[];
-    if(pg===5){
-      actGroups.push({label:'上学/放学回家方式',items:H_SCHOOLW});
-      actGroups.push({label:'主要运动方式 1-3',items:H_PE.slice(0,3)});
-    }else if(pg===6){
-      actGroups.push({label:'主要运动方式 4-12',items:H_PE.slice(3)});
-      actGroups.push({label:'做家务 1-4',items:H_PH});
-      actGroups.push({label:'兴趣班 1-4',items:H_PI});
-    }
-    const actKeys=new Set();actGroups.forEach(ag=>ag.items.forEach(([base])=>{actKeys.add(base+'a');actKeys.add(base+'b');actKeys.add(base+'c');}));
-
-    /* 膳食频率行：本页所有 HDIET 主项 */
+    /* 膳食频率块（本页所有 HDIET 主项） */
     const dietItems=HDIET.filter(d=>curSys._fby[d[0]]&&curSys._fby[d[0]].page===pg);
-    const dietKeys=new Set();dietItems.forEach(d=>{dietKeys.add(d[0]);(d[2]||[]).forEach(([ak])=>dietKeys.add(ak));});
-
-    /* 1) 普通字段行 */
-    curSys._leaf.filter(f=>f.page===pg && !handledKeys.has(f.key) && !famDiseaseKeys.has(f.key) && !actKeys.has(f.key) && !dietKeys.has(f.key))
-      .forEach(f=>host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key])));
-
-    /* 2) 家庭疾病史表 */
-    if(pg===4)host.appendChild(hBuildFamDiseaseGrid(r));
-
-    /* 3) 活动块 */
-    actGroups.forEach(ag=>host.appendChild(hActivityBlock(ag.items,ag.label,r)));
-
-    /* 4) 膳食频率块 */
     if(dietItems.length){
-      const dwrap=document.createElement('div');dwrap.className='rv-grid';
-      const dcap=document.createElement('div');dcap.className='rv-gcap';dcap.textContent='五、膳食频率（点选频度0-4 + 填食用量）';dwrap.appendChild(dcap);
-      const dhead=document.createElement('div');dhead.className='rv-diethead';dhead.innerHTML='<span class="rv-dietname">食物</span><span class="rv-dietfreq-h">不吃0·天1·周2·月3·年4</span><span class="rv-dietamt-h">食用量</span>';dwrap.appendChild(dhead);
-      dietItems.forEach(it=>dwrap.appendChild(hDietLine(it,r)));
-      host.appendChild(dwrap);
+      const dk=[];dietItems.forEach(d=>{dk.push(d[0]);(d[2]||[]).forEach(([ak])=>dk.push(ak));});
+      addW(dk,(h)=>{
+        const dwrap=document.createElement('div');dwrap.className='rv-grid';
+        const dcap=document.createElement('div');dcap.className='rv-gcap';dcap.textContent='五、膳食频率（点选频度0-4 + 填食用量）';dwrap.appendChild(dcap);
+        const dhead=document.createElement('div');dhead.className='rv-diethead';dhead.innerHTML='<span class="rv-dietname">食物</span><span class="rv-dietfreq-h">不吃0·天1·周2·月3·年4</span><span class="rv-dietamt-h">食用量</span>';dwrap.appendChild(dhead);
+        dietItems.forEach(it=>dwrap.appendChild(hDietLine(it,r)));
+        h.appendChild(dwrap);
+      });
     }
+    /* 上学方式/运动/家务/兴趣班 活动块（每组一块，含 base a/b/c） */
+    [['上学/放学回家方式',H_SCHOOLW],['主要运动方式',H_PE],['做家务',H_PH],['兴趣班',H_PI]].forEach(([label,list])=>{
+      const items=list.filter(([base])=>curSys._fby[base+'a']&&curSys._fby[base+'a'].page===pg);
+      if(items.length){const ak=[];items.forEach(([base])=>ak.push(base+'a',base+'b',base+'c'));addW(ak,(h)=>h.appendChild(hActivityBlock(items,label,r)));}
+    });
+    /* 家庭疾病史表（第4页） */
+    if(pg===4){
+      const fk=[];HFAM_MEMBERS.forEach(([sfx])=>{fk.push(`fhistoryH${sfx}`,`fhistoryW${sfx}`,`fhistoryWC${sfx}`,`fhistory13${sfx}`,`fhistory13${sfx}_a`);HFAM_DIS.forEach(([dn])=>fk.push(`fhistory${dn}${sfx}`));});
+      addW(fk,(h)=>h.appendChild(hBuildFamDiseaseGrid(r)));
+    }
+    /* 亲属过敏史表（第13页） */
+    if(pg===13){
+      const ak=[];HFAM_ALLERGY_MEM.forEach(([mk])=>HFAM_ALLERGY_COL.forEach((_,ci)=>ak.push(hFamAllergyKey(mk,ci))));
+      addW(ak,(h)=>h.appendChild(hBuildFamAllergyGrid(r)));
+    }
+    /* 量表点格（睡眠1-4 / 睡眠5-33 / 免疫频率1-6） */
+    hGridGroups(pg).forEach(g=>{if(g.type==='famallergy')return;addW(g.keys,(h)=>h.appendChild(stBuildGrid(g,r)));});
 
-    /* 5) 量表网格 */
-    groups.forEach(g=>{
-      if(g.type==='famallergy'){host.appendChild(hBuildFamAllergyGrid(r));}
-      else host.appendChild(stBuildGrid(g,r));
+    /* 单遍渲染：命中控件→首个字段处整块渲染（后续该控件字段跳过）；否则普通行 */
+    pageFields.forEach(f=>{
+      const w=keyW.get(f.key);
+      if(w){if(!w.done){w.done=true;w.emit(host);}return;}
+      host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key]));
     });
   }
 }
+
 
 /* ════════════════════════════════════════════════════════════════
    SYSTEMS — 每个独立识别系统
