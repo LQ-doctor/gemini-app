@@ -18,13 +18,27 @@
  */
 
 const ROUTES = {
-  '/api/groq/':       'https://api.groq.com/openai/',
-  '/api/nvidia/':     'https://integrate.api.nvidia.com/',
-  '/api/github/':     'https://models.github.ai/inference/',
-  '/api/hunyuan/':    'https://api.hunyuan.cloud.tencent.com/',
-  '/api/hf/':         'https://router.huggingface.co/',
-  '/api/deepinfra/':  'https://api.deepinfra.com/v1/openai/',
-  '/api/openrouter/': 'https://openrouter.ai/api/',
+  '/api/groq/':        'https://api.groq.com/openai/',
+  '/api/nvidia/':      'https://integrate.api.nvidia.com/',
+  '/api/github/':      'https://models.github.ai/inference/',
+  '/api/hunyuan/':     'https://api.hunyuan.cloud.tencent.com/',
+  '/api/hf/':          'https://router.huggingface.co/',
+  '/api/deepinfra/':   'https://api.deepinfra.com/v1/openai/',
+  '/api/openrouter/':  'https://openrouter.ai/api/',
+  '/api/together/':    'https://api.together.xyz/',
+  '/api/fireworks/':   'https://api.fireworks.ai/',
+  '/api/mistral/':     'https://api.mistral.ai/',
+  '/api/openai/':      'https://api.openai.com/',
+  '/api/anthropic/':   'https://api.anthropic.com/',
+  '/api/xai/':         'https://api.x.ai/',
+  '/api/gemini/':      'https://generativelanguage.googleapis.com/',
+  '/api/dashscope/':   'https://dashscope.aliyuncs.com/',
+  '/api/moonshot/':    'https://api.moonshot.cn/',
+  '/api/stepfun/':     'https://api.stepfun.com/',
+  '/api/minimax/':     'https://api.minimax.chat/',
+  '/api/deepseek/':    'https://api.deepseek.com/',
+  '/api/zhipu/':       'https://open.bigmodel.cn/',
+  '/api/siliconflow/': 'https://api.siliconflow.cn/',
 };
 
 const ALLOWED_HOSTS = [
@@ -43,6 +57,17 @@ const ALLOWED_HOSTS = [
   'api.deepinfra.com',
   'api.openrouter.ai',
   'openrouter.ai',
+  'api.openai.com',
+  'api.anthropic.com',
+  'api.x.ai',
+  'generativelanguage.googleapis.com',
+  'dashscope.aliyuncs.com',
+  'api.moonshot.cn',
+  'api.stepfun.com',
+  'api.minimax.chat',
+  'api.deepseek.com',
+  'open.bigmodel.cn',
+  'api.siliconflow.cn',
 ];
 
 function corsHeaders() {
@@ -151,15 +176,23 @@ h1{color:#007AFF;margin:0 0 4px}h2{font-size:15px;margin:24px 0 8px;color:#1d1d1
 .tag{display:inline-block;background:#34c759;color:#fff;padding:2px 8px;border-radius:6px;font-size:11px;margin-left:6px;vertical-align:middle}</style></head><body>
 <h1>🌐 AI API 同域代理 <span class="tag">运行中</span></h1>
 <p style="color:#86868b;margin:0">由 Cloudflare Pages Functions 提供 · 同域部署，无 CORS 问题</p>
-<h2>📌 已注册路径</h2>
+<h2>📌 已注册路径（前端把「API 基础地址」设为这些相对路径即可）</h2>
 <div class="card">
-<code>/api/groq/v1/chat/completions</code> → Groq<br>
+<code>/api/groq/openai/v1/chat/completions</code> → Groq<br>
 <code>/api/nvidia/v1/chat/completions</code> → NVIDIA NIM<br>
 <code>/api/github/chat/completions</code> → GitHub Models<br>
 <code>/api/hunyuan/v1/chat/completions</code> → 腾讯混元<br>
-<code>/api/hf/v1/chat/completions</code> → HuggingFace 推理路由（含 DeepInfra/Together/Fireworks）<br>
-<code>/api/deepinfra/chat/completions</code> → DeepInfra 直连<br>
-<code>/api/openrouter/v1/chat/completions</code> → OpenRouter
+<code>/api/hf/v1/chat/completions</code> → HuggingFace 路由<br>
+<code>/api/openrouter/v1/chat/completions</code> → OpenRouter<br>
+<code>/api/together/v1/chat/completions</code> → Together AI<br>
+<code>/api/fireworks/inference/v1/chat/completions</code> → Fireworks<br>
+<code>/api/mistral/v1/chat/completions</code> → Mistral<br>
+<code>/api/openai/v1/chat/completions</code> → OpenAI<br>
+<code>/api/anthropic/v1/messages</code> → Anthropic Claude<br>
+<code>/api/xai/v1/chat/completions</code> → xAI Grok<br>
+<code>/api/gemini/v1beta/models/...</code> → Google Gemini<br>
+<code>/api/dashscope/compatible-mode/v1/chat/completions</code> → 阿里百炼 Qwen-VL<br>
+<code>/api/moonshot/v1/chat/completions</code> → Kimi · <code>/api/stepfun/...</code> 阶跃 · <code>/api/minimax/...</code> MiniMax · <code>/api/deepseek/...</code> · <code>/api/zhipu/...</code> 智谱 · <code>/api/siliconflow/...</code> 硅基
 </div>
 <h2>🔧 用法</h2>
 <div class="card">前端将「API 基础地址」配置为相对路径（如 <code>/api/nvidia</code>）即可。<br>
