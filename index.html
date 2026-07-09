@@ -178,6 +178,17 @@ div.empty{padding:26px;text-align:center;color:var(--ink3);font-size:13px}
 .rv-row{display:flex;align-items:center;gap:9px;padding:3px 6px;min-height:30px}
 .rv-row+.rv-row{border-top:1px solid var(--line)}
 .rv-row:hover{background:rgba(13,148,136,.05)}
+/* 同一行原件字段 → 右侧同一行高度对齐（多个 label+控件横向排列） */
+.rv-lrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:3px 6px;min-height:30px;border-top:1px solid var(--line)}
+.rv-lrow:first-child{border-top:none}
+.rv-lrow:hover{background:rgba(13,148,136,.05)}
+.rv-lseg{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.rv-lseg .rv-lslab{font-size:11.5px;color:var(--ink2);line-height:1.2;white-space:nowrap}
+.rv-lseg .rv-key{font-family:var(--mono);font-size:9px;color:var(--ink3)}
+.rv-lseg .rv-in{flex:0 0 92px;width:92px}
+.rv-lseg .rv-in.num{flex:0 0 58px;width:58px}
+.rv-lseg .rv-sel{flex:0 0 96px;width:96px}
+.rv-ltitle{flex:1 1 100%;font-size:11.5px;font-weight:700;color:var(--ink);line-height:1.2;margin-bottom:1px}
 .rv-lab{flex:1;min-width:0;font-size:11.5px;color:var(--ink2);line-height:1.25;word-break:break-word}
 .rv-key{font-family:var(--mono);font-size:9px;color:var(--ink3);margin-left:5px}
 .rv-in{flex:0 0 130px;width:130px;height:28px;padding:0 8px;border:1px solid var(--line2);border-radius:7px;font-size:12px;background:#fff;font-family:var(--mono)}
@@ -468,8 +479,11 @@ select.set-key{font-family:var(--sans)}
 
         <div class="btn-row">
           <button class="btn primary" id="runBtn" disabled>▶ 开始识别</button>
+          <button class="btn" id="pauseBtn" style="display:none">⏸ 暂停</button>
           <button class="btn ghost" id="clearBtn" disabled>清空队列</button>
+          <button class="btn ghost" id="clearStoreBtn">🧹 清理本机记录</button>
         </div>
+        <div id="storeBadge" style="font-size:11px;color:var(--ink3);margin-top:8px">💾 本机自动保存已开启</div>
 
         <div class="prog" id="prog">
           <div class="bar"><i id="barFill"></i></div>
@@ -494,7 +508,7 @@ select.set-key{font-family:var(--sans)}
         <!-- Import for visual cross-check -->
         <div class="imp-panel">
           <div class="imp-h">🔎 导入变量表 / 手动录入（可无原件）</div>
-          <div class="imp-sub">导入一份 <code>.xlsx</code> / <code>.csv</code> / <code>.txt</code>（首行为英文变量名表头，与本系统 key 一致）。<b>无需上传 PDF 或图片</b>：每行数据会按顺序（或按 <code>ID</code>/编号）填入对应记录的空位并以<span style="color:#4b49c9;font-weight:700">紫色</span>标注；记录不够时自动新建（核对窗左侧无原件即留空，只看右侧字段）。仅填空位，不覆盖已识别值（可勾「覆盖」）。也可「手动新增一条」直接录入，<b>核对窗内按 Tab / 回车跳下一题</b>。</div>
+          <div class="imp-sub">导入一份 <code>.xlsx</code> / <code>.csv</code> / <code>.txt</code>（首行为英文变量名表头，与本系统 key 一致；<b>首列可为 <code>filename</code></b>，用于按上传文件名匹配/回填记录来源）。<b>无需上传 PDF 或图片</b>：每行数据会按顺序（或按 <code>filename</code>/<code>ID</code>/编号）填入对应记录的空位并以<span style="color:#4b49c9;font-weight:700">紫色</span>标注；记录不够时自动新建（核对窗左侧无原件即留空，只看右侧字段）。仅填空位，不覆盖已识别值（可勾「覆盖」）。也可「手动新增一条」直接录入，<b>核对窗内按 Tab / 回车跳下一题</b>。</div>
           <div class="imp-row">
             <button class="btn" id="impBtn">📥 导入 xlsx / csv / txt</button>
             <input type="file" id="impFile" accept=".xlsx,.xls,.csv,.txt,.tsv" style="display:none">
@@ -508,7 +522,7 @@ select.set-key{font-family:var(--sans)}
     </div>
 
     <p style="font-size:11.5px;color:var(--ink3);text-align:center;line-height:1.7">
-      多家免费视觉大模型可选（智谱 GLM-4.6V · 硅基 Qwen3-VL · OpenRouter · GitHub GPT-4o · NVIDIA · Gemini + 自定义）。点右上角 ⚙ 选服务、填自己的 API Key、测试连接。Key 只存在本机浏览器，不经任何中转。
+      多家视觉大模型可选：国内直连（智谱 GLM-4V · 硅基 Qwen3-VL · 通义 Qwen-VL · Kimi · 阶跃 · 混元 · MiniMax）· 聚合/免费（OpenRouter · GitHub GPT-4o · NVIDIA NIM · Hugging Face · Together · Fireworks）· 官方（OpenAI · Claude · Gemini · Grok · Mistral）· 以及「自定义」（One-API / Ollama / LM Studio / vLLM 等，支持多种鉴权与额外请求头）。点右上角 ⚙ 选服务、填 API Key、测试连接。Key 只存在本机浏览器，不经任何中转。
     </p>
   </div>
 
@@ -621,8 +635,35 @@ select.set-key{font-family:var(--sans)}
       <div class="set-tabs" id="setTabs"></div>
       <div class="set-row"><input class="set-key" id="setKey" type="password" placeholder="粘贴 API Key …" autocomplete="off"><button class="set-save" onclick="saveKey()">保存</button></div>
       <div id="setCustomBox" class="set-custom" style="display:none">
+        <div class="set-crow"><label>快速预设</label><select id="setCustomPreset" onchange="applyCustomPreset()">
+          <option value="">— 选择常见服务自动填端点 —</option>
+          <option value="ollama">本地 Ollama（http://localhost:11434/v1）</option>
+          <option value="lmstudio">LM Studio（http://localhost:1234/v1）</option>
+          <option value="vllm">vLLM / OpenAI 兼容自建（http://IP:8000/v1）</option>
+          <option value="oneapi">One-API / New-API 网关</option>
+          <option value="hf">Hugging Face Router（router.huggingface.co/v1）</option>
+          <option value="baidu">百度千帆 · ERNIE-VL</option>
+          <option value="doubao">火山方舟 · 豆包视觉（doubao-vision）</option>
+          <option value="zhipu">智谱 GLM-4V（open.bigmodel.cn/api/paas/v4）</option>
+          <option value="siliconflow">硅基流动 Qwen-VL</option>
+          <option value="dashscope">阿里百炼 Qwen-VL</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="gemini">Google Gemini（原生 v1beta）</option>
+          <option value="anthropic">Anthropic Claude（/v1/messages）</option>
+        </select></div>
+        <div class="set-crow"><label>接口类型</label><select id="setCustomType">
+          <option value="openai">OpenAI 兼容（/chat/completions）</option>
+          <option value="anthropic-custom">Anthropic 兼容（/v1/messages）</option>
+          <option value="gemini">Gemini 原生（:generateContent）</option>
+        </select></div>
         <div class="set-crow"><label>API 端点</label><input id="setCustomBase" placeholder="完整地址，如 https://你的网关/v1/chat/completions"></div>
-        <div class="set-crow"><label>接口类型</label><select id="setCustomType"><option value="openai">OpenAI 兼容（/chat/completions）</option><option value="anthropic-custom">Anthropic 兼容（/v1/messages）</option></select></div>
+        <div class="set-crow"><label>鉴权方式</label><select id="setCustomAuth">
+          <option value="bearer">Authorization: Bearer &lt;key&gt;（默认）</option>
+          <option value="xapikey">x-api-key: &lt;key&gt;（Anthropic / 部分网关）</option>
+          <option value="query">?key=&lt;key&gt; 附在URL（Gemini）</option>
+          <option value="none">不加鉴权头（本地/已在URL带Key）</option>
+        </select></div>
+        <div class="set-crow"><label>额外请求头</label><input id="setCustomHeaders" placeholder='可选 JSON，如 {"HTTP-Referer":"https://x","X-Title":"OCR"}'></div>
       </div>
       <div class="set-modelwrap">
         <label class="set-lbl">使用的模型（可切换）</label>
@@ -980,6 +1021,7 @@ function buildHealthSchema(){
   P('druguse','B10·孕早期是否服致畸药物 druguse(0否1是)',3,'toggle'); P('druguse1','B10·服药孕周 druguse1',3,'num'); P('druguse2','B10·药名 druguse2',3);
   P('PREHYPER','B11·孕期高血压 PREHYPER(0否1是)',3,'toggle'); P('PREHYPER1','B11·诊断孕周 PREHYPER1',3,'num');
   P('PREDIAT','B12·孕期糖尿病 PREDIAT(0否1是)',3,'toggle'); P('PREDIAT1','B12·诊断孕周 PREDIAT1',3,'num');
+  P('PRE_B13','B13·孕期甲状腺功能异常 PRE_B13(0否1是)',3,'toggle'); P('PRE_B131','B13·诊断孕周 PRE_B131',3,'num');
   P('NUTRISUP','B14·孕期是否服营养补充剂 NUTRISUP(0否1是)',3,'toggle');
   P('NUTRIM','B14·营养剂_多元维生素 NUTRIM(✓=1)',3,'toggle'); P('NUTRIVA','B14·营养剂_维生素A NUTRIVA(✓=1)',3,'toggle');
   P('NUTRIVD','B14·营养剂_维生素D NUTRIVD(✓=1)',3,'toggle'); P('NUTRIOTH','B14·营养剂_其他 NUTRIOTH(✓=1)',3,'toggle');
@@ -1067,6 +1109,11 @@ function buildHealthSchema(){
     P(d[0],`${d[1]}_食用频度 ${d[0]}`,pg,'freq');
     d[2].forEach(([ak,unit])=>P(ak,`${d[1]}_食用量(${unit}) ${ak}`,pg,'num'));
   });
+  /* ── 第10页 膳食频率表末尾：孩子本人吸烟/饮酒 3 行（1a你吸烟/2a饮白酒/2b饮啤酒） ── */
+  P('c_smoke','1a·你吸烟吗 c_smoke(0否1是)',10,'toggle'); P('c_smokea','1a·吸烟频度 c_smokea(0不吸1天2周3月4年)',10,'freq'); P('c_smokeb','1a·吸烟量_支 c_smokeb',10,'num');
+  P('c_drink1','2a·你饮白酒吗 c_drink1(0否1是)',10,'toggle'); P('c_drink1a','2a·白酒频度 c_drink1a(0不饮1天2周3月4年)',10,'freq'); P('c_drink1b','2a·白酒量_ml c_drink1b',10,'num');
+  P('c_drink2','2b·你饮啤酒吗 c_drink2(0否1是)',10,'toggle'); P('c_drink2a','2b·啤酒频度 c_drink2a(0不饮1天2周3月4年)',10,'freq'); P('c_drink2b','2b·啤酒量_ml c_drink2b',10,'num');
+
   /* ── 第10页 膳食后 1.1-8 ── */
   P('food25','上学日每天吃几顿 food25(2-6)',10,'num'); P('food25_1','休息日每天吃几顿 food25_1(2-6)',10,'num');
   P('food26','是否暴饮暴食 food26(0否1是)',10,'toggle'); P('food26_1','暴食频率_次/月 food26_1',10,'num');
@@ -1266,20 +1313,42 @@ function hBuildFamDiseaseGrid(r){
   wrap.appendChild(tbl);return wrap;
 }
 
+/* ════════ 同一行原件字段分组（右侧同一行高度对齐渲染） ════════
+   每组：{page, title(可选), items:[[key, 简短行内label]...]}
+   healthRender 会把这些 key 从普通逐行渲染里抽出，整块横排渲染。 */
+const H_LINEGROUPS=[
+  /* 第5页 母/父/其他照顾者 姓名·电话·微信 各一行 */
+  {page:5,title:'母亲 姓名/电话/微信',items:[['NAMEM','姓名'],['TELEM','手机'],['TELEM1','微信']]},
+  {page:5,title:'父亲 姓名/电话/微信',items:[['NAMEF','姓名'],['TELEF','手机'],['TELEF1','微信']]},
+  {page:5,title:'其他照顾者 姓名/电话/微信',items:[['NAMEO','姓名'],['TELEO','手机'],['TELEO1','微信']]},
+  /* 第6页 工作日作息（时:分同一行分组，贴合原件排版） */
+  {page:6,title:'工作日·早晨',items:[['waket1','醒来'],['sleept1','起床'],['eatt1','早餐']]},
+  {page:6,title:'工作日·午/晚',items:[['sleept3','午休(分)'],['eatt2','晚餐'],['eatt3','睡前最后进食']]},
+  {page:6,title:'工作日·夜间',items:[['bedt2','上床'],['sleept2','入睡']]},
+  /* 第7页 休息日作息 */
+  {page:7,title:'休息日·早晨',items:[['waket1s','醒来'],['sleept1s','起床'],['eatt1s','早餐']]},
+  {page:7,title:'休息日·午/晚',items:[['sleept3s','午休(分)'],['eatt2s','晚餐'],['eatt3s','睡前最后进食']]},
+  {page:7,title:'休息日·夜间',items:[['bedt2s','上床'],['sleept2s','入睡']]},
+  /* 第10页 孩子本人烟酒三行（是否+频度+量 同一行） */
+  {page:10,title:'1a·你吸烟吗',items:[['c_smoke','是否0否1是'],['c_smokea','频度0-4'],['c_smokeb','量_支']]},
+  {page:10,title:'2a·你饮白酒吗',items:[['c_drink1','是否0否1是'],['c_drink1a','频度0-4'],['c_drink1b','量_ml']]},
+  {page:10,title:'2b·你饮啤酒吗',items:[['c_drink2','是否0否1是'],['c_drink2a','频度0-4'],['c_drink2b','量_ml']]},
+];
+
 /* ════════ 页标题 + 页提示 ════════ */
 const H_PAGE_TITLE={1:'一、基本情况(身份/成绩/压力/惩罚)',2:'游戏·疾病·保险·维生素·月经遗精 + 孕期B1-B6',3:'孕期 B7-B20',4:'B21-B22 + 家庭情况1-7(疾病史表)',5:'家庭8-12 + 锻炼·上学回家·运动1-3',6:'运动4-12·家务·兴趣班 + 工作日作息',7:'工作日睡因·休息日作息/睡因·睡眠1-4',8:'睡眠习惯量表 5-33',9:'膳食频率表(谷薯/蔬果/肉蛋·上半)',10:'膳食频率表(豆坚果/油盐糖·下半) + 膳食1.1-8',11:'习惯9-16 + 甲状腺1-3',12:'免疫1-17(频率题+过敏)',13:'免疫18-27(亲属过敏史)',14:'填表信息 + 环境暴露1-13'};
 
 const H_PAGE_HINT={
 1:'一、儿童基本情况。ID/no/childname/性别gender(方框1男2女)/民族nation/身份证cIDcard/出生日期/学校年级班级/到校放学时间/是否住读/语数英成绩/学习压力/家长期望压力/性格/负面情绪影响。第11题被惩罚方式多选□打✓填1(punish1-10，punish10a=其他□，punish11=其他注明)；第12题是否玩游戏play_g(0否1是)。',
 2:'上半：游戏次数/时长、玩游戏工具(play_gt1-6多选)、场所(play_gl1-6多选)、是否患疾病(disease1/2/6/7/5多选)、医保baseins/busins、维生素A/D剂量、月经menstr(女)/遗精spermat(男)。下半：B1-B6(父母年龄PMAGE/PFAGE、孕前体重BEFW/分娩前PROW、分娩孕周PWEEK1、足月PWEEK2、分娩日期BIRTHDAY2、分娩方式BIRTHW、双胞胎twins、出生身长BIRTHLEN/体重CBIRTHW)。',
-3:'二、孕期 B7-B20。B7孕前吸烟activesmoke、B8孕期吸烟(SMOKE1无/SMOKE2主动/SMOKE3被动+支数)、B9饮酒(白Wdrink/红Rdrink/啤Bdrink+ml与次)、B10致畸药druguse、B11高血压PREHYPER B12糖尿病PREDIAT、B14营养补充剂NUTRISUP(NUTRIM多元/NUTRIVA维A/NUTRIVD维D/NUTRIOTH其他)、B15输血BLOODSUP、B16母乳mmilk B17配方奶milk B18辅食FOODS、B19搬家move、B20孕产史(prenum/natural/cesarean/abortion1/2/premature/stillbirth)。',
+3:'二、孕期 B7-B20。B7孕前吸烟activesmoke、B8孕期吸烟(SMOKE1无/SMOKE2主动/SMOKE3被动+支数)、B9饮酒(白Wdrink/红Rdrink/啤Bdrink+ml与次)、B10致畸药druguse、B11高血压PREHYPER B12糖尿病PREDIAT、B13甲状腺功能异常PRE_B13(0否1是)+诊断孕周PRE_B131、B14营养补充剂NUTRISUP(NUTRIM多元/NUTRIVA维A/NUTRIVD维D/NUTRIOTH其他)、B15输血BLOODSUP、B16母乳mmilk B17配方奶milk B18辅食FOODS、B19搬家move、B20孕产史(prenum/natural/cesarean/abortion1/2/premature/stillbirth)。',
 4:'上半：B21妊娠并发症complication_other(2糖尿病/3高血压/4其他多选)、B22母亲初潮MMENTRA。下半：家庭基本情况。同住live/总人口FAMILYN/兄弟姐妹Siblings/第几孩CHILDREN_order/照顾者caregiver/父母婚姻MARRIAGE/职业MOCUP/FOCUP/受教育MEDU/FEDU/年收入fam_income/月饮食开支FOODCOST。第7题家族史fhistory + 疾病史表：父f/母m/爷gf/奶gm/外公mgf/外婆mgm 各填身高fhistoryH/体重fhistoryW/腰围fhistoryWC + 高血压fhistory1/高血脂2/糖尿病3/冠心病4/脑卒中5/肿瘤6/其他fhistory13 勾选。',
 5:'上半：家庭8-12。家人面前吸烟smokeu(吸烟者smokeu_f父/gf爷外公/m母/gm奶外婆/other其他+支数)、现住址address、面积larea、500米内污染pollution、母父及其他照顾者姓名电话(NAMEM/TELEM/NAMEF/TELEF/NAMEO/TELEO)。下半：三、儿童锻炼。上学回家方式3项(school_w1/2/3：a=是否□+b=每周天+c=每次分)、主要运动方式1-3(pe_1/2/3同结构a/b/c)。',
 6:'三、运动方式4-12(pe_4~pe_12，a是否/b天/c分)+其他pe_13、做家务1-4(ph_1~ph_4)+其他ph_5、兴趣班1-4(pi_1~pi_4)+其他pi_5。下半：四、睡眠·工作日(周一~周五)作息：醒来waket1/起床sleept1/早餐eatt1/午休sleept3分/晚餐eatt2/睡前最后进食eatt3/上床bedt2/入睡sleept2 各时:分(24小时制)。',
 7:'上半：工作日晚睡原因(reason1-6多选□，reason6_other注明)。中：休息日(周六日)作息(waket1s/sleept1s/eatt1s/sleept3s/eatt2s/eatt3s/bedt2s/sleept2s)+休息日晚睡原因(reason1s-6s)。下半：睡前情绪bedtimemood(1-5)、作息类型sleepschedulet(1-6)、入睡所需fallasleept(1-6)、睡眠习惯量表第1-4题(sleep1-sleep4，1通常2有时3很少)。',
 8:'四、睡眠习惯量表 5-33 题(sleep5-sleep33)。每题三选一在方框内填数字：1=通常是这样、2=有时候这样、3=很少这样。逐题读取手写数字。',
 9:'五、膳食频率表(上半 diet1~bean2)。每行：食用频度方框填0-4(0不吃1天2周3月4年) + 右侧食用量(斤=xxa/两=xxb，牛奶diet8a为ml)。频度与食用量分别照抄。',
-10:'五、膳食频率表(下半 bean3~diet16) + 膳食1.1-8。频度0-4+食用量。下半：每天吃几次(food25上学/food25_1休息)、暴食food26、咸淡salt、早餐breakfast/breakfasta、灶具cookert、油烟PM、抽油烟fume/fumefre、饮水来源(watersource1-7多选)。',
+10:'五、膳食频率表(下半 bean3~diet16)。频度0-4+食用量。表格末尾三行是孩子本人烟酒：1a你吸烟吗c_smoke(0否1是)+频度c_smokea(0不吸1天2周3月4年)+量c_smokeb支；2a你饮白酒吗c_drink1+频度c_drink1a+量c_drink1b(ml)；2b你饮啤酒吗c_drink2+频度c_drink2a+量c_drink2b(ml)。再下：膳食1.1-8：每天吃几次(food25上学/food25_1休息)、暴食food26、咸淡salt、早餐breakfast/breakfasta、灶具cookert、油烟PM、抽油烟fume/fumefre、饮水来源(watersource1-7多选)。',
 11:'八习惯9-16(瓶装水drink_freq/外卖package_freq/倒餐具hot_takeout/一次性disp_plast/塑料杯plast_use/装热饮hotwater_plast/微波mw_plast/保鲜膜plast_wrap/预包装prepack/茶包bagdrink，各填编号)。六、甲状腺：曾诊断疾病diag_disease1-14(多选)、近1年异常abnorm_lab_1y、近3月用药meds_use_3m1-9(多选)——若写“不清楚”原样填文字。',
 12:'七、免疫。1-6频率题(frequency1-6，5列：1从不2有时3偶尔4常常5绝大多数)。7-17：皮炎skin/喘息asthma/干咳cough/过敏诊断allergy(allergy_1-7多选)/过敏原检测test/口腔溃疡oral ulcer(及1-3)/装修use/佝偻malnurition/蛔虫ascariasis/食物过敏allergic_a/中药TCM，0否1是或编号。',
 13:'七、免疫18-27。18直系亲属过敏史allergic表(父allergic_father1-5/母allergic_mom1-5/兄弟姐妹siblings_1-5 × 过敏性鼻炎/哮喘/湿疹/无以上/不详 勾选)。19-27：癫痫脑病brain/免疫疾病immunodeficiency/激素抗肿瘤treat/输血免疫球蛋白blood/计划疫苗vaccine/疫苗反应vaccine-f/新冠COVID/一周内服药Medicine/贫血anemia及治疗药anemia_m，0否1是。',
@@ -1357,6 +1426,12 @@ function healthRender(host,r){
     }
     /* 量表点格（睡眠1-4 / 睡眠5-33 / 免疫频率1-6） */
     hGridGroups(pg).forEach(g=>{if(g.type==='famallergy')return;addW(g.keys,(h)=>h.appendChild(stBuildGrid(g,r)));});
+    /* 同一行原件字段组（右侧同一行高度对齐） */
+    H_LINEGROUPS.filter(lg=>lg.page===pg).forEach(lg=>{
+      const objs=lg.items.map(([k,ll])=>{const f=curSys._fby[k];return f?Object.assign({},f,{lineLabel:ll}):null;}).filter(Boolean);
+      if(!objs.length)return;
+      addW(objs.map(f=>f.key),(h)=>h.appendChild(makeLineGroup(lg.title,objs,r)));
+    });
 
     /* 单遍渲染：命中控件→首个字段处整块渲染（后续该控件字段跳过）；否则普通行 */
     pageFields.forEach(f=>{
@@ -2216,14 +2291,227 @@ const PROVIDERS = {
 <button onclick="fetchProviderModels('siliconcloud')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
 <div id="providerFetchResult_siliconcloud" style="margin-top:6px;font-size:11px"></div>
 <a href="https://docs.siliconflow.cn/cn/userguide/capabilities/vision" target="_blank">📖 官方文档</a>`
+  },
+  dashscope: {
+    name: '通义千问', fullName: '阿里百炼 · Qwen-VL',
+    emoji: '🟠', badges: ['国内直连','视觉强'],
+    model: 'qwen-vl-max-latest',
+    fallbackModels: ['qwen-vl-plus-latest','qwen2.5-vl-72b-instruct','qwen-vl-max'],
+    altModels: [
+      { id: 'qwen-vl-max-latest',        tag: '✅', desc: '默认 · Qwen-VL-Max 最新 · OCR/手写强' },
+      { id: 'qwen-vl-plus-latest',       tag: '⚡', desc: 'Qwen-VL-Plus · 更快更省' },
+      { id: 'qwen3-vl-plus',             tag: '💎', desc: 'Qwen3-VL-Plus · 新一代视觉' },
+      { id: 'qwen2.5-vl-72b-instruct',   tag: '💎', desc: 'Qwen2.5-VL 72B · 开源旗舰' },
+      { id: 'qwen2.5-vl-32b-instruct',   tag: '☑️', desc: 'Qwen2.5-VL 32B' },
+      { id: 'qwen2.5-vl-7b-instruct',    tag: '⚡', desc: 'Qwen2.5-VL 7B · 最快' }
+    ],
+    endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
+    placeholder: 'sk-xxxxxxxxxxxxxxxx',
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    guide: `<strong>🟠 阿里云百炼 · 通义千问 Qwen-VL（OpenAI 兼容）</strong>
+注册：<a href="https://bailian.console.aliyun.com" target="_blank">bailian.console.aliyun.com</a> → 开通 → 「API-KEY」→ 创建（<code>sk-</code> 开头）<br>
+新用户各模型均有免费额度；<strong>OCR / 手写识别是国产最强梯队之一</strong>，国内直连快。<br>
+⚠️ 浏览器直连可能遇 CORS，如失败请用「自定义」填百炼端点或走同域代理。<br><button onclick="fetchProviderModels('dashscope')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_dashscope" style="margin-top:6px;font-size:11px"></div>`
+  },
+  moonshot: {
+    name: 'Kimi', fullName: '月之暗面 · Kimi 视觉',
+    emoji: '🌙', badges: ['国内直连'],
+    model: 'moonshot-v1-8k-vision-preview',
+    fallbackModels: ['moonshot-v1-32k-vision-preview','kimi-latest'],
+    altModels: [
+      { id: 'moonshot-v1-8k-vision-preview',  tag: '✅', desc: '默认 · Kimi 视觉 8K' },
+      { id: 'moonshot-v1-32k-vision-preview', tag: '☑️', desc: 'Kimi 视觉 32K · 更长上下文' },
+      { id: 'kimi-latest',                    tag: '💎', desc: 'Kimi 最新（自动含视觉）' }
+    ],
+    endpoint: 'https://api.moonshot.cn/v1/chat/completions',
+    placeholder: 'sk-xxxxxxxxxxxxxxxx',
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    guide: `<strong>🌙 Moonshot Kimi · 视觉（OpenAI 兼容）</strong>
+注册：<a href="https://platform.moonshot.cn" target="_blank">platform.moonshot.cn</a> → 「API Key 管理」→ 新建。国内直连。<br><button onclick="fetchProviderModels('moonshot')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_moonshot" style="margin-top:6px;font-size:11px"></div>`
+  },
+  stepfun: {
+    name: '阶跃星辰', fullName: 'StepFun · Step-1V',
+    emoji: '🪜', badges: ['国内直连','视觉'],
+    model: 'step-1v-8k',
+    fallbackModels: ['step-1o-turbo-vision','step-1v-32k'],
+    altModels: [
+      { id: 'step-1v-8k',            tag: '✅', desc: '默认 · Step-1V 视觉 8K' },
+      { id: 'step-1v-32k',           tag: '☑️', desc: 'Step-1V 视觉 32K' },
+      { id: 'step-1o-turbo-vision',  tag: '💎', desc: 'Step-1o Turbo 视觉 · 更强' }
+    ],
+    endpoint: 'https://api.stepfun.com/v1/chat/completions',
+    placeholder: 'xxxxxxxxxxxxxxxx',
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    guide: `<strong>🪜 阶跃星辰 StepFun（OpenAI 兼容）</strong>
+注册：<a href="https://platform.stepfun.com" target="_blank">platform.stepfun.com</a> → 「接口密钥」→ 创建。Step-1V 视觉能力强，国内直连。<br><button onclick="fetchProviderModels('stepfun')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_stepfun" style="margin-top:6px;font-size:11px"></div>`
+  },
+  hunyuan: {
+    name: '腾讯混元', fullName: '腾讯混元 · Vision',
+    emoji: '🐧', badges: ['国内直连'],
+    model: 'hunyuan-vision',
+    fallbackModels: ['hunyuan-turbo-vision','hunyuan-large-vision'],
+    altModels: [
+      { id: 'hunyuan-vision',        tag: '✅', desc: '默认 · 混元视觉' },
+      { id: 'hunyuan-turbo-vision',  tag: '⚡', desc: '混元 Turbo 视觉 · 更快' },
+      { id: 'hunyuan-large-vision',  tag: '💎', desc: '混元 Large 视觉 · 更强' }
+    ],
+    endpoint: 'https://api.hunyuan.cloud.tencent.com/v1/chat/completions',
+    placeholder: 'sk-xxxxxxxxxxxxxxxx',
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    guide: `<strong>🐧 腾讯混元 Vision（OpenAI 兼容）</strong>
+注册：<a href="https://console.cloud.tencent.com/hunyuan" target="_blank">腾讯云混元控制台</a> → 开通 → API Key。国内直连。<br><button onclick="fetchProviderModels('hunyuan')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_hunyuan" style="margin-top:6px;font-size:11px"></div>`
+  },
+  minimax: {
+    name: 'MiniMax', fullName: 'MiniMax · abab 视觉',
+    emoji: '🟦', badges: ['国内直连'],
+    model: 'MiniMax-VL-01',
+    fallbackModels: ['abab6.5s-chat'],
+    altModels: [
+      { id: 'MiniMax-VL-01', tag: '✅', desc: '默认 · MiniMax 视觉 01' }
+    ],
+    endpoint: 'https://api.minimax.chat/v1/text/chatcompletion_v2',
+    placeholder: 'eyJ… (JWT)',
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    guide: `<strong>🟦 MiniMax（OpenAI 兼容 v2）</strong>
+注册：<a href="https://platform.minimaxi.com" target="_blank">platform.minimaxi.com</a> → 「接口密钥」。国内直连。<br><button onclick="fetchProviderModels('minimax')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_minimax" style="margin-top:6px;font-size:11px"></div>`
+  },
+  deepseek: {
+    name: 'DeepSeek', fullName: 'DeepSeek · VL2',
+    emoji: '🐳', badges: ['国内直连'],
+    model: 'deepseek-vl2',
+    fallbackModels: [],
+    altModels: [
+      { id: 'deepseek-vl2', tag: '✅', desc: 'DeepSeek-VL2（若开通视觉端点）' }
+    ],
+    endpoint: 'https://api.deepseek.com/v1/chat/completions',
+    placeholder: 'sk-xxxxxxxxxxxxxxxx',
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    guide: `<strong>🐳 DeepSeek（OpenAI 兼容）</strong>
+注册：<a href="https://platform.deepseek.com" target="_blank">platform.deepseek.com</a>。<br>⚠️ DeepSeek 主力为文本模型；如无视觉端点，请改用 Qwen-VL / GLM-4V 等视觉模型。`
+  },
+  openai: {
+    name: 'OpenAI', fullName: 'OpenAI 官方',
+    emoji: '⚫', badges: ['付费','需翻墙'],
+    model: 'gpt-4o',
+    fallbackModels: ['gpt-4o-mini','gpt-4.1-mini'],
+    altModels: [
+      { id: 'gpt-4o',       tag: '✅', desc: '默认 · GPT-4o · OCR 最强梯队' },
+      { id: 'gpt-4.1',      tag: '💎', desc: 'GPT-4.1 · 更强' },
+      { id: 'gpt-4.1-mini', tag: '⚡', desc: 'GPT-4.1 Mini · 性价比' },
+      { id: 'gpt-4o-mini',  tag: '⚡', desc: 'GPT-4o Mini · 便宜' },
+      { id: 'o4-mini',      tag: '🧩', desc: 'o4-mini · 推理视觉' }
+    ],
+    endpoint: 'https://api.openai.com/v1/chat/completions',
+    placeholder: 'sk-xxxxxxxxxxxxxxxx',
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    guide: `<strong>⚫ OpenAI 官方（付费）</strong>
+注册：<a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>。<br>⚠️ 国内需翻墙；浏览器直连有 CORS，建议自建代理或用 OpenRouter/GitHub Models。<br><button onclick="fetchProviderModels('openai')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_openai" style="margin-top:6px;font-size:11px"></div>`
+  },
+  anthropic: {
+    name: 'Claude', fullName: 'Anthropic Claude',
+    emoji: '🅰️', badges: ['付费','需翻墙'],
+    apiType: 'anthropic',
+    model: 'claude-sonnet-4-6',
+    fallbackModels: ['claude-3-5-sonnet-latest'],
+    altModels: [
+      { id: 'claude-sonnet-4-6',        tag: '✅', desc: '默认 · Claude Sonnet · OCR 强' },
+      { id: 'claude-opus-4-1',          tag: '💎', desc: 'Claude Opus · 最强' },
+      { id: 'claude-3-5-sonnet-latest', tag: '☑️', desc: 'Claude 3.5 Sonnet' },
+      { id: 'claude-3-5-haiku-latest',  tag: '⚡', desc: 'Claude 3.5 Haiku · 快' }
+    ],
+    endpoint: 'https://api.anthropic.com/v1/messages',
+    placeholder: 'sk-ant-xxxxxxxx',
+    rateLimit: 3000, maxTokens: 8192,
+    guide: `<strong>🅰️ Anthropic Claude 官方（付费）</strong>
+注册：<a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys。<br>⚠️ 浏览器直连需开启 <code>anthropic-dangerous-direct-browser-access</code>（本工具已自动带上），国内需翻墙。`
+  },
+  xai: {
+    name: 'xAI Grok', fullName: 'xAI · Grok Vision',
+    emoji: '✖️', badges: ['付费','需翻墙'],
+    model: 'grok-2-vision-1212',
+    fallbackModels: ['grok-4'],
+    altModels: [
+      { id: 'grok-2-vision-1212', tag: '✅', desc: '默认 · Grok-2 Vision' },
+      { id: 'grok-4',             tag: '💎', desc: 'Grok-4（多模态）' }
+    ],
+    endpoint: 'https://api.x.ai/v1/chat/completions',
+    placeholder: 'xai-xxxxxxxxxxxxxxxx',
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    guide: `<strong>✖️ xAI Grok Vision（OpenAI 兼容）</strong>
+注册：<a href="https://console.x.ai" target="_blank">console.x.ai</a>。国内需翻墙。<br><button onclick="fetchProviderModels('xai')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_xai" style="margin-top:6px;font-size:11px"></div>`
+  },
+  mistral: {
+    name: 'Mistral', fullName: 'Mistral · Pixtral',
+    emoji: '🔶', badges: ['免费额度','需翻墙'],
+    model: 'pixtral-12b-2409',
+    fallbackModels: ['pixtral-large-latest'],
+    altModels: [
+      { id: 'pixtral-12b-2409',     tag: '✅', desc: '默认 · Pixtral 12B' },
+      { id: 'pixtral-large-latest', tag: '💎', desc: 'Pixtral Large · 124B 旗舰' },
+      { id: 'mistral-small-latest', tag: '⚡', desc: 'Mistral Small（含视觉）' }
+    ],
+    endpoint: 'https://api.mistral.ai/v1/chat/completions',
+    placeholder: 'xxxxxxxxxxxxxxxx',
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    guide: `<strong>🔶 Mistral Pixtral（OpenAI 兼容）</strong>
+注册：<a href="https://console.mistral.ai" target="_blank">console.mistral.ai</a> → API Keys（有免费额度）。国内需翻墙。<br><button onclick="fetchProviderModels('mistral')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_mistral" style="margin-top:6px;font-size:11px"></div>`
+  },
+  together: {
+    name: 'Together', fullName: 'Together AI',
+    emoji: '🤝', badges: ['需翻墙'],
+    model: 'meta-llama/Llama-4-Scout-17B-16E-Instruct',
+    fallbackModels: ['Qwen/Qwen2.5-VL-72B-Instruct'],
+    altModels: [
+      { id: 'meta-llama/Llama-4-Scout-17B-16E-Instruct', tag: '✅', desc: '默认 · Llama 4 Scout 视觉' },
+      { id: 'Qwen/Qwen2.5-VL-72B-Instruct',              tag: '💎', desc: 'Qwen2.5-VL 72B' }
+    ],
+    endpoint: 'https://api.together.xyz/v1/chat/completions',
+    placeholder: 'xxxxxxxxxxxxxxxx',
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    guide: `<strong>🤝 Together AI（OpenAI 兼容）</strong>
+注册：<a href="https://api.together.ai" target="_blank">api.together.ai</a>（新用户赠额度）。国内需翻墙。<br><button onclick="fetchProviderModels('together')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_together" style="margin-top:6px;font-size:11px"></div>`
+  },
+  fireworks: {
+    name: 'Fireworks', fullName: 'Fireworks AI',
+    emoji: '🎆', badges: ['需翻墙'],
+    model: 'accounts/fireworks/models/qwen2-vl-72b-instruct',
+    fallbackModels: ['accounts/fireworks/models/llama-v3p2-90b-vision-instruct'],
+    altModels: [
+      { id: 'accounts/fireworks/models/qwen2-vl-72b-instruct',            tag: '✅', desc: '默认 · Qwen2-VL 72B' },
+      { id: 'accounts/fireworks/models/llama-v3p2-90b-vision-instruct',   tag: '💎', desc: 'Llama 3.2 90B Vision' }
+    ],
+    endpoint: 'https://api.fireworks.ai/inference/v1/chat/completions',
+    placeholder: 'fw_xxxxxxxxxxxxxxxx',
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    guide: `<strong>🎆 Fireworks AI（OpenAI 兼容）</strong>
+注册：<a href="https://fireworks.ai" target="_blank">fireworks.ai</a>（赠额度）。国内需翻墙。<br><button onclick="fetchProviderModels('fireworks')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_fireworks" style="margin-top:6px;font-size:11px"></div>`
+  },
+  huggingface: {
+    name: 'HuggingFace', fullName: 'HF Router · 多家推理',
+    emoji: '🤗', badges: ['免费额度','需翻墙'],
+    model: 'Qwen/Qwen2.5-VL-72B-Instruct',
+    fallbackModels: ['meta-llama/Llama-3.2-11B-Vision-Instruct','google/gemma-3-27b-it'],
+    altModels: [
+      { id: 'Qwen/Qwen2.5-VL-72B-Instruct',                tag: '✅', desc: '默认 · Qwen2.5-VL 72B（HF Router）' },
+      { id: 'Qwen/Qwen2.5-VL-7B-Instruct',                 tag: '⚡', desc: 'Qwen2.5-VL 7B · 快' },
+      { id: 'meta-llama/Llama-3.2-11B-Vision-Instruct',    tag: '☑️', desc: 'Llama 3.2 11B Vision' },
+      { id: 'google/gemma-3-27b-it',                       tag: '☑️', desc: 'Gemma 3 27B' },
+      { id: 'zai-org/GLM-4.5V',                            tag: '💎', desc: 'GLM-4.5V（HF）' }
+    ],
+    endpoint: 'https://router.huggingface.co/v1/chat/completions',
+    placeholder: 'hf_xxxxxxxxxxxxxxxx',
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    guide: `<strong>🤗 Hugging Face Router（OpenAI 兼容）</strong>
+注册：<a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a> → 新建 <code>hf_</code> Token（勾选 Inference 权限）。<br>
+统一端点 <code>router.huggingface.co/v1</code> 自动路由到 Together/Novita/Fireworks 等提供方；模型 ID 用 HF 仓库名（如 <code>Qwen/Qwen2.5-VL-72B-Instruct</code>，可加 <code>:provider</code> 后缀指定提供方）。有免费额度，国内需翻墙。<br><button onclick="fetchProviderModels('huggingface')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_huggingface" style="margin-top:6px;font-size:11px"></div>`
   }
 };
 
-/* ===== 自定义供应商（OpenAI/Anthropic 兼容，用户自填端点）===== */
+/* ===== 自定义供应商（OpenAI/Anthropic/Gemini 兼容，用户自填端点）===== */
 PROVIDERS.custom = {
-  name: '自定义', fullName: '自定义（OpenAI/Anthropic 兼容）', emoji: '⚙️', badges: ['自填端点'],
+  name: '自定义', fullName: '自定义（OpenAI/Anthropic/Gemini 兼容）', emoji: '⚙️', badges: ['自填端点'],
   apiType: 'openai', model: '', endpoint: '', altModels: [], maxTokens: 8192, custom: true,
-  guide: '<strong>⚙️ 自定义服务（OpenAI / Anthropic 兼容）</strong><br>填入任意兼容服务的<strong>完整端点</strong>（如 <code>https://你的服务/v1/chat/completions</code>）、API Key、模型 ID。<br>支持 OpenRouter、本地 Ollama、各家代理、自建网关等。图片以 base64 image_url 方式发送，请选支持视觉的模型。'
+  guide: '<strong>⚙️ 自定义服务（OpenAI / Anthropic / Gemini 兼容）</strong><br>用<b>快速预设</b>一键填端点，或手填任意兼容服务的<strong>完整端点</strong>（如 <code>https://你的服务/v1/chat/completions</code>）、API Key、模型 ID。<br>支持 OpenRouter、Hugging Face Router、本地 Ollama / LM Studio / vLLM、One-API/New-API 网关、各家官方（百度/火山豆包/智谱/硅基/百炼）等。可选<b>鉴权方式</b>（Bearer / x-api-key / URL query / 无）与<b>额外请求头</b>（JSON）。图片以 base64 发送，请选支持视觉的模型。'
 };
 
 /* ===== 配置（与数据库系统同样存在本机浏览器 localStorage）===== */
@@ -2237,14 +2525,15 @@ if (!PROVIDERS[cfg.prov]) cfg.prov = 'zhipu';
 
 function getEffectiveKey(){ const p=PROVIDERS[cfg.prov]; return (p && p.useOpenRouterKey) ? cfg.keys.openrouter : cfg.keys[cfg.prov]; }
 function getEffectiveModel(){ const p=PROVIDERS[cfg.prov]; return (cfg.models && cfg.models[cfg.prov]) || (p && p.model) || ''; }
-function syncCustomProvider(){ if(!PROVIDERS.custom) return; const c=cfg.custom||{}; PROVIDERS.custom.endpoint=(c.endpoint||'').trim(); PROVIDERS.custom.apiType=c.apiType||'openai'; PROVIDERS.custom.model=(cfg.models&&cfg.models.custom)||''; }
+function syncCustomProvider(){ if(!PROVIDERS.custom) return; const c=cfg.custom||{}; PROVIDERS.custom.endpoint=(c.endpoint||'').trim(); PROVIDERS.custom.apiType=c.apiType||'openai'; PROVIDERS.custom.authStyle=c.authStyle||'bearer'; PROVIDERS.custom.extraHeaders=c.extraHeaders||''; PROVIDERS.custom.model=(cfg.models&&cfg.models.custom)||''; }
+function parseExtraHeaders(s){ if(!s)return {}; try{const o=JSON.parse(s);return (o&&typeof o==='object')?o:{};}catch(_){return {};} }
 
 async function callAI(b64, mime, prompt) {
   const p = PROVIDERS[cfg.prov];
   const key = p.useOpenRouterKey ? cfg.keys.openrouter : cfg.keys[cfg.prov];
   if (!key) throw new Error(p.useOpenRouterKey ? '请先在「OpenRouter」中保存 API Key（共用该 Key）' : '请先配置 API Key');
   if (p.apiType === 'gemini') return callGemini(p, key, b64, mime, prompt);
-  if (p.apiType === 'anthropic-custom') return callAnthropicCompat(p, key, b64, mime, prompt);
+  if (p.apiType === 'anthropic-custom' || p.apiType === 'anthropic') return callAnthropicCompat(p, key, b64, mime, prompt);
   
   // Try main model first, then fallbacks if model is invalid
   const modelOverride = cfg.models?.[cfg.prov];
@@ -2288,7 +2577,14 @@ async function callGemini(provider, key, b64, mime, prompt) {
   // Gemini uses different API format (not OpenAI-compatible)
   const modelOverride = cfg.models?.[cfg.prov];
   const useModel = modelOverride || provider.model;
-  const url = `${provider.endpoint}/${useModel}:generateContent?key=${key}`;
+  let url;
+  const ep = provider.endpoint || 'https://generativelanguage.googleapis.com/v1beta/models';
+  if (/:generateContent/.test(ep)) {
+    url = ep + (ep.includes('?') ? '&' : '?') + 'key=' + key;   // custom already-full endpoint
+  } else {
+    // base .../models → append model:generateContent
+    url = `${ep.replace(/\/$/,'')}/${useModel}:generateContent?key=${key}`;
+  }
 
   let res;
   try {
@@ -2367,6 +2663,7 @@ async function callAnthropicCompat(provider, key, b64, mime, prompt) {
         'Content-Type': 'application/json',
         'x-api-key': key,
         'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
         'Authorization': 'Bearer ' + key  // Some proxies use Bearer auth
       },
       body: JSON.stringify(body),
@@ -2425,13 +2722,23 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
     ...(provider.extraBody || {})
   };
 
+  // 组装请求头：自定义供应商可选鉴权方式 + 额外头
+  let epUrl = provider.endpoint;
+  const headers = { 'Content-Type':'application/json' };
+  const authStyle = (cfg.prov==='custom') ? (provider.authStyle||'bearer') : 'bearer';
+  if (authStyle==='bearer') headers['Authorization'] = 'Bearer '+key;
+  else if (authStyle==='xapikey') headers['x-api-key'] = key;
+  else if (authStyle==='query') epUrl += (epUrl.includes('?')?'&':'?') + 'key=' + encodeURIComponent(key);
+  // authStyle==='none' → no auth header
+  if (cfg.prov==='custom' && provider.extraHeaders) Object.assign(headers, parseExtraHeaders(provider.extraHeaders));
+
   let res;
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s timeout
-    res = await fetch(provider.endpoint, {
+    res = await fetch(epUrl, {
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      headers,
       body: JSON.stringify(body),
       signal: controller.signal
     });
@@ -2496,8 +2803,46 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
 }
 
 /* 在线拉取模型（精简版未内置，给出提示）*/
-function fetchProviderModels(){ toast('精简版未内置在线拉取；请用下拉选择或填自定义模型 ID'); }
-function fetchOpenRouterModels(){ fetchProviderModels(); }
+/* 在线拉取模型列表（OpenAI 兼容 /models；OpenRouter 专用过滤免费视觉） */
+async function fetchProviderModels(provId){
+  provId=provId||cfg.prov;
+  const p=PROVIDERS[provId]; if(!p){toast('未知服务');return;}
+  const box=$('providerFetchResult_'+provId);
+  const key=(provId==='custom')?getEffectiveKey():(p.useOpenRouterKey?cfg.keys.openrouter:cfg.keys[provId]);
+  if(box)box.innerHTML='⏳ 拉取中…';
+  // 由端点推出 /models 地址
+  let base=(provId==='custom')?(PROVIDERS.custom.endpoint||''):(p.endpoint||'');
+  let modelsUrl=base.replace(/\/(chat\/completions|messages|completions).*$/,'/models').replace(/\/models\/.*/,'/models');
+  if(!/\/models$/.test(modelsUrl))modelsUrl=base.replace(/\/[^/]*$/,'')+'/models';
+  try{
+    const res=await fetch(modelsUrl,{headers:key?{'Authorization':'Bearer '+key}:{}});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const d=await res.json();
+    let ids=(d.data||d.models||d||[]).map(x=>x.id||x.name||x).filter(Boolean);
+    // 视觉模型优先排序（含 vl/vision/gpt-4o/gemini/pixtral/gemma/llava 等）
+    const visRe=/vl|vision|gpt-4o|gpt-4\.1|omni|pixtral|gemma-3|gemma-4|llava|glm-4v|glm-4\.5v|glm-4\.6v|qwen.*vl|nemotron.*vl|internvl|claude|gemini/i;
+    ids.sort((a,b)=>(visRe.test(b)?1:0)-(visRe.test(a)?1:0));
+    if(!ids.length){if(box)box.innerHTML='（返回空列表）';return;}
+    if(box){
+      box.innerHTML='共 '+ids.length+' 个模型，点击填入：<br>'+ids.slice(0,60).map(id=>`<a href="#" onclick="pickFetchedModel('${esc(id).replace(/'/g,"\\'")}');return false" style="display:inline-block;margin:2px 4px 2px 0;padding:1px 6px;border:1px solid var(--line2);border-radius:5px;font-family:var(--mono);font-size:10px;${visRe.test(id)?'border-color:var(--accent2);color:var(--accent2)':''}">${esc(id)}</a>`).join('');
+    }
+    toast('已拉取 '+ids.length+' 个模型');
+  }catch(e){ if(box)box.innerHTML='❌ 拉取失败：'+esc((e&&e.message)||e)+'（可能需 Key / 翻墙 / CORS 限制，可手填模型 ID）'; }
+}
+function pickFetchedModel(id){ if($('setModelCustom')){$('setModelCustom').value=id;onSetModelCustom();} else {cfg.models[cfg.prov]=id;localStorage.setItem('phck_models',JSON.stringify(cfg.models));} toast('已选模型 '+id); updateAiStatus(); }
+async function fetchOpenRouterModels(){
+  const box=$('orFetchResult'); if(box)box.innerHTML='⏳ 拉取免费视觉模型…';
+  try{
+    const res=await fetch('https://openrouter.ai/api/v1/models');
+    const d=await res.json();
+    const list=(d.data||[]).filter(m=>{
+      const price=m.pricing&&(parseFloat(m.pricing.prompt||0)+parseFloat(m.pricing.completion||0))===0;
+      const vis=(m.architecture&&m.architecture.input_modalities||[]).includes('image')||/vl|vision|gemma|pixtral|qwen.*vl|nemotron/i.test(m.id||'');
+      return price&&vis;
+    }).map(m=>m.id);
+    if(box)box.innerHTML=list.length?('免费视觉模型 '+list.length+' 个：<br>'+list.slice(0,40).map(id=>`<a href="#" onclick="pickFetchedModel('${esc(id).replace(/'/g,"\\'")}');return false" style="display:inline-block;margin:2px 4px 2px 0;padding:1px 6px;border:1px solid var(--accent2);border-radius:5px;font-family:var(--mono);font-size:10px;color:var(--accent2)">${esc(id)}</a>`).join('')):'（暂无匹配，直接用 openrouter/free）';
+  }catch(e){ if(box)box.innerHTML='❌ 拉取失败：'+esc((e&&e.message)||e); }
+}
 
 /* ===== 设置弹窗（暖色风格，沿用本系统配色）===== */
 const TINY_JPEG_B64 = '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAEAAQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7LooooA//2Q==';
@@ -2534,8 +2879,40 @@ function selectProv(id){
   const p=PROVIDERS[id];
   const ki=$('setKey'); if(ki) ki.value = p.useOpenRouterKey ? (cfg.keys.openrouter||'') : (cfg.keys[id]||'');
   const cb=$('setCustomBox'); if(cb) cb.style.display=(id==='custom')?'':'none';
-  if(id==='custom'){ const c=cfg.custom||{}; if($('setCustomBase'))$('setCustomBase').value=c.endpoint||''; if($('setCustomType'))$('setCustomType').value=c.apiType||'openai'; }
+  if(id==='custom'){ const c=cfg.custom||{};
+    if($('setCustomBase'))$('setCustomBase').value=c.endpoint||'';
+    if($('setCustomType'))$('setCustomType').value=c.apiType||'openai';
+    if($('setCustomAuth'))$('setCustomAuth').value=c.authStyle||'bearer';
+    if($('setCustomHeaders'))$('setCustomHeaders').value=c.extraHeaders||'';
+    if($('setCustomPreset'))$('setCustomPreset').value='';
+  }
   renderModelOptions(); renderGuide(); setTestResult('',''); updateAiStatus();
+}
+/* 快速预设：一键填端点 + 接口类型 + 鉴权方式 + 建议模型 */
+const CUSTOM_PRESETS={
+  ollama:      {endpoint:'http://localhost:11434/v1/chat/completions', type:'openai', auth:'none',   model:'llama3.2-vision', hdr:''},
+  lmstudio:    {endpoint:'http://localhost:1234/v1/chat/completions',  type:'openai', auth:'none',   model:'qwen2-vl-7b-instruct', hdr:''},
+  vllm:        {endpoint:'http://127.0.0.1:8000/v1/chat/completions',  type:'openai', auth:'bearer', model:'Qwen/Qwen2.5-VL-7B-Instruct', hdr:''},
+  oneapi:      {endpoint:'https://你的网关域名/v1/chat/completions',    type:'openai', auth:'bearer', model:'gpt-4o', hdr:''},
+  hf:          {endpoint:'https://router.huggingface.co/v1/chat/completions', type:'openai', auth:'bearer', model:'Qwen/Qwen2.5-VL-72B-Instruct', hdr:''},
+  baidu:       {endpoint:'https://qianfan.baidubce.com/v2/chat/completions', type:'openai', auth:'bearer', model:'ernie-4.5-turbo-vl-32k', hdr:''},
+  doubao:      {endpoint:'https://ark.cn-beijing.volces.com/api/v3/chat/completions', type:'openai', auth:'bearer', model:'doubao-1.5-vision-pro-250328', hdr:''},
+  zhipu:       {endpoint:'https://open.bigmodel.cn/api/paas/v4/chat/completions', type:'openai', auth:'bearer', model:'glm-4v-flash', hdr:''},
+  siliconflow: {endpoint:'https://api.siliconflow.cn/v1/chat/completions', type:'openai', auth:'bearer', model:'Qwen/Qwen3-VL-30B-A3B-Instruct', hdr:''},
+  dashscope:   {endpoint:'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', type:'openai', auth:'bearer', model:'qwen-vl-max-latest', hdr:''},
+  openrouter:  {endpoint:'https://openrouter.ai/api/v1/chat/completions', type:'openai', auth:'bearer', model:'openrouter/free', hdr:'{"HTTP-Referer":"https://localhost","X-Title":"FormOCR"}'},
+  gemini:      {endpoint:'https://generativelanguage.googleapis.com/v1beta/models', type:'gemini', auth:'query', model:'gemini-2.5-flash-lite', hdr:''},
+  anthropic:   {endpoint:'https://api.anthropic.com/v1/messages', type:'anthropic-custom', auth:'xapikey', model:'claude-sonnet-4-6', hdr:''}
+};
+function applyCustomPreset(){
+  const v=$('setCustomPreset').value; if(!v||!CUSTOM_PRESETS[v])return;
+  const p=CUSTOM_PRESETS[v];
+  if($('setCustomBase'))$('setCustomBase').value=p.endpoint;
+  if($('setCustomType'))$('setCustomType').value=p.type;
+  if($('setCustomAuth'))$('setCustomAuth').value=p.auth;
+  if($('setCustomHeaders'))$('setCustomHeaders').value=p.hdr;
+  if($('setModelCustom'))$('setModelCustom').value=p.model;
+  toast('已填入预设，记得点「保存」');
 }
 function saveKey(){
   const v=($('setKey').value||'').trim(); const p=PROVIDERS[cfg.prov];
@@ -2546,6 +2923,8 @@ function saveKey(){
     cfg.custom=cfg.custom||{};
     cfg.custom.endpoint=($('setCustomBase').value||'').trim();
     cfg.custom.apiType=$('setCustomType').value;
+    cfg.custom.authStyle=$('setCustomAuth')?$('setCustomAuth').value:'bearer';
+    cfg.custom.extraHeaders=$('setCustomHeaders')?($('setCustomHeaders').value||'').trim():'';
     localStorage.setItem('so_custom',JSON.stringify(cfg.custom));
     const m=($('setModelCustom').value||'').trim(); if(m){cfg.models.custom=m;localStorage.setItem('phck_models',JSON.stringify(cfg.models));}
     syncCustomProvider();
@@ -2555,15 +2934,27 @@ function saveKey(){
 function setTestResult(msg,cls){ const el=$('setTestRes'); if(!el)return; el.textContent=msg; el.className='set-testres'+(cls?(' '+cls):''); }
 async function testConnection(){
   if(cfg.prov==='custom') syncCustomProvider();
-  const p=PROVIDERS[cfg.prov]; const key=getEffectiveKey();
-  if(!key){ setTestResult('请先填写并「保存」API Key',  'bad'); return; }
+  const p=PROVIDERS[cfg.prov];
+  // 若输入框里的 Key 尚未保存，先自动保存，避免「测试用旧Key」的困惑
+  const typed=($('setKey')&&$('setKey').value||'').trim();
+  const savedKey=getEffectiveKey();
+  if(typed && typed!==savedKey){ saveKey(); }
+  const key=getEffectiveKey();
+  if(!key){ setTestResult('请先填写 API Key（会自动保存后再测试）',  'bad'); return; }
   if(cfg.prov==='custom' && !PROVIDERS.custom.endpoint){ setTestResult('请先填写并保存自定义 API 端点','bad'); return; }
   const btn=$('setTestBtn'); if(btn)btn.disabled=true;
-  setTestResult('⏳ 测试中…（发送一张极小测试图）','run');
+  setTestResult('⏳ 测试中…（发送一张极小测试图，约需 3-15 秒）','run');
   try{
     const t=await callAI(TINY_JPEG_B64,'image/jpeg','这是连接测试，请只回复两个字：可用');
     setTestResult('✅ 连接成功 · 模型「'+getEffectiveModel()+'」已响应：'+String(t).replace(/\s+/g,' ').slice(0,40),'ok');
-  }catch(e){ setTestResult('❌ 失败：'+((e&&e.message)||e),'bad'); }
+  }catch(e){
+    let m=((e&&e.message)||String(e));
+    let extra='';
+    if(/Failed to fetch|网络错误|CORS|NetworkError|Load failed/i.test(m)) extra='\n💡 多为浏览器跨域(CORS)或需翻墙。可换国内直连服务（智谱/硅基/通义/Kimi/阶跃/混元），或在「自定义」里走 One-API/自建代理。';
+    else if(/401|invalid|无效/i.test(m)) extra='\n💡 Key 不正确或未保存成功，请重新粘贴后再测。';
+    else if(/404|not found|模型.*不存在/i.test(m)) extra='\n💡 该模型 ID 在此服务不存在，请在上方下拉换一个，或核对官方模型名。';
+    setTestResult('❌ 失败：'+m+extra,'bad');
+  }
   if(btn)btn.disabled=false;
 }
 function updateAiStatus(){
@@ -2620,11 +3011,93 @@ function ensureMeta(sys){
 let records=[];      // 当前系统的记录
 let curSys=null;
 let running=false;
+let paused=false;    // 暂停识别标志
 let _impSnap=null;   // 套对快照（用于「清除套对」回滚）
 let _rvId=null,_rvZoom=1;
 let rvEditMode=false;   // 核对窗右侧是否处于「字段编辑」
 let _feDrag=null;       // 字段编辑拖动索引
 function curRec(){return records.find(x=>x.id===_rvId);}
+
+/* ════════════════════════════════════════════════════════════════
+   本机持久化（IndexedDB）：每个系统的 records 自动保存，刷新/关闭/
+   重开浏览器都能恢复上次进度。含原件图片(base64)，故用 IndexedDB
+   而非 localStorage（后者 ~5MB 装不下图片）。提供手动清理。
+════════════════════════════════════════════════════════════════ */
+const IDB_NAME='phck_store', IDB_STORE='records', IDB_VER=1;
+let _idb=null, _idbReady=null;
+function idbOpen(){
+  if(_idbReady)return _idbReady;
+  _idbReady=new Promise((resolve)=>{
+    let req;
+    try{req=indexedDB.open(IDB_NAME,IDB_VER);}catch(e){resolve(null);return;}
+    req.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains(IDB_STORE))db.createObjectStore(IDB_STORE);};
+    req.onsuccess=e=>{_idb=e.target.result;resolve(_idb);};
+    req.onerror=()=>resolve(null);
+  });
+  return _idbReady;
+}
+async function idbSet(key,val){
+  const db=await idbOpen();if(!db)return false;
+  return new Promise(res=>{try{const tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).put(val,key);tx.oncomplete=()=>res(true);tx.onerror=()=>res(false);}catch(_){res(false);}});
+}
+async function idbGet(key){
+  const db=await idbOpen();if(!db)return null;
+  return new Promise(res=>{try{const tx=db.transaction(IDB_STORE,'readonly');const rq=tx.objectStore(IDB_STORE).get(key);rq.onsuccess=()=>res(rq.result||null);rq.onerror=()=>res(null);}catch(_){res(null);}});
+}
+async function idbDel(key){
+  const db=await idbOpen();if(!db)return;
+  return new Promise(res=>{try{const tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).delete(key);tx.oncomplete=()=>res();tx.onerror=()=>res();}catch(_){res();}});
+}
+async function idbClearAll(){
+  const db=await idbOpen();if(!db)return;
+  return new Promise(res=>{try{const tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).clear();tx.oncomplete=()=>res();tx.onerror=()=>res();}catch(_){res();}});
+}
+/* 序列化：records 里 pages 含 dataUrl（大），保留以便刷新后核对窗仍能看原件 */
+function serializeRecords(){
+  return records.map(r=>({
+    id:r.id,file:r.file,srcName:r.srcName,part:r.part,partCount:r.partCount,
+    pages:(r.pages||[]).map(p=>({dataUrl:p.dataUrl,b64:p.b64,mime:p.mime})),
+    data:r.data,filled:r.filled,status:(r.status==='running'?'pending':r.status),err:r.err,imported:r.imported
+  }));
+}
+let _saveT=null;
+function persistRecords(){
+  if(!curSys)return;
+  clearTimeout(_saveT);
+  _saveT=setTimeout(()=>{
+    idbSet('sys_'+curSys.id, {ts:Date.now(),recs:serializeRecords()}).then(ok=>{ if(!ok)console.warn('records 保存失败'); });
+    updateStorageBadge();
+  },400);
+}
+async function restoreRecords(sysId){
+  const box=await idbGet('sys_'+sysId);
+  if(box&&Array.isArray(box.recs)&&box.recs.length){
+    records=box.recs.map(r=>{if(r.status==='running')r.status='pending';return r;});
+    return true;
+  }
+  return false;
+}
+function updateStorageBadge(){
+  const el=$('storeBadge');if(!el)return;
+  const n=records.length;
+  el.textContent=n?`💾 本机已保存 ${n} 条（刷新/重开不丢）`:'💾 本机自动保存已开启';
+}
+async function clearStoredRecords(){
+  if(running){toast('识别中，请稍候');return;}
+  if(!confirm('清理本系统在本机保存的所有识别记录？\n此操作不可撤销：将删除当前队列与已保存进度，可重新上传识别。'))return;
+  records=[];_impSnap=null;
+  if(curSys)await idbDel('sys_'+curSys.id);
+  $('impStat').textContent='';$('impClearBtn').style.display='none';
+  renderResults();refreshQueueUI();setProg(-1);updateStorageBadge();
+  toast('已清理本机保存的记录');
+}
+async function clearAllStored(){
+  if(running){toast('识别中，请稍候');return;}
+  if(!confirm('清理【所有系统】在本机保存的全部识别记录？\n不可撤销。'))return;
+  records=[];_impSnap=null;await idbClearAll();
+  renderResults();refreshQueueUI();setProg(-1);updateStorageBadge();
+  toast('已清理全部本机记录');
+}
 function uid(){return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 
 /* ════════════ 逐系统·逐页提示词 ════════════ */
@@ -2697,7 +3170,7 @@ function buildPromptFor(sys,page){
   return genericPrompt(sys,page);
 }
 
-/* ════════════ 上传 + 按「每人页数」自动拆分 ════════════ */
+/* ════════════ 上传 + 按「每人页数」自动拆分（PDF 并行拆分加速） ════════════ */
 async function addFiles(fileList){
   if(!curSys)return;
   const all=[...fileList];
@@ -2706,68 +3179,105 @@ async function addFiles(fileList){
   const files=all.filter(f=>isPdf(f)||isImg(f));
   if(!files.length){toast('请拖入 PDF 或图片文件');return;}
   const per=curSys.pagesPerRecord||1;
-  let imgBuf=[];   // 累积图片页：{page:{dataUrl,b64,mime}, name}
-  const flushImgs=()=>{
-    if(!imgBuf.length)return;
-    const chunks=Math.max(1,Math.ceil(imgBuf.length/per));
+  const pdfFiles=files.filter(isPdf), imgFiles=files.filter(f=>!isPdf(f));
+  let addedAny=false;
+
+  /* —— 图片：并行读取后按顺序累积、拆分 —— */
+  if(imgFiles.length){
+    setProg(0,`读取 ${imgFiles.length} 张图片 …`);
+    const imgBuf=[];
+    await Promise.all(imgFiles.map(async(file,idx)=>{
+      try{const d=await bReadImage(file);imgBuf[idx]={page:{dataUrl:d,b64:d.split(',')[1],mime:file.type||'image/png'},name:file.name.replace(/\.[^.]+$/,''),srcFull:file.name};}
+      catch(_){ imgBuf[idx]=null; }
+    }));
+    const clean=imgBuf.filter(Boolean);
+    const chunks=Math.max(1,Math.ceil(clean.length/per));
     for(let ci=0;ci<chunks;ci++){
-      const slice=imgBuf.slice(ci*per,ci*per+per);if(!slice.length)continue;
+      const slice=clean.slice(ci*per,ci*per+per);if(!slice.length)continue;
       const names=slice.map(x=>x.name);
       const label=slice.length===1?names[0]:(names[0]+'…+'+(slice.length-1)+'图');
-      records.push({id:uid(),file:label,part:chunks>1?(ci+1):0,partCount:chunks,
+      records.push({id:uid(),file:label,srcName:(slice[0]&&slice[0].srcFull)||label,part:chunks>1?(ci+1):0,partCount:chunks,
         pages:slice.map(x=>x.page),data:null,filled:0,status:'pending',err:'',imported:null});
+      addedAny=true;
     }
-    imgBuf=[];renderResults();refreshQueueUI();
-  };
-  for(const file of files){
-    if(isPdf(file)){
-      flushImgs();
-      setProg(0,`解析 ${file.name} …`);
-      let pages;
-      try{ pages=await renderPdf(file); }catch(e){ toast('PDF 解析失败：'+file.name); continue; }
-      const chunks=Math.max(1,Math.ceil(pages.length/per));
+    renderResults();refreshQueueUI();
+  }
+
+  /* —— PDF：多个文档并行拆分，加快拖入后拆分速度 —— */
+  if(pdfFiles.length){
+    setProg(0,`并行拆分 ${pdfFiles.length} 个 PDF …`);
+    let doneN=0;
+    const PDF_CONC=Math.min(4,pdfFiles.length);   // 后台并行拆分并发数
+    const results=new Array(pdfFiles.length).fill(null);
+    let ptr=0;
+    async function worker(){
+      while(ptr<pdfFiles.length){
+        const my=ptr++; const file=pdfFiles[my];
+        try{ results[my]={name:file.name,pages:await renderPdf(file)}; }
+        catch(e){ results[my]={name:file.name,pages:null}; }
+        doneN++; setProg(doneN/pdfFiles.length,`已拆分 ${doneN}/${pdfFiles.length} 个 PDF …`);
+      }
+    }
+    await Promise.all(Array.from({length:PDF_CONC},()=>worker()));
+    /* 保序合入队列 */
+    for(const res of results){
+      if(!res||!res.pages){toast('PDF 解析失败：'+(res?res.name:''));continue;}
+      const pages=res.pages, chunks=Math.max(1,Math.ceil(pages.length/per));
       for(let ci=0;ci<chunks;ci++){
         const slice=pages.slice(ci*per,ci*per+per);if(!slice.length)continue;
-        records.push({id:uid(),file:file.name.replace(/\.pdf$/i,''),part:chunks>1?(ci+1):0,partCount:chunks,
+        records.push({id:uid(),file:res.name.replace(/\.pdf$/i,''),srcName:res.name,part:chunks>1?(ci+1):0,partCount:chunks,
           pages:slice,data:null,filled:0,status:'pending',err:'',imported:null});
+        addedAny=true;
       }
-      renderResults();refreshQueueUI();
-    }else{
-      setProg(0,`读取 ${file.name} …`);
-      try{const d=await bReadImage(file);imgBuf.push({page:{dataUrl:d,b64:d.split(',')[1],mime:file.type||'image/png'},name:file.name.replace(/\.[^.]+$/,'')});}
-      catch(_){ toast('图片读取失败：'+file.name); }
-      if(per===1)flushImgs();   // 一页一份：每张图立即成一条记录
     }
+    renderResults();refreshQueueUI();
   }
-  flushImgs();
+
   setProg(-1);
-  toast(`已加入待识别记录，共 ${records.length} 条`);
+  persistRecords();
+  if(addedAny){
+    toast(`已加入待识别记录，共 ${records.length} 条`);
+    maybeAutoRun();   // 新增文件自动进入识别队列（无需点开始）
+  }
+}
+function maybeAutoRun(){
+  if(running||paused)return;
+  if(!getEffectiveKey())return;   // 未配 Key 时不自动跑，避免弹窗打扰
+  if(!records.some(r=>r.status==='pending'||r.status==='error'))return;
+  runAll(true);
 }
 
-/* ════════════ 识别队列 ════════════ */
+/* ════════════ 识别队列（可暂停 · 自动拾取新增/失败项） ════════════ */
 function setBusy(b){ $('runBtn').textContent=b?'识别中…':'▶ 开始识别'; refreshQueueUI(); }
 function setProg(frac,msg){const p=$('prog');if(frac<0){p.classList.remove('on');return;}p.classList.add('on');$('barFill').style.width=Math.round(Math.max(0,Math.min(1,frac))*100)+'%';$('progLbl').textContent=(msg||'');}
 
-async function runAll(){
+function nextPending(){return records.find(r=>r.status==='pending'||r.status==='error');}
+async function runAll(auto){
   if(running)return;
-  if(!getEffectiveKey()){toast('请先在 ⚙ 设置里配置并保存 API Key');openSet();return;}
-  const todo=records.filter(r=>r.status==='pending'||r.status==='error');
-  if(!todo.length){toast('没有待识别的记录');return;}
-  running=true;setBusy(true);
+  if(!getEffectiveKey()){ if(!auto){toast('请先在 ⚙ 设置里配置并保存 API Key');openSet();} return; }
+  if(!nextPending()){ if(!auto)toast('没有待识别的记录'); return; }
+  running=true;paused=false;setBusy(true);
   let done=0;
-  for(const r of todo){
-    r.status='running';renderResults();
-    setProg(done/todo.length,`识别中 ${done+1}/${todo.length}：${recLabel(r)}`);
+  /* 动态取下一条：识别过程中新增/重试的项会被自动拾取，直到清空或暂停 */
+  while(!paused){
+    const r=nextPending();
+    if(!r)break;
+    const remain=records.filter(x=>x.status==='pending'||x.status==='error').length;
+    r.status='running';renderResults();refreshQueueUI();
+    setProg(done/(done+remain||1),`识别中：${recLabel(r)}（剩 ${remain} 条）`);
     try{ await runRecord(r); r.status='done'; }
     catch(e){ r.status='error'; r.err=((e&&e.message)||String(e)).slice(0,240); }
-    done++;renderResults();refreshQueueUI();
-    await sleep(200);
+    done++;renderResults();refreshQueueUI();persistRecords();
+    await sleep(180);
   }
   const ok=records.filter(r=>r.status==='done').length;
-  setProg(1,`全部完成 ✅ 成功 ${ok}/${todo.length}`);
   running=false;setBusy(false);
-  setTimeout(()=>setProg(-1),1500);
+  if(paused){ setProg(1,`已暂停 ⏸ 已完成 ${ok} 条，剩 ${records.filter(r=>r.status==='pending'||r.status==='error').length} 条待识别`); }
+  else { setProg(1,`全部完成 ✅ 已识别 ${ok} 条`); setTimeout(()=>setProg(-1),1500); }
+  persistRecords();
 }
+function pauseRun(){ if(running){paused=true;toast('将在当前记录完成后暂停');refreshQueueUI();} }
+function togglePause(){ if(running)pauseRun(); else runAll(false); }
 async function runRecord(r){
   const parts=[];
   for(let i=0;i<r.pages.length;i++){
@@ -2789,6 +3299,7 @@ async function runRecord(r){
   }
   r.imported=null;
   r.filled=countFilled(r);
+  persistRecords();
 }
 function mergeLeaf(parts){
   const out={};
@@ -2803,16 +3314,18 @@ function countFilled(r){
   return curSys._leafKeys.filter(k=>!blank(r.data[k])).length;
 }
 async function retryRecord(id){
-  if(running)return;const r=records.find(x=>x.id===id);if(!r)return;
+  const r=records.find(x=>x.id===id);if(!r)return;
   if(!getEffectiveKey()){toast('请先配置 API Key');openSet();return;}
+  /* 若队列在跑：只把它标回 pending，交给运行中的队列自动拾取 */
+  if(running){ r.status='pending';r.err='';renderResults();refreshQueueUI();persistRecords();toast('已重新排入识别队列');return; }
   running=true;setBusy(true);r.status='running';renderResults();
   setProg(0,'重试：'+recLabel(r));
   try{ await runRecord(r); r.status='done'; }catch(e){ r.status='error'; r.err=((e&&e.message)||String(e)).slice(0,240); }
-  running=false;setBusy(false);renderResults();refreshQueueUI();
+  running=false;setBusy(false);renderResults();refreshQueueUI();persistRecords();
   setProg(1,'重试完成');setTimeout(()=>setProg(-1),1200);
 }
-function clearAll(){if(running)return;records=[];_impSnap=null;$('impStat').textContent='';$('impClearBtn').style.display='none';renderResults();refreshQueueUI();setProg(-1);}
-function delRec(id){if(running){toast('识别中，请稍候');return;}records=records.filter(r=>r.id!==id);renderResults();refreshQueueUI();}
+function clearAll(){if(running){toast('识别中，请先暂停');return;}records=[];_impSnap=null;$('impStat').textContent='';$('impClearBtn').style.display='none';renderResults();refreshQueueUI();setProg(-1);if(curSys)idbDel('sys_'+curSys.id);updateStorageBadge();}
+function delRec(id){records=records.filter(r=>r.id!==id);renderResults();refreshQueueUI();persistRecords();}
 
 /* ════════════ 结果列表 ════════════ */
 function recLabel(r){return r.file+(r.part?` · 第${r.part}份`:'');}
@@ -2861,7 +3374,11 @@ function renderResults(){
 }
 function refreshQueueUI(){
   $('qmeta').textContent=records.length?`${records.length} 条`:'—';
-  $('runBtn').disabled=running||!records.some(r=>r.status==='pending'||r.status==='error');
+  const hasTodo=records.some(r=>r.status==='pending'||r.status==='error');
+  $('runBtn').disabled=running||!hasTodo;
+  $('runBtn').style.display=running?'none':'';
+  const pb=$('pauseBtn');
+  if(pb){ pb.style.display=running?'':'none'; pb.textContent=paused?'⏸ 暂停中…':'⏸ 暂停'; pb.disabled=paused; }
   $('clearBtn').disabled=running||!records.length;
   const ok=records.some(r=>r.data&&countFilled(r)>0);
   $('xlsxBtn').disabled=!ok;$('tsvBtn').disabled=!ok;
@@ -2910,7 +3427,7 @@ function totalCount(){
   if(curSys.expandKey){const r=curRec();const rows=(r&&r.data&&r.data[curSys.expandKey])||[];return Math.max(rows.length,1)*curSys._cols.length;}
   return curSys._leafKeys.length;
 }
-function updateFill(r){$('rvFill').textContent='已填 '+countFilled(r)+' / '+totalCount();}
+function updateFill(r){$('rvFill').textContent='已填 '+countFilled(r)+' / '+totalCount();persistRecords();}
 
 /* ════════════════════════════════════════════════════════════════
    核对窗内·字段编辑器（拖动排序 / 改名 / 改类型 / 增 / 删 / 插入新变量）
@@ -3090,13 +3607,38 @@ function makeRow(f,val,imp){
   row.innerHTML=`<div class="rv-lab">${esc(f.label)}<span class="rv-key">${f.key}</span></div>${ctrl}`;
   return row;
 }
+/* 生成单个内联控件（label 简短 + 输入/下拉），供「同一行原件字段」横排使用 */
+function inlineCtrlHTML(f,val,imp){
+  const disp=val==null?'':String(val);
+  const shortLab=(f.lineLabel!=null)?f.lineLabel:(f.label||f.key);
+  let ctrl;
+  if(f.type==='select'){
+    const hasL=!!f.optLabels;const opts=hasL?f.optLabels:(f.options||[]);
+    let oh='<option value=""></option>';
+    opts.forEach(o=>{const v=hasL?o[1]:o;const lb=hasL?(o[1]+' '+o[0]):o;oh+=`<option value="${esc(v)}"${disp===String(v)?' selected':''}>${esc(lb)}</option>`;});
+    ctrl=`<select class="rv-sel${imp?' imp':''}" data-k="${f.key}" onchange="onEdit(this)">${oh}</select>`;
+  }else{
+    const numish=(f.type==='number'||f.kind==='num'||f.kind==='freq');const empty=disp===''?' empty':'';
+    ctrl=`<input class="rv-in${numish?' num':''}${empty}${imp?' imp':''}" value="${esc(disp)}" data-k="${f.key}" oninput="onEdit(this)"${f.hint?` placeholder="${esc(f.hint)}"`:''}>`;
+  }
+  return `<div class="rv-lseg"><span class="rv-lslab">${esc(shortLab)}<span class="rv-key">${f.key}</span></span>${ctrl}</div>`;
+}
+/* 一整条「同一行原件」：title 可选，followed by 多个字段横排（高度一致） */
+function makeLineGroup(title,fieldObjs,r){
+  const row=document.createElement('div');row.className='rv-lrow';
+  let h='';
+  if(title)h+=`<div class="rv-ltitle">${esc(title)}</div>`;
+  fieldObjs.forEach(f=>{h+=inlineCtrlHTML(f,r.data[f.key],r.imported&&r.imported[f.key]);});
+  row.innerHTML=h;
+  return row;
+}
 function onEdit(el){
   const r=curRec();if(!r)return;const k=el.dataset.k;
   r.data[k]=el.value;
   if(r.imported){delete r.imported[k];if(!Object.keys(r.imported).filter(x=>x!=='__rows').length&&!(r.imported.__rows&&Object.keys(r.imported.__rows).length))r.imported=r.imported.__rows?r.imported:null;}
   el.classList.remove('imp');
   if(el.classList.contains('rv-in'))el.classList.toggle('empty',el.value==='');
-  r.filled=countFilled(r);updateFill(r);
+  r.filled=countFilled(r);updateFill(r);persistRecords();
 }
 function toggleCell(cell){
   const r=curRec();if(!r)return;const k=cell.dataset.k,v=cell.dataset.v;
@@ -3105,9 +3647,9 @@ function toggleCell(cell){
   if(row)row.querySelectorAll('.rv-cell,.neuro-mcell').forEach(c=>{c.classList.remove('on');c.classList.remove('imp');});
   if(already){r.data[k]='';}else{cell.classList.add('on');r.data[k]=v;}
   if(r.imported)delete r.imported[k];
-  r.filled=countFilled(r);updateFill(r);
+  r.filled=countFilled(r);updateFill(r);persistRecords();
 }
-function setToggle(key,val){const r=curRec();if(!r)return;r.data[key]=val;if(r.imported)delete r.imported[key];r.filled=countFilled(r);updateFill(r);}
+function setToggle(key,val){const r=curRec();if(!r)return;r.data[key]=val;if(r.imported)delete r.imported[key];r.filled=countFilled(r);updateFill(r);persistRecords();}
 function jumpToPage(pg){
   const layer=$('rvZlayer');if(!layer)return;
   const pw=layer.querySelectorAll('.rv-pw')[pg-1];if(!pw)return;
@@ -3474,11 +4016,15 @@ function applyImport(headers,dataRows){
   }else{
     const existing=records.filter(r=>r.data);   // 现有可填记录（识别得到 / 先前创建）
     const idKey=useKeys.find(k=>ID_KEYS.includes(k));
+    const hasFn=headers.includes(FILENAME_COL);
     dataRows.forEach((d,i)=>{
       let r=null;
-      if(idKey&&d[idKey])r=existing.find(x=>String(x.data[idKey]||'')===String(d[idKey]));
+      // 优先按 filename 匹配已有记录
+      if(hasFn&&d[FILENAME_COL])r=existing.find(x=>recFileName(x)===String(d[FILENAME_COL]));
+      if(!r&&idKey&&d[idKey])r=existing.find(x=>String(x.data[idKey]||'')===String(d[idKey]));
       if(!r)r=existing[i]||null;
-      if(!r){r=newRec('导入#'+(i+1),{});existing[i]=r;}     // 无原件、新建一条
+      if(!r){r=newRec('导入#'+(i+1),{});if(hasFn&&d[FILENAME_COL])r.srcName=String(d[FILENAME_COL]);existing[i]=r;}     // 无原件、新建一条
+      if(hasFn&&d[FILENAME_COL]&&!r.srcName)r.srcName=String(d[FILENAME_COL]);
       matched++;
       r.imported=r.imported||{};
       useKeys.forEach(k=>{const val=d[k];if(blank(val))return;const cur=r.data[k];if(blank(cur)||overwrite){snap.vals.push({obj:r.data,k,prev:r.data[k]});r.data[k]=val;r.imported[k]=true;filled++;}});
@@ -3489,7 +4035,7 @@ function applyImport(headers,dataRows){
   const cTxt=created?`（新建 <b>${created}</b> 条无原件记录）`:'';
   $('impStat').innerHTML=`已导入 <b>${matched}</b> 条、填入 <b>${filled}</b> 个空位${cTxt}（紫色高亮）。点「核对」逐项查看 / 编辑（Tab / 回车跳下一题）。`;
   $('impClearBtn').style.display=(filled||created)?'':'none';
-  renderResults();refreshQueueUI();if(_rvId)renderFields(curRec());
+  renderResults();refreshQueueUI();if(_rvId)renderFields(curRec());persistRecords();
 }
 function clearImport(silent){
   if(_impSnap){
@@ -3501,24 +4047,26 @@ function clearImport(silent){
   records.forEach(r=>{if(r.imported){r.imported=null;r.filled=countFilled(r);}});
   $('impClearBtn').style.display='none';
   if(!silent)$('impStat').textContent='已清除导入填入的值与新建的记录。';
-  renderResults();refreshQueueUI();if(_rvId)renderFields(curRec());
+  renderResults();refreshQueueUI();if(_rvId)renderFields(curRec());persistRecords();
 }
 function addManualRecord(){
   if(!curSys)return;
   const data=curSys.expandKey?{[curSys.expandKey]:[Object.fromEntries(curSys._cols.map(k=>[k,'']))]}:{};
-  const r={id:uid(),file:'手动录入',part:0,partCount:1,pages:[],data,filled:0,status:'manual',err:'',imported:null};
-  records.push(r);renderResults();refreshQueueUI();openReview(r.id);
+  const r={id:uid(),file:'手动录入',srcName:'手动录入',part:0,partCount:1,pages:[],data,filled:0,status:'manual',err:'',imported:null};
+  records.push(r);renderResults();refreshQueueUI();persistRecords();openReview(r.id);
 }
 
 /* ════════════ 导出（英文变量名表头） ════════════ */
+const FILENAME_COL='filename';
+function recFileName(r){return (r&&(r.srcName||r.file))||'';}
 function buildExportRows(){
   if(curSys.expandKey){
-    const cols=curSys._cols;const rows=[];
-    records.forEach(r=>{(r.data&&r.data[curSys.expandKey]||[]).forEach(o=>{if(cols.some(k=>!blank(o[k])))rows.push(cols.map(k=>o[k]==null?'':o[k]));});});
+    const cols=[FILENAME_COL,...curSys._cols];const rows=[];
+    records.forEach(r=>{const fn=recFileName(r);(r.data&&r.data[curSys.expandKey]||[]).forEach(o=>{if(curSys._cols.some(k=>!blank(o[k])))rows.push([fn,...curSys._cols.map(k=>o[k]==null?'':o[k])]);});});
     return {cols,rows};
   }
-  const cols=curSys._leafKeys;const rows=[];
-  records.forEach(r=>{if(r.data&&countFilled(r)>0)rows.push(cols.map(k=>r.data[k]==null?'':r.data[k]));});
+  const cols=[FILENAME_COL,...curSys._leafKeys];const rows=[];
+  records.forEach(r=>{if(r.data&&countFilled(r)>0)rows.push([recFileName(r),...curSys._leafKeys.map(k=>r.data[k]==null?'':r.data[k])]);});
   return {cols,rows};
 }
 function doXlsx(){
@@ -3577,7 +4125,8 @@ function buildDictRows(){
   const gmap=_gridColsMap(curSys);
   const list=curSys.expandKey?curSys.fields:(curSys._leaf||curSys.fields||[]);
   const head=['序号','变量名 key','中文含义','类型','选项赋值','填写提示','所在页','分组'];
-  const rows=list.map((f,i)=>[i+1,f.key,f.label||'',f.type||'text',fieldCoding(f,gmap),f.hint||'',f.page||1,f.group||'']);
+  const rows=[[1,FILENAME_COL,'上传文件名（PDF/图片原文件名）','text','','导出/导入首列，用于溯源',0,'来源']];
+  list.forEach((f,i)=>rows.push([i+2,f.key,f.label||'',f.type||'text',fieldCoding(f,gmap),f.hint||'',f.page||1,f.group||'']));
   return {head,rows};
 }
 function doTsv(){
@@ -3635,7 +4184,7 @@ function renderLauncher(){
 function hasOverride(id){try{const all=JSON.parse(localStorage.getItem(OVERRIDE_LS)||'{}');return !!(all&&all[id]);}catch(_){return false;}}
 function openSystem(id){
   const s=SYS_BY[id];if(!s)return;ensureMeta(s);
-  curSys=s;records=[];running=false;_impSnap=null;
+  curSys=s;records=[];running=false;paused=false;_impSnap=null;
   $('vLauncher').hidden=true;$('vSystem').hidden=false;$('backBtn').style.display='';
   $('hmark').innerHTML=s.emoji||'表单<br>OCR';
   $('hTitle').textContent=s.name;
@@ -3645,8 +4194,16 @@ function openSystem(id){
   $('splitNote').innerHTML=`本系统按 <b>${s.pagesPerRecord} 页 / 人</b> 自动拆分：含 N 页的 PDF 切分为 ⌈N/${s.pagesPerRecord}⌉ 条；拖入图片则<b>每张图＝一页</b>，${s.pagesPerRecord>1?('每 '+s.pagesPerRecord+' 张按顺序合为一条'):'每张图即一条记录'}${s.expandKey?'；且每页内多份样本会再展开为多行。':'。'}`;
   $('impStat').textContent='';$('impClearBtn').style.display='none';if($('impOverwrite'))$('impOverwrite').checked=false;
   $('runBtn').textContent='▶ 开始识别';
-  renderResults();refreshQueueUI();updateAiStatus();setProg(-1);
+  renderResults();refreshQueueUI();updateAiStatus();setProg(-1);updateStorageBadge();
   window.scrollTo({top:0,behavior:'smooth'});
+  /* 恢复本机保存的上次进度 */
+  restoreRecords(s.id).then(had=>{
+    if(had){renderResults();refreshQueueUI();updateStorageBadge();
+      const pend=records.filter(r=>r.status==='pending'||r.status==='error').length;
+      toast(`已恢复本机保存的 ${records.length} 条记录`+(pend?`（${pend} 条待识别）`:''));
+      if(pend&&getEffectiveKey())maybeAutoRun();
+    }
+  });
 }
 function goLauncher(){
   if(running){toast('识别中，请稍候');return;}
@@ -3861,8 +4418,10 @@ $('drop').addEventListener('click',()=>$('file').click());
 ['dragleave'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.remove('drag');}));
 $('drop').addEventListener('drop',e=>{e.preventDefault();$('drop').classList.remove('drag');if(e.dataTransfer&&e.dataTransfer.files)addFiles(e.dataTransfer.files);});
 $('file').addEventListener('change',e=>{addFiles(e.target.files);e.target.value='';});
-$('runBtn').addEventListener('click',runAll);
+$('runBtn').addEventListener('click',()=>runAll(false));
+$('pauseBtn').addEventListener('click',pauseRun);
 $('clearBtn').addEventListener('click',clearAll);
+$('clearStoreBtn').addEventListener('click',clearStoredRecords);
 $('impBtn').addEventListener('click',()=>$('impFile').click());
 $('impFile').addEventListener('change',e=>{if(e.target.files[0])handleImport(e.target.files[0]);e.target.value='';});
 $('impClearBtn').addEventListener('click',()=>clearImport(false));
@@ -3897,6 +4456,7 @@ function captureDefaults(){SYSTEMS.forEach(s=>{if(!s._defaultFields)s._defaultFi
 loadCustomSystems();
 captureDefaults();   // 在套用覆盖前，记录每个模块的默认字段（供「恢复默认」）
 applyOverrides();    // 套用本机保存的字段结构改动（内置+自建均 durable）
+syncCustomProvider();// 恢复自定义供应商端点/鉴权/模型
 renderLauncher();
 selectProv(cfg.prov);
 updateAiStatus();
