@@ -176,6 +176,16 @@ div.empty{padding:26px;text-align:center;color:var(--ink3);font-size:13px}
 .rv-sec.cur{background:var(--accent);color:#fff;border-left-color:#fff}
 .rv-sec .pg{margin-left:auto;font-family:var(--mono);font-size:9px;font-weight:700;opacity:.7}
 .rv-row{display:flex;align-items:center;gap:9px;padding:3px 6px;min-height:30px}
+.rv-lrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:3px 6px;min-height:30px;border-top:1px solid var(--line)}
+.rv-lrow:first-child{border-top:none}
+.rv-lrow:hover{background:rgba(13,148,136,.05)}
+.rv-lseg{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.rv-lseg .rv-lslab{font-size:11.5px;color:var(--ink2);line-height:1.2;white-space:nowrap}
+.rv-lseg .rv-key{font-family:var(--mono);font-size:9px;color:var(--ink3)}
+.rv-lseg .rv-in{flex:0 0 92px;width:92px}
+.rv-lseg .rv-in.num{flex:0 0 58px;width:58px}
+.rv-lseg .rv-sel{flex:0 0 96px;width:96px}
+.rv-ltitle{flex:1 1 100%;font-size:11.5px;font-weight:700;color:var(--ink);line-height:1.2;margin-bottom:1px}
 .rv-row+.rv-row{border-top:1px solid var(--line)}
 .rv-row:hover{background:rgba(13,148,136,.05)}
 .rv-lab{flex:1;min-width:0;font-size:11.5px;color:var(--ink2);line-height:1.25;word-break:break-word}
@@ -467,7 +477,7 @@ select.set-key{font-family:var(--sans)}
     <div class="card">
       <div class="card-h"><span class="dot"></span><h2 id="upTitle">① 导入 Excel / CSV（同名英文变量表头）</h2><span class="meta" id="qmeta">—</span></div>
       <div class="card-b">
-        <div class="imp-sub" style="margin-bottom:12px">导入一份 <code>.xlsx</code> / <code>.csv</code> / <code>.txt</code>（首行为<b>英文变量名表头</b>，与本系统 key 一致）。<b>无需识别、无需 API</b>：每一行 = 一条记录，自动按顺序（或按 <code>ID</code>/编号）对齐填入并以 <span style="color:#4b49c9;font-weight:700">紫色</span> 标注；记录不够时自动新建。进入「核对」后<b>左侧上传该条原件</b>，与右侧字段左右对照人工核对。仅填空位，勾「覆盖」则覆盖已有值。</div>
+        <div class="imp-sub" style="margin-bottom:12px">导入一份 <code>.xlsx</code> / <code>.csv</code> / <code>.txt</code>（首行为<b>英文变量名表头</b>，与本系统 key 一致；<b>首列可为 <code>filename</code></b>，用于按上传文件名匹配/回填记录来源）。<b>无需识别、无需 API</b>：每一行 = 一条记录，自动按顺序（或按 <code>filename</code>/<code>ID</code>/编号）对齐填入并以 <span style="color:#4b49c9;font-weight:700">紫色</span> 标注；记录不够时自动新建。进入「核对」后<b>左侧上传该条原件</b>，与右侧字段左右对照人工核对。仅填空位，勾「覆盖」则覆盖已有值。</div>
         <div class="drop" id="impDrop">
           <div class="big">📥 点击或拖入 Excel / CSV（.xlsx / .csv / .txt）</div>
           <div class="sub" id="dropSub">首行须为英文变量名表头，与本系统 key 一致；每一行 = 一条记录。</div>
@@ -477,7 +487,9 @@ select.set-key{font-family:var(--sans)}
           <button class="btn" id="manualBtn">✍️ 手动新增一条（空白记录，直接录入）</button>
           <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);cursor:pointer"><input type="checkbox" id="impOverwrite" style="width:15px;height:15px;accent-color:#5856D6">覆盖已有值</label>
           <button class="btn ghost" id="impClearBtn" style="display:none">清除本次导入</button>
+          <button class="btn ghost" id="clearStoreBtn">🧹 清理本机记录</button>
         </div>
+        <div id="storeBadge" style="font-size:11px;color:var(--ink3);margin-top:8px">💾 本机自动保存已开启</div>
         <div class="imp-stat" id="impStat" style="margin-top:12px;line-height:1.7"></div>
       </div>
     </div>
@@ -930,6 +942,7 @@ function buildHealthSchema(){
   P('druguse','B10·孕早期是否服致畸药物 druguse(0否1是)',3,'toggle'); P('druguse1','B10·服药孕周 druguse1',3,'num'); P('druguse2','B10·药名 druguse2',3);
   P('PREHYPER','B11·孕期高血压 PREHYPER(0否1是)',3,'toggle'); P('PREHYPER1','B11·诊断孕周 PREHYPER1',3,'num');
   P('PREDIAT','B12·孕期糖尿病 PREDIAT(0否1是)',3,'toggle'); P('PREDIAT1','B12·诊断孕周 PREDIAT1',3,'num');
+  P('PRE_B13','B13·孕期甲状腺功能异常 PRE_B13(0否1是)',3,'toggle'); P('PRE_B131','B13·诊断孕周 PRE_B131',3,'num');
   P('NUTRISUP','B14·孕期是否服营养补充剂 NUTRISUP(0否1是)',3,'toggle');
   P('NUTRIM','B14·营养剂_多元维生素 NUTRIM(✓=1)',3,'toggle'); P('NUTRIVA','B14·营养剂_维生素A NUTRIVA(✓=1)',3,'toggle');
   P('NUTRIVD','B14·营养剂_维生素D NUTRIVD(✓=1)',3,'toggle'); P('NUTRIOTH','B14·营养剂_其他 NUTRIOTH(✓=1)',3,'toggle');
@@ -1018,6 +1031,11 @@ function buildHealthSchema(){
     d[2].forEach(([ak,unit])=>P(ak,`${d[1]}_食用量(${unit}) ${ak}`,pg,'num'));
   });
   /* ── 第10页 膳食后 1.1-8 ── */
+  /* ── 第10页 膳食频率表末尾：孩子本人吸烟/饮酒 3 行（1a你吸烟/2a饮白酒/2b饮啤酒） ── */
+  P('c_smoke','1a·你吸烟吗 c_smoke(0否1是)',10,'toggle'); P('c_smokea','1a·吸烟频度 c_smokea(0不吸1天2周3月4年)',10,'freq'); P('c_smokeb','1a·吸烟量_支 c_smokeb',10,'num');
+  P('c_drink1','2a·你饮白酒吗 c_drink1(0否1是)',10,'toggle'); P('c_drink1a','2a·白酒频度 c_drink1a(0不饮1天2周3月4年)',10,'freq'); P('c_drink1b','2a·白酒量_ml c_drink1b',10,'num');
+  P('c_drink2','2b·你饮啤酒吗 c_drink2(0否1是)',10,'toggle'); P('c_drink2a','2b·啤酒频度 c_drink2a(0不饮1天2周3月4年)',10,'freq'); P('c_drink2b','2b·啤酒量_ml c_drink2b',10,'num');
+
   P('food25','上学日每天吃几顿 food25(2-6)',10,'num'); P('food25_1','休息日每天吃几顿 food25_1(2-6)',10,'num');
   P('food26','是否暴饮暴食 food26(0否1是)',10,'toggle'); P('food26_1','暴食频率_次/月 food26_1',10,'num');
   P('salt','吃饭咸淡 salt(1很咸2偏咸3适中4偏淡5很淡)',10,'num');
@@ -1217,6 +1235,21 @@ function hBuildFamDiseaseGrid(r){
 }
 
 /* ════════ 页标题 + 页提示 ════════ */
+const H_LINEGROUPS=[
+  {page:5,title:'母亲 姓名/电话/微信',items:[['NAMEM','姓名'],['TELEM','手机'],['TELEM1','微信']]},
+  {page:5,title:'父亲 姓名/电话/微信',items:[['NAMEF','姓名'],['TELEF','手机'],['TELEF1','微信']]},
+  {page:5,title:'其他照顾者 姓名/电话/微信',items:[['NAMEO','姓名'],['TELEO','手机'],['TELEO1','微信']]},
+  {page:6,title:'工作日·早晨',items:[['waket1','醒来'],['sleept1','起床'],['eatt1','早餐']]},
+  {page:6,title:'工作日·午/晚',items:[['sleept3','午休(分)'],['eatt2','晚餐'],['eatt3','睡前最后进食']]},
+  {page:6,title:'工作日·夜间',items:[['bedt2','上床'],['sleept2','入睡']]},
+  {page:7,title:'休息日·早晨',items:[['waket1s','醒来'],['sleept1s','起床'],['eatt1s','早餐']]},
+  {page:7,title:'休息日·午/晚',items:[['sleept3s','午休(分)'],['eatt2s','晚餐'],['eatt3s','睡前最后进食']]},
+  {page:7,title:'休息日·夜间',items:[['bedt2s','上床'],['sleept2s','入睡']]},
+  {page:10,title:'1a·你吸烟吗',items:[['c_smoke','是否0否1是'],['c_smokea','频度0-4'],['c_smokeb','量_支']]},
+  {page:10,title:'2a·你饮白酒吗',items:[['c_drink1','是否0否1是'],['c_drink1a','频度0-4'],['c_drink1b','量_ml']]},
+  {page:10,title:'2b·你饮啤酒吗',items:[['c_drink2','是否0否1是'],['c_drink2a','频度0-4'],['c_drink2b','量_ml']]},
+];
+
 const H_PAGE_TITLE={1:'一、基本情况(身份/成绩/压力/惩罚)',2:'游戏·疾病·保险·维生素·月经遗精 + 孕期B1-B6',3:'孕期 B7-B20',4:'B21-B22 + 家庭情况1-7(疾病史表)',5:'家庭8-12 + 锻炼·上学回家·运动1-3',6:'运动4-12·家务·兴趣班 + 工作日作息',7:'工作日睡因·休息日作息/睡因·睡眠1-4',8:'睡眠习惯量表 5-33',9:'膳食频率表(谷薯/蔬果/肉蛋·上半)',10:'膳食频率表(豆坚果/油盐糖·下半) + 膳食1.1-8',11:'习惯9-16 + 甲状腺1-3',12:'免疫1-17(频率题+过敏)',13:'免疫18-27(亲属过敏史)',14:'填表信息 + 环境暴露1-13'};
 
 const H_PAGE_HINT={
@@ -1307,6 +1340,12 @@ function healthRender(host,r){
     }
     /* 量表点格（睡眠1-4 / 睡眠5-33 / 免疫频率1-6） */
     hGridGroups(pg).forEach(g=>{if(g.type==='famallergy')return;addW(g.keys,(h)=>h.appendChild(stBuildGrid(g,r)));});
+    /* 同一行原件字段组（右侧同一行高度对齐） */
+    H_LINEGROUPS.filter(lg=>lg.page===pg).forEach(lg=>{
+      const objs=lg.items.map(([k,ll])=>{const f=curSys._fby[k];return f?Object.assign({},f,{lineLabel:ll}):null;}).filter(Boolean);
+      if(!objs.length)return;
+      addW(objs.map(f=>f.key),(h)=>h.appendChild(makeLineGroup(lg.title,objs,r)));
+    });
 
     /* 单遍渲染：命中控件→首个字段处整块渲染（后续该控件字段跳过）；否则普通行 */
     pageFields.forEach(f=>{
@@ -1991,6 +2030,37 @@ let _feDrag=null;       // 字段编辑拖动索引
 function curRec(){return records.find(x=>x.id===_rvId);}
 function uid(){return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 
+/* ════════ 本机持久化（IndexedDB）：刷新/关闭/重开都能恢复 ════════ */
+const IDB_NAME='phck_manual_store', IDB_STORE='records', IDB_VER=1;
+let _idb=null,_idbReady=null;
+function idbOpen(){
+  if(_idbReady)return _idbReady;
+  _idbReady=new Promise(resolve=>{let req;try{req=indexedDB.open(IDB_NAME,IDB_VER);}catch(e){resolve(null);return;}
+    req.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains(IDB_STORE))db.createObjectStore(IDB_STORE);};
+    req.onsuccess=e=>{_idb=e.target.result;resolve(_idb);};req.onerror=()=>resolve(null);});
+  return _idbReady;
+}
+async function idbSet(k,v){const db=await idbOpen();if(!db)return false;return new Promise(res=>{try{const tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).put(v,k);tx.oncomplete=()=>res(true);tx.onerror=()=>res(false);}catch(_){res(false);}});}
+async function idbGet(k){const db=await idbOpen();if(!db)return null;return new Promise(res=>{try{const tx=db.transaction(IDB_STORE,'readonly');const rq=tx.objectStore(IDB_STORE).get(k);rq.onsuccess=()=>res(rq.result||null);rq.onerror=()=>res(null);}catch(_){res(null);}});}
+async function idbDel(k){const db=await idbOpen();if(!db)return;return new Promise(res=>{try{const tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).delete(k);tx.oncomplete=()=>res();tx.onerror=()=>res();}catch(_){res();}});}
+async function idbClearAll(){const db=await idbOpen();if(!db)return;return new Promise(res=>{try{const tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).clear();tx.oncomplete=()=>res();tx.onerror=()=>res();}catch(_){res();}});}
+function serializeRecords(){
+  return records.map(r=>({id:r.id,file:r.file,srcName:r.srcName,part:r.part,partCount:r.partCount,
+    pages:(r.pages||[]).map(p=>({dataUrl:p.dataUrl,b64:p.b64,mime:p.mime})),
+    data:r.data,filled:r.filled,status:(r.status==='running'?'pending':r.status),err:r.err,imported:r.imported}));
+}
+let _saveT=null;
+function persistRecords(){ if(!curSys)return;clearTimeout(_saveT);_saveT=setTimeout(()=>{idbSet('sys_'+curSys.id,{ts:Date.now(),recs:serializeRecords()});updateStorageBadge();},400); }
+async function restoreRecords(sysId){const box=await idbGet('sys_'+sysId);if(box&&Array.isArray(box.recs)&&box.recs.length){records=box.recs.map(r=>{if(r.status==='running')r.status='pending';return r;});return true;}return false;}
+function updateStorageBadge(){const el=$('storeBadge');if(!el)return;const n=records.length;el.textContent=n?`💾 本机已保存 ${n} 条（刷新/重开不丢）`:'💾 本机自动保存已开启';}
+async function clearStoredRecords(){
+  if(running){toast('请稍候');return;}
+  if(!confirm('清理本系统在本机保存的所有记录？\n此操作不可撤销：将删除当前列表与已保存进度，可重新导入/上传。'))return;
+  records=[];_impSnap=null;if(curSys)await idbDel('sys_'+curSys.id);
+  if($('impStat'))$('impStat').textContent='';if($('impClearBtn'))$('impClearBtn').style.display='none';
+  renderResults();refreshQueueUI();setProg(-1);updateStorageBadge();toast('已清理本机保存的记录');
+}
+
 /* ════════════ 逐系统·逐页提示词 ════════════ */
 function fieldLine(f){return `- ${f.key}｜${f.label}${f.hint?'（'+f.hint+'）':''}`;}
 function genericPrompt(sys,page){
@@ -2061,7 +2131,7 @@ function buildPromptFor(sys,page){
   return genericPrompt(sys,page);
 }
 
-/* ════════════ 上传 + 按「每人页数」自动拆分 ════════════ */
+/* ════════════ 上传 + 按「每人页数」自动拆分（PDF 并行拆分加速） ════════════ */
 async function addFiles(fileList){
   if(!curSys)return;
   const all=[...fileList];
@@ -2070,42 +2140,58 @@ async function addFiles(fileList){
   const files=all.filter(f=>isPdf(f)||isImg(f));
   if(!files.length){toast('请拖入 PDF 或图片文件');return;}
   const per=curSys.pagesPerRecord||1;
-  let imgBuf=[];   // 累积图片页：{page:{dataUrl,b64,mime}, name}
-  const flushImgs=()=>{
-    if(!imgBuf.length)return;
-    const chunks=Math.max(1,Math.ceil(imgBuf.length/per));
+  const pdfFiles=files.filter(isPdf), imgFiles=files.filter(f=>!isPdf(f));
+  let addedAny=false;
+
+  /* 图片：并行读取后按顺序累积、拆分 */
+  if(imgFiles.length){
+    setProg(0,`读取 ${imgFiles.length} 张图片 …`);
+    const imgBuf=[];
+    await Promise.all(imgFiles.map(async(file,idx)=>{
+      try{const d=await bReadImage(file);imgBuf[idx]={page:{dataUrl:d,b64:d.split(',')[1],mime:file.type||'image/png'},name:file.name.replace(/\.[^.]+$/,''),srcFull:file.name};}
+      catch(_){ imgBuf[idx]=null; }
+    }));
+    const clean=imgBuf.filter(Boolean);
+    const chunks=Math.max(1,Math.ceil(clean.length/per));
     for(let ci=0;ci<chunks;ci++){
-      const slice=imgBuf.slice(ci*per,ci*per+per);if(!slice.length)continue;
+      const slice=clean.slice(ci*per,ci*per+per);if(!slice.length)continue;
       const names=slice.map(x=>x.name);
       const label=slice.length===1?names[0]:(names[0]+'…+'+(slice.length-1)+'图');
-      records.push({id:uid(),file:label,part:chunks>1?(ci+1):0,partCount:chunks,
+      records.push({id:uid(),file:label,srcName:(slice[0]&&slice[0].srcFull)||label,part:chunks>1?(ci+1):0,partCount:chunks,
         pages:slice.map(x=>x.page),data:null,filled:0,status:'pending',err:'',imported:null});
+      addedAny=true;
     }
-    imgBuf=[];renderResults();refreshQueueUI();
-  };
-  for(const file of files){
-    if(isPdf(file)){
-      flushImgs();
-      setProg(0,`解析 ${file.name} …`);
-      let pages;
-      try{ pages=await renderPdf(file); }catch(e){ toast('PDF 解析失败：'+file.name); continue; }
-      const chunks=Math.max(1,Math.ceil(pages.length/per));
+    renderResults();refreshQueueUI();
+  }
+
+  /* PDF：多个文档并行拆分 */
+  if(pdfFiles.length){
+    setProg(0,`并行拆分 ${pdfFiles.length} 个 PDF …`);
+    let doneN=0;const PDF_CONC=Math.min(4,pdfFiles.length);
+    const results=new Array(pdfFiles.length).fill(null);let ptr=0;
+    async function worker(){
+      while(ptr<pdfFiles.length){
+        const my=ptr++;const file=pdfFiles[my];
+        try{ results[my]={name:file.name,pages:await renderPdf(file)}; }catch(e){ results[my]={name:file.name,pages:null}; }
+        doneN++;setProg(doneN/pdfFiles.length,`已拆分 ${doneN}/${pdfFiles.length} 个 PDF …`);
+      }
+    }
+    await Promise.all(Array.from({length:PDF_CONC},()=>worker()));
+    for(const res of results){
+      if(!res||!res.pages){toast('PDF 解析失败：'+(res?res.name:''));continue;}
+      const pages=res.pages,chunks=Math.max(1,Math.ceil(pages.length/per));
       for(let ci=0;ci<chunks;ci++){
         const slice=pages.slice(ci*per,ci*per+per);if(!slice.length)continue;
-        records.push({id:uid(),file:file.name.replace(/\.pdf$/i,''),part:chunks>1?(ci+1):0,partCount:chunks,
+        records.push({id:uid(),file:res.name.replace(/\.pdf$/i,''),srcName:res.name,part:chunks>1?(ci+1):0,partCount:chunks,
           pages:slice,data:null,filled:0,status:'pending',err:'',imported:null});
+        addedAny=true;
       }
-      renderResults();refreshQueueUI();
-    }else{
-      setProg(0,`读取 ${file.name} …`);
-      try{const d=await bReadImage(file);imgBuf.push({page:{dataUrl:d,b64:d.split(',')[1],mime:file.type||'image/png'},name:file.name.replace(/\.[^.]+$/,'')});}
-      catch(_){ toast('图片读取失败：'+file.name); }
-      if(per===1)flushImgs();   // 一页一份：每张图立即成一条记录
     }
+    renderResults();refreshQueueUI();
   }
-  flushImgs();
-  setProg(-1);
-  toast(`已加入待识别记录，共 ${records.length} 条`);
+
+  setProg(-1);persistRecords();
+  if(addedAny)toast(`已加入记录，共 ${records.length} 条`);
 }
 
 /* ════════════ 识别队列 ════════════ */
@@ -2175,8 +2261,8 @@ async function retryRecord(id){
   running=false;setBusy(false);renderResults();refreshQueueUI();
   setProg(1,'重试完成');setTimeout(()=>setProg(-1),1200);
 }
-function clearAll(){if(running)return;records=[];_impSnap=null;$('impStat').textContent='';$('impClearBtn').style.display='none';renderResults();refreshQueueUI();setProg(-1);}
-function delRec(id){if(running){toast('识别中，请稍候');return;}records=records.filter(r=>r.id!==id);renderResults();refreshQueueUI();}
+function clearAll(){if(running)return;records=[];_impSnap=null;$('impStat').textContent='';$('impClearBtn').style.display='none';renderResults();refreshQueueUI();setProg(-1);if(curSys)idbDel('sys_'+curSys.id);updateStorageBadge();}
+function delRec(id){if(running){toast('识别中，请稍候');return;}records=records.filter(r=>r.id!==id);renderResults();refreshQueueUI();persistRecords();}
 
 /* ════════════ 结果列表 ════════════ */
 function recLabel(r){return r.file+(r.part?` · 第${r.part}份`:'');}
@@ -2324,7 +2410,7 @@ function totalCount(){
   if(curSys.expandKey){const r=curRec();const rows=(r&&r.data&&r.data[curSys.expandKey])||[];return Math.max(rows.length,1)*curSys._cols.length;}
   return curSys._leafKeys.length;
 }
-function updateFill(r){$('rvFill').textContent='已填 '+countFilled(r)+' / '+totalCount();}
+function updateFill(r){$('rvFill').textContent='已填 '+countFilled(r)+' / '+totalCount();persistRecords();}
 
 /* ════════════════════════════════════════════════════════════════
    核对窗内·字段编辑器（拖动排序 / 改名 / 改类型 / 增 / 删 / 插入新变量）
@@ -2502,6 +2588,29 @@ function makeRow(f,val,imp){
     ctrl=`<input class="rv-in${numish?' num':''}${empty}${imp?' imp':''}" value="${esc(disp)}" data-k="${f.key}" oninput="onEdit(this)"${f.hint?` placeholder="${esc(f.hint)}"`:''}>`;
   }
   row.innerHTML=`<div class="rv-lab">${esc(f.label)}<span class="rv-key">${f.key}</span></div>${ctrl}`;
+  return row;
+}
+function inlineCtrlHTML(f,val,imp){
+  const disp=val==null?'':String(val);
+  const shortLab=(f.lineLabel!=null)?f.lineLabel:(f.label||f.key);
+  let ctrl;
+  if(f.type==='select'){
+    const hasL=!!f.optLabels;const opts=hasL?f.optLabels:(f.options||[]);
+    let oh='<option value=""></option>';
+    opts.forEach(o=>{const v=hasL?o[1]:o;const lb=hasL?(o[1]+' '+o[0]):o;oh+=`<option value="${esc(v)}"${disp===String(v)?' selected':''}>${esc(lb)}</option>`;});
+    ctrl=`<select class="rv-sel${imp?' imp':''}" data-k="${f.key}" onchange="onEdit(this)">${oh}</select>`;
+  }else{
+    const numish=(f.type==='number'||f.kind==='num'||f.kind==='freq');const empty=disp===''?' empty':'';
+    ctrl=`<input class="rv-in${numish?' num':''}${empty}${imp?' imp':''}" value="${esc(disp)}" data-k="${f.key}" oninput="onEdit(this)"${f.hint?` placeholder="${esc(f.hint)}"`:''}>`;
+  }
+  return `<div class="rv-lseg"><span class="rv-lslab">${esc(shortLab)}<span class="rv-key">${f.key}</span></span>${ctrl}</div>`;
+}
+function makeLineGroup(title,fieldObjs,r){
+  const row=document.createElement('div');row.className='rv-lrow';
+  let h='';
+  if(title)h+=`<div class="rv-ltitle">${esc(title)}</div>`;
+  fieldObjs.forEach(f=>{h+=inlineCtrlHTML(f,r.data[f.key],r.imported&&r.imported[f.key]);});
+  row.innerHTML=h;
   return row;
 }
 function onEdit(el){
@@ -2888,11 +2997,14 @@ function applyImport(headers,dataRows){
   }else{
     const existing=records.filter(r=>r.data);   // 现有可填记录（识别得到 / 先前创建）
     const idKey=useKeys.find(k=>ID_KEYS.includes(k));
+    const hasFn=headers.includes(FILENAME_COL);
     dataRows.forEach((d,i)=>{
       let r=null;
-      if(idKey&&d[idKey])r=existing.find(x=>String(x.data[idKey]||'')===String(d[idKey]));
+      if(hasFn&&d[FILENAME_COL])r=existing.find(x=>recFileName(x)===String(d[FILENAME_COL]));
+      if(!r&&idKey&&d[idKey])r=existing.find(x=>String(x.data[idKey]||'')===String(d[idKey]));
       if(!r)r=existing[i]||null;
-      if(!r){r=newRec('导入#'+(i+1),{});existing[i]=r;}     // 无原件、新建一条
+      if(!r){r=newRec('导入#'+(i+1),{});if(hasFn&&d[FILENAME_COL])r.srcName=String(d[FILENAME_COL]);existing[i]=r;}     // 无原件、新建一条
+      if(hasFn&&d[FILENAME_COL]&&!r.srcName)r.srcName=String(d[FILENAME_COL]);
       matched++;
       r.imported=r.imported||{};
       useKeys.forEach(k=>{const val=d[k];if(blank(val))return;const cur=r.data[k];if(blank(cur)||overwrite){snap.vals.push({obj:r.data,k,prev:r.data[k]});r.data[k]=val;r.imported[k]=true;filled++;}});
@@ -2903,7 +3015,7 @@ function applyImport(headers,dataRows){
   const cTxt=created?`（自动新建 <b>${created}</b> 条记录）`:'';
   $('impStat').innerHTML=`✅ 已导入 <b>${matched}</b> 条记录${cTxt}，填入 <b>${filled}</b> 个字段（<span style="color:#4b49c9;font-weight:700">紫色</span>＝本次导入）。请到下方列表点每条「核对」打开：<b>左侧上传该条原件</b>、右侧逐项人工核对（Tab / 回车跳下一题）。`;
   $('impClearBtn').style.display=(filled||created)?'':'none';
-  renderResults();refreshQueueUI();if(_rvId)renderFields(curRec());
+  renderResults();refreshQueueUI();if(_rvId)renderFields(curRec());persistRecords();
 }
 function clearImport(silent){
   if(_impSnap){
@@ -2915,24 +3027,26 @@ function clearImport(silent){
   records.forEach(r=>{if(r.imported){r.imported=null;r.filled=countFilled(r);}});
   $('impClearBtn').style.display='none';
   if(!silent)$('impStat').textContent='已清除导入填入的值与新建的记录。';
-  renderResults();refreshQueueUI();if(_rvId)renderFields(curRec());
+  renderResults();refreshQueueUI();if(_rvId)renderFields(curRec());persistRecords();
 }
 function addManualRecord(){
   if(!curSys)return;
   const data=curSys.expandKey?{[curSys.expandKey]:[Object.fromEntries(curSys._cols.map(k=>[k,'']))]}:{};
-  const r={id:uid(),file:'手动录入',part:0,partCount:1,pages:[],data,filled:0,status:'manual',err:'',imported:null};
-  records.push(r);renderResults();refreshQueueUI();openReview(r.id);
+  const r={id:uid(),file:'手动录入',srcName:'手动录入',part:0,partCount:1,pages:[],data,filled:0,status:'manual',err:'',imported:null};
+  records.push(r);renderResults();refreshQueueUI();persistRecords();openReview(r.id);
 }
 
 /* ════════════ 导出（英文变量名表头） ════════════ */
+const FILENAME_COL='filename';
+function recFileName(r){return (r&&(r.srcName||r.file))||'';}
 function buildExportRows(){
   if(curSys.expandKey){
-    const cols=curSys._cols;const rows=[];
-    records.forEach(r=>{(r.data&&r.data[curSys.expandKey]||[]).forEach(o=>{if(cols.some(k=>!blank(o[k])))rows.push(cols.map(k=>o[k]==null?'':o[k]));});});
+    const cols=[FILENAME_COL,...curSys._cols];const rows=[];
+    records.forEach(r=>{const fn=recFileName(r);(r.data&&r.data[curSys.expandKey]||[]).forEach(o=>{if(curSys._cols.some(k=>!blank(o[k])))rows.push([fn,...curSys._cols.map(k=>o[k]==null?'':o[k])]);});});
     return {cols,rows};
   }
-  const cols=curSys._leafKeys;const rows=[];
-  records.forEach(r=>{if(r.data&&countFilled(r)>0)rows.push(cols.map(k=>r.data[k]==null?'':r.data[k]));});
+  const cols=[FILENAME_COL,...curSys._leafKeys];const rows=[];
+  records.forEach(r=>{if(r.data&&countFilled(r)>0)rows.push([recFileName(r),...curSys._leafKeys.map(k=>r.data[k]==null?'':r.data[k])]);});
   return {cols,rows};
 }
 function doXlsx(){
@@ -2991,7 +3105,8 @@ function buildDictRows(){
   const gmap=_gridColsMap(curSys);
   const list=curSys.expandKey?curSys.fields:(curSys._leaf||curSys.fields||[]);
   const head=['序号','变量名 key','中文含义','类型','选项赋值','填写提示','所在页','分组'];
-  const rows=list.map((f,i)=>[i+1,f.key,f.label||'',f.type||'text',fieldCoding(f,gmap),f.hint||'',f.page||1,f.group||'']);
+  const rows=[[1,FILENAME_COL,'上传文件名（PDF/图片原文件名）','text','','导出/导入首列，用于溯源',0,'来源']];
+  list.forEach((f,i)=>rows.push([i+2,f.key,f.label||'',f.type||'text',fieldCoding(f,gmap),f.hint||'',f.page||1,f.group||'']));
   return {head,rows};
 }
 function doTsv(){
@@ -3058,8 +3173,9 @@ function openSystem(id){
   $('upTitle').textContent=`① 导入 Excel / CSV（${fcount}，同名英文变量表头）`;
   const ds=$('dropSub');if(ds)ds.textContent=`首行为英文变量名表头，需与本系统 key 一致；每一行 = 一条记录${s.expandKey?'（每页含多样本的表会逐行展开）':''}。`;
   $('impStat').textContent='';$('impClearBtn').style.display='none';if($('impOverwrite'))$('impOverwrite').checked=false;
-  renderResults();refreshQueueUI();setProg(-1);
+  renderResults();refreshQueueUI();setProg(-1);updateStorageBadge();
   window.scrollTo({top:0,behavior:'smooth'});
+  restoreRecords(s.id).then(had=>{ if(had){renderResults();refreshQueueUI();updateStorageBadge();toast(`已恢复本机保存的 ${records.length} 条记录`);} });
 }
 function goLauncher(){
   if(running){toast('识别中，请稍候');return;}
@@ -3277,6 +3393,7 @@ $('impDrop').addEventListener('drop',e=>{e.preventDefault();$('impDrop').classLi
 $('impFile').addEventListener('change',e=>{if(e.target.files[0])handleImport(e.target.files[0]);e.target.value='';});
 $('impClearBtn').addEventListener('click',()=>clearImport(false));
 $('manualBtn').addEventListener('click',addManualRecord);
+$('clearStoreBtn').addEventListener('click',clearStoredRecords);
 
 /* 核对窗：Tab / 回车 跳到下一题（在字段区内循环，Shift+Tab 上一题） */
 function rvFocusables(){return [...$('rvFields').querySelectorAll('input,select,textarea')].filter(el=>!el.disabled&&el.offsetParent!==null);}
