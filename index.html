@@ -2202,6 +2202,7 @@ const PROVIDERS = {
     guide: `<strong>🐙 GitHub Models · 免费 GPT-4o 视觉</strong>
 前往：<a href="https://github.com/marketplace/models" target="_blank">github.com/marketplace/models</a><br>
 使用 GitHub Personal Access Token（PAT）认证 → Settings → Developer settings → Personal access tokens → Generate<br>
+<strong>⚠️ 401 最常见原因：Token 类型/权限不对。</strong>推荐用 <strong>Fine-grained token</strong>（细粒度令牌）：生成时把「Account permissions」里的 <code>Models</code> 设为 <strong>Read-only</strong>。若用 Classic token（<code>ghp_</code>），需先在 github.com/marketplace/models 点任意模型的「Use / Get API key」完成一次授权，否则仍 401。<br>
 高级模型（GPT-4o）限 <strong>10次/分, 50次/天</strong>，低级模型 150次/天。<br>
 ⚠️ <strong>国内需翻墙</strong>。部署到 Cloudflare Pages 后 CORS 会<strong>自动经同域 <code>/api/github</code> 代理绕过</strong>。GPT-4o 的 OCR 识别质量非常高。<br>
 <button onclick="fetchProviderModels('github')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
@@ -2582,6 +2583,18 @@ function resolveEndpoint(provider, rawUrl){
 
 function getEffectiveKey(){ const p=PROVIDERS[cfg.prov]; return (p && p.useOpenRouterKey) ? cfg.keys.openrouter : cfg.keys[cfg.prov]; }
 function getEffectiveModel(){ const p=PROVIDERS[cfg.prov]; return (cfg.models && cfg.models[cfg.prov]) || (p && p.model) || ''; }
+
+/* 某些模型对 max_tokens 有较小上限（如 glm-4v-flash 仅 1024），
+   超限会 400。这里按模型名把请求的 max_tokens 收敛到安全值。 */
+function resolveMaxTokens(provider, model){
+  let mt = (provider && provider.maxTokens) || 8192;
+  const m = String(model||'').toLowerCase();
+  // 已知 max_tokens 上限较小的模型（超限会 400）
+  if(/glm-4v-flash|glm-4\.1v|glm-4v-plus|glm-4v\b/.test(m)) mt = Math.min(mt, 1024);
+  else if(/gemma/.test(m)) mt = Math.min(mt, 4096);
+  else if(/phi-3|phi-4/.test(m)) mt = Math.min(mt, 4096);
+  return Math.max(256, mt);
+}
 function syncCustomProvider(){ if(!PROVIDERS.custom) return; const c=cfg.custom||{}; PROVIDERS.custom.endpoint=(c.endpoint||'').trim(); PROVIDERS.custom.apiType=c.apiType||'openai'; PROVIDERS.custom.authStyle=c.authStyle||'bearer'; PROVIDERS.custom.extraHeaders=c.extraHeaders||''; PROVIDERS.custom.model=(cfg.models&&cfg.models.custom)||''; }
 function parseExtraHeaders(s){ if(!s)return {}; try{const o=JSON.parse(s);return (o&&typeof o==='object')?o:{};}catch(_){return {};} }
 
@@ -2705,7 +2718,7 @@ async function callAnthropicCompat(provider, key, b64, mime, prompt) {
 
   const body = {
     model: useModel,
-    max_tokens: provider.maxTokens || 8192,
+    max_tokens: resolveMaxTokens(provider, useModel),
     temperature: 0,
     messages: [{ role: 'user', content }]
   };
@@ -2773,7 +2786,7 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
 
   const body = {
     model: useModel,
-    max_tokens: provider.maxTokens || 2000,
+    max_tokens: resolveMaxTokens(provider, useModel),
     temperature: 0,
     messages: [{ role:'user', content }],
     ...(provider.extraBody || {})
@@ -2790,28 +2803,44 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
   if (cfg.prov==='custom' && provider.extraHeaders) Object.assign(headers, parseExtraHeaders(provider.extraHeaders));
 
   let res;
-  try {
+  async function doFetch(){
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s timeout
-    res = await fetch(epUrl, {
-      method:'POST',
-      headers,
-      body: JSON.stringify(body),
-      signal: controller.signal
-    });
+    const r = await fetch(epUrl, { method:'POST', headers, body: JSON.stringify(body), signal: controller.signal });
     clearTimeout(timeoutId);
+    return r;
+  }
+  try {
+    res = await doFetch();
   } catch(e) {
     if (e.name === 'AbortError') {
       throw new Error(`请求超时（90秒无响应）。\n💡 可能原因：模型响应慢（如智谱4.6v思考模式）、网络不稳定。\n建议：切换到更快的模型（如 glm-4v-flash、硅基流动）或重试`);
     }
     throw new Error(`网络错误：无法连接 ${provider.fullName}\n请检查网络或换个服务\n💡 部分 API（如腾讯混元）可能存在浏览器 CORS 限制，建议改用智谱AI或硅基流动`);
   }
+  // 若因 max_tokens 超限报 400，自动按返回的上限收敛后重试一次
+  if (res.status===400) {
+    let peek=''; try{ peek=await res.clone().text(); }catch(_){}
+    const mm = peek.match(/max_tokens[^0-9]*\[?\s*\d+\s*,\s*(\d+)\s*\]?/i) || peek.match(/(?:range|范围|上限|less than|<=|至多)[^0-9]*(\d{2,5})/i);
+    if (/max_tokens|数值范围|out of range|maximum|max length/i.test(peek) && mm) {
+      const cap = Math.max(256, parseInt(mm[1],10)||1024);
+      if (cap < body.max_tokens) {
+        body.max_tokens = cap;
+        try { res = await doFetch(); } catch(_){}
+      }
+    }
+  }
   if (!res.ok) {
     let er = {}; let raw = '';
     try { raw = await res.text(); er = JSON.parse(raw); } catch(e){}
     const m = er.error?.message || er.message || raw || `HTTP ${res.status}`;
     const code = er.error?.code || er.code || '';
-    if (res.status===401) throw new Error('API Key 无效（401）：' + m);
+    if (res.status===401) {
+      let hint='';
+      if(cfg.prov==='github') hint='\n💡 GitHub Models 401：多因 Token 权限不足。请改用 Fine-grained token 并把 Models 权限设为 Read-only，或先在 github.com/marketplace/models 点模型「Use」完成授权。';
+      else hint='\n💡 Key 不正确或未保存成功，请重新粘贴保存后再测。';
+      throw new Error('API Key 无效（401）：' + m + hint);
+    }
     if (res.status===403) {
       let hint = '';
       if (/overdue|欠费|欠款/i.test(m)) hint = '\n💡 提示：账户欠费，需前往云平台「费用中心」充值或开通免费额度后再试';
@@ -2819,7 +2848,11 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
       else if (/region|区域|地域/i.test(m)) hint = '\n💡 提示：区域限制，请检查 API Key 对应的服务区域';
       throw new Error(`访问被拒绝（403 ${code}）：${m}${hint}`);
     }
-    if (res.status===429) throw new Error('频率超限（429），稍候');
+    if (res.status===429) {
+      const ra = res.headers.get('retry-after') || res.headers.get('Retry-After') || '';
+      const waitS = ra ? parseInt(ra,10) : '';
+      throw new Error('频率超限（429）'+(waitS?`，约 ${waitS}s 后重试`:'，稍候自动重试')+(/free|免费|quota|额度/i.test(m)?'（免费额度限速，识别多份时会自动排队慢发）':''));
+    }
     if (res.status===413) throw new Error('图片过大（413），请降低渲染质量');
     if (res.status===404) throw new Error(`模型「${useModel}」不存在（404）。可能已下架，请在设置中切换其他模型`);
     if (res.status===400) {
@@ -3048,16 +3081,22 @@ function updateAiStatus(){
 
 async function callWithRetry(prompt,b64,mime){
   let last;
-  for(let a=0;a<=3;a++){
+  for(let a=0;a<=4;a++){
     try{return await callAI(b64,mime,prompt);}
     catch(e){
       last=e;
       const msg=e.message||'';
-      // 余额不足 / 模型不存在 → 不重试，直接抛（换模型才有用）
+      // 余额不足 / 模型不存在 / 鉴权 → 不重试，直接抛（换模型/换Key才有用）
       if(/balance|insufficient|not found|不支持|invalid_request|unauthor|401|403|404/i.test(msg))throw e;
-      const r=/rate|too many|429|overload|529/i.test(msg);
-      const s=/5\d\d|server/i.test(msg);
-      if((r||s)&&a<3){await sleep((r?5000:2500)*(a+1));continue;}
+      const r=/rate|too many|429|overload|529|频率超限/i.test(msg);
+      const s=/5\d\d|server|timeout|超时|fetch failed|network/i.test(msg);
+      if((r||s)&&a<4){
+        // 若错误信息里带「约 Ns」则按其等待，否则指数退避
+        const mm=msg.match(/约\s*(\d+)\s*s/); 
+        let wait = mm ? (parseInt(mm[1],10)*1000+500) : (r?4000:2000)*Math.pow(1.8,a);
+        wait=Math.min(wait,30000);
+        await sleep(wait);continue;
+      }
       throw e;
     }
   }
