@@ -239,6 +239,22 @@ div.empty{padding:26px;text-align:center;color:var(--ink3);font-size:13px}
 .rv-freq input{width:52px;height:26px;text-align:center;border:1px solid var(--line2);border-radius:6px;font-family:var(--mono);font-size:12px;background:#fff}
 .rv-freq input.empty{background:#fffbeb;border-color:#fcd34d}
 .rv-freq input.imp{background:#eef0ff;border-color:#a5a3f0}
+/* ── 多选题：选项横排对齐（贴合 PDF 同一行选项版面） ── */
+.rv-mc{padding:6px 9px 8px}
+.rv-mc-opts{display:flex;flex-wrap:wrap;gap:6px 8px}
+.rv-mcchip{display:inline-flex;align-items:center;gap:6px;padding:4px 9px 4px 6px;border:1px solid var(--line2);border-radius:8px;background:#fff;cursor:pointer;font-size:11.5px;color:var(--ink2);line-height:1.2;transition:.1s;user-select:none}
+.rv-mcchip:hover{border-color:var(--accent2);background:rgba(13,148,136,.045)}
+.rv-mcchip .mcbox{width:18px;height:18px;flex:0 0 auto;border:1.5px solid var(--line2);border-radius:5px;background:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;transition:.08s}
+.rv-mcchip.on{border-color:var(--accent2);background:rgba(13,148,136,.10);color:var(--ink)}
+.rv-mcchip.on .mcbox{background:var(--accent2);border-color:var(--accent2)}
+.rv-mcchip.on .mcbox::after{content:'✓'}
+.rv-mcchip.imp .mcbox{background:#a5a3f0;border-color:#a5a3f0}
+.rv-mcchip.imp.on .mcbox{background:var(--accent2);border-color:var(--accent2)}
+.rv-mcchip .mcnum{font-family:var(--mono);font-size:10px;color:var(--ink3)}
+.rv-mc-oth{display:flex;align-items:center;gap:6px;margin-top:7px;font-size:11.5px;color:var(--ink3)}
+.rv-mc-oth input{flex:0 0 150px;width:150px;height:26px;padding:0 8px;border:1px solid var(--line2);border-radius:6px;font-size:12px;background:#fff;font-family:var(--mono)}
+.rv-mc-oth input.empty{background:#fffbeb;border-color:#fcd34d}
+.rv-mc-oth input.imp{background:#eef0ff;border-color:#a5a3f0}
 .rv-devbody.off{opacity:.85}
 .rv-toggle{display:inline-flex;border:1px solid var(--line2);border-radius:7px;overflow:hidden}
 .rv-toggle button{border:none;background:#fff;font-size:11px;font-weight:700;padding:3px 10px;cursor:pointer;color:var(--ink3)}
@@ -818,6 +834,25 @@ const ST_PAGE_HINT={
 10:'生活质量 21-49。4列＝从不1·很少2·经常3·总是4。',
 11:'父亲 ff1-19（左）、母亲 fm1-19（右），4列＝非常不符1·基本不符2·基本符3·非常符4。下方生长发育 grow1-4 0/1 方框。',
 12:'问诊表：男生(gender=1)填 boy1-10，女生填 girl1-6，另一性别留空。每项0/1；=1 读右侧初始岁/月。底部 collectform/collectdata 原样照抄。'};
+
+/* ════════ 荧屏表·同一行横排对齐字段组（贴合 PDF 同一行版面） ════════ */
+const ST_LINEGROUPS=[
+  /* 第1页 顶部基本信息 + 手机/电话手表基本情况 */
+  {page:1,title:'基本信息(姓名/性别/学校/年级/班级)',items:[['childname','姓名'],['gender','性别1男2女'],['school','学校'],['grade','年级'],['class','班级']]},
+  {page:1,title:'1·手机(开始年龄/是否有/号码)',items:[['st1_1','开始使用年龄岁'],['st1_2','是否有自己手机0否1是'],['st1_3','手机号码']]},
+  {page:1,title:'1·带手机到校 / 上课看手机',items:[['st1_4','上学带到校0否1是'],['st1_5','上课会看0否1是']]},
+  {page:1,title:'2·电话手表(是否有/是否带到校)',items:[['st2_1','是否有0否1是'],['st2_2','是否带到校0否1是']]},
+  /* 第11页 生长发育·基本信息 */
+  {page:11,title:'1·青春期发育就诊',items:[['grow1','是否看过医生0否1是'],['grow1_t','看过几次'],['grow1_r','就诊原因']]},
+  {page:11,title:'3·骨龄与实际年龄符合',items:[['grow3','是否符合0否1是'],['grow3_yb','提前岁'],['grow3_mb','提前月'],['grow3_ya','落后岁'],['grow3_ma','落后月']]},
+  /* 第12页 填表信息 */
+  {page:12,title:'填表信息',items:[['collectform','填表人姓名'],['collectdata','填表日期'],['keyboarder','录入员']]},
+];
+/* 第12页 男/女问诊：每项「是否□ + 初始岁 + 初始月」同一行 */
+const ST_PUBERTY=[
+  {page:12,groupLabel:'女生问诊表（是否已出现 + 初始岁/月）',prefix:'girl',labels:['腋毛生长','阴毛生长','乳房发育','月经来潮','痤疮(青春痘)','注射生长激素']},
+  {page:12,groupLabel:'男生问诊表（是否已出现 + 初始岁/月）',prefix:'boy', labels:['腋毛生长','阴毛生长','睾丸增大','阴茎增大','声音变低沉','喉结生长','胡须生长','痤疮(青春痘)','遗精','注射生长激素']},
+];
 /* ════════════════════════════════════════════════════════════════
    膳食运动睡眠行为问卷（14 页/人）— SCHEMA / 分页 / 量表网格 / 渲染
    reviewMode:'health'（结构沿用 screen 专用系统逻辑：分页·量表点格·频率行·跳页）
@@ -1184,6 +1219,35 @@ function hActivityBlock(items,groupLabel,r){
   return box;
 }
 
+/* ════════ 多选题：选项横排（选中=1）——贴合 PDF 同一行选项版面 ════════
+   prefix: 选项键前缀（如 punish → punish1..punishN）
+   labels: 选项文字数组（顺序=1..N）
+   groupLabel: 题目标题
+   otherKey / otherLabel: 可选“其他(注明)”文本框字段 */
+function hMultiChoiceBlock(prefix,labels,groupLabel,r,otherKey,otherLabel,keyFn){
+  const box=document.createElement('div');box.className='rv-mc';
+  if(groupLabel){const gl=document.createElement('div');gl.className='rv-gcap';gl.style.margin='0 0 6px';gl.textContent=groupLabel;box.appendChild(gl);}
+  const opts=document.createElement('div');opts.className='rv-mc-opts';
+  labels.forEach((txt,i)=>{
+    const key=keyFn?keyFn(prefix,i):(prefix+(i+1));
+    const on=String(r.data[key]??'')==='1';
+    const imp=on&&r.imported&&r.imported[key]?' imp':'';
+    const chip=document.createElement('span');chip.className='rv-mcchip'+(on?' on':'')+imp;chip.title=key;
+    chip.innerHTML=`<span class="mcbox"></span><span class="mcnum">${i+1}</span>${esc(txt)}`;
+    chip.onclick=()=>{const cur=String(r.data[key]??'')==='1';r.data[key]=cur?'':'1';chip.classList.toggle('on',!cur);if(r.imported)delete r.imported[key];chip.classList.remove('imp');r.filled=countFilled(r);updateFill(r);};
+    opts.appendChild(chip);
+  });
+  box.appendChild(opts);
+  if(otherKey){
+    const v=r.data[otherKey]==null?'':String(r.data[otherKey]);
+    const oth=document.createElement('div');oth.className='rv-mc-oth';
+    oth.innerHTML=`<span>${esc(otherLabel||'其他(注明)')}</span><input data-k="${otherKey}" class="${v===''?'empty':''}${r.imported&&r.imported[otherKey]?' imp':''}" value="${esc(v)}">`;
+    oth.querySelector('input').oninput=function(){onEdit(this);};
+    box.appendChild(oth);
+  }
+  return box;
+}
+
 /* ════════ 直系亲属过敏史网格 ════════ */
 function hBuildFamAllergyGrid(r){
   const wrap=document.createElement('div');wrap.className='rv-grid';
@@ -1238,7 +1302,9 @@ function hBuildFamDiseaseGrid(r){
 const H_LINEGROUPS=(function(){
   const G=[];
   /* ── 第1页 到校/放学、成绩 ── */
+  G.push({page:1,title:'5·就读学校 / 年级 / 班级',items:[['school','就读学校'],['grade','年级'],['class','班级']]});
   G.push({page:1,title:'到校 / 放学时间',items:[['arriveschoolt','早上到校'],['leaveschoolt','下午/晚放学']]});
+  G.push({page:1,title:'6·学习成绩(语文 / 数学 / 英语)',items:[['chinese','语文'],['math','数学'],['english','英语']]});
 
   /* ── 第2页 游戏次数·时长、医保、维A/D、月经/遗精、B1-B6 ── */
   G.push({page:2,title:'上学期间·玩游戏',items:[['play_t1','次/月'],['play_d1','每次分钟']]});
@@ -1252,19 +1318,33 @@ const H_LINEGROUPS=(function(){
   G.push({page:2,title:'B1·父母怀孕时年龄',items:[['PMAGE','母岁'],['PFAGE','父岁']]});
   G.push({page:2,title:'B2·怀孕体重',items:[['BEFW','孕前斤'],['PROW','分娩前斤']]});
   G.push({page:2,title:'B3·分娩孕周',items:[['PWEEK1','周'],['PWEEK1_a','天'],['PWEEK2','足月0足1早产']]});
+  G.push({page:2,title:'B5·分娩方式 / 双胞胎',items:[['BIRTHW','分娩方式0顺1剖'],['twins','双胞胎1是0否']]});
   G.push({page:2,title:'B6·出生',items:[['BIRTHLEN','身长cm'],['CBIRTHW','体重斤']]});
 
   /* ── 第3页 孕期 B11-B18、B20 孕产史 ── */
+  G.push({page:3,title:'B7·孕前吸烟(每周/每次/烟龄)',items:[['activesmoke1','每周次'],['activesmoke2','每次支'],['activesmoke3','烟龄年']]});
+  G.push({page:3,title:'B8·孕期主动吸烟',items:[['SMOKE2','主动✓=1'],['SMOKE2A','每天支']]});
+  G.push({page:3,title:'B8·孕期被动吸烟',items:[['SMOKE3','被动✓=1'],['SMOKE3A','每天支']]});
+  G.push({page:3,title:'B9·白酒',items:[['Wdrink','每次ml'],['Wdrink1','每月次']]});
+  G.push({page:3,title:'B9·红酒',items:[['Rdrink','每次ml'],['Rdrink1','每月次']]});
+  G.push({page:3,title:'B9·啤酒',items:[['Bdrink','每次ml'],['Bdrink1','每月次']]});
+  G.push({page:3,title:'B10·孕早期致畸药物',items:[['druguse','是否0否1是'],['druguse1','孕周'],['druguse2','药名']]});
   G.push({page:3,title:'B11·孕期高血压',items:[['PREHYPER','是否0否1是'],['PREHYPER1','诊断孕周']]});
   G.push({page:3,title:'B12·孕期糖尿病',items:[['PREDIAT','是否0否1是'],['PREDIAT1','诊断孕周']]});
   G.push({page:3,title:'B13·孕期甲状腺功能异常',items:[['PRE_B13','是否0否1是'],['PRE_B131','诊断孕周']]});
   G.push({page:3,title:'B16·母乳喂养',items:[['mmilk','起始0未1出生2出生后'],['mmilk1','出生后天'],['mmilk2','终止岁'],['mmilk3','终止月']]});
   G.push({page:3,title:'B17·配方奶',items:[['milk','起始0未1出生2天3月'],['milk2','起始天'],['milk1','起始月'],['milk3','终止岁'],['milk4','终止月']]});
+  G.push({page:3,title:'B19·装修入住年份',items:[['movet','次数'],['movet1','入住年份1'],['movet2','入住年份2'],['movet3','入住年份3']]});
   G.push({page:3,title:'B20a-b·孕产次',items:[['prenum','孕次'],['natural','顺产次'],['cesarean','剖宫产次']]});
+  G.push({page:3,title:'B20b·末次分娩',items:[['lastdelivery','方式1阴道2剖宫'],['lastdeliveryt','时间']]});
   G.push({page:3,title:'B20c·流产',items:[['abortion1','自然流产次'],['abortion2','人工流产次']]});
+  G.push({page:3,title:'B20c·末次流产',items:[['lastabortion','方式1手术2药物3自然'],['lastabortiont','时间']]});
   G.push({page:3,title:'B20d·早产/死胎',items:[['premature','早产次'],['stillbirth','死胎(产)次']]});
 
   /* ── 第4页 家庭 ── */
+  G.push({page:4,title:'3·兄弟姐妹 / 排行',items:[['Siblings','兄弟姐妹个数'],['CHILDREN_order','家中第几个孩子']]});
+  G.push({page:4,title:'6·父母职业',items:[['MOCUP','母亲职业1-10'],['FOCUP','父亲职业1-10']]});
+  G.push({page:4,title:'6a·父母受教育程度',items:[['MEDU','母亲1-4'],['FEDU','父亲1-4']]});
   G.push({page:4,title:'家庭饮食开支',items:[['FOODCOST','元/月']]});
 
   /* ── 第5页 同住成员吸烟（每类：是否+支数 同一行） ── */
@@ -1310,10 +1390,38 @@ const H_LINEGROUPS=(function(){
   G.push({page:10,title:'1.1·每天吃几顿',items:[['food25','上学日'],['food25_1','休息日']]});
 
   /* ── 第12页 过敏史 ── */
+  /* ── 第10页 早餐 / 灶具 / 抽油烟 ── */
+  G.push({page:10,title:'4·早餐',items:[['breakfast','是否0不吃1吃'],['breakfasta','平均天/周']]});
+  G.push({page:10,title:'5·做饭灶具',items:[['cookert','灶具1-4'],['cookert1','其他类型']]});
+  G.push({page:10,title:'7·抽油烟设备',items:[['fume','设备1-4'],['fumefre','使用频率1-9']]});
+
+  /* ── 第12页 过敏原检测 ── */
+  G.push({page:12,title:'11·过敏原检测',items:[['test','是否0否1是'],['test_1','过敏物质']]});
   G.push({page:12,title:'16·食物/花粉/疫苗过敏史',items:[['allergic_a','是否0否1是'],['allergic_1','具体名称']]});
+
+  /* ── 第13页 疫苗反应 / 服药 / 贫血 ── */
+  G.push({page:13,title:'24·疫苗后严重反应',items:[['vaccine-f','是否0否1是'],['vaccine_f1','具体症状']]});
+  G.push({page:13,title:'26·一周内服药',items:[['Medicine','是否0否1是'],['Medicine_type','药物类型/名称']]});
+  G.push({page:13,title:'27·贫血',items:[['anemia','是否诊断0否1是'],['anemia_m','是否服药0否1是'],['anemia_1','具体药物']]});
+
+  /* ── 第14页 填表信息 ── */
+  G.push({page:14,title:'填表信息',items:[['collectform','填表人姓名'],['collectdata','填表日期'],['keyboarder','录入人']]});
   return G;
 })();
 
+/* ════════ 多选题横排配置（选项后□打✓=1，贴合 PDF 同一行选项版面） ════════
+   {page, prefix, labels, title, otherKey?, otherLabel?}
+   labels 顺序=1..N，对应 prefix1..prefixN */
+const H_MULTI=[
+  {page:1, prefix:'punish',        labels:HQ_PUNISH,    title:'11·被惩罚方式【多选】(选项后□打✓)', otherKey:'punish11', otherLabel:'11=其他(注明)'},
+  {page:2, prefix:'play_gt',       labels:HQ_GAMETOOL,  title:'玩游戏主要工具【多选】(选项后打✓)', otherKey:'play_gt6o', otherLabel:'6=其他(注明)'},
+  {page:2, prefix:'play_gl',       labels:HQ_GAMEPLACE, title:'玩游戏的场所【多选】(选项后打✓)',   otherKey:'play_gl6o', otherLabel:'6=其他(注明)'},
+  {page:7, prefix:'reason',        labels:HSLEEP_REASON,title:'工作日·晚睡主要原因【多选】(选项后□打✓)', otherKey:'reason6_other', otherLabel:'6=其他(注明)'},
+  {page:7, prefix:'reasons',       labels:HSLEEP_REASON,title:'休息日·晚睡主要原因【多选】(选项后□打✓)', otherKey:'reason6s_other',otherLabel:'6=其他(注明)', keyFn:(p,i)=>'reason'+(i+1)+'s'},
+  {page:11,prefix:'diag_disease',  labels:HQ_DIAG,      title:'1·曾被诊断疾病【多选】', otherKey:'diag_disease14_1', otherLabel:'14=其他内分泌/代谢疾病(说明)'},
+  {page:11,prefix:'meds_use_3m',   labels:HQ_MEDS,      title:'3·近3个月用药【多选】', otherKey:'meds_use_3m9_1',   otherLabel:'9=其他(说明)'},
+  {page:12,prefix:'allergy_',      labels:HQ_ALLERGY,   title:'10·被诊断过敏相关疾病【多选】(选项后○打✓)', otherKey:'allergy_6_1', otherLabel:'6=其他(说明)'},
+];
 const H_PAGE_TITLE={1:'一、基本情况(身份/成绩/压力/惩罚)',2:'游戏·疾病·保险·维生素·月经遗精 + 孕期B1-B6',3:'孕期 B7-B20',4:'B21-B22 + 家庭情况1-7(疾病史表)',5:'家庭8-12 + 锻炼·上学回家·运动1-3',6:'运动4-12·家务·兴趣班 + 工作日作息',7:'工作日睡因·休息日作息/睡因·睡眠1-4',8:'睡眠习惯量表 5-33',9:'膳食频率表(谷薯/蔬果/肉蛋·上半)',10:'膳食频率表(豆坚果/油盐糖·下半) + 膳食1.1-8',11:'习惯9-16 + 甲状腺1-3',12:'免疫1-17(频率题+过敏)',13:'免疫18-27(亲属过敏史)',14:'填表信息 + 环境暴露1-13'};
 
 const H_PAGE_HINT={
@@ -1391,6 +1499,13 @@ function healthRender(host,r){
     [['上学/放学回家方式',H_SCHOOLW],['主要运动方式',H_PE],['做家务',H_PH],['兴趣班',H_PI]].forEach(([label,list])=>{
       const items=list.filter(([base])=>curSys._fby[base+'a']&&curSys._fby[base+'a'].page===pg);
       if(items.length){const ak=[];items.forEach(([base])=>ak.push(base+'a',base+'b',base+'c'));addW(ak,(h)=>h.appendChild(hActivityBlock(items,label,r)));}
+    });
+    /* 多选题横排块（选项后□打✓=1，贴合 PDF 同一行选项版面） */
+    H_MULTI.filter(mc=>mc.page===pg).forEach(mc=>{
+      const keys=mc.labels.map((_,i)=>mc.keyFn?mc.keyFn(mc.prefix,i):(mc.prefix+(i+1)));
+      if(!keys.some(k=>curSys._fby[k]&&curSys._fby[k].page===pg))return;
+      if(mc.otherKey)keys.push(mc.otherKey);
+      addW(keys,(h)=>h.appendChild(hMultiChoiceBlock(mc.prefix,mc.labels,mc.title,r,mc.otherKey,mc.otherLabel,mc.keyFn)));
     });
     /* 家庭疾病史表（第4页） */
     if(pg===4){
@@ -2917,6 +3032,32 @@ function stFreqInputs(freqKey,minKey,r){
   b.querySelector('input').oninput=function(){onEdit(this);};
   box.appendChild(a);box.appendChild(b);return box;
 }
+/* —— 男/女问诊：是否□ + 初始岁/月 同一行（贴合 PDF 版面） —— */
+function stPubertyBlock(cfg,r){
+  const box=document.createElement('div');
+  if(cfg.groupLabel){const gl=document.createElement('div');gl.className='rv-gcap';gl.textContent=cfg.groupLabel;box.appendChild(gl);}
+  cfg.labels.forEach((name,i)=>{
+    const n=i+1;const base=cfg.prefix+n;const ky=base+'_y',km=base+'_m';
+    const line=document.createElement('div');line.className='rv-uline';
+    const on=String(r.data[base]??'')==='1';
+    const chk=document.createElement('span');chk.className='rv-chk'+(on?' on':'');chk.title='打勾=已出现(1)';
+    chk.onclick=()=>{const cur=String(r.data[base]??'')==='1';setToggle(base,cur?'0':'1');chk.classList.toggle('on',!cur);};
+    line.appendChild(chk);
+    const nm=document.createElement('span');nm.className='rv-uname';nm.innerHTML=`<span class="qn">${n}</span>${esc(name)}`;line.appendChild(nm);
+    const bx=document.createElement('span');bx.style.cssText='display:flex;gap:14px;margin-left:auto;flex-wrap:wrap';
+    const vy=r.data[ky]==null?'':String(r.data[ky]);
+    const a=document.createElement('span');a.className='rv-freq';
+    a.innerHTML=`初始 <input data-k="${ky}" class="${vy===''?'empty':''}${r.imported&&r.imported[ky]?' imp':''}" value="${esc(vy)}"> 岁`;
+    a.querySelector('input').oninput=function(){onEdit(this);};
+    const vm=r.data[km]==null?'':String(r.data[km]);
+    const b=document.createElement('span');b.className='rv-freq';
+    b.innerHTML=`<input data-k="${km}" class="${vm===''?'empty':''}${r.imported&&r.imported[km]?' imp':''}" value="${esc(vm)}"> 月`;
+    b.querySelector('input').oninput=function(){onEdit(this);};
+    bx.appendChild(a);bx.appendChild(b);line.appendChild(bx);
+    box.appendChild(line);
+  });
+  return box;
+}
 function stBuildGrid(g,r){
   const wrap=document.createElement('div');wrap.className='rv-grid';
   const cap=document.createElement('div');cap.className='rv-gcap';cap.textContent=g.cap;wrap.appendChild(cap);
@@ -2971,7 +3112,27 @@ function screenRender(host,r){
     const gridKeys=new Set();groups.forEach(g=>{(g.keys||[]).forEach(k=>gridKeys.add(k));if(g.type==='parent2'){for(let i=1;i<=19;i++){gridKeys.add('ff'+i);gridKeys.add('fm'+i);}}});
     const devBlocks=stDevBlocksForPage(pg);
     const devKeys=new Set();devBlocks.forEach(b=>stCollectDevKeys(b.period,b.dev).forEach(k=>devKeys.add(k)));
-    curSys._leaf.filter(f=>f.page===pg&&!gridKeys.has(f.key)&&!devKeys.has(f.key)).forEach(f=>host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key])));
+
+    /* 控件登记：同一行横排组 / 男女问诊块（按 keys 首次出现处整块插入，贴合 PDF 版面） */
+    const widgets=[];const keyW=new Map();
+    const addW=(keys,emit)=>{const w={keys:new Set(keys),emit,done:false};widgets.push(w);keys.forEach(k=>keyW.set(k,w));};
+    ST_LINEGROUPS.filter(lg=>lg.page===pg).forEach(lg=>{
+      const objs=lg.items.map(([k,ll])=>{const f=curSys._fby[k];return f?Object.assign({},f,{lineLabel:ll}):null;}).filter(Boolean);
+      if(!objs.length)return;
+      addW(objs.map(f=>f.key),(h)=>h.appendChild(makeLineGroup(lg.title,objs,r)));
+    });
+    ST_PUBERTY.filter(pb=>pb.page===pg).forEach(pb=>{
+      const keys=[];pb.labels.forEach((_,i)=>{const b=pb.prefix+(i+1);keys.push(b,b+'_y',b+'_m');});
+      if(!keys.some(k=>curSys._fby[k]))return;
+      addW(keys,(h)=>h.appendChild(stPubertyBlock(pb,r)));
+    });
+
+    /* 普通字段（单遍渲染）：命中同一行组/问诊块→首字段处整块插入；量表与设备键跳过 */
+    curSys._leaf.filter(f=>f.page===pg&&!gridKeys.has(f.key)&&!devKeys.has(f.key)).forEach(f=>{
+      const w=keyW.get(f.key);
+      if(w){if(!w.done){w.done=true;w.emit(host);}return;}
+      host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key]));
+    });
     if(devBlocks.length){let lastLabel=null;devBlocks.forEach(b=>{if(b.groupLabel&&b.groupLabel!==lastLabel){const gl=document.createElement('div');gl.className='rv-gcap';gl.textContent=b.groupLabel;host.appendChild(gl);lastLabel=b.groupLabel;}host.appendChild(stBuildDeviceBlock(b.period,b.dev,r));});}
     groups.forEach(g=>host.appendChild(stBuildGrid(g,r)));
   }
