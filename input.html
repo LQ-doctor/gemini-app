@@ -1235,20 +1235,84 @@ function hBuildFamDiseaseGrid(r){
 }
 
 /* ════════ 页标题 + 页提示 ════════ */
-const H_LINEGROUPS=[
-  {page:5,title:'母亲 姓名/电话/微信',items:[['NAMEM','姓名'],['TELEM','手机'],['TELEM1','微信']]},
-  {page:5,title:'父亲 姓名/电话/微信',items:[['NAMEF','姓名'],['TELEF','手机'],['TELEF1','微信']]},
-  {page:5,title:'其他照顾者 姓名/电话/微信',items:[['NAMEO','姓名'],['TELEO','手机'],['TELEO1','微信']]},
-  {page:6,title:'工作日·早晨',items:[['waket1','醒来'],['sleept1','起床'],['eatt1','早餐']]},
-  {page:6,title:'工作日·午/晚',items:[['sleept3','午休(分)'],['eatt2','晚餐'],['eatt3','睡前最后进食']]},
-  {page:6,title:'工作日·夜间',items:[['bedt2','上床'],['sleept2','入睡']]},
-  {page:7,title:'休息日·早晨',items:[['waket1s','醒来'],['sleept1s','起床'],['eatt1s','早餐']]},
-  {page:7,title:'休息日·午/晚',items:[['sleept3s','午休(分)'],['eatt2s','晚餐'],['eatt3s','睡前最后进食']]},
-  {page:7,title:'休息日·夜间',items:[['bedt2s','上床'],['sleept2s','入睡']]},
-  {page:10,title:'1a·你吸烟吗',items:[['c_smoke','是否0否1是'],['c_smokea','频度0-4'],['c_smokeb','量_支']]},
-  {page:10,title:'2a·你饮白酒吗',items:[['c_drink1','是否0否1是'],['c_drink1a','频度0-4'],['c_drink1b','量_ml']]},
-  {page:10,title:'2b·你饮啤酒吗',items:[['c_drink2','是否0否1是'],['c_drink2a','频度0-4'],['c_drink2b','量_ml']]},
-];
+const H_LINEGROUPS=(function(){
+  const G=[];
+  /* ── 第1页 到校/放学、成绩 ── */
+  G.push({page:1,title:'到校 / 放学时间',items:[['arriveschoolt','早上到校'],['leaveschoolt','下午/晚放学']]});
+
+  /* ── 第2页 游戏次数·时长、医保、维A/D、月经/遗精、B1-B6 ── */
+  G.push({page:2,title:'上学期间·玩游戏',items:[['play_t1','次/月'],['play_d1','每次分钟']]});
+  G.push({page:2,title:'寒暑假·玩游戏',items:[['play_t2','次/月'],['play_d2','每次分钟']]});
+  G.push({page:2,title:'14A·基本医保',items:[['baseins','是否0否1是'],['baseins1','第几档'],['baseins2','元/年']]});
+  G.push({page:2,title:'14B·商业医保',items:[['busins','是否0否1是'],['busins1','元/年'],['busins3','报销总额度元/年']]});
+  G.push({page:2,title:'15·维生素A补充剂',items:[['VA_SUPPLY','是否0否1是'],['VA_SUPPLY1','视黄醇RE'],['VA_SUPPLY2','IU']]});
+  G.push({page:2,title:'16·维生素D补充剂',items:[['VD_SUPPLY','是否0否1是'],['VD_SUPPLY1','μg'],['VD_SUPPLY2','IU']]});
+  G.push({page:2,title:'17·(女)月经',items:[['menstr','是否0否1是'],['menstr_y','初潮岁'],['menstr_m','初潮月']]});
+  G.push({page:2,title:'18·(男)遗精',items:[['spermat','是否0否1是'],['spermat_y','首次岁'],['spermat_m','首次月']]});
+  G.push({page:2,title:'B1·父母怀孕时年龄',items:[['PMAGE','母岁'],['PFAGE','父岁']]});
+  G.push({page:2,title:'B2·怀孕体重',items:[['BEFW','孕前斤'],['PROW','分娩前斤']]});
+  G.push({page:2,title:'B3·分娩孕周',items:[['PWEEK1','周'],['PWEEK1_a','天'],['PWEEK2','足月0足1早产']]});
+  G.push({page:2,title:'B6·出生',items:[['BIRTHLEN','身长cm'],['CBIRTHW','体重斤']]});
+
+  /* ── 第3页 孕期 B11-B18、B20 孕产史 ── */
+  G.push({page:3,title:'B11·孕期高血压',items:[['PREHYPER','是否0否1是'],['PREHYPER1','诊断孕周']]});
+  G.push({page:3,title:'B12·孕期糖尿病',items:[['PREDIAT','是否0否1是'],['PREDIAT1','诊断孕周']]});
+  G.push({page:3,title:'B13·孕期甲状腺功能异常',items:[['PRE_B13','是否0否1是'],['PRE_B131','诊断孕周']]});
+  G.push({page:3,title:'B16·母乳喂养',items:[['mmilk','起始0未1出生2出生后'],['mmilk1','出生后天'],['mmilk2','终止岁'],['mmilk3','终止月']]});
+  G.push({page:3,title:'B17·配方奶',items:[['milk','起始0未1出生2天3月'],['milk2','起始天'],['milk1','起始月'],['milk3','终止岁'],['milk4','终止月']]});
+  G.push({page:3,title:'B20a-b·孕产次',items:[['prenum','孕次'],['natural','顺产次'],['cesarean','剖宫产次']]});
+  G.push({page:3,title:'B20c·流产',items:[['abortion1','自然流产次'],['abortion2','人工流产次']]});
+  G.push({page:3,title:'B20d·早产/死胎',items:[['premature','早产次'],['stillbirth','死胎(产)次']]});
+
+  /* ── 第4页 家庭 ── */
+  G.push({page:4,title:'家庭饮食开支',items:[['FOODCOST','元/月']]});
+
+  /* ── 第5页 同住成员吸烟（每类：是否+支数 同一行） ── */
+  ['f','gf','m','gm'].forEach((sfx,i)=>{
+    const mn=['父亲','爷爷或外公','母亲','奶奶或外婆'][i];
+    G.push({page:5,title:'吸烟者·'+mn,items:[['smokeu_'+sfx,'是否'],['smokeu_'+sfx+'1','每天平均支']]});
+  });
+  G.push({page:5,title:'吸烟者·其他家人',items:[['smokeu_other','是否'],['smokeu_othera','注明'],['smokeu_other1','每天平均支']]});
+  G.push({page:5,title:'居住',items:[['larea','面积㎡'],['pollution','500m内污染0否1是']]});
+  /* 母/父/其他照顾者 姓名·电话·微信 */
+  G.push({page:5,title:'母亲 姓名/电话/微信',items:[['NAMEM','姓名'],['TELEM','手机'],['TELEM1','微信']]});
+  G.push({page:5,title:'父亲 姓名/电话/微信',items:[['NAMEF','姓名'],['TELEF','手机'],['TELEF1','微信']]});
+  G.push({page:5,title:'其他照顾者 姓名/电话/微信',items:[['NAMEO','姓名'],['TELEO','手机'],['TELEO1','微信']]});
+
+  /* ── 第5-6页 锻炼：上学回家方式 / 运动 / 家务 / 兴趣班（每行 是否□+每周天+每次时长 同一行，贴合原件） ── */
+  const H_SCHOOLW_N=['楼下坐车','先步行再坐车','步行/骑车'];
+  ['school_w1','school_w2','school_w3'].forEach((k,i)=>{
+    G.push({page:5,title:i+1+'·'+H_SCHOOLW_N[i],items:[[k+'a','是否□'],[k+'b','天/周'],[k+'c','每次往返分']]});
+  });
+  const PE_N=['快跑跳绳','骑车/仰卧起坐','慢跑/足球','篮球/游泳/跳','羽毛球','乒乓/体操','拉伸/瑜伽','逛街/逛超市','散步','学习/玩电脑','吃饭/聊天/手工','看电视/听音乐'];
+  for(let i=1;i<=12;i++){const k='pe_'+i;const pg=(i<=3)?5:6;G.push({page:pg,title:i+'·'+PE_N[i-1],items:[[k+'a','是否□'],[k+'b','天/周'],[k+'c','每次分']]});}
+  G.push({page:6,title:'13·运动其他',items:[['pe_13','注明'],['pe_13a','是否□'],['pe_13b','天/周'],['pe_13c','每次分']]});
+  const PH_N=['扫地','拖地','洗碗/倒垃圾/浇花','遛狗/猫'];
+  for(let i=1;i<=4;i++){const k='ph_'+i;G.push({page:6,title:i+'·'+PH_N[i-1],items:[[k+'a','是否□'],[k+'b','天/周'],[k+'c','每次分']]});}
+  G.push({page:6,title:'5·家务其他',items:[['ph_5','注明'],['ph_5a','是否□'],['ph_5b','天/周'],['ph_5c','每次分']]});
+  const PI_N=['钢琴/风琴/小提琴','吉他/大提琴/长笛','芭蕾/现代/爵士','跆拳道/柔道/空手道'];
+  for(let i=1;i<=4;i++){const k='pi_'+i;G.push({page:6,title:i+'·'+PI_N[i-1],items:[[k+'a','是否□'],[k+'b','天/周'],[k+'c','每次分']]});}
+  G.push({page:6,title:'5·兴趣班其他',items:[['pi_5','注明'],['pi_5a','是否□'],['pi_5b','天/周'],['pi_5c','每次分']]});
+
+  /* ── 第6页 工作日作息（时:分同一行分组） ── */
+  G.push({page:6,title:'工作日·早晨',items:[['waket1','醒来'],['sleept1','起床'],['eatt1','早餐']]});
+  G.push({page:6,title:'工作日·午/晚',items:[['sleept3','午休(分)'],['eatt2','晚餐'],['eatt3','睡前最后进食']]});
+  G.push({page:6,title:'工作日·夜间',items:[['bedt2','上床'],['sleept2','入睡']]});
+  /* ── 第7页 休息日作息 ── */
+  G.push({page:7,title:'休息日·早晨',items:[['waket1s','醒来'],['sleept1s','起床'],['eatt1s','早餐']]});
+  G.push({page:7,title:'休息日·午/晚',items:[['sleept3s','午休(分)'],['eatt2s','晚餐'],['eatt3s','睡前最后进食']]});
+  G.push({page:7,title:'休息日·夜间',items:[['bedt2s','上床'],['sleept2s','入睡']]});
+
+  /* ── 第10页 孩子本人烟酒三行（是否+频度+量 同一行） ── */
+  G.push({page:10,title:'1a·你吸烟吗',items:[['c_smoke','是否0否1是'],['c_smokea','频度0-4'],['c_smokeb','量_支']]});
+  G.push({page:10,title:'2a·你饮白酒吗',items:[['c_drink1','是否0否1是'],['c_drink1a','频度0-4'],['c_drink1b','量_ml']]});
+  G.push({page:10,title:'2b·你饮啤酒吗',items:[['c_drink2','是否0否1是'],['c_drink2a','频度0-4'],['c_drink2b','量_ml']]});
+  G.push({page:10,title:'1.1·每天吃几顿',items:[['food25','上学日'],['food25_1','休息日']]});
+
+  /* ── 第12页 过敏史 ── */
+  G.push({page:12,title:'16·食物/花粉/疫苗过敏史',items:[['allergic_a','是否0否1是'],['allergic_1','具体名称']]});
+  return G;
+})();
 
 const H_PAGE_TITLE={1:'一、基本情况(身份/成绩/压力/惩罚)',2:'游戏·疾病·保险·维生素·月经遗精 + 孕期B1-B6',3:'孕期 B7-B20',4:'B21-B22 + 家庭情况1-7(疾病史表)',5:'家庭8-12 + 锻炼·上学回家·运动1-3',6:'运动4-12·家务·兴趣班 + 工作日作息',7:'工作日睡因·休息日作息/睡因·睡眠1-4',8:'睡眠习惯量表 5-33',9:'膳食频率表(谷薯/蔬果/肉蛋·上半)',10:'膳食频率表(豆坚果/油盐糖·下半) + 膳食1.1-8',11:'习惯9-16 + 甲状腺1-3',12:'免疫1-17(频率题+过敏)',13:'免疫18-27(亲属过敏史)',14:'填表信息 + 环境暴露1-13'};
 
