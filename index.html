@@ -438,304 +438,6 @@ select.set-key{font-family:var(--sans)}
   .rv-hint{display:none}
   .grid{grid-template-columns:1fr}
 }
-
-/* ==== 从 output 移植的核对面板版式（覆盖式追加，保证与人工核对台一致） ==== */
-/* ───── Review modal (核对) ───── */
-.rv-bg{position:fixed;inset:0;z-index:50;background:rgba(22,32,31,.55);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center}
-.rv-bg.on{display:flex}
-.rv-shell{width:98vw;height:97vh;background:var(--paper);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.4)}
-.rv-head{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--paper2);border-bottom:1px solid var(--line);flex-shrink:0}
-.rv-title{flex:1;font-size:14px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rv-nav{display:flex;align-items:center;gap:7px}
-.rv-x{width:32px;height:32px;border-radius:50%;border:1px solid var(--line2);background:#fff;cursor:pointer;font-size:15px}
-.rv-x:hover{border-color:var(--ink3)}
-.rv-pos{font-size:12px;color:var(--ink3);font-family:var(--mono);min-width:52px;text-align:center}
-.rv-body{flex:1;display:flex;min-height:0}
-.rv-left{flex:1.35 1 0;min-width:0;display:flex;flex-direction:column;background:#1c2625;border-right:1px solid var(--line2)}
-.rv-ltool{display:flex;align-items:center;gap:8px;padding:7px 11px;background:rgba(0,0,0,.25);flex-shrink:0}
-.rv-pgc{font-size:11px;color:rgba(255,255,255,.78);font-weight:600;white-space:nowrap}
-.rv-hint{flex:1;text-align:center;font-size:10px;color:rgba(255,255,255,.42);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rv-zoom{display:flex;align-items:center;gap:4px}
-.rv-zb{width:27px;height:27px;border-radius:7px;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
-.rv-zb:hover{background:rgba(255,255,255,.26)}
-.rv-zl{font-size:11px;color:rgba(255,255,255,.85);min-width:46px;text-align:center;font-family:var(--mono)}
-.rv-pages{flex:1;overflow:auto;position:relative;cursor:grab;touch-action:none;overscroll-behavior:contain;background:#1c2625}
-.rv-pages.panning{cursor:grabbing}
-.rv-zlayer{display:flex;flex-direction:column;align-items:center;gap:14px;width:max-content;min-width:100%;margin:0 auto;padding:14px}
-.rv-pw{position:relative;display:flex;flex-direction:column;align-items:center}
-.rv-pn{font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;background:rgba(0,0,0,.4);padding:2px 10px;border-radius:10px}
-.rv-img{border-radius:6px;box-shadow:0 4px 20px rgba(0,0,0,.45);display:block;background:#fff;max-width:none;user-select:none;-webkit-user-drag:none}
-.rv-splt{flex:0 0 7px;cursor:col-resize;background:var(--line2);position:relative}
-.rv-splt:hover{background:var(--accent2)}
-.rv-splt::before{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:2px;height:34px;background:rgba(255,255,255,.6);border-radius:2px}
-.rv-right{flex:1 1 0;min-width:0;display:flex;flex-direction:column;background:var(--paper)}
-.rv-rh{display:flex;align-items:center;gap:8px;padding:9px 13px;border-bottom:1px solid var(--line);background:var(--paper2);flex-shrink:0}
-.rv-rh .t{font-size:12px;font-weight:800;flex:1}
-.rv-rh .f{font-size:11px;color:var(--ink3);font-family:var(--mono)}
-.rv-fields{flex:1;overflow-y:auto;padding:4px 8px 60px}
-.rv-sec{font-size:11px;font-weight:800;color:var(--ink);background:var(--paper2);border-left:3px solid var(--accent);border-radius:6px;padding:6px 10px;margin:9px 0 3px;position:sticky;top:0;z-index:1;border-bottom:1px solid var(--line);cursor:pointer;display:flex;align-items:center;gap:7px}
-.rv-sec:hover{background:var(--accent);color:#fff}
-.rv-sec.cur{background:var(--accent);color:#fff;border-left-color:#fff}
-.rv-sec .pg{margin-left:auto;font-family:var(--mono);font-size:9px;font-weight:700;opacity:.7}
-.rv-fields{scroll-behavior:smooth}
-
-/* ═══════════════════════════════════════════════════════════════
-   右侧核对面板 · 版式系统
-   1) 每一行都有「题干列 → 控件列」两条竖直参考线，跨行对齐
-   2) 所有数字用等宽字形（tabular-nums），逐位核对手写体不串位
-   3) 颜色只承担三种语义：青=已选 / 琥珀=未填 / 靛=Excel 套对
-═══════════════════════════════════════════════════════════════ */
-.rv-in,.rv-sel,.rv-cell,.rv-fcell,.rv-freq input,.rv-famnum,.rv-mc-oth input,.rv-ochip .ov{font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1}
-
-/* 章节条 */
-.rv-sec{letter-spacing:.3px}
-
-/* ── 普通单字段行：题干靠左，控件贴右轨 ── */
-.rv-row{display:flex;align-items:center;gap:12px;padding:5px 9px;min-height:32px;border-radius:8px}
-.rv-row+.rv-row{border-top:1px solid var(--line)}
-.rv-row:hover{background:var(--hover)}
-.rv-lab{flex:1;min-width:0;font-size:11.5px;color:var(--ink2);line-height:1.35;word-break:break-word}
-.rv-key{font-family:var(--mono);font-size:9px;color:var(--ink4);margin-left:6px;letter-spacing:-.2px;opacity:.62;transition:opacity .12s}
-.rv-row:hover .rv-key,.rv-orow:hover .rv-key,.rv-lrow:hover .rv-key{opacity:1;color:var(--accent2)}
-
-/* 输入 / 下拉 */
-.rv-in{flex:0 0 130px;width:130px;height:29px;padding:0 9px;border:1px solid var(--line2);border-radius:8px;font-size:12px;background:#fff;font-family:var(--num);color:var(--ink);transition:border-color .12s,box-shadow .12s,background .12s}
-.rv-in:hover{border-color:var(--ink4)}
-.rv-in:focus{outline:none;border-color:var(--sel);box-shadow:0 0 0 3px var(--sel-soft)}
-.rv-in.num{flex:0 0 66px;width:66px;text-align:center;letter-spacing:.5px}
-.rv-in.empty{background:var(--empty-bg);border-color:var(--empty-bd)}
-.rv-in.imp{background:var(--imp-bg);border-color:var(--imp-bd);color:#3f3dad}
-.rv-sel{flex:0 0 112px;width:112px;height:29px;padding:0 6px;border:1px solid var(--line2);border-radius:8px;font-size:12px;background:#fff;color:var(--ink);font-family:var(--sans)}
-.rv-sel:focus{outline:none;border-color:var(--sel);box-shadow:0 0 0 3px var(--sel-soft)}
-.rv-sel.imp{background:var(--imp-bg);border-color:var(--imp-bd)}
-.impdot{flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:var(--imp);margin-left:2px}
-.impdot.hide{visibility:hidden}
-
-/* ── 同一行字段组（贴合 PDF 同一行版面）：整组做成一张小卡 ── */
-.rv-lrow{display:flex;align-items:center;gap:9px 10px;flex-wrap:wrap;padding:7px 10px 8px;margin:5px 0;background:var(--paper2);border:1px solid var(--line);border-left:3px solid var(--line2);border-radius:10px;transition:border-color .12s,box-shadow .12s}
-.rv-lrow:hover{border-left-color:var(--sel);box-shadow:0 2px 10px rgba(22,32,31,.05);background:#fff}
-.rv-ltitle{flex:1 1 100%;display:flex;align-items:center;gap:0;font-size:11.5px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:3px}
-.rv-ltitle .lgtag{font-family:var(--mono);font-size:8.5px;font-weight:800;letter-spacing:.4px;color:var(--accent2);background:var(--sel-soft);border:1px solid var(--sel-hair);border-radius:99px;padding:1px 6px;margin-right:7px;flex:0 0 auto;text-transform:uppercase}
-.rv-lseg{display:flex;align-items:center;gap:7px;flex:0 0 auto;min-height:30px}
-.rv-lseg+.rv-lseg{padding-left:11px;border-left:1px dashed var(--line2)}
-.rv-lseg .rv-lslab{font-size:11px;color:var(--ink3);line-height:1.2;white-space:nowrap;font-weight:600}
-.rv-lseg .rv-key{font-size:8.5px;margin-left:4px}
-.rv-lseg .rv-in{flex:0 0 96px;width:96px;height:28px}
-.rv-lseg .rv-in.num{flex:0 0 60px;width:60px}
-.rv-lseg .rv-sel{flex:0 0 98px;width:98px;height:28px}
-
-/* 同行组 / 设备块 上方的 PDF 小节标题 */
-.rv-lgcap{margin:15px 0 5px;border:1px solid var(--line2);border-radius:10px;letter-spacing:.2px;box-shadow:0 1px 0 rgba(255,255,255,.6)}
-.rv-lgcap::before{background:var(--accent)}
-
-/* ── 单选 / 编码题：题干列 + 选项列，两条竖直参考线 ── */
-.rv-orow{display:grid;grid-template-columns:minmax(140px,38%) 1fr;gap:6px 14px;align-items:center;padding:6px 9px;min-height:34px;border-top:1px solid var(--line);border-left:3px solid transparent;border-radius:0 8px 8px 0;transition:background .12s,border-color .12s}
-.rv-orow:hover{background:var(--hover);border-left-color:var(--accent)}
-.rv-olab{font-size:11.5px;color:var(--ink2);line-height:1.35;word-break:break-word}
-.rv-ochips{display:flex;flex-wrap:wrap;gap:5px 6px;align-items:center}
-.rv-ochip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);background:#fff;border-radius:99px;padding:3px 11px 3px 4px;font-size:11px;color:var(--ink2);cursor:pointer;line-height:1.5;white-space:nowrap;user-select:none;transition:background .12s,border-color .12s,color .12s,box-shadow .12s,transform .1s}
-.rv-ochip:hover{border-color:var(--sel);background:var(--sel-soft);transform:translateY(-1px)}
-.rv-ochip .ov{font-family:var(--num);font-size:9.5px;font-weight:800;color:var(--ink4);background:var(--paper);border:1px solid var(--line);border-radius:99px;min-width:18px;height:18px;padding:0 3px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
-.rv-ochip.on{background:var(--sel);border-color:var(--sel);color:#fff;box-shadow:0 2px 9px rgba(13,148,136,.3);transform:none}
-.rv-ochip.on .ov{background:rgba(255,255,255,.24);border-color:transparent;color:#fff}
-.rv-ochip.imp.on{background:var(--imp);border-color:var(--imp);box-shadow:0 2px 9px rgba(88,86,214,.3)}
-.rv-ochips.empty::after{content:'未填';font-size:9px;font-family:var(--mono);font-weight:800;letter-spacing:.4px;color:var(--empty-fg);background:var(--empty-bg);border:1px solid var(--empty-bd);border-radius:99px;padding:2px 7px;flex:0 0 auto;align-self:center}
-.rv-lseg .rv-ochips{gap:4px}
-.rv-lseg .rv-ochip{padding:2px 9px 2px 3px;font-size:10.5px}
-.rv-lseg .rv-ochip .ov{min-width:16px;height:16px;font-size:9px}
-.rv-lseg .rv-ochips.empty::after{padding:1px 6px;font-size:8.5px}
-@media(max-width:640px){.rv-orow{grid-template-columns:1fr}.rv-orow .rv-ochips{padding-left:2px}}
-
-/* ── 量表 / 里程碑点格 ── */
-.rv-grid{margin:6px 0 14px;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 1px 0 rgba(255,255,255,.6),0 4px 14px rgba(22,32,31,.04)}
-.rv-gcap{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;color:var(--ink2);padding:8px 10px;background:linear-gradient(180deg,var(--paper2),var(--paper));border-bottom:1px solid var(--line2);letter-spacing:.2px}
-.rv-gcap::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent2);flex:0 0 auto}
-.rv-gwrap{overflow-x:auto}
-.rv-gtbl{width:100%;border-collapse:collapse;table-layout:fixed}
-.rv-gtbl th{font-size:9.5px;font-weight:800;color:var(--ink3);background:var(--paper2);padding:6px 3px;text-align:center;border-bottom:1px solid var(--line2);line-height:1.25;vertical-align:middle;letter-spacing:.2px}
-.rv-gtbl th.q{text-align:left;padding-left:10px;width:auto}
-.rv-gtbl td{border-top:1px solid var(--line);padding:0;text-align:center;vertical-align:middle}
-.rv-gtbl tbody tr:nth-child(even) td{background:rgba(246,243,236,.5)}
-.rv-gtbl td.q{text-align:left;padding:6px 10px;font-size:11px;color:var(--ink2);line-height:1.4;word-break:break-word}
-.rv-gtbl td.q .qn{font-family:var(--num);font-size:9px;font-weight:800;color:var(--ink4);margin-right:6px;background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:0 4px;display:inline-block;min-width:18px;text-align:center}
-.rv-gtbl tbody tr:hover td{background:var(--hover)}
-.rv-cell{display:flex;align-items:center;justify-content:center;height:32px;margin:2px 3px;border-radius:7px;cursor:pointer;font-size:11.5px;color:var(--ink4);font-weight:700;transition:background .1s,color .1s,box-shadow .1s}
-.rv-cell:hover{background:var(--sel-soft);color:var(--accent2)}
-.rv-cell.on{background:var(--sel);color:#fff;box-shadow:0 2px 8px rgba(13,148,136,.28)}
-.rv-cell.imp.on{background:var(--imp);box-shadow:0 2px 8px rgba(88,86,214,.28)}
-.rv-gtbl col.optcol{width:54px}
-.rv-gtbl col.mcol{width:34px}
-.rv-gtbl col.rescol{width:120px}
-.rv-rescell{padding:3px 4px}
-.rv-rescell select,.rv-rescell input{width:100%;height:27px;border:1px solid var(--line2);border-radius:7px;font-size:11px;background:#fff;font-family:var(--sans)}
-.rv-rescell select.imp,.rv-rescell input.imp{background:var(--imp-bg);border-color:var(--imp-bd)}
-.rv-gx2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:720px){.rv-gx2{grid-template-columns:1fr}}
-
-/* ── 设备块（荧屏表） ── */
-.rv-dev{margin:6px 0 12px;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 1px 0 rgba(255,255,255,.6),0 4px 14px rgba(22,32,31,.04)}
-.rv-devh{display:flex;align-items:center;gap:8px;padding:7px 10px;background:linear-gradient(180deg,var(--paper2),var(--paper));border-bottom:1px solid var(--line2);font-size:12px;font-weight:800;color:var(--ink)}
-.rv-devh .use{margin-left:auto;display:flex;align-items:center;gap:7px;font-weight:600;font-size:11px;color:var(--ink3)}
-.rv-devbody.off{opacity:.62;filter:saturate(.45)}
-.rv-chk{width:22px;height:22px;border:1.5px solid var(--line2);border-radius:6px;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:13px;color:#fff;flex:0 0 auto;transition:background .1s,border-color .1s,transform .1s}
-.rv-chk:hover{border-color:var(--sel)}
-.rv-chk.on{background:var(--sel);border-color:var(--sel)}
-.rv-chk.on::after{content:'✓'}
-.rv-uline{display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:11.5px;color:var(--ink2);flex-wrap:wrap}
-.rv-uline+.rv-uline{border-top:1px solid var(--line)}
-.rv-uline:hover{background:var(--hover)}
-.rv-uname{flex:1 1 150px;min-width:120px;line-height:1.35}
-.rv-uname .qn{font-family:var(--num);font-size:9px;font-weight:800;color:var(--ink4);margin-right:6px;background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:0 4px;min-width:18px;display:inline-block;text-align:center}
-.rv-freq{display:flex;align-items:center;gap:5px;color:var(--ink3);font-size:11px;flex:0 0 auto}
-.rv-freq input{width:54px;height:27px;text-align:center;border:1px solid var(--line2);border-radius:7px;font-family:var(--num);font-size:12px;background:#fff;color:var(--ink);transition:border-color .12s,box-shadow .12s}
-.rv-freq input:focus{outline:none;border-color:var(--sel);box-shadow:0 0 0 3px var(--sel-soft)}
-.rv-freq input.empty{background:var(--empty-bg);border-color:var(--empty-bd)}
-.rv-freq input.imp{background:var(--imp-bg);border-color:var(--imp-bd);color:#3f3dad}
-
-/* ── 多选题：选项横排（贴合 PDF 同一行选项版面） ── */
-.rv-mc{padding:8px 10px 10px}
-.rv-mc-opts{display:flex;flex-wrap:wrap;gap:6px 8px}
-.rv-mcchip{display:inline-flex;align-items:center;gap:7px;padding:4px 11px 4px 6px;border:1px solid var(--line2);border-radius:9px;background:#fff;cursor:pointer;font-size:11.5px;color:var(--ink2);line-height:1.3;transition:.12s;user-select:none}
-.rv-mcchip:hover{border-color:var(--sel);background:var(--sel-soft)}
-.rv-mcchip .mcbox{width:18px;height:18px;flex:0 0 auto;border:1.5px solid var(--line2);border-radius:5px;background:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#fff;transition:.1s}
-.rv-mcchip.on{border-color:var(--sel);background:var(--sel-soft);color:var(--ink);font-weight:600}
-.rv-mcchip.on .mcbox{background:var(--sel);border-color:var(--sel)}
-.rv-mcchip.on .mcbox::after{content:'✓'}
-.rv-mcchip.imp .mcbox{background:var(--imp-bd);border-color:var(--imp-bd)}
-.rv-mcchip.imp.on .mcbox{background:var(--sel);border-color:var(--sel)}
-.rv-mcchip .mcnum{font-family:var(--num);font-size:9.5px;font-weight:800;color:var(--ink4)}
-.rv-mcchip.on .mcnum{color:var(--accent2)}
-.rv-mc-oth{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:11px;color:var(--ink3)}
-.rv-mc-oth input{flex:0 0 150px;width:150px;height:27px;padding:0 9px;border:1px solid var(--line2);border-radius:7px;font-size:12px;background:#fff;font-family:var(--num)}
-.rv-mc-oth input:focus{outline:none;border-color:var(--sel);box-shadow:0 0 0 3px var(--sel-soft)}
-.rv-mc-oth input.empty{background:var(--empty-bg);border-color:var(--empty-bd)}
-.rv-mc-oth input.imp{background:var(--imp-bg);border-color:var(--imp-bd)}
-
-/* 0/1 分段开关 */
-.rv-toggle{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden;background:#fff}
-.rv-toggle button{border:none;background:transparent;font-size:11px;font-weight:800;padding:4px 11px;cursor:pointer;color:var(--ink4);font-family:var(--sans);transition:.1s}
-.rv-toggle button:hover{background:var(--sel-soft);color:var(--accent2)}
-.rv-toggle button.on{background:var(--sel);color:#fff}
-
-/* ── 神经运动：统一发育项目积木块（同类外观一致，彻底消除大小不一） ── */
-.neuro-wrap{display:flex;flex-direction:column;gap:9px;padding:8px 4px}
-.neuro-item{background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:9px 11px 11px;box-shadow:0 1px 0 rgba(255,255,255,.5)}
-.neuro-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.neuro-hd .qn{flex:0 0 auto;min-width:22px;height:22px;padding:0 6px;border-radius:7px;background:var(--accent2);color:#fff;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
-.neuro-hd .nm{font-size:13px;font-weight:800;color:var(--ink)}
-.neuro-mstrip{display:grid;grid-template-columns:64px repeat(12,1fr);gap:4px;align-items:center;margin-bottom:8px}
-.neuro-mlab,.neuro-rlab{font-size:10.5px;font-weight:800;color:var(--ink3)}
-.neuro-mcell{height:30px;border:1px solid var(--line2);border-radius:7px;background:#fff;font-size:12px}
-.neuro-mcell.on{background:var(--accent2);color:#fff;border-color:var(--accent2)}
-.neuro-mcell.imp{background:#eef0ff;border-color:#a5a3f0;color:#4b49c9}
-.neuro-res{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.rv-seg{display:inline-flex;flex-wrap:wrap;gap:6px;border-radius:9px}
-.rv-segbtn{display:inline-flex;align-items:center;gap:5px;min-width:78px;justify-content:center;height:32px;padding:0 12px;border:1px solid var(--line2);border-radius:9px;background:#fff;font-size:12.5px;font-weight:700;color:var(--ink2);cursor:pointer;transition:.12s}
-.rv-segbtn:hover{border-color:var(--accent2);background:rgba(13,148,136,.07)}
-.rv-segbtn.on{background:var(--accent2);border-color:var(--accent2);color:#fff;box-shadow:0 4px 12px rgba(13,148,136,.25)}
-.rv-segbtn i{font-style:normal;font-family:var(--mono);font-size:10px;opacity:.6}
-.rv-segbtn.on i{opacity:.85}
-.rv-seg.imp .rv-segbtn.on{background:#5856D6;border-color:#5856D6}
-
-/* ── 在「核对窗右侧」直接编辑字段（拖动排序 / 增 / 删 / 插入 / 改类型）── */
-.rv-rh .rv-edit-btn{flex:0 0 auto;border:1px solid var(--accent2);background:#fff;color:var(--accent2);border-radius:8px;padding:5px 11px;font-size:11.5px;font-weight:800;cursor:pointer}
-.rv-rh .rv-edit-btn.on{background:var(--accent2);color:#fff}
-.rv-fe{padding:8px 8px 70px}
-.rv-fe .fe-tip{font-size:11px;color:var(--ink2);background:rgba(194,65,12,.07);border:1px solid rgba(194,65,12,.2);border-radius:10px;padding:9px 11px;line-height:1.6;margin-bottom:10px}
-.rv-fe .fe-tip b{color:var(--accent)}
-.fe-row{display:grid;grid-template-columns:20px 46px 1.1fr 1.25fr 78px 1fr 26px;gap:6px;align-items:center;background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:6px;margin-bottom:6px}
-.fe-row.dragging{opacity:.4}
-.fe-row.over{border-color:var(--accent);box-shadow:0 0 0 2px rgba(194,65,12,.16)}
-.fe-row.is-neuro{border-left:3px solid var(--accent2)}
-.fe-drag{cursor:grab;text-align:center;color:var(--ink3);font-size:14px;user-select:none}
-.fe-row input,.fe-row select{width:100%;border:1px solid var(--line2);background:var(--paper);border-radius:7px;padding:5px 6px;font-size:11.5px;box-sizing:border-box;color:var(--ink)}
-.fe-row input.k{font-family:var(--mono);color:var(--accent)}
-.fe-row input:focus,.fe-row select:focus{outline:none;border-color:var(--accent)}
-.fe-row .fe-del{border:1px solid var(--line2);background:var(--paper2);color:var(--ink3);border-radius:7px;padding:4px 0;font-size:12px;cursor:pointer}
-.fe-row .fe-del:hover{border-color:var(--bad);color:var(--bad)}
-.fe-row .fe-opt.hide{visibility:hidden}
-.fe-vt{grid-column:3 / 7;font-size:10px;color:var(--accent2);font-weight:700;padding:0 2px}
-.fe-ins{width:100%;border:1px dashed var(--line2);background:transparent;color:var(--ink3);border-radius:8px;padding:4px;font-size:11px;cursor:pointer;margin-bottom:6px}
-.fe-ins:hover{border-color:var(--accent);color:var(--accent)}
-.fe-act{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px;align-items:center}
-.fe-head{display:grid;grid-template-columns:20px 46px 1.1fr 1.25fr 78px 1fr 26px;gap:6px;font-size:10px;font-weight:800;color:var(--ink3);padding:2px 6px 6px}
-
-/* health · 膳食频率行（点格频度 + 斤/两） */
-.rv-diethead{display:flex;align-items:center;gap:9px;padding:5px 10px;font-size:9.5px;color:var(--ink4);font-weight:800;letter-spacing:.3px;border-bottom:1px solid var(--line2);background:var(--paper2)}
-.rv-diethead .rv-dietname{flex:1 1 160px;min-width:120px}
-.rv-diethead .rv-dietfreq-h{flex:0 0 auto;width:186px;text-align:center}
-.rv-diethead .rv-dietamt-h{flex:0 0 auto}
-.rv-dietline{display:flex;align-items:center;gap:9px;padding:5px 10px;font-size:11.5px;color:var(--ink2);flex-wrap:wrap;border-top:1px solid var(--line)}
-.rv-dietline:first-of-type{border-top:none}
-.rv-dietline:nth-of-type(even){background:rgba(246,243,236,.45)}
-.rv-dietline:hover{background:var(--hover)}
-.rv-dietname{flex:1 1 160px;min-width:120px;line-height:1.35}
-.rv-dietfreq{display:flex;gap:4px;flex:0 0 auto}
-.rv-fcell{width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line2);border-radius:7px;background:#fff;cursor:pointer;font-family:var(--num);font-size:12px;color:var(--ink4);font-weight:800;transition:.1s}
-.rv-fcell:hover{border-color:var(--sel);background:var(--sel-soft);color:var(--accent2)}
-.rv-fcell.on{background:var(--sel);border-color:var(--sel);color:#fff;box-shadow:0 2px 8px rgba(13,148,136,.28)}
-.rv-fcell.imp{background:var(--imp);border-color:var(--imp);color:#fff}
-.rv-dietamt{display:flex;gap:10px;margin-left:auto;flex:0 0 auto;flex-wrap:wrap}
-
-/* health · 家庭成员疾病史 / 亲属过敏史表 */
-.rv-famtbl td.q,.rv-famtbl th.q{white-space:nowrap}
-.rv-famnum{width:54px;height:26px;text-align:center;border:1px solid var(--line2);border-radius:6px;font-family:var(--mono);font-size:12px;background:#fff}
-.rv-famnum.empty{background:#fffbeb;border-color:#fcd34d}
-.rv-famnum.imp{background:#eef0ff;border-color:#a5a3f0}
-.rv-gtbl col.ncol{width:62px}
-.rv-famtbl th{font-size:10px;padding:5px 4px;line-height:1.2}
-.rv-famtbl td{padding:4px}
-
-/* row-expand (lipid) */
-.rv-recs{display:flex;flex-direction:column;gap:8px}
-.rv-rec{border:1px solid var(--line2);border-radius:9px;background:#fff;overflow:hidden}
-.rv-rec-h{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--paper2);border-bottom:1px solid var(--line);font-size:11.5px;font-weight:800}
-.rv-rec-h .del{margin-left:auto;color:var(--bad);cursor:pointer;font-size:11px;font-weight:700}
-.rv-rec-b{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;padding:8px 10px}
-.rv-mini{display:flex;flex-direction:column;gap:2px}
-.rv-mini label{font-size:10px;color:var(--ink3);font-weight:700}
-.rv-mini input{height:27px;border:1px solid var(--line2);border-radius:6px;font-size:12px;font-family:var(--mono);padding:0 7px;background:#fff}
-.rv-mini input.imp{background:#eef0ff;border-color:#a5a3f0}
-
-/* 左右对照对齐表（mode:'aligned'）— 行label在左，列label顶表头，逐行高度一致 */
-.rv-atbl-wrap{padding:6px 7px 7px;background:#fff}
-.rv-atbl{width:100%;border-collapse:separate;border-spacing:0;background:#fff;table-layout:fixed}
-.rv-atbl thead th{font-size:10.5px;font-weight:800;color:var(--ink2);background:var(--paper2);padding:5px 4px;text-align:center;line-height:1.2;border-bottom:1px solid var(--line2);border-right:1px solid var(--line);vertical-align:middle;height:28px;word-break:break-word}
-.rv-atbl thead th:last-child{border-right:none}
-.rv-atbl thead th.atbl-corner{width:96px;background:var(--paper2);border-right:1px solid var(--line2)}
-.rv-atbl tbody td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:3px 4px;height:34px;text-align:center;vertical-align:middle;background:#fff}
-.rv-atbl tbody td:last-child{border-right:none}
-.rv-atbl tbody tr:last-child td{border-bottom:none}
-.rv-atbl td.atbl-rl{text-align:left;font-size:11.5px;font-weight:700;color:var(--ink);background:var(--paper2);padding:0 8px;border-right:1px solid var(--line2);white-space:nowrap}
-.rv-atbl input{width:100%;height:28px;border:1px solid var(--line2);border-radius:6px;text-align:center;font-family:var(--mono);font-size:12px;background:#fff;padding:0 4px;box-sizing:border-box;color:var(--ink)}
-.rv-atbl input.imp{background:#eef0ff;border-color:#a5a3f0}
-.rv-atbl input.empty{background:#fffbeb;border-color:#fcd34d}
-.rv-atbl input:focus{outline:none;border-color:var(--accent2);box-shadow:0 0 0 2px rgba(13,148,136,.16)}
-.rv-atbl tbody tr:hover td{background:rgba(13,148,136,.04)}
-.rv-atbl tbody tr:hover td.atbl-rl{background:rgba(13,148,136,.10)}
-
-/* editable table (health-check) */
-.rv-tbl{margin:4px 0 12px;border:1px solid var(--line2);border-radius:9px;overflow:hidden;background:#fff}
-.rv-tbl table{width:100%;border-collapse:collapse}
-.rv-tbl th,.rv-tbl td{border:1px solid var(--line);padding:3px;font-size:11px;text-align:center}
-.rv-tbl th{background:var(--paper2);font-weight:700;color:var(--ink2)}
-.rv-tbl td.rh{background:var(--paper2);font-weight:700;text-align:left;padding-left:8px}
-.rv-tbl input{width:100%;height:26px;border:none;text-align:center;font-size:12px;font-family:var(--mono);background:transparent}
-.rv-tbl input:focus{outline:1px solid var(--accent2);border-radius:4px}
-.rv-tbl input.imp{background:#eef0ff}
-
-/* ───── 核对窗左侧：上传原件 dropzone ───── */
-.rv-droporig{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px;cursor:pointer}
-.rv-droporig.over .rv-droporig-in{border-color:var(--accent2);background:rgba(13,148,136,.16)}
-.rv-droporig-in{border:2px dashed rgba(255,255,255,.34);border-radius:16px;padding:36px 28px;text-align:center;color:rgba(255,255,255,.92);max-width:480px;background:rgba(255,255,255,.04);transition:.15s;pointer-events:none}
-.rv-droporig-in *{pointer-events:auto}
-.rv-droporig-in .big{font-size:16px;font-weight:800;margin-bottom:10px}
-.rv-droporig-in .sub{font-size:12px;color:rgba(255,255,255,.62);line-height:1.75}
-.rv-droporig-in .sub b{color:#fff}
-.rv-droporig-in .sub2{font-size:11px;color:rgba(255,255,255,.42);margin-top:16px}
-.rv-droporig-in .btn.primary{margin-top:18px}
-.rv-zb.wide{width:auto;padding:0 10px;font-size:11px;font-weight:700;white-space:nowrap}
-
 </style>
 </head>
 <body>
@@ -971,14 +673,6 @@ select.set-key{font-family:var(--sans)}
         </div>
       </div>
       <div class="set-testrow"><button class="btn" id="setTestBtn" onclick="testConnection()" style="border:1px solid var(--accent2);color:var(--accent2);font-weight:700">🔗 测试连接</button><span class="set-testres" id="setTestRes"></span></div>
-      <div class="set-crow" style="margin:6px 0"><label style="flex:0 0 auto">跨域代理</label>
-        <select id="setProxyMode" onchange="onSetProxyMode()" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--line2);border-radius:8px;background:#fff">
-          <option value="auto">自动（部署到 Cloudflare Pages 后，被 CORS 拦的服务自动走同域 /api 代理）</option>
-          <option value="on">强制开启（始终走 /api 同域代理，需已部署 functions/api）</option>
-          <option value="off">关闭（浏览器直连，仅国内直连服务可用）</option>
-        </select>
-      </div>
-      <div id="setProxyHint" style="font-size:11px;color:var(--ink3);margin:-2px 0 10px;line-height:1.5"></div>
       <div class="set-guide" id="setGuide"></div>
     </div>
   </div>
@@ -1715,13 +1409,10 @@ function healthRender(host,r){
         h.appendChild(dwrap);
       });
     }
-    /* 上学方式/运动/家务/兴趣班：已由下方 H_LINEGROUPS「同一行」组接管（贴合 PDF 版面），不再另起活动块 */
-    /* 多选题横排块（选项后□打✓=1，贴合 PDF 同一行选项版面） */
-    H_MULTI.filter(mc=>mc.page===pg).forEach(mc=>{
-      const keys=mc.labels.map((_,i)=>mc.keyFn?mc.keyFn(mc.prefix,i):(mc.prefix+(i+1)));
-      if(!keys.some(k=>curSys._fby[k]&&curSys._fby[k].page===pg))return;
-      if(mc.otherKey)keys.push(mc.otherKey);
-      addW(keys,(h)=>h.appendChild(hMultiChoiceBlock(mc.prefix,mc.labels,mc.title,r,mc.otherKey,mc.otherLabel,mc.keyFn)));
+    /* 上学方式/运动/家务/兴趣班 活动块（每组一块，含 base a/b/c） */
+    [['上学/放学回家方式',H_SCHOOLW],['主要运动方式',H_PE],['做家务',H_PH],['兴趣班',H_PI]].forEach(([label,list])=>{
+      const items=list.filter(([base])=>curSys._fby[base+'a']&&curSys._fby[base+'a'].page===pg);
+      if(items.length){const ak=[];items.forEach(([base])=>ak.push(base+'a',base+'b',base+'c'));addW(ak,(h)=>h.appendChild(hActivityBlock(items,label,r)));}
     });
     /* 家庭疾病史表（第4页） */
     if(pg===4){
@@ -1735,22 +1426,18 @@ function healthRender(host,r){
     }
     /* 量表点格（睡眠1-4 / 睡眠5-33 / 免疫频率1-6） */
     hGridGroups(pg).forEach(g=>{if(g.type==='famallergy')return;addW(g.keys,(h)=>h.appendChild(stBuildGrid(g,r)));});
-    /* 同一行原件字段组（右侧同一行高度对齐；lg.cap = PDF 小节标题，同段只出现一次） */
-    let _lastCap=null;
+    /* 同一行原件字段组（右侧同一行高度对齐） */
     H_LINEGROUPS.filter(lg=>lg.page===pg).forEach(lg=>{
       const objs=lg.items.map(([k,ll])=>{const f=curSys._fby[k];return f?Object.assign({},f,{lineLabel:ll}):null;}).filter(Boolean);
       if(!objs.length)return;
-      addW(objs.map(f=>f.key),(h)=>{
-        if(lg.cap&&lg.cap!==_lastCap){const c=document.createElement('div');c.className='rv-gcap rv-lgcap';c.textContent=lg.cap;h.appendChild(c);_lastCap=lg.cap;}
-        h.appendChild(makeLineGroup(lg.title,objs,r));
-      });
+      addW(objs.map(f=>f.key),(h)=>h.appendChild(makeLineGroup(lg.title,objs,r)));
     });
 
     /* 单遍渲染：命中控件→首个字段处整块渲染（后续该控件字段跳过）；否则普通行 */
     pageFields.forEach(f=>{
       const w=keyW.get(f.key);
       if(w){if(!w.done){w.done=true;w.emit(host);}return;}
-      host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key],r));
+      host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key]));
     });
   }
 }
@@ -2407,7 +2094,6 @@ const PROVIDERS = {
       { id: 'glm-4v-plus-0111',  tag: '💰', desc: '付费旗舰' }
     ],
     endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-    proxyPath: '/api/zhipu/api/paas/v4/chat/completions',
     placeholder: 'xxxxxxxx.xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: true,
     extraBody: { thinking: { type: 'disabled' } },
@@ -2453,7 +2139,6 @@ const PROVIDERS = {
       { id: 'gemini-3.1-flash-lite-preview', tag: '⚠️', desc: 'Preview · 限额严格' }
     ],
     endpoint: 'https://generativelanguage.googleapis.com/v1beta/models',
-    proxyPath: '/api/gemini/v1beta/models',
     placeholder: 'AIzaSy…',
     rateLimit: 7000, maxTokens: 8192,
     guide: `<strong>✨ Google Gemini</strong>
@@ -2471,14 +2156,13 @@ const PROVIDERS = {
       { id: 'meta-llama/llama-4-scout-17b-16e-instruct',     tag: '✅', desc: '默认 · Llama 4 Scout 17B/16E · 当前 Groq 唯一视觉模型 · 460+ t/s' }
     ],
     endpoint: 'https://api.groq.com/openai/v1/chat/completions',
-    proxyPath: '/api/groq/openai/v1/chat/completions',
     placeholder: 'gsk_xxxxxxxxxxxxxxxx',
     rateLimit: 6000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>⚡ Groq · 全球最快推理（免费）</strong>
 注册：<a href="https://console.groq.com" target="_blank">console.groq.com</a> → Google/GitHub 登录 → API Keys → 创建<br>
 <strong>视觉模型</strong>：Groq 目前<strong>仅 <code>llama-4-scout</code> 支持视觉</strong>（Maverick 已于 2026/02 下架，GPT-OSS 等文本模型不能识别图片）。<br>
 免费版限 1000次/天，<strong>无需信用卡</strong>。<br>
-⚠️ <strong>国内需翻墙</strong>。若本站部署在 Cloudflare Pages（含 functions/api/[[path]].js），CORS 会<strong>自动经同域 <code>/api/groq</code> 代理绕过</strong>；否则请在设置里把「跨域代理」设为强制开启或改用国内直连服务。<br>
+⚠️ <strong>国内需翻墙</strong>。CORS 已通过同域 <code>/api/groq</code> 代理自动绕过（Pages 部署后生效）。<br>
 <button onclick="fetchProviderModels('groq')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
 <div id="providerFetchResult_groq" style="margin-top:6px;font-size:11px"></div>
 <a href="https://console.groq.com/docs/models" target="_blank">📖 模型列表</a> · <a href="https://console.groq.com/docs/vision" target="_blank">📖 视觉文档</a>`
@@ -2501,14 +2185,13 @@ const PROVIDERS = {
       { id: 'microsoft/Phi-3.5-vision-instruct',        tag: '⚡', desc: 'Phi-3.5 Vision · 轻量' }
     ],
     endpoint: 'https://models.github.ai/inference/chat/completions',
-    proxyPath: '/api/github/chat/completions',
     placeholder: 'github_pat_xxxxxxxx',
     rateLimit: 8000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🐙 GitHub Models · 免费 GPT-4o 视觉</strong>
 前往：<a href="https://github.com/marketplace/models" target="_blank">github.com/marketplace/models</a><br>
 使用 GitHub Personal Access Token（PAT）认证 → Settings → Developer settings → Personal access tokens → Generate<br>
 高级模型（GPT-4o）限 <strong>10次/分, 50次/天</strong>，低级模型 150次/天。<br>
-⚠️ <strong>国内需翻墙</strong>。部署到 Cloudflare Pages 后 CORS 会<strong>自动经同域 <code>/api/github</code> 代理绕过</strong>。GPT-4o 的 OCR 识别质量非常高。<br>
+⚠️ <strong>国内需翻墙</strong>。CORS 已通过同域 <code>/api/github</code> 代理自动绕过（Pages 部署后生效）。GPT-4o 的 OCR 识别质量非常高。<br>
 <button onclick="fetchProviderModels('github')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
 <div id="providerFetchResult_github" style="margin-top:6px;font-size:11px"></div>
 <a href="https://docs.github.com/en/github-models" target="_blank">📖 官方文档</a>`
@@ -2537,14 +2220,13 @@ const PROVIDERS = {
       { id: 'microsoft/phi-4-multimodal-instruct',         tag: '☑️', desc: 'Phi-4 多模态' }
     ],
     endpoint: 'https://integrate.api.nvidia.com/v1/chat/completions',
-    proxyPath: '/api/nvidia/v1/chat/completions',
     placeholder: 'nvapi-xxxxxxxxxxxxxxxx',
     rateLimit: 4000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🟢 NVIDIA NIM · 100+ 免费模型</strong>
 注册：<a href="https://build.nvidia.com" target="_blank">build.nvidia.com</a> → 邮箱注册（NVIDIA Developer Program）→ 右上角头像 → 「API Keys」→ Generate（<code>nvapi-</code> 开头）<br>
 <strong>免费额度</strong>：注册赠 1000 credits（可申请到 5000）· 限速 40 RPM · 无需信用卡<br>
 <strong>视觉模型推荐</strong>：<code>llama-4-scout</code>（默认）· <code>qwen2.5-vl-72b</code>（最强）· <code>llama-3.1-nemotron-nano-vl-8b</code>（OCR专精，DocVQA SOTA）<br>
-⚠️ 国内需翻墙；部署到 Cloudflare Pages 后，浏览器 CORS 会<strong>自动经同域 <code>/api/nvidia</code> 代理绕过</strong>（本地/直接打开 HTML 则不可用，请改国内直连服务）。<br>
+⚠️ 国内需翻墙；浏览器 CORS 限制已通过 <strong>同域 /api/nvidia 代理</strong>自动绕过（部署到 Cloudflare Pages 后生效）。<br>
 <button onclick="fetchProviderModels('nvidia')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
 <div id="providerFetchResult_nvidia" style="margin-top:6px;font-size:11px"></div>
 <a href="https://build.nvidia.com/explore/vision" target="_blank">📖 视觉模型</a> · <a href="https://build.nvidia.com/models" target="_blank">📋 全部模型</a>`
@@ -2572,7 +2254,6 @@ const PROVIDERS = {
       { id: 'openai/gpt-4.1',                        tag: '💰', desc: 'GPT-4.1 · 顶级付费' }
     ],
     endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-    proxyPath: '/api/openrouter/v1/chat/completions',
     placeholder: 'sk-or-v1-xxxxxxxxxxxxx',
     rateLimit: 4000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🌐 OpenRouter · 国内可直连（推荐）</strong>
@@ -2601,7 +2282,6 @@ const PROVIDERS = {
       { id: 'Pro/Qwen/Qwen2.5-VL-7B-Instruct',   tag: '☑️', desc: 'Qwen2.5-VL 7B Pro · 注意带 Pro/ 前缀' }
     ],
     endpoint: 'https://api.siliconflow.cn/v1/chat/completions',
-    proxyPath: '/api/siliconflow/v1/chat/completions',
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🔮 硅基流动 SiliconCloud · 完全免费</strong>
@@ -2626,7 +2306,6 @@ const PROVIDERS = {
       { id: 'qwen2.5-vl-7b-instruct',    tag: '⚡', desc: 'Qwen2.5-VL 7B · 最快' }
     ],
     endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
-    proxyPath: '/api/dashscope/compatible-mode/v1/chat/completions',
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🟠 阿里云百炼 · 通义千问 Qwen-VL（OpenAI 兼容）</strong>
@@ -2645,7 +2324,6 @@ const PROVIDERS = {
       { id: 'kimi-latest',                    tag: '💎', desc: 'Kimi 最新（自动含视觉）' }
     ],
     endpoint: 'https://api.moonshot.cn/v1/chat/completions',
-    proxyPath: '/api/moonshot/v1/chat/completions',
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🌙 Moonshot Kimi · 视觉（OpenAI 兼容）</strong>
@@ -2662,7 +2340,6 @@ const PROVIDERS = {
       { id: 'step-1o-turbo-vision',  tag: '💎', desc: 'Step-1o Turbo 视觉 · 更强' }
     ],
     endpoint: 'https://api.stepfun.com/v1/chat/completions',
-    proxyPath: '/api/stepfun/v1/chat/completions',
     placeholder: 'xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🪜 阶跃星辰 StepFun（OpenAI 兼容）</strong>
@@ -2679,7 +2356,6 @@ const PROVIDERS = {
       { id: 'hunyuan-large-vision',  tag: '💎', desc: '混元 Large 视觉 · 更强' }
     ],
     endpoint: 'https://api.hunyuan.cloud.tencent.com/v1/chat/completions',
-    proxyPath: '/api/hunyuan/v1/chat/completions',
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🐧 腾讯混元 Vision（OpenAI 兼容）</strong>
@@ -2694,7 +2370,6 @@ const PROVIDERS = {
       { id: 'MiniMax-VL-01', tag: '✅', desc: '默认 · MiniMax 视觉 01' }
     ],
     endpoint: 'https://api.minimax.chat/v1/text/chatcompletion_v2',
-    proxyPath: '/api/minimax/v1/text/chatcompletion_v2',
     placeholder: 'eyJ… (JWT)',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🟦 MiniMax（OpenAI 兼容 v2）</strong>
@@ -2709,7 +2384,6 @@ const PROVIDERS = {
       { id: 'deepseek-vl2', tag: '✅', desc: 'DeepSeek-VL2（若开通视觉端点）' }
     ],
     endpoint: 'https://api.deepseek.com/v1/chat/completions',
-    proxyPath: '/api/deepseek/v1/chat/completions',
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🐳 DeepSeek（OpenAI 兼容）</strong>
@@ -2728,7 +2402,6 @@ const PROVIDERS = {
       { id: 'o4-mini',      tag: '🧩', desc: 'o4-mini · 推理视觉' }
     ],
     endpoint: 'https://api.openai.com/v1/chat/completions',
-    proxyPath: '/api/openai/v1/chat/completions',
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>⚫ OpenAI 官方（付费）</strong>
@@ -2747,7 +2420,6 @@ const PROVIDERS = {
       { id: 'claude-3-5-haiku-latest',  tag: '⚡', desc: 'Claude 3.5 Haiku · 快' }
     ],
     endpoint: 'https://api.anthropic.com/v1/messages',
-    proxyPath: '/api/anthropic/v1/messages',
     placeholder: 'sk-ant-xxxxxxxx',
     rateLimit: 3000, maxTokens: 8192,
     guide: `<strong>🅰️ Anthropic Claude 官方（付费）</strong>
@@ -2763,7 +2435,6 @@ const PROVIDERS = {
       { id: 'grok-4',             tag: '💎', desc: 'Grok-4（多模态）' }
     ],
     endpoint: 'https://api.x.ai/v1/chat/completions',
-    proxyPath: '/api/xai/v1/chat/completions',
     placeholder: 'xai-xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>✖️ xAI Grok Vision（OpenAI 兼容）</strong>
@@ -2780,7 +2451,6 @@ const PROVIDERS = {
       { id: 'mistral-small-latest', tag: '⚡', desc: 'Mistral Small（含视觉）' }
     ],
     endpoint: 'https://api.mistral.ai/v1/chat/completions',
-    proxyPath: '/api/mistral/v1/chat/completions',
     placeholder: 'xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🔶 Mistral Pixtral（OpenAI 兼容）</strong>
@@ -2796,7 +2466,6 @@ const PROVIDERS = {
       { id: 'Qwen/Qwen2.5-VL-72B-Instruct',              tag: '💎', desc: 'Qwen2.5-VL 72B' }
     ],
     endpoint: 'https://api.together.xyz/v1/chat/completions',
-    proxyPath: '/api/together/v1/chat/completions',
     placeholder: 'xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🤝 Together AI（OpenAI 兼容）</strong>
@@ -2812,7 +2481,6 @@ const PROVIDERS = {
       { id: 'accounts/fireworks/models/llama-v3p2-90b-vision-instruct',   tag: '💎', desc: 'Llama 3.2 90B Vision' }
     ],
     endpoint: 'https://api.fireworks.ai/inference/v1/chat/completions',
-    proxyPath: '/api/fireworks/inference/v1/chat/completions',
     placeholder: 'fw_xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🎆 Fireworks AI（OpenAI 兼容）</strong>
@@ -2831,7 +2499,6 @@ const PROVIDERS = {
       { id: 'zai-org/GLM-4.5V',                            tag: '💎', desc: 'GLM-4.5V（HF）' }
     ],
     endpoint: 'https://router.huggingface.co/v1/chat/completions',
-    proxyPath: '/api/hf/v1/chat/completions',
     placeholder: 'hf_xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🤗 Hugging Face Router（OpenAI 兼容）</strong>
@@ -2852,38 +2519,9 @@ let cfg = {
   prov:  localStorage.getItem('phck_prov') || 'zhipu',
   keys:  JSON.parse(localStorage.getItem('phck_keys')  || '{}'),
   models:JSON.parse(localStorage.getItem('phck_models')|| '{}'),
-  custom:JSON.parse(localStorage.getItem('so_custom')  || '{}'),
-  proxy: localStorage.getItem('phck_proxy') || 'auto'   // auto | on | off
+  custom:JSON.parse(localStorage.getItem('so_custom')  || '{}')
 };
 if (!PROVIDERS[cfg.prov]) cfg.prov = 'zhipu';
-
-/* ════════ 同域代理（Cloudflare Pages Functions /api/*）自动路由 ════════
-   many 供应商浏览器直连会被 CORS 拦截。若本页部署在带 functions/api/[[path]].js
-   的域名下，则把 provider.endpoint 改写为同源相对路径 /api/*，浏览器不再跨域。
-   proxy 模式：auto=非本地文件且非 localhost 时启用；on=强制；off=永远直连。 */
-function proxyAvailable(){
-  if(cfg.proxy==='off')return false;
-  if(cfg.proxy==='on')return true;
-  // auto：file:// 或 localhost 下无 Functions，直连；否则默认启用（部署到 Pages 即生效）
-  try{
-    if(location.protocol==='file:')return false;
-    const h=location.hostname;
-    if(h==='localhost'||h==='127.0.0.1'||h==='')return false;
-    return true;
-  }catch(_){ return false; }
-}
-/* 把真实 URL 改写为同源代理 URL（仅当该 provider 有 proxyPath 且代理可用） */
-function resolveEndpoint(provider, rawUrl){
-  if(!provider||!provider.proxyPath)return rawUrl;
-  if(!proxyAvailable())return rawUrl;
-  try{
-    const u=new URL(rawUrl);
-    return location.origin + provider.proxyPath + (u.search||'');
-  }catch(_){
-    // rawUrl 可能已是相对路径
-    return provider.proxyPath;
-  }
-}
 
 function getEffectiveKey(){ const p=PROVIDERS[cfg.prov]; return (p && p.useOpenRouterKey) ? cfg.keys.openrouter : cfg.keys[cfg.prov]; }
 function getEffectiveModel(){ const p=PROVIDERS[cfg.prov]; return (cfg.models && cfg.models[cfg.prov]) || (p && p.model) || ''; }
@@ -2940,7 +2578,7 @@ async function callGemini(provider, key, b64, mime, prompt) {
   const modelOverride = cfg.models?.[cfg.prov];
   const useModel = modelOverride || provider.model;
   let url;
-  const ep = resolveEndpoint(provider, provider.endpoint || 'https://generativelanguage.googleapis.com/v1beta/models');
+  const ep = provider.endpoint || 'https://generativelanguage.googleapis.com/v1beta/models';
   if (/:generateContent/.test(ep)) {
     url = ep + (ep.includes('?') ? '&' : '?') + 'key=' + key;   // custom already-full endpoint
   } else {
@@ -2950,11 +2588,8 @@ async function callGemini(provider, key, b64, mime, prompt) {
 
   let res;
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s 超时，避免卡死在「识别中」
     res = await fetch(url, {
       method: 'POST',
-      signal: controller.signal,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{
@@ -2971,9 +2606,7 @@ async function callGemini(provider, key, b64, mime, prompt) {
         }
       })
     });
-    clearTimeout(timeoutId);
   } catch(e) {
-    if (e.name === 'AbortError') throw new Error('请求超时（60秒无响应）。\n💡 Gemini 域名常被区域封锁导致连接挂起。建议改用「OpenRouter」或国内服务（智谱/硅基/通义）。');
     throw new Error(`网络错误：无法连接 Google Gemini API\n你可能需要 VPN/科学上网。\n💡 建议改用国内服务（智谱AI 完全免费且无需翻墙）`);
   }
   if (!res.ok) {
@@ -3023,8 +2656,8 @@ async function callAnthropicCompat(provider, key, b64, mime, prompt) {
   let res;
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000);
-    res = await fetch(resolveEndpoint(provider, provider.endpoint), {
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
+    res = await fetch(provider.endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -3038,7 +2671,7 @@ async function callAnthropicCompat(provider, key, b64, mime, prompt) {
     });
     clearTimeout(timeoutId);
   } catch(e) {
-    if (e.name === 'AbortError') throw new Error('请求超时（60秒无响应）');
+    if (e.name === 'AbortError') throw new Error('请求超时（90秒无响应）');
     throw new Error(`网络错误：无法连接 ${provider.fullName}\n请检查基础地址是否正确，以及网络连接`);
   }
   if (!res.ok) {
@@ -3090,7 +2723,7 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
   };
 
   // 组装请求头：自定义供应商可选鉴权方式 + 额外头
-  let epUrl = resolveEndpoint(provider, provider.endpoint);
+  let epUrl = provider.endpoint;
   const headers = { 'Content-Type':'application/json' };
   const authStyle = (cfg.prov==='custom') ? (provider.authStyle||'bearer') : 'bearer';
   if (authStyle==='bearer') headers['Authorization'] = 'Bearer '+key;
@@ -3102,7 +2735,7 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
   let res;
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // 90s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s timeout
     res = await fetch(epUrl, {
       method:'POST',
       headers,
@@ -3112,7 +2745,7 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
     clearTimeout(timeoutId);
   } catch(e) {
     if (e.name === 'AbortError') {
-      throw new Error(`请求超时（60秒无响应）。\n💡 可能原因：模型响应慢（如智谱4.6v思考模式）、网络不稳定。\n建议：切换到更快的模型（如 glm-4v-flash、硅基流动）或重试`);
+      throw new Error(`请求超时（90秒无响应）。\n💡 可能原因：模型响应慢（如智谱4.6v思考模式）、网络不稳定。\n建议：切换到更快的模型（如 glm-4v-flash、硅基流动）或重试`);
     }
     throw new Error(`网络错误：无法连接 ${provider.fullName}\n请检查网络或换个服务\n💡 部分 API（如腾讯混元）可能存在浏览器 CORS 限制，建议改用智谱AI或硅基流动`);
   }
@@ -3134,12 +2767,11 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
     if (res.status===404) throw new Error(`模型「${useModel}」不存在（404）。可能已下架，请在设置中切换其他模型`);
     if (res.status===400) {
       let hint = '';
-      const isDimErr = /larger than \d+|width|height|dimension|too small|尺寸|像素|pixel|min.*size|resolution/i.test(m);
-      const isModelErr = /not a valid model|model.*not found|invalid model|模型.*不存在|no endpoints/i.test(m);
-      if (isDimErr) hint = '\n💡 提示：图片尺寸不符合该模型要求（这是测试图/渲染太小或太大，并非模型不可用）。识别真实表单时通常没问题；若测试连接报此错可忽略，直接上传表单识别即可。';
-      else if (isModelErr) hint = `\n💡 提示：模型「${useModel}」可能不可用，请在设置中切换其他模型`;
+      const isModelErr = /not a valid model|model.*not found|invalid model|模型.*不存在/i.test(m);
+      if (isModelErr) hint = `\n💡 提示：模型「${useModel}」可能不可用，请在设置中切换其他模型`;
       else if (/image|图片|picture/i.test(m)) hint = '\n💡 提示：可能图片过大，建议「图片最大宽度」改 1200px';
       else if (/token|长度|length/i.test(m)) hint = '\n💡 提示：模板字段过多，请精简模板';
+      else if (/model|模型/i.test(m)) hint = `\n💡 提示：模型「${useModel}」可能不可用，请在设置中切换其他模型`;
       throw new Error(`请求错误（400 ${code}）：${m}${hint}`);
     }
     throw new Error(`${m} (HTTP ${res.status} ${code})`);
@@ -3182,7 +2814,6 @@ async function fetchProviderModels(provId){
   let base=(provId==='custom')?(PROVIDERS.custom.endpoint||''):(p.endpoint||'');
   let modelsUrl=base.replace(/\/(chat\/completions|messages|completions).*$/,'/models').replace(/\/models\/.*/,'/models');
   if(!/\/models$/.test(modelsUrl))modelsUrl=base.replace(/\/[^/]*$/,'')+'/models';
-  modelsUrl=resolveEndpoint(p, modelsUrl);   // 有代理则走同源，避免 CORS
   try{
     const res=await fetch(modelsUrl,{headers:key?{'Authorization':'Bearer '+key}:{}});
     if(!res.ok)throw new Error('HTTP '+res.status);
@@ -3214,7 +2845,7 @@ async function fetchOpenRouterModels(){
 }
 
 /* ===== 设置弹窗（暖色风格，沿用本系统配色）===== */
-const TINY_JPEG_B64 = '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABAAEADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD6poor5r+Anwd8CeKvhPoWs69oX2vUrnz/ADZvtk8e7bPIi/KrgD5VA4HagD6Uoryr/hnz4Yf9Cz/5P3X/AMco/wCGfPhh/wBCz/5P3X/xygD1WivKv+GfPhh/0LP/AJP3X/xyj/hnz4Yf9Cz/AOT91/8AHKAPVaK8K+IXwN+HWkeAfEupaf4e8m9s9MubiCT7bctskSJmU4MhBwQOCMV6X8J/+SWeDf8AsC2X/ohKAOqryr9lz/khPhn/ALev/SqWvVa8q/Zc/wCSE+Gf+3r/ANKpaAPVaKKKAPKv2XP+SE+Gf+3r/wBKpa9Vryr9lz/khPhn/t6/9Kpa9VoA5X4sf8ks8Zf9gW9/9EPR8J/+SWeDf+wLZf8AohKPix/ySzxl/wBgW9/9EPR8J/8Aklng3/sC2X/ohKAOqryr9lz/AJIT4Z/7ev8A0qlr1WvKv2XP+SE+Gf8At6/9KpaAD/hnz4Yf9Cz/AOT91/8AHKP+GfPhh/0LP/k/df8Axyu68aalcaV4eluLIotzJNBbRySLuWNppkiDkdwu/dj2rjPGWv6x4NnhgbU73VIp/s1xva2ia4RRfWsMsarGihvMSchRt3AqcHpgA85+Anwd8CeKvhPoWs69oX2vUrnz/Nm+2Tx7ts8iL8quAPlUDgdq7/8A4Z8+GH/Qs/8Ak/df/HKh/ZVikj+B+gvJcPKsj3LIjKoEQ+0SDaMDJGQW5ycse2BXrdAHFfELT7XSPgv4l03T4vJsrPw/c28Ee4tsjS2ZVGSSTgAck5q38J/+SWeDf+wLZf8AohKPix/ySzxl/wBgW9/9EPR8J/8Aklng3/sC2X/ohKAOqrwr9nDxr4V0j4MeHrHVfEuiWN7F9o8y3ub+KKRM3MpGVZgRkEH6EV7rXK/8K48D/wDQm+G//BXB/wDE0AV7/wAd/D/ULKezvfFnhie2nQxyRvqcBDKeoPzVkQax8LolcHxVoU7PJBKZLnXxPJmGQSxDe8pYKrqG25xnOQcmt/8A4Vx4H/6E3w3/AOCuD/4mj/hXHgf/AKE3w3/4K4P/AImgDN0HxX8NfD9m9povibwtZWjSNKLeHVIRGjHrsTfhAeuFAGSTjJNaX/Cx/A//AEOXhv8A8GkH/wAVR/wrjwP/ANCb4b/8FcH/AMTR/wAK48D/APQm+G//AAVwf/E0Ac18TfH3g68+G3iy1s/Fnh+e5n0m7jiii1KFnkdoXAVQGySSQABXS/Cf/klng3/sC2X/AKISj/hXHgf/AKE3w3/4K4P/AImultLaCztYbWzhigtoEWOKKJAqRoowFUDgAAAACgD/2Q==';
+const TINY_JPEG_B64 = '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAEAAQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7LooooA//2Q==';
 function openSet(){ selectProv(cfg.prov); $('setBg').classList.add('on'); }
 function closeSet(){ $('setBg').classList.remove('on'); }
 function renderSetTabs(){
@@ -3241,16 +2872,6 @@ function renderModelOptions(){
 function onSetModel(){ const v=$('setModel').value; cfg.models[cfg.prov]=v; if($('setModelCustom'))$('setModelCustom').value=''; localStorage.setItem('phck_models',JSON.stringify(cfg.models)); updateAiStatus(); }
 function onSetModelCustom(){ const v=($('setModelCustom').value||'').trim(); if(v){cfg.models[cfg.prov]=v;}else{delete cfg.models[cfg.prov];} localStorage.setItem('phck_models',JSON.stringify(cfg.models)); updateAiStatus(); }
 function renderGuide(){ const g=$('setGuide'); if(g) g.innerHTML = PROVIDERS[cfg.prov].guide || '填入 API Key 后点「测试连接」。'; }
-function onSetProxyMode(){ const v=$('setProxyMode')?$('setProxyMode').value:'auto'; cfg.proxy=v; localStorage.setItem('phck_proxy',v); updateProxyHint(); updateAiStatus(); }
-function updateProxyHint(){
-  const el=$('setProxyHint'); if(!el)return;
-  const p=PROVIDERS[cfg.prov]; const has=!!(p&&p.proxyPath);
-  const active=proxyAvailable()&&has;
-  let base='';
-  try{ base=(location.protocol==='file:')?'当前以本地文件(file://)打开——代理不可用，只能用国内直连服务或翻墙直连。':((location.hostname==='localhost'||location.hostname==='127.0.0.1')?'当前在 localhost——本地一般无 Functions，代理不可用。':'当前域名下若已部署 functions/api/[[path]].js，代理可用。'); }catch(_){}
-  const cur = has ? (active?('本服务此刻<b style="color:var(--ok)">走同域代理</b>（'+esc(p.proxyPath)+'）'):'本服务此刻<b>直连</b>') : '本服务为国内直连/无代理路由，始终直连';
-  el.innerHTML = base+' '+cur+'。';
-}
 function selectProv(id){
   if(!PROVIDERS[id]) id='zhipu';
   cfg.prov=id; localStorage.setItem('phck_prov',id);
@@ -3266,8 +2887,6 @@ function selectProv(id){
     if($('setCustomPreset'))$('setCustomPreset').value='';
   }
   renderModelOptions(); renderGuide(); setTestResult('',''); updateAiStatus();
-  if($('setProxyMode'))$('setProxyMode').value=cfg.proxy||'auto';
-  updateProxyHint();
 }
 /* 快速预设：一键填端点 + 接口类型 + 鉴权方式 + 建议模型 */
 const CUSTOM_PRESETS={
@@ -3330,18 +2949,8 @@ async function testConnection(){
     setTestResult('✅ 连接成功 · 模型「'+getEffectiveModel()+'」已响应：'+String(t).replace(/\s+/g,' ').slice(0,40),'ok');
   }catch(e){
     let m=((e&&e.message)||String(e));
-    // 图片尺寸类 400：说明已成功连到模型，只是测试图不合尺寸要求 → 视为连接成功
-    if(/larger than \d+|width\(\d+\)|height\(\d+\)|too small|尺寸|min.*size|resolution/i.test(m)){
-      setTestResult('✅ 连接成功 · 模型「'+getEffectiveModel()+'」已响应（测试图尺寸偏小被拒属正常，识别真实表单不受影响）','ok');
-      if(btn)btn.disabled=false;return;
-    }
     let extra='';
-    if(/Failed to fetch|网络错误|CORS|NetworkError|Load failed/i.test(m)){
-      const hasProxy=!!(p&&p.proxyPath);
-      if(hasProxy&&!proxyAvailable()) extra='\n💡 这是浏览器跨域(CORS)拦截。本服务支持<同域代理>：请把上方「跨域代理」设为「强制开启」（需已把 functions/api/[[path]].js 部署到本站 Cloudflare Pages），或改用国内直连服务（智谱/硅基/通义/Kimi/阶跃/混元）。';
-      else if(hasProxy&&proxyAvailable()) extra='\n💡 已在走同域代理仍失败：确认本站已部署 functions/api/[[path]].js，且该服务域名在代理白名单内；或改用国内直连服务。';
-      else extra='\n💡 多为浏览器跨域(CORS)或需翻墙。可换国内直连服务（智谱/硅基/通义/Kimi/阶跃/混元），或在「自定义」里走 One-API/自建代理。';
-    }
+    if(/Failed to fetch|网络错误|CORS|NetworkError|Load failed/i.test(m)) extra='\n💡 多为浏览器跨域(CORS)或需翻墙。可换国内直连服务（智谱/硅基/通义/Kimi/阶跃/混元），或在「自定义」里走 One-API/自建代理。';
     else if(/401|invalid|无效/i.test(m)) extra='\n💡 Key 不正确或未保存成功，请重新粘贴后再测。';
     else if(/404|not found|模型.*不存在/i.test(m)) extra='\n💡 该模型 ID 在此服务不存在，请在上方下拉换一个，或核对官方模型名。';
     setTestResult('❌ 失败：'+m+extra,'bad');
@@ -3351,29 +2960,25 @@ async function testConnection(){
 function updateAiStatus(){
   const el=$('aiStatus'); if(!el) return;
   const p=PROVIDERS[cfg.prov]; const m=getEffectiveModel()||'(未选模型)'; const hasKey=!!getEffectiveKey();
-  const proxyOn=!!(p&&p.proxyPath&&proxyAvailable());
-  const proxyTxt=proxyOn?' · <span style="color:var(--accent2)">同域代理</span>':'';
-  el.innerHTML='AI 服务：<b>'+esc(p?p.name:'-')+'</b> · 模型 <b>'+esc(m)+'</b> · '+(hasKey?'<span style="color:var(--ok)">已配置 Key</span>':'<span style="color:var(--bad)">未配置 Key</span>')+proxyTxt+'<button class="gobtn" onclick="openSet()">⚙ 设置 / 测试连接</button>';
+  el.innerHTML='AI 服务：<b>'+esc(p?p.name:'-')+'</b> · 模型 <b>'+esc(m)+'</b> · '+(hasKey?'<span style="color:var(--ok)">已配置 Key</span>':'<span style="color:var(--bad)">未配置 Key</span>')+'<button class="gobtn" onclick="openSet()">⚙ 设置 / 测试连接</button>';
 }
 
-function callWithRetry(prompt,b64,mime,onNote){
-  return (async()=>{
-    let last;
-    for(let a=0;a<=2;a++){                 // 最多 3 次（原 4 次），失败更快浮现
-      try{ if(a>0&&onNote)onNote(`第 ${a} 次重试…`); return await callAI(b64,mime,prompt); }
-      catch(e){
-        last=e;
-        const msg=e.message||'';
-        // 余额不足 / 模型不存在 / Key 错 → 不重试，直接抛（换模型/Key 才有用）
-        if(/balance|insufficient|not found|不支持|invalid_request|unauthor|401|403|404/i.test(msg))throw e;
-        const r=/rate|too many|429|overload|529/i.test(msg);
-        const s=/5\d\d|server|超时|timeout|abort/i.test(msg);
-        if((r||s)&&a<2){ const wait=(r?4000:2000)*(a+1); if(onNote)onNote(`稍候重试（${Math.round(wait/1000)}s）…`); await sleep(wait); continue; }
-        throw e;
-      }
+async function callWithRetry(prompt,b64,mime){
+  let last;
+  for(let a=0;a<=3;a++){
+    try{return await callAI(b64,mime,prompt);}
+    catch(e){
+      last=e;
+      const msg=e.message||'';
+      // 余额不足 / 模型不存在 → 不重试，直接抛（换模型才有用）
+      if(/balance|insufficient|not found|不支持|invalid_request|unauthor|401|403|404/i.test(msg))throw e;
+      const r=/rate|too many|429|overload|529/i.test(msg);
+      const s=/5\d\d|server/i.test(msg);
+      if((r||s)&&a<3){await sleep((r?5000:2500)*(a+1));continue;}
+      throw e;
     }
-    throw last;
-  })();
+  }
+  throw last;
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -3677,11 +3282,9 @@ async function runRecord(r){
   const parts=[];
   for(let i=0;i<r.pages.length;i++){
     const page=i+1;
-    const pf=(i)/(r.pages.length);
-    setProg(Math.max(0.06,pf),`识别中 · ${recLabel(r)}：第 ${page}/${r.pages.length} 页`);
+    setProg(0,`${recLabel(r)}：第 ${page}/${r.pages.length} 页`);
     const prompt=buildPromptFor(curSys,page);
-    const txt=await callWithRetry(prompt,r.pages[i].b64,r.pages[i].mime||'image/jpeg',
-      note=>setProg(Math.max(0.06,pf),`识别中 · ${recLabel(r)}：第 ${page}/${r.pages.length} 页 · ${note}`));
+    const txt=await callWithRetry(prompt,r.pages[i].b64,r.pages[i].mime||'image/jpeg');
     parts.push(parseModelJSON(txt)||{});
     await sleep(150);
   }
@@ -3988,163 +3591,20 @@ function feCommit(rerender){
 }
 
 /* —— 通用控件 —— */
-
-/* ==== 从 output 移植：选项字典 + 点格即选 chip 渲染 ==== */
-const OPT_TF     = [['1','是'],['0','否']];
-const OPT_TF10   = [['0','否'],['1','是']];
-const OPT_GENDER = [['1','男'],['2','女']];
-const OPT_FREQ04 = [['0','不吃/不用'],['1','天'],['2','周'],['3','月'],['4','年']];
-const OPT_FREQ5  = [['1','从不'],['2','每月1-3次'],['3','每周1-2次'],['4','每周3-5次'],['5','每天1次及以上']];
-const OPT_NEV5   = [['1','从不'],['2','有时'],['3','偶尔'],['4','常常'],['5','绝大多数']];
-const OPT_SAT4   = [['1','非常不满意'],['2','有一点不满意'],['3','比较满意'],['4','非常满意']];
-
-/* ── 儿童膳食/运动/睡眠/行为问卷（health_survey） ── */
-const H_OPT={
-  gender:OPT_GENDER,
-  nation:[['1','汉族'],['2','彝族'],['3','藏族'],['4','羌族'],['5','苗族'],['6','其他民族']],
-  BIRTHDAY1:[['1','新历/阳历'],['2','农历/旧历']],
-  live_school:OPT_TF10,
-  study_dep_new:[['1','无'],['2','较小'],['3','一般'],['4','较大'],['5','大']],
-  parent_h:[['1','无压力'],['2','轻度压力'],['3','中度压力'],['4','重度压力']],
-  character:[['1','内向型'],['2','外向型'],['3','中间型']],
-  child_influence:[['1','无'],['2','轻微'],['3','一般'],['4','较大'],['5','大']],
-  punish:OPT_TF10, play_g:OPT_TF10,
-  /* 孕期 */
-  PWEEK2:[['0','足月'],['1','早产']],
-  BIRTHW:[['0','顺产'],['1','剖腹产']],
-  twins:OPT_TF,
-  mmilk:[['0','未添加'],['1','出生时'],['2','出生后__天']],
-  milk:[['0','未添加'],['1','出生时'],['2','__天'],['3','__个月']],
-  lastdelivery:[['1','阴道分娩'],['2','剖宫产']],
-  lastabortion:[['1','手术流产'],['2','药物流产'],['3','自然流产']],
-  /* 家庭 */
-  live:[['1','与父母同住'],['2','与父母+祖辈'],['3','与祖辈同住'],['4','与父/母一方'],['5','父/母一方+祖辈'],['6','其他']],
-  caregiver:[['1','母亲'],['2','父亲'],['3','爷爷奶奶'],['4','外公外婆'],['5','其他家长']],
-  MARRIAGE:[['1','双亲家庭'],['2','离异未重组'],['3','离异/丧偶后重组'],['4','丧偶未重组'],['5','未婚']],
-  MOCUP:[['1','工人(含农民工)'],['2','农民'],['3','管理/干部/军人'],['4','专业技术人员'],['5','商业服务人员'],['6','个体经营者'],['7','退休/离休'],['8','家庭主妇'],['9','学生'],['10','其他']],
-  FOCUP:[['1','工人(含农民工)'],['2','农民'],['3','管理/干部/军人'],['4','专业技术人员'],['5','商业服务人员'],['6','个体经营者'],['7','退休/离休'],['8','家庭主妇'],['9','学生'],['10','其他']],
-  MEDU:[['1','初中及以下'],['2','高中/职高/中专'],['3','大专/本科'],['4','硕士及以上']],
-  FEDU:[['1','初中及以下'],['2','高中/职高/中专'],['3','大专/本科'],['4','硕士及以上']],
-  fam_income:[['1','<2.5万'],['2','2.5-5.0万'],['3','5.0-10.0万'],['4','10.0-15.0万'],['5','15.0-20.0万'],['6','20.0-25.0万'],['7','25.0-30.0万'],['8','>30.0万']],
-  /* 睡眠 */
-  bedtimemood:[['1','平静'],['2','比较平静'],['3','中等程度'],['4','比较激动'],['5','激动']],
-  sleepschedulet:[['1','早睡早起'],['2','早睡晚起'],['3','晚睡早起'],['4','晚睡晚起'],['5','入睡不规律'],['6','起床不规律']],
-  fallasleept:[['1','0-5分钟'],['2','6-15分钟'],['3','16-30分钟'],['4','31-45分钟'],['5','46-60分钟'],['6','超过1小时']],
-  /* 膳食 1.1-8 */
-  food25:[['2','2次'],['3','3次'],['4','4次'],['5','5次'],['6','6次及以上']],
-  food25_1:[['2','2次'],['3','3次'],['4','4次'],['5','5次'],['6','6次及以上']],
-  food26:OPT_TF10,
-  salt:[['1','很咸'],['2','偏咸'],['3','适中'],['4','偏淡'],['5','很淡']],
-  breakfast:[['0','不吃'],['1','吃']],
-  cookert:[['1','燃气灶'],['2','电子设备'],['3','煤炉/土灶'],['4','其他']],
-  PM:[['1','大'],['2','较大'],['3','一般'],['4','较小'],['5','小']],
-  fume:[['1','抽油烟机'],['2','排气扇'],['3','无'],['9','不知道']],
-  fumefre:[['1','一直'],['2','经常'],['3','有时'],['4','几乎不'],['5','从不'],['9','不清楚']],
-  /* 八·塑料包装 9-16 */
-  drink_freq:OPT_FREQ5, package_freq:OPT_FREQ5, prepack:OPT_FREQ5,
-  hot_takeout:[['1','每次都倒'],['2','多数时候倒'],['3','偶尔倒'],['4','不倒·直接用']],
-  disp_plast:[['1','从不使用'],['2','仅外出/外卖'],['3','家庭日常也频繁']],
-  plast_use:[['1','是'],['2','否']],
-  hotwater_plast:OPT_NEV5, mw_plast:OPT_NEV5,
-  plast_wrap:[['1','从不使用'],['2','仅包裹冷鲜'],['3','包裹热食/加热']],
-  bagdrink:[['1','从不'],['2','偶尔'],['3','经常']],
-  /* 六·甲状腺 */
-  abnorm_lab_1y:[['1','无'],['2','肝功能异常'],['3','甲状腺异常'],['4','血脂异常'],['5','多项异常']],
-  /* 八·环境暴露 1-13 */
-  cup_mat:[['1','玻璃/不锈钢杯'],['2','透明或彩色塑料杯'],['3','买瓶装水/塑料杯装奶茶']],
-  mw_plast_freq:[['1','从不/家里不用'],['2','偶尔会'],['3','经常这样']],
-  snack_freq:[['1','很少(每月<1次)'],['2','有时(每周1-2次)'],['3','经常(几乎每天)']],
-  fried_paper:[['1','很少吃'],['2','吃但尽量不接触'],['3','经常直接拿着吃']],
-  chew_habit:[['1','从来没有'],['2','以前有·现在改了'],['3','现在经常']],
-  soft_scent_items:[['1','都普通'],['2','有一部分是'],['3','大部分特别香软']],
-  receipt:[['1','从来不拿'],['2','有时拿来玩'],['3','经常拿玩·之后不洗手']],
-  sunscreen:[['1','几乎不用'],['2','只体育课/出去玩才用'],['3','每天都用']],
-  screent:[['1','不到1小时'],['2','1-3小时'],['3','超过3小时']],
-  renov_furn:[['1','没有'],['2','有·但不怎么闻到味'],['3','有·能闻到明显味']],
-  near_road:[['1','否'],['2','是']],
-  mosq_repel:[['1','很少用·主要挂蚊帐'],['2','经常用电蚊香'],['3','经常烧蚊香']],
-  nonstick_pan:[['1','从不用(铁锅/陶瓷锅)'],['2','偶尔使用'],['3','经常使用']]
-};
-
-/* ── 儿童基本情况与荧屏时间调查表（screen_time） ── */
-const ST_OPT={
-  gender:OPT_GENDER,
-  st1_2:OPT_TF10, st1_4:OPT_TF10, st1_5:OPT_TF10, st2_1:OPT_TF10, st2_2:OPT_TF10,
-  grow1:OPT_TF10, grow2:OPT_TF10, grow3:OPT_TF10, grow4:OPT_TF10
-};
-const OPT_DICT={health_survey:H_OPT, screen_time:ST_OPT};
-
-function fieldOpts(f){
-  if(!f)return null;
-  const d=(curSys&&OPT_DICT[curSys.id])||null;
-  if(d&&d[f.key])return d[f.key];
-  if(f.kind==='gender')return OPT_GENDER;
-  if(f.kind==='toggle')return OPT_TF10;
-  if(f.kind==='freq')return OPT_FREQ04;
-  return null;
-}
-
-function buildChips(key,opts,r){
-  const box=document.createElement('div');box.className='rv-ochips';
-  const cur=()=>String(r.data[key]==null?'':r.data[key]);
-  const sync=()=>box.classList.toggle('empty',cur()==='');
-  opts.forEach(([v,lb])=>{
-    const on=cur()===String(v);
-    const c=document.createElement('span');
-    c.className='rv-ochip'+(on?' on':'')+(on&&r.imported&&r.imported[key]?' imp':'');
-    c.title=key+' = '+v;
-    c.innerHTML=`<span class="ov">${esc(String(v))}</span>${esc(lb)}`;
-    c.onclick=()=>{
-      const already=c.classList.contains('on');
-      box.querySelectorAll('.rv-ochip').forEach(x=>x.classList.remove('on','imp'));
-      if(already){r.data[key]='';}else{c.classList.add('on');r.data[key]=String(v);}
-      if(r.imported)delete r.imported[key];
-      r.filled=countFilled(r);updateFill(r);sync();
-    };
-    box.appendChild(c);
-  });
-  sync();return box;
-}
-
-function plainCtrlHTML(f,val,imp){
+function makeRow(f,val,imp){
+  const row=document.createElement('div');row.className='rv-row';
   const disp=val==null?'':String(val);
+  let ctrl;
   if(f.type==='select'){
     const hasL=!!f.optLabels;const opts=hasL?f.optLabels:(f.options||[]);
     let oh='<option value=""></option>';
     opts.forEach(o=>{const v=hasL?o[1]:o;const lb=hasL?(o[1]+' '+o[0]):o;oh+=`<option value="${esc(v)}"${disp===String(v)?' selected':''}>${esc(lb)}</option>`;});
-    return `<select class="rv-sel${imp?' imp':''}" data-k="${f.key}" onchange="onEdit(this)">${oh}</select>`;
+    ctrl=`<select class="rv-sel${imp?' imp':''}" data-k="${f.key}" onchange="onEdit(this)">${oh}</select>`;
+  }else{
+    const numish=(f.type==='number');const empty=disp===''?' empty':'';
+    ctrl=`<input class="rv-in${numish?' num':''}${empty}${imp?' imp':''}" value="${esc(disp)}" data-k="${f.key}" oninput="onEdit(this)"${f.hint?` placeholder="${esc(f.hint)}"`:''}>`;
   }
-  const numish=(f.type==='number'||f.kind==='num'||f.kind==='freq');const empty=disp===''?' empty':'';
-  return `<input class="rv-in${numish?' num':''}${empty}${imp?' imp':''}" value="${esc(disp)}" data-k="${f.key}" oninput="onEdit(this)"${f.hint?` placeholder="${esc(f.hint)}"`:''}>`;
-}
-
-function inlineCtrlNode(f,r){
-  const seg=document.createElement('div');seg.className='rv-lseg';
-  const shortLab=(f.lineLabel!=null)?f.lineLabel:(f.label||f.key);
-  const lab=document.createElement('span');lab.className='rv-lslab';
-  lab.innerHTML=`${esc(shortLab)}<span class="rv-key">${esc(f.key)}</span>`;
-  seg.appendChild(lab);
-  const opts=fieldOpts(f);
-  if(opts&&opts.length<=6){seg.appendChild(buildChips(f.key,opts,r));}
-  else{
-    const holder=document.createElement('span');
-    holder.innerHTML=plainCtrlHTML(f,r.data[f.key],r.imported&&r.imported[f.key]);
-    seg.appendChild(holder.firstChild);
-  }
-  return seg;
-}
-function makeRow(f,val,imp,r){
-  r=r||curRec();
-  const opts=fieldOpts(f);
-  if(opts&&r){
-    const row=document.createElement('div');row.className='rv-orow';
-    const lab=document.createElement('div');lab.className='rv-olab';
-    lab.innerHTML=`${esc(f.label)}<span class="rv-key">${esc(f.key)}</span>`;
-    row.appendChild(lab);row.appendChild(buildChips(f.key,opts,r));
-    return row;
-  }
-  const row=document.createElement('div');row.className='rv-row';
-  row.innerHTML=`<div class="rv-lab">${esc(f.label)}<span class="rv-key">${f.key}</span></div>${plainCtrlHTML(f,val,imp)}`;
+  row.innerHTML=`<div class="rv-lab">${esc(f.label)}<span class="rv-key">${f.key}</span></div>${ctrl}`;
   return row;
 }
 /* 生成单个内联控件（label 简短 + 输入/下拉），供「同一行原件字段」横排使用 */
@@ -4166,8 +3626,10 @@ function inlineCtrlHTML(f,val,imp){
 /* 一整条「同一行原件」：title 可选，followed by 多个字段横排（高度一致） */
 function makeLineGroup(title,fieldObjs,r){
   const row=document.createElement('div');row.className='rv-lrow';
-  if(title){const t=document.createElement('div');t.className='rv-ltitle';t.innerHTML=`<span class="lgtag">同行</span>${esc(title)}`;row.appendChild(t);}
-  fieldObjs.forEach(f=>row.appendChild(inlineCtrlNode(f,r)));
+  let h='';
+  if(title)h+=`<div class="rv-ltitle">${esc(title)}</div>`;
+  fieldObjs.forEach(f=>{h+=inlineCtrlHTML(f,r.data[f.key],r.imported&&r.imported[f.key]);});
+  row.innerHTML=h;
   return row;
 }
 function onEdit(el){
@@ -4456,58 +3918,6 @@ function stBuildParentGrid(r){
   });
   return box;
 }
-
-/* ==== 从 output 移植：荧屏表青春期块 / 健康问卷多选块 ==== */
-function stPubertyBlock(cfg,r){
-  const box=document.createElement('div');
-  if(cfg.groupLabel){const gl=document.createElement('div');gl.className='rv-gcap';gl.textContent=cfg.groupLabel;box.appendChild(gl);}
-  cfg.labels.forEach((name,i)=>{
-    const n=i+1;const base=cfg.prefix+n;const ky=base+'_y',km=base+'_m';
-    const line=document.createElement('div');line.className='rv-uline';
-    const on=String(r.data[base]??'')==='1';
-    const chk=document.createElement('span');chk.className='rv-chk'+(on?' on':'');chk.title='打勾=已出现(1)';
-    chk.onclick=()=>{const cur=String(r.data[base]??'')==='1';setToggle(base,cur?'0':'1');chk.classList.toggle('on',!cur);};
-    line.appendChild(chk);
-    const nm=document.createElement('span');nm.className='rv-uname';nm.innerHTML=`<span class="qn">${n}</span>${esc(name)}`;line.appendChild(nm);
-    const bx=document.createElement('span');bx.style.cssText='display:flex;gap:14px;margin-left:auto;flex-wrap:wrap';
-    const vy=r.data[ky]==null?'':String(r.data[ky]);
-    const a=document.createElement('span');a.className='rv-freq';
-    a.innerHTML=`初始 <input data-k="${ky}" class="${vy===''?'empty':''}${r.imported&&r.imported[ky]?' imp':''}" value="${esc(vy)}"> 岁`;
-    a.querySelector('input').oninput=function(){onEdit(this);};
-    const vm=r.data[km]==null?'':String(r.data[km]);
-    const b=document.createElement('span');b.className='rv-freq';
-    b.innerHTML=`<input data-k="${km}" class="${vm===''?'empty':''}${r.imported&&r.imported[km]?' imp':''}" value="${esc(vm)}"> 月`;
-    b.querySelector('input').oninput=function(){onEdit(this);};
-    bx.appendChild(a);bx.appendChild(b);line.appendChild(bx);
-    box.appendChild(line);
-  });
-  return box;
-}
-
-function hMultiChoiceBlock(prefix,labels,groupLabel,r,otherKey,otherLabel,keyFn){
-  const box=document.createElement('div');box.className='rv-mc';
-  if(groupLabel){const gl=document.createElement('div');gl.className='rv-gcap';gl.style.margin='0 0 6px';gl.textContent=groupLabel;box.appendChild(gl);}
-  const opts=document.createElement('div');opts.className='rv-mc-opts';
-  labels.forEach((txt,i)=>{
-    const key=keyFn?keyFn(prefix,i):(prefix+(i+1));
-    const on=String(r.data[key]??'')==='1';
-    const imp=on&&r.imported&&r.imported[key]?' imp':'';
-    const chip=document.createElement('span');chip.className='rv-mcchip'+(on?' on':'')+imp;chip.title=key;
-    chip.innerHTML=`<span class="mcbox"></span><span class="mcnum">${i+1}</span>${esc(txt)}`;
-    chip.onclick=()=>{const cur=String(r.data[key]??'')==='1';r.data[key]=cur?'':'1';chip.classList.toggle('on',!cur);if(r.imported)delete r.imported[key];chip.classList.remove('imp');r.filled=countFilled(r);updateFill(r);};
-    opts.appendChild(chip);
-  });
-  box.appendChild(opts);
-  if(otherKey){
-    const v=r.data[otherKey]==null?'':String(r.data[otherKey]);
-    const oth=document.createElement('div');oth.className='rv-mc-oth';
-    oth.innerHTML=`<span>${esc(otherLabel||'其他(注明)')}</span><input data-k="${otherKey}" class="${v===''?'empty':''}${r.imported&&r.imported[otherKey]?' imp':''}" value="${esc(v)}">`;
-    oth.querySelector('input').oninput=function(){onEdit(this);};
-    box.appendChild(oth);
-  }
-  return box;
-}
-
 function screenRender(host,r){
   const pages=[...new Set(curSys._leaf.map(f=>f.page))].sort((a,b)=>a-b);
   for(const pg of pages){
@@ -4516,31 +3926,7 @@ function screenRender(host,r){
     const gridKeys=new Set();groups.forEach(g=>{(g.keys||[]).forEach(k=>gridKeys.add(k));if(g.type==='parent2'){for(let i=1;i<=19;i++){gridKeys.add('ff'+i);gridKeys.add('fm'+i);}}});
     const devBlocks=stDevBlocksForPage(pg);
     const devKeys=new Set();devBlocks.forEach(b=>stCollectDevKeys(b.period,b.dev).forEach(k=>devKeys.add(k)));
-
-    /* 控件登记：同一行横排组 / 男女问诊块（按 keys 首次出现处整块插入，贴合 PDF 版面） */
-    const widgets=[];const keyW=new Map();
-    const addW=(keys,emit)=>{const w={keys:new Set(keys),emit,done:false};widgets.push(w);keys.forEach(k=>keyW.set(k,w));};
-    let _lastCap=null;
-    ST_LINEGROUPS.filter(lg=>lg.page===pg).forEach(lg=>{
-      const objs=lg.items.map(([k,ll])=>{const f=curSys._fby[k];return f?Object.assign({},f,{lineLabel:ll}):null;}).filter(Boolean);
-      if(!objs.length)return;
-      addW(objs.map(f=>f.key),(h)=>{
-        if(lg.cap&&lg.cap!==_lastCap){const c=document.createElement('div');c.className='rv-gcap rv-lgcap';c.textContent=lg.cap;h.appendChild(c);_lastCap=lg.cap;}
-        h.appendChild(makeLineGroup(lg.title,objs,r));
-      });
-    });
-    ST_PUBERTY.filter(pb=>pb.page===pg).forEach(pb=>{
-      const keys=[];pb.labels.forEach((_,i)=>{const b=pb.prefix+(i+1);keys.push(b,b+'_y',b+'_m');});
-      if(!keys.some(k=>curSys._fby[k]))return;
-      addW(keys,(h)=>h.appendChild(stPubertyBlock(pb,r)));
-    });
-
-    /* 普通字段（单遍渲染）：命中同一行组/问诊块→首字段处整块插入；量表与设备键跳过 */
-    curSys._leaf.filter(f=>f.page===pg&&!gridKeys.has(f.key)&&!devKeys.has(f.key)).forEach(f=>{
-      const w=keyW.get(f.key);
-      if(w){if(!w.done){w.done=true;w.emit(host);}return;}
-      host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key],r));
-    });
+    curSys._leaf.filter(f=>f.page===pg&&!gridKeys.has(f.key)&&!devKeys.has(f.key)).forEach(f=>host.appendChild(makeRow(f,r.data[f.key],r.imported&&r.imported[f.key])));
     if(devBlocks.length){let lastLabel=null;devBlocks.forEach(b=>{if(b.groupLabel&&b.groupLabel!==lastLabel){const gl=document.createElement('div');gl.className='rv-gcap';gl.textContent=b.groupLabel;host.appendChild(gl);lastLabel=b.groupLabel;}host.appendChild(stBuildDeviceBlock(b.period,b.dev,r));});}
     groups.forEach(g=>host.appendChild(stBuildGrid(g,r)));
   }
