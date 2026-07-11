@@ -6,7 +6,7 @@
  * （CORS 头仍保留，便于第三方调用时跨域。）
  *
  * 路由表（前端基础地址 → 实际目标）：
- *   /api/groq/openai/v1/chat/completions → https://api.groq.com/openai/v1/chat/completions
+ *   /api/groq/v1/chat/completions      → https://api.groq.com/openai/v1/chat/completions
  *   /api/nvidia/v1/chat/completions    → https://integrate.api.nvidia.com/v1/chat/completions
  *   /api/github/chat/completions       → https://models.github.ai/inference/chat/completions
  *   /api/hunyuan/v1/chat/completions   → https://api.hunyuan.cloud.tencent.com/v1/chat/completions
@@ -18,7 +18,7 @@
  */
 
 const ROUTES = {
-  '/api/groq/':        'https://api.groq.com/',
+  '/api/groq/':        'https://api.groq.com/',        // 修复：base 去掉 openai/，避免与前端路径的 openai/ 重复（原来会拼成 /openai/openai/ → 404）
   '/api/nvidia/':      'https://integrate.api.nvidia.com/',
   '/api/github/':      'https://models.github.ai/inference/',
   '/api/hunyuan/':     'https://api.hunyuan.cloud.tencent.com/',
@@ -74,7 +74,7 @@ function corsHeaders() {
   return {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Target-URL, x-api-key, anthropic-version, anthropic-dangerous-direct-browser-access, HTTP-Referer, X-Title',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Target-URL, x-api-key, anthropic-version',
     'Access-Control-Max-Age': '86400',
   };
 }
