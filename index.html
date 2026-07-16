@@ -3134,7 +3134,8 @@ function serializeRecords(){
   return records.map(r=>({
     id:r.id,file:r.file,srcName:r.srcName,part:r.part,partCount:r.partCount,
     pages:(r.pages||[]).map(p=>({dataUrl:p.dataUrl,b64:p.b64,mime:p.mime})),
-    data:r.data,filled:r.filled,status:(r.status==='running'?'pending':r.status),err:r.err,imported:r.imported
+    data:r.data,filled:r.filled,status:(r.status==='running'?'pending':r.status),err:r.err,imported:r.imported,
+    pageErrs:r.pageErrs||[],pageErrMsg:r.pageErrMsg||''
   }));
 }
 let _saveT=null;
@@ -3320,7 +3321,7 @@ async function addFiles(fileList){
 function maybeAutoRun(){
   if(running||paused)return;
   if(!getEffectiveKey())return;   // 未配 Key 时不自动跑，避免弹窗打扰
-  if(!records.some(r=>r.status==='pending'||r.status==='error'))return;
+  if(!records.some(r=>r.status==='pending'))return;   // 只自动跑新增待识别项；失败项需手动重试，避免死循环
   runAll(true);
 }
 
@@ -3328,10 +3329,16 @@ function maybeAutoRun(){
 function setBusy(b){ $('runBtn').textContent=b?'识别中…':'▶ 开始识别'; refreshQueueUI(); }
 function setProg(frac,msg){const p=$('prog');if(frac<0){p.classList.remove('on');return;}p.classList.add('on');$('barFill').style.width=Math.round(Math.max(0,Math.min(1,frac))*100)+'%';$('progLbl').textContent=(msg||'');}
 
-function nextPending(){return records.find(r=>r.status==='pending'||r.status==='error');}
+/* 队列只拾取 pending：失败的记录不再被自动反复重取（否则会卡在同一份文件上死循环）。
+   手动点「开始识别」时会把失败记录重新排队一次；也可对单条点「↻ 重试」。 */
+function nextPending(){return records.find(r=>r.status==='pending');}
 async function runAll(auto){
   if(running)return;
   if(!getEffectiveKey()){ if(!auto){toast('请先在 ⚙ 设置里配置并保存 API Key');openSet();} return; }
+  if(!auto&&!nextPending()){
+    records.forEach(r=>{if(r.status==='error'){r.status='pending';r.err='';}});
+    renderResults();
+  }
   if(!nextPending()){ if(!auto)toast('没有待识别的记录'); return; }
   running=true;paused=false;setBusy(true);
   let done=0;
@@ -3339,7 +3346,7 @@ async function runAll(auto){
   while(!paused){
     const r=nextPending();
     if(!r)break;
-    const remain=records.filter(x=>x.status==='pending'||x.status==='error').length;
+    const remain=records.filter(x=>x.status==='pending').length;
     r.status='running';renderResults();refreshQueueUI();
     setProg(done/(done+remain||1),`识别中：${recLabel(r)}（剩 ${remain} 条）`);
     try{ await runRecord(r); r.status='done'; }
@@ -3348,23 +3355,46 @@ async function runAll(auto){
     await sleep(180);
   }
   const ok=records.filter(r=>r.status==='done').length;
+  const partial=records.filter(r=>r.status==='done'&&r.pageErrs&&r.pageErrs.length).length;
+  const bad=records.filter(r=>r.status==='error').length;
   running=false;setBusy(false);
-  if(paused){ setProg(1,`已暂停 ⏸ 已完成 ${ok} 条，剩 ${records.filter(r=>r.status==='pending'||r.status==='error').length} 条待识别`); }
-  else { setProg(1,`全部完成 ✅ 已识别 ${ok} 条`); setTimeout(()=>setProg(-1),1500); }
+  if(paused){ setProg(1,`已暂停 ⏸ 已完成 ${ok} 条，剩 ${records.filter(r=>r.status==='pending').length} 条待识别`); }
+  else {
+    let msg=`识别完成 ✅ ${ok} 条`;
+    if(partial)msg+=`（其中 ${partial} 条有失败页已留空）`;
+    if(bad)msg+=` · ${bad} 条失败（点「↻ 重试」或再点「开始识别」重跑）`;
+    setProg(1,msg);
+    if(!partial&&!bad)setTimeout(()=>setProg(-1),1500);
+  }
   persistRecords();
 }
 function pauseRun(){ if(running){paused=true;toast('将在当前记录完成后暂停');refreshQueueUI();} }
 function togglePause(){ if(running)pauseRun(); else runAll(false); }
 async function runRecord(r){
-  const parts=[];
+  const parts=[];const failPages=[];let lastErr='';
   for(let i=0;i<r.pages.length;i++){
     const page=i+1;
     setProg(0,`${recLabel(r)}：第 ${page}/${r.pages.length} 页`);
     const prompt=buildPromptFor(curSys,page);
-    const txt=await callWithRetry(prompt,r.pages[i].b64,r.pages[i].mime||'image/jpeg');
-    parts.push(parseModelJSON(txt)||{});
+    /* 逐页容错：某页识别失败 → 该页字段留空（绝不编造），继续识别下一页，不中断整条记录 */
+    let part={};
+    try{
+      const txt=await callWithRetry(prompt,r.pages[i].b64,r.pages[i].mime||'image/jpeg');
+      const p=parseModelJSON(txt);
+      if(p)part=p; else {failPages.push(page);lastErr='模型返回内容无法解析为 JSON';}
+    }catch(e){
+      failPages.push(page);
+      lastErr=((e&&e.message)||String(e)).slice(0,240);
+    }
+    parts.push(part);
     await sleep(150);
   }
+  /* 所有页全部失败（多为 Key/网络/模型配置问题）→ 整条标失败，可修好后点重试 */
+  if(failPages.length===r.pages.length){
+    throw new Error((r.pages.length>1?('全部 '+r.pages.length+' 页识别失败：'):'识别失败：')+(lastErr||'未知错误'));
+  }
+  r.pageErrs=failPages;
+  r.pageErrMsg=failPages.length?lastErr:'';
   if(curSys.expandKey){
     let rows=[];
     parts.forEach(p=>{const arr=p&&p[curSys.expandKey];if(Array.isArray(arr))rows=rows.concat(arr);});
@@ -3394,8 +3424,8 @@ async function retryRecord(id){
   const r=records.find(x=>x.id===id);if(!r)return;
   if(!getEffectiveKey()){toast('请先配置 API Key');openSet();return;}
   /* 若队列在跑：只把它标回 pending，交给运行中的队列自动拾取 */
-  if(running){ r.status='pending';r.err='';renderResults();refreshQueueUI();persistRecords();toast('已重新排入识别队列');return; }
-  running=true;setBusy(true);r.status='running';renderResults();
+  if(running){ r.status='pending';r.err='';r.pageErrs=[];r.pageErrMsg='';renderResults();refreshQueueUI();persistRecords();toast('已重新排入识别队列');return; }
+  running=true;setBusy(true);r.status='running';r.pageErrs=[];r.pageErrMsg='';renderResults();
   setProg(0,'重试：'+recLabel(r));
   try{ await runRecord(r); r.status='done'; }catch(e){ r.status='error'; r.err=((e&&e.message)||String(e)).slice(0,240); }
   running=false;setBusy(false);renderResults();refreshQueueUI();persistRecords();
@@ -3419,6 +3449,7 @@ function primaryId(r){
 }
 function d_has(d,k){return d[k]!=null&&!blank(d[k]);}
 function statPill(r){
+  if(r.status==='done'&&r.pageErrs&&r.pageErrs.length)return '<span class="pill warn">部分完成</span>';
   if(r.status==='done')return '<span class="pill ok">完成</span>';
   if(r.status==='running')return '<span class="pill run">识别中</span>';
   if(r.status==='error')return '<span class="pill bad">失败</span>';
@@ -3436,14 +3467,14 @@ function renderResults(){
     const imp=r.imported?' <span class="pill imp">含套对</span>':'';
     const fillTxt=r.data?(curSys.expandKey?`${(r.data[curSys.expandKey]||[]).length} 样本`:`${countFilled(r)} / ${total}`):'—';
     h+=`<tr>
-      <td>${esc(recLabel(r))}${(r.status==='error'&&r.err)?`<div style="font-size:10px;color:var(--bad);margin-top:3px;max-width:340px;white-space:normal;line-height:1.35">⚠ ${esc(r.err)}</div>`:''}</td>
+      <td>${esc(recLabel(r))}${(r.status==='error'&&r.err)?`<div style="font-size:10px;color:var(--bad);margin-top:3px;max-width:340px;white-space:normal;line-height:1.35">⚠ ${esc(r.err)}</div>`:''}${(r.status==='done'&&r.pageErrs&&r.pageErrs.length)?`<div style="font-size:10px;color:var(--warn);margin-top:3px;max-width:340px;white-space:normal;line-height:1.35">⚠ 第 ${esc(r.pageErrs.join('、'))} 页识别失败，字段已留空${r.pageErrMsg?('：'+esc(r.pageErrMsg)):''}（可点重试补识别）</div>`:''}</td>
       <td class="k">${esc(primaryId(r))}</td>
       <td>${esc(primaryName(r))}${imp}</td>
       <td>${statPill(r)}</td>
       <td class="k">${fillTxt}</td>
       <td style="white-space:nowrap">
         ${r.data?`<button class="linkbtn" onclick="openReview('${r.id}')">🔍 点击核对</button>&nbsp;`:''}
-        ${r.status==='error'?`<button class="linkbtn" style="color:var(--warn)" onclick="retryRecord('${r.id}')">↻ 重试</button>&nbsp;`:''}
+        ${(r.status==='error'||(r.status==='done'&&r.pageErrs&&r.pageErrs.length))?`<button class="linkbtn" style="color:var(--warn)" onclick="retryRecord('${r.id}')">↻ 重试</button>&nbsp;`:''}
         <button class="linkbtn del" onclick="delRec('${r.id}')">删除</button>
       </td></tr>`;
   }
