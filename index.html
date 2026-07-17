@@ -508,7 +508,6 @@ select.set-key{font-family:var(--sans)}
         <div class="btn-row">
           <button class="btn primary" id="runBtn" disabled>▶ 开始识别</button>
           <button class="btn" id="pauseBtn" style="display:none">⏸ 暂停</button>
-          <button class="btn" id="retryFailBtn" style="display:none" title="只重新识别失败的记录/页面，已识别成功的不会重复调用 API">↻ 重试失败项</button>
           <button class="btn ghost" id="clearBtn" disabled>清空队列</button>
           <button class="btn ghost" id="clearStoreBtn">🧹 清理本机记录</button>
         </div>
@@ -660,9 +659,10 @@ select.set-key{font-family:var(--sans)}
   <div class="set-card">
     <div class="set-head"><div class="set-title">⚙ AI 服务设置</div><button class="set-x" onclick="closeSet()">✕</button></div>
     <div class="set-body">
-      <div class="set-tip">🔐 <b>自带 Key · 只存在本机浏览器</b>，不经任何中转服务器。识别手写表单请选<b>视觉模型</b>。<br>✅ <b>推荐（2026/07 实测）</b>：智谱 <code>glm-4v-flash</code>（最不易超时）· 硅基流动 <code>Qwen3-VL-30B</code>（国内直连、额度宽松）· OpenRouter <code>openrouter/free</code>（免翻墙、自动避开下架模型）。<br>
-⚠️ <b>纯文本模型读不了图</b>：<code>glm-4.7-flash</code>、<code>glm-4.5-flash</code>、GPT-OSS、DeepSeek 等请勿选。<br>
-⏱ <b>老是超时/超限？</b>换 <code>glm-4v-flash</code> 或硅基，并把下方「超时」调到 150-240 秒；失败的记录可在队列里点「↻ 重试失败项」<b>只补失败页</b>。</div>
+      <div class="set-tip">🔐 <b>自带 Key · 只存在本机浏览器</b>，不经任何中转服务器。识别手写表单必须用<b>视觉模型</b>，纯文本模型读不了图。<br>
+      🥇 <b>批量跑问卷推荐（国内直连、不用翻墙、不排队）</b>：智谱 <code>glm-4v-flash</code>、硅基流动 <code>Qwen3-VL-30B</code>、通义 <code>qwen-vl-max-latest</code>。<br>
+      ⚠️ <b>NVIDIA / OpenRouter / GitHub / Gemini 的免费池经常忙、限额、模型下架</b>，报「不存在 / 非常忙 / 超限」是常态，本页会自动换备选模型；实在不行请换上面三家。<br>
+      🔍 <b>不确定填什么模型？点下面的「自动挑选可用模型」</b>，它会拿测试图把候选模型实打一遍，选出此刻真的能用的。</div>
       <div class="set-tabs" id="setTabs"></div>
       <div class="set-row"><input class="set-key" id="setKey" type="password" placeholder="粘贴 API Key …" autocomplete="off"><button class="set-save" onclick="saveKey()">保存</button></div>
       <div id="setCustomBox" class="set-custom" style="display:none">
@@ -703,7 +703,22 @@ select.set-key{font-family:var(--sans)}
           <input class="set-key" id="setModelCustom" placeholder="或输入自定义模型 ID…" oninput="onSetModelCustom()">
         </div>
       </div>
-      <div class="set-testrow"><button class="btn" id="setTestBtn" onclick="testConnection()" style="border:1px solid var(--accent2);color:var(--accent2);font-weight:700">🔗 测试连接</button><span class="set-testres" id="setTestRes"></span></div>
+      <div class="set-testrow">
+        <button class="btn" id="setTestBtn" onclick="testConnection()" style="border:1px solid var(--accent2);color:var(--accent2);font-weight:700">🔗 测试连接</button>
+        <button class="btn" id="setAutoBtn" onclick="autoPickModel()" style="border:1px solid var(--accent);color:var(--accent);font-weight:700;margin-left:6px">🔍 自动挑选可用模型</button>
+        <span class="set-testres" id="setTestRes"></span>
+      </div>
+      <div style="font-size:11px;color:var(--ink3);margin:-4px 0 8px;line-height:1.5">
+        「自动挑选」= 先拉取该服务<b>此刻真实存在</b>的模型，再用一张 128×128 测试图<b>逐个实打</b>，
+        谁能读出图里的数字就选谁并记住。免费模型天天下架/换代/排队，<b>别再手抄模型名</b>，让它自己找。
+      </div>
+      <div class="set-crow" style="margin:6px 0">
+        <label style="flex:0 0 auto">空白页</label>
+        <label style="flex:1;font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="setSkipBlank" onchange="onSetSkipBlank()" style="width:15px;height:15px">
+          自动跳过整页空白（未扫描/没填写）的页：本机像素判空，<b>不调用 AI、不消耗次数、绝不让模型自己编</b>
+        </label>
+      </div>
       <div class="set-crow" style="margin:6px 0"><label style="flex:0 0 auto">跨域代理</label>
         <select id="setProxyMode" onchange="onSetProxyMode()" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--line2);border-radius:8px;background:#fff">
           <option value="auto">自动（部署到 Cloudflare Pages 后，被 CORS 拦的服务自动走同域 /api 代理）</option>
@@ -712,26 +727,6 @@ select.set-key{font-family:var(--sans)}
         </select>
       </div>
       <div id="setProxyHint" style="font-size:11px;color:var(--ink3);margin:-2px 0 10px;line-height:1.5"></div>
-
-      <div class="set-crow" style="margin:6px 0"><label style="flex:0 0 auto">超时 / 重试</label>
-        <select id="setTimeout" onchange="onSetTimeout()" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--line2);border-radius:8px;background:#fff">
-          <option value="90000">90 秒（快模型：glm-4v-flash / Qwen3-VL-8B）</option>
-          <option value="150000">150 秒（推荐 · 兼容思考模式模型）</option>
-          <option value="240000">240 秒（慢网络 / 大图 / Thinking 模型）</option>
-          <option value="360000">360 秒（极限等待，几乎不超时）</option>
-        </select>
-        <select id="setMaxRetry" onchange="onSetMaxRetry()" style="flex:0 0 130px;font-size:12px;padding:6px 8px;border:1px solid var(--line2);border-radius:8px;background:#fff">
-          <option value="2">重试 2 次</option>
-          <option value="4">重试 4 次（推荐）</option>
-          <option value="6">重试 6 次</option>
-          <option value="0">不重试</option>
-        </select>
-      </div>
-      <div style="font-size:11px;color:var(--ink3);margin:-2px 0 10px;line-height:1.5">
-        ⏱ 超时后<b>自动重试</b>并按「备用模型」链<b>自动降级</b>（如 4.6v 超时 → 自动换 4v-flash）。限频(429) 会退避等待后重试。<br>
-        🔒 Key 无效 / 模型不存在 / 欠费 → <b>不重试</b>，直接提示（重试也没用，请改配置）。
-      </div>
-
       <div class="set-guide" id="setGuide"></div>
     </div>
   </div>
@@ -1553,8 +1548,6 @@ function healthPrompt(sys,page){
 【本页字段】（key｜含义，键名必须原样使用，含空格的键如"oral ulcer"也原样作为 JSON 键）：
 ${list}
 
-${BLANK_RULE}
-
 【读取规则】
 - 方框 □ / 下划线里手写的数字、字母、号码、姓名 → 原样照抄框内内容。
 - 复选框 □ 内打了 ✓/√/对勾 = 选中（该项填 1）；空框 = 未选（填 0 或省略）。
@@ -1766,8 +1759,6 @@ ${head}
 - 标记常见为手写"×"或"✓"穿过方框：穿过/压在框上=该项测了。结合标记形状判断通过(1)还是未过(2)。难以区分对勾与叉时，优先按"明显的×=2、明显对勾/横杠=1"，仍不确定则省略。
 - 底部"画人"图(猫/鸟/马/狗/人)与几何图形(○ ‖ + □)是给孩子临摹用的，不是字段，忽略。
 - da_*/dq_*/dq_total/screen_result：若图上没有写发育年龄/发育商/结论，一律省略，不要计算或编造。
-
-${BLANK_RULE}
 
 【输出】只输出一个紧凑 JSON 对象：不换行、不缩进、无 Markdown、无注释。值用字符串，只含确有标记/填写的字段。`;
 }
@@ -2285,47 +2276,28 @@ const PROVIDERS = {
     name: '智谱AI', fullName: '智谱 GLM-4V-Flash',
     emoji: '🤖', badges: ['完全免费','推荐'],
     model: 'glm-4v-flash',
-    fallbackModels: ['glm-4.6v-flash', 'glm-4.1v-thinking-flash'],
+    fallbackModels: ['glm-4.6v-flash', 'glm-4.5v'],
     altModels: [
-      { id: 'glm-4v-flash',           tag: '✅', desc: '默认 · 免费 · 最快最稳定（表单识别首选）' },
-      { id: 'glm-4.6v-flash',         tag: '💎', desc: '免费 · 106B MoE/128K · 更准但较慢（易超时）' },
-      { id: 'glm-4.1v-thinking-flash',tag: '🧩', desc: '免费 · 思考模式 · 复杂版面强 · 慢' },
-      { id: 'glm-4v-plus-0111',       tag: '💰', desc: '付费旗舰 · 最稳' }
+      { id: 'glm-4v-flash',      tag: '✅', desc: '默认 · 免费 · 最快最稳（批量识别首选）' },
+      { id: 'glm-4.6v-flash',    tag: '☑️', desc: '完全免费 · 9B/128K · 更新但常排队/90秒超时' },
+      { id: 'glm-4.5v',          tag: '☑️', desc: '4.5代 · 也免费' },
+      { id: 'glm-4v-plus-0111',  tag: '💰', desc: '付费旗舰' }
     ],
     endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions',
     proxyPath: '/api/zhipu/api/paas/v4/chat/completions',
     placeholder: 'xxxxxxxx.xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: true,
     extraBody: { thinking: { type: 'disabled' } },
-    guide: `<strong>🤖 智谱 GLM · 完全免费视觉（国内直连）</strong>
+    guide: `<strong>🤖 智谱 GLM-4.6V-Flash · 完全免费旗舰</strong>
 注册：<a href="https://bigmodel.cn" target="_blank">bigmodel.cn</a> → 「API密钥」→ 新建<br>
-✅ <strong>默认已改为 <code>glm-4v-flash</code></strong>：免费、国内秒连、<strong>不触发思考模式</strong>，是本站实测最不容易超时的智谱模型。<br>
-💡 <strong>免费视觉模型只有 3 个</strong>：<code>glm-4v-flash</code>（快）· <code>glm-4.6v-flash</code>（准但慢）· <code>glm-4.1v-thinking-flash</code>（思考模式，最慢）。<br>
-⚠️ <strong>注意</strong>：<code>glm-4.7-flash</code> / <code>glm-4.5-flash</code> 是<strong>纯文本模型，读不了图</strong>，请勿在本站选用。GLM-4.7 / 4.7-Flash 虽是最新，但官方<strong>未发布对应的 4.7V 视觉版</strong>。<br>
+2025年9月发布的 9B 视觉模型，128K 上下文，<strong>完全免费、国内秒连</strong>。<br>
+✅ <strong>默认已改为 <code>glm-4v-flash</code></strong>：实测 <code>glm-4.6v-flash</code> 经常排队、90 秒无响应，批量跑几百页会卡死；4v-flash 同样免费、快得多、对手写表单足够用。<br>
 <button onclick="fetchProviderModels('zhipu')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表</button>
 <div id="providerFetchResult_zhipu" style="margin-top:6px;font-size:11px"></div>
-<a href="https://docs.bigmodel.cn/cn/guide/models/free/glm-4.6v-flash" target="_blank">📖 免费模型文档</a> · <a href="https://bigmodel.cn/pricing" target="_blank">📋 模型价格/列表</a>`
+<a href="https://docs.bigmodel.cn/cn/guide/models/free/glm-4.6v-flash" target="_blank">📖 官方文档</a>`
   },
-  agnes: {
-    name: 'Agnes AI', fullName: 'Agnes AI · 2.0 Flash',
-    emoji: '🟣', badges: ['完全免费','OpenAI兼容'],
-    model: 'agnes-2.0-flash',
-    fallbackModels: [],
-    altModels: [
-      { id: 'agnes-2.0-flash', tag: '✅', desc: '全模态 Flash · 免费 · 支持图片输入（OCR 准确率请自测）' }
-    ],
-    endpoint: 'https://apihub.agnes-ai.com/v1/chat/completions',
-    placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 4000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🟣 Agnes AI · 2.0 Flash（全模态 · 免费）</strong>
-新加坡 Agnes AI，2026/6 起<strong>无限期免费</strong>开放 API。OpenAI 兼容、国内可直连、已开放跨域（浏览器可直接调，无需代理）。<br>
-注册：<a href="https://platform.agnes-ai.com" target="_blank">platform.agnes-ai.com</a> → 登录 → 创建 API Key（<code>sk-</code> 开头）<br>
-接口地址 <code>https://apihub.agnes-ai.com/v1</code> · 模型 <code>agnes-2.0-flash</code>。<br>
-⚠️ <strong>用于识别表单图片请先实测</strong>：Agnes 主打文本/Agent 与<strong>图片生成</strong>，<code>agnes-2.0-flash</code> 虽接受图片输入，但<strong>并非专门的 OCR 视觉模型</strong>。识别手写问卷的准确率，请先用「🧪 测试连接」+ 一张样表试一下；若不理想，建议仍用 GLM-4V / Qwen-VL / Gemini 等视觉模型。<br>
-<button onclick="fetchProviderModels('agnes')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
-<div id="providerFetchResult_agnes" style="margin-top:6px;font-size:11px"></div>
-<a href="https://agnes-ai.com/doc/" target="_blank">📖 官方文档</a>`
-  },
+  /* Agnes AI 已移除：实测 agnes-2.0-flash 对表单图片无法输出结果（token 全烧在思考上），
+     不是 OCR 视觉模型，留着只会浪费识别次数。需要时可在「自定义」里手填端点。*/
   /* 通义/豆包/混元/百度 4 个国内服务已移到「自定义供应商 → 快速预设」中。 */
   gemini: {
     name: 'Gemini', fullName: 'Google Gemini',
@@ -2402,26 +2374,24 @@ const PROVIDERS = {
   },
   nvidia: {
     name: 'NVIDIA', fullName: 'NVIDIA NIM · 100+ 模型',
-    emoji: '🟢', badges: ['免费1000次','需翻墙'],
-    model: 'meta/llama-4-scout-17b-16e-instruct',
+    emoji: '🟢', badges: ['常忙·不推荐','需翻墙'],
+    model: 'qwen/qwen2.5-vl-72b-instruct',
     fallbackModels: [
-      'meta/llama-4-maverick-17b-128e-instruct',
-      'qwen/qwen2.5-vl-72b-instruct',
-      'nvidia/llama-3.1-nemotron-nano-vl-8b-v1'
+      'meta/llama-4-scout-17b-16e-instruct',
+      'nvidia/llama-3.1-nemotron-nano-vl-8b-v1',
+      'microsoft/phi-3.5-vision-instruct'
     ],
     altModels: [
-      { id: 'meta/llama-4-maverick-17b-128e-instruct',     tag: '💎', desc: 'Llama 4 Maverick · 400B/128专家 · 最强' },
-      { id: 'qwen/qwen2.5-vl-72b-instruct',                tag: '💎', desc: 'Qwen2.5-VL 72B · OCR 推荐' },
-      { id: 'meta/llama-4-scout-17b-16e-instruct',         tag: '✅', desc: '默认 · Llama 4 Scout · 109B · 更快' },
-      { id: 'nvidia/llama-3.1-nemotron-nano-vl-8b-v1',     tag: '🔍', desc: 'Llama Nemotron Nano VL 8B · OCR 专精（DocVQA SOTA）' },
-      { id: 'nvidia/nemotron-nano-12b-v2-vl',              tag: '🔍', desc: 'Nemotron Nano 12B v2 VL · 多图理解' },
-      { id: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning', tag: '🧩', desc: 'Nemotron 3 Nano Omni · 全模态推理' },
+      { id: 'qwen/qwen2.5-vl-72b-instruct',                tag: '✅', desc: '默认 · Qwen2.5-VL 72B · 中文手写最好' },
+      { id: 'meta/llama-4-scout-17b-16e-instruct',         tag: '☑️', desc: 'Llama 4 Scout · 109B · 较快' },
+      { id: 'meta/llama-4-maverick-17b-128e-instruct',     tag: '💎', desc: 'Llama 4 Maverick · 400B/128专家 · 常排队' },
+      { id: 'nvidia/llama-3.1-nemotron-nano-vl-8b-v1',     tag: '🔍', desc: 'Nemotron Nano VL 8B · OCR 专精 · 通常最空闲' },
+      { id: 'meta/llama-3.2-90b-vision-instruct',          tag: '☑️', desc: 'Llama 3.2 90B Vision' },
+      { id: 'meta/llama-3.2-11b-vision-instruct',          tag: '⚡', desc: 'Llama 3.2 11B Vision · 轻量' },
       { id: 'google/gemma-3-27b-it',                       tag: '☑️', desc: 'Gemma 3 27B · 谷歌开源' },
       { id: 'google/gemma-3-12b-it',                       tag: '⚡', desc: 'Gemma 3 12B · 轻量' },
       { id: 'mistralai/pixtral-12b',                       tag: '☑️', desc: 'Pixtral 12B · Mistral 视觉' },
-      { id: 'mistralai/pixtral-large-instruct-2411',       tag: '💎', desc: 'Pixtral Large · 124B · Mistral 旗舰' },
-      { id: 'microsoft/phi-3.5-vision-instruct',           tag: '⚡', desc: 'Phi-3.5 Vision · 轻量' },
-      { id: 'microsoft/phi-4-multimodal-instruct',         tag: '☑️', desc: 'Phi-4 多模态' }
+      { id: 'microsoft/phi-3.5-vision-instruct',           tag: '⚡', desc: 'Phi-3.5 Vision · 轻量' }
     ],
     endpoint: 'https://integrate.api.nvidia.com/v1/chat/completions',
     proxyPath: '/api/nvidia/v1/chat/completions',
@@ -2430,7 +2400,10 @@ const PROVIDERS = {
     guide: `<strong>🟢 NVIDIA NIM · 100+ 免费模型</strong>
 注册：<a href="https://build.nvidia.com" target="_blank">build.nvidia.com</a> → 邮箱注册（NVIDIA Developer Program）→ 右上角头像 → 「API Keys」→ Generate（<code>nvapi-</code> 开头）<br>
 <strong>免费额度</strong>：注册赠 1000 credits（可申请到 5000）· 限速 40 RPM · 无需信用卡<br>
-<strong>视觉模型推荐</strong>：<code>llama-4-scout</code>（默认）· <code>qwen2.5-vl-72b</code>（最强）· <code>llama-3.1-nemotron-nano-vl-8b</code>（OCR专精，DocVQA SOTA）<br>
+🚨 <strong>实测提醒：NVIDIA NIM 的免费共享池经常「非常忙 / 排队 / 503 / 超限」，模型也常悄悄下架（报「不存在」）。
+批量识别几百页问卷不建议用它</strong>，请优先 <strong>智谱 GLM-4V-Flash</strong>、<strong>硅基流动 Qwen3-VL</strong>、<strong>通义 Qwen-VL</strong>（国内直连、无需翻墙）。<br>
+本页已做兜底：遇到「忙/超限/模型不存在」会<strong>自动换到备选模型</strong>并记住可用的那个；仍全失败时请换服务。<br>
+想知道你的 Key 现在到底能用哪个模型，点 <strong>🔍 自动挑选可用模型</strong>（会拿测试图逐个实测）。<br>
 ⚠️ 国内需翻墙；部署到 Cloudflare Pages 后，浏览器 CORS 会<strong>自动经同域 <code>/api/nvidia</code> 代理绕过</strong>（本地/直接打开 HTML 则不可用，请改国内直连服务）。<br>
 <button onclick="fetchProviderModels('nvidia')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
 <div id="providerFetchResult_nvidia" style="margin-top:6px;font-size:11px"></div>
@@ -2441,18 +2414,19 @@ const PROVIDERS = {
     emoji: '🌐', badges: ['国内可用','免费视觉'],
     model: 'openrouter/free',
     fallbackModels: [
-      'google/gemma-4-31b-it:free',
-      'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free',
-      'nvidia/nemotron-nano-12b-v2-vl:free',
-      'google/gemma-4-26b-a4b-it:free'
+      'qwen/qwen2.5-vl-72b-instruct:free',
+      'qwen/qwen2.5-vl-32b-instruct:free',
+      'meta-llama/llama-3.2-11b-vision-instruct:free',
+      'google/gemma-3-27b-it:free'
     ],
     altModels: [
       { id: 'openrouter/free',                       tag: '✅', desc: '默认 · 自动路由 · 永不下线（强烈推荐，模型挂了自动换）' },
-      { id: 'google/gemma-4-31b-it:free',            tag: '💎', desc: 'Google Gemma 4 31B · 当前最佳免费视觉（2026/06）· 262K' },
-      { id: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free', tag: '🔍', desc: 'Nemotron Nano Omni 30B · 全模态 · OCR 强 · 256K' },
-      { id: 'nvidia/nemotron-nano-12b-v2-vl:free',   tag: '🔍', desc: 'Nemotron Nano 12B v2 VL · OCR/文档专精 · 128K' },
-      { id: 'google/gemma-4-26b-a4b-it:free',        tag: '☑️', desc: 'Google Gemma 4 26B MoE · 视觉 · 262K' },
-      { id: 'nvidia/nemotron-3-super-120b-a12b:free',tag: '☑️', desc: 'Nemotron 3 Super 120B · 1M 上下文（工具强，视觉需实测）' },
+      { id: 'qwen/qwen2.5-vl-72b-instruct:free',     tag: '💎', desc: 'Qwen2.5-VL 72B · 免费 · 中文手写最稳' },
+      { id: 'qwen/qwen2.5-vl-32b-instruct:free',     tag: '☑️', desc: 'Qwen2.5-VL 32B · 免费' },
+      { id: 'meta-llama/llama-3.2-11b-vision-instruct:free', tag: '⚡', desc: 'Llama 3.2 11B Vision · 免费 · 快' },
+      { id: 'google/gemma-3-27b-it:free',            tag: '☑️', desc: 'Gemma 3 27B · 免费视觉' },
+      { id: 'google/gemma-3-12b-it:free',            tag: '⚡', desc: 'Gemma 3 12B · 免费视觉 · 轻量' },
+      { id: 'mistralai/mistral-small-3.1-24b-instruct:free', tag: '☑️', desc: 'Mistral Small 3.1 · 免费视觉' },
       { id: 'google/gemini-2.5-flash-lite',          tag: '💰', desc: 'Gemini 2.5 Flash Lite · 付费' },
       { id: 'google/gemini-2.5-flash',               tag: '💰', desc: 'Gemini 2.5 Flash · 付费' },
       { id: 'anthropic/claude-sonnet-4',              tag: '💰', desc: 'Claude Sonnet 4 · 顶级付费' },
@@ -2460,15 +2434,15 @@ const PROVIDERS = {
     ],
     endpoint: 'https://openrouter.ai/api/v1/chat/completions',
     proxyPath: '/api/openrouter/v1/chat/completions',
+    noThinkBody: { reasoning: { enabled: false } },
     placeholder: 'sk-or-v1-xxxxxxxxxxxxx',
     rateLimit: 4000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🌐 OpenRouter · 国内可直连（推荐）</strong>
 注册：<a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a> → Google/GitHub 登录 → 创建 Key<br>
-走 Cloudflare 网络，<strong>无需翻墙</strong>。<br>
-⚠️ <strong>免费额度（2026/07）</strong>：<code>:free</code> 模型 <strong>20 次/分</strong>；每天 <strong>50 次</strong>（账户充值满 $10 后升到 <strong>1000 次/天</strong>）。<strong>频率超限属正常</strong>，本站会自动退避重试；量大请改用国内直连（智谱/硅基）。<br>
+走 Cloudflare 网络，<strong>无需翻墙</strong>。免费 <code>:free</code> 模型限 20次/分 · 200次/天。<br>
 ✅ <strong>默认已设为 <code>openrouter/free</code>（自动路由）</strong>——自动从当前可用的免费视觉模型中挑选，模型下线也不会报错，<strong>无需手动维护</strong>。<br>
-💡 <strong>2026/07 实测在线的免费视觉模型</strong>：<code>google/gemma-4-31b-it:free</code>（最佳）· <code>nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free</code>（OCR 强）· <code>nvidia/nemotron-nano-12b-v2-vl:free</code>（文档专精）· <code>google/gemma-4-26b-a4b-it:free</code>。<br>
-⚠️ Llama 4 Maverick/Scout、Qwen3-Coder、DeepSeek 的 <code>:free</code> 版<strong>均已下架</strong>（改为付费），旧教程里的这些 ID 现在会 404。点下方按钮实时拉取最新列表。<br>
+⚠️ <strong>下拉里的 <code>:free</code> 模型 ID 会随时下架换代</strong>——报「模型不存在 / no endpoints」是正常现象，本页会自动降级到备选模型。<br>
+💡 <strong>最省事：留在 <code>openrouter/free</code></strong>；想指定模型请点下方按钮<strong>实时拉取当前真实可用的免费视觉模型</strong>，别手抄旧列表。<br>
 <button onclick="fetchOpenRouterModels()" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 实时拉取最新免费视觉模型</button>
 <div id="orFetchResult" style="margin-top:6px;font-size:11px"></div>
 <a href="https://openrouter.ai/models?max_price=0&modality=text%2Bimage-%3Etext" target="_blank">📖 在线查看免费视觉模型</a>`
@@ -2479,18 +2453,21 @@ const PROVIDERS = {
     model: 'Qwen/Qwen3-VL-30B-A3B-Instruct',
     fallbackModels: [
       'Qwen/Qwen3-VL-8B-Instruct',
-      'Qwen/Qwen3-VL-30B-A3B-Thinking',
+      'Qwen/Qwen2.5-VL-32B-Instruct',
+      'Pro/Qwen/Qwen2.5-VL-7B-Instruct',
       'Qwen/Qwen3-VL-235B-A22B-Instruct'
     ],
     altModels: [
       { id: 'Qwen/Qwen3-VL-30B-A3B-Instruct',  tag: '✅', desc: '默认 · Qwen3-VL 30B · 免费视觉 · 256K · 国内快' },
-      { id: 'Qwen/Qwen3-VL-30B-A3B-Thinking',   tag: '🧩', desc: 'Qwen3-VL 30B · 思考模式 · OCR/推理更准' },
-      { id: 'Qwen/Qwen3-VL-8B-Instruct',         tag: '⚡', desc: 'Qwen3-VL 8B · 最快' },
-      { id: 'Qwen/Qwen3-VL-235B-A22B-Instruct',   tag: '💎', desc: 'Qwen3-VL 235B · 旗舰大参数' },
-      { id: 'Pro/Qwen/Qwen2.5-VL-7B-Instruct',   tag: '☑️', desc: 'Qwen2.5-VL 7B Pro · 注意带 Pro/ 前缀' }
+      { id: 'Qwen/Qwen3-VL-8B-Instruct',         tag: '⚡', desc: 'Qwen3-VL 8B · 最快 · 表单够用' },
+      { id: 'Qwen/Qwen2.5-VL-32B-Instruct',      tag: '☑️', desc: 'Qwen2.5-VL 32B · 上一代 · 稳' },
+      { id: 'Pro/Qwen/Qwen2.5-VL-7B-Instruct',   tag: '⚡', desc: 'Qwen2.5-VL 7B Pro · 注意带 Pro/ 前缀' },
+      { id: 'Qwen/Qwen3-VL-235B-A22B-Instruct',   tag: '💎', desc: 'Qwen3-VL 235B · 旗舰大参数 · 慢' },
+      { id: 'Qwen/Qwen3-VL-30B-A3B-Thinking',   tag: '⛔', desc: '思考模式 · 不建议：token 常全烧在思考上、不出结果' }
     ],
     endpoint: 'https://api.siliconflow.cn/v1/chat/completions',
     proxyPath: '/api/siliconflow/v1/chat/completions',
+    noThinkBody: { enable_thinking: false },
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🔮 硅基流动 SiliconCloud · 完全免费</strong>
@@ -2516,6 +2493,7 @@ const PROVIDERS = {
     ],
     endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
     proxyPath: '/api/dashscope/compatible-mode/v1/chat/completions',
+    noThinkBody: { enable_thinking: false },
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>🟠 阿里云百炼 · 通义千问 Qwen-VL（OpenAI 兼容）</strong>
@@ -2568,6 +2546,7 @@ const PROVIDERS = {
       { id: 'hunyuan-large-vision',  tag: '💎', desc: '混元 Large 视觉 · 更强' }
     ],
     endpoint: 'https://api.hunyuan.cloud.tencent.com/v1/chat/completions',
+    noThinkBody: { enable_thinking: false },
     proxyPath: '/api/hunyuan/v1/chat/completions',
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
@@ -2742,7 +2721,8 @@ let cfg = {
   keys:  JSON.parse(localStorage.getItem('phck_keys')  || '{}'),
   models:JSON.parse(localStorage.getItem('phck_models')|| '{}'),
   custom:JSON.parse(localStorage.getItem('so_custom')  || '{}'),
-  proxy: localStorage.getItem('phck_proxy') || 'auto'   // auto | on | off
+  proxy: localStorage.getItem('phck_proxy') || 'auto',  // auto | on | off
+  skipBlank: localStorage.getItem('phck_skipblank') !== '0'   // 整页空白自动跳过（默认开）
 };
 if (!PROVIDERS[cfg.prov]) cfg.prov = 'zhipu';
 
@@ -2779,54 +2759,68 @@ function getEffectiveModel(){ const p=PROVIDERS[cfg.prov]; return (cfg.models &&
 function syncCustomProvider(){ if(!PROVIDERS.custom) return; const c=cfg.custom||{}; PROVIDERS.custom.endpoint=(c.endpoint||'').trim(); PROVIDERS.custom.apiType=c.apiType||'openai'; PROVIDERS.custom.authStyle=c.authStyle||'bearer'; PROVIDERS.custom.extraHeaders=c.extraHeaders||''; PROVIDERS.custom.model=(cfg.models&&cfg.models.custom)||''; }
 function parseExtraHeaders(s){ if(!s)return {}; try{const o=JSON.parse(s);return (o&&typeof o==='object')?o:{};}catch(_){return {};} }
 
-async function callAI(b64, mime, prompt, forceModel) {
+/* ── 错误归类：决定「要不要换模型」「要不要重试」 ───────────────
+   换模型有用：模型不存在/下架、模型忙/排队/限速、该模型额度用尽、超时。
+   换模型没用：Key 错、没权限、账户欠费、图片太大 → 直接报错，别浪费次数。 */
+function errModelGone(m){ return /not a valid model|model.*not (found|exist)|does not exist|invalid model|no endpoints|unknown model|模型.*不存在|已下架|\(404\)|HTTP 404/i.test(m||''); }
+function errBusy(m){ return /429|too many|rate.?limit|overload|(^|\W)busy|繁忙|排队|queue|capacity|no available|unavailable|503|502|504|timeout|超时|限速|超限|quota|exceeded|额度/i.test(m||''); }
+function errFatal(m){ return /401|invalid api key|api key 无效|unauthor|403|forbidden|欠费|arrears|permission|图片过大|413/i.test(m||''); }
+
+let _noFallback = false;   // 「自动挑选可用模型」实测时关掉自动降级，避免串味
+
+/* 候选模型链：当前模型 → fallbackModels → altModels（去重、最多 4 个） */
+function modelChain(p, primary){
+  const out=[];
+  (p.fallbackModels||[]).forEach(m=>out.push(m));
+  (p.altModels||[]).forEach(m=>{ if(!/⛔|💰/.test(m.tag||'')) out.push(m.id); });
+  if (cfg.prov==='openrouter') out.push('openrouter/free');
+  return [...new Set(out)].filter(x=>x && x!==primary).slice(0,4);
+}
+
+async function callAI(b64, mime, prompt) {
   const p = PROVIDERS[cfg.prov];
   const key = p.useOpenRouterKey ? cfg.keys.openrouter : cfg.keys[cfg.prov];
   if (!key) throw new Error(p.useOpenRouterKey ? '请先在「OpenRouter」中保存 API Key（共用该 Key）' : '请先配置 API Key');
-  if (p.apiType === 'gemini') return callGemini(p, key, b64, mime, prompt, forceModel);
-  if (p.apiType === 'anthropic-custom' || p.apiType === 'anthropic') return callAnthropicCompat(p, key, b64, mime, prompt, forceModel);
-  
-  // Try main model first, then fallbacks if model is invalid
-  const modelOverride = forceModel || cfg.models?.[cfg.prov];
-  const primaryModel = modelOverride || p.model;
-  
+  if (p.apiType === 'gemini') return callGemini(p, key, b64, mime, prompt);
+  if (p.apiType === 'anthropic-custom' || p.apiType === 'anthropic') return callAnthropicCompat(p, key, b64, mime, prompt);
+
+  const primaryModel = (cfg.models && cfg.models[cfg.prov]) || p.model;
+
   try {
     return await callOpenAICompat(p, key, b64, mime, prompt, primaryModel);
   } catch(err) {
-    const isModelError = /not a valid model|model.*not found|model.*not exist|不存在|404|does not exist|invalid model|no endpoints/i.test(err.message);
-    // Build the fallback chain. For OpenRouter, always guarantee openrouter/free
-    // as the last resort so a stale free-model ID never hard-fails recognition.
-    let chain = (p.fallbackModels || []).slice();
-    if (cfg.prov === 'openrouter' && !chain.includes('openrouter/free') && primaryModel !== 'openrouter/free') {
-      chain.push('openrouter/free');
-    }
-    if (isModelError && chain.length) {
-      console.warn(`模型 ${primaryModel} 不可用，尝试备选模型...`);
-      for (const fallback of chain) {
-        if (fallback === primaryModel) continue;
-        try {
-          const result = await callOpenAICompat(p, key, b64, mime, prompt, fallback);
-          // Success! Auto-save this working model
-          toast(`⚡ 模型已自动切换到 ${fallback}`);
-          if (!cfg.models) cfg.models = {};
-          cfg.models[cfg.prov] = fallback;
-          localStorage.setItem('phck_models', JSON.stringify(cfg.models));
-          return result;
-        } catch(e2) {
-          const isModel2 = /not a valid model|model.*not found|model.*not exist|不存在|404|does not exist|invalid model|no endpoints/i.test(e2.message);
-          if (isModel2) continue; // try next fallback
-          throw e2; // non-model error, stop trying
-        }
+    const msg = err.message || '';
+    if (_noFallback) throw err;
+    if (errFatal(msg)) throw err;                       // Key/权限/欠费：换模型没用
+    if (!(errModelGone(msg) || errBusy(msg))) throw err;
+    const chain = modelChain(p, primaryModel);
+    if (!chain.length) throw err;
+    console.warn('模型 ' + primaryModel + ' 不可用/忙，自动尝试备选：', chain);
+    for (const fb of chain) {
+      try {
+        const result = await callOpenAICompat(p, key, b64, mime, prompt, fb);
+        toast('⚡ 「' + primaryModel + '」不可用，已自动切换到 ' + fb);
+        if (!cfg.models) cfg.models = {};
+        cfg.models[cfg.prov] = fb;                       // 记住能用的那个，后面的页不再瞎试
+        localStorage.setItem('phck_models', JSON.stringify(cfg.models));
+        try{ if($('setBg') && $('setBg').classList.contains('on')){ renderModelOptions(); updateAiStatus(); } }catch(_){}
+        return result;
+      } catch(e2) {
+        const m2 = e2.message || '';
+        if (errFatal(m2)) throw e2;
+        if (errModelGone(m2) || errBusy(m2)) continue;   // 继续试下一个
+        throw e2;
       }
-      throw new Error(`模型「${primaryModel}」及所有备选模型均不可用。\n\n💡 解决方案：\n1. 打开「设置」→ 切换到「openrouter/free」（自动路由，永远可用）\n2. 或点「🔄 实时拉取最新免费视觉模型」选一个当前可用的\n3. 免费模型经常更新换代，属于正常现象\n\n原始错误：${err.message}`);
     }
-    throw err;
+    const e = new Error('模型「' + primaryModel + '」及 ' + chain.length + ' 个备选模型全部不可用。\n\n💡 处理办法：\n1. 点「⚙ 设置 → 🔍 自动挑选可用模型」，让系统拿测试图实测一遍，选出此刻真能用的模型\n2. 换一个国内直连服务：智谱 GLM-4V-Flash / 硅基流动 Qwen3-VL / 通义 Qwen-VL（不用翻墙、也不排队）\n3. NVIDIA、OpenRouter 免费池经常忙或换代，属正常现象\n\n原始错误：' + msg);
+    e._noRetry = true;
+    throw e;
   }
 }
 
-async function callGemini(provider, key, b64, mime, prompt, forceModel) {
+async function callGemini(provider, key, b64, mime, prompt) {
   // Gemini uses different API format (not OpenAI-compatible)
-  const modelOverride = forceModel || cfg.models?.[cfg.prov];
+  const modelOverride = cfg.models?.[cfg.prov];
   const useModel = modelOverride || provider.model;
   let url;
   const ep = resolveEndpoint(provider, provider.endpoint || 'https://generativelanguage.googleapis.com/v1beta/models');
@@ -2888,8 +2882,8 @@ async function callGemini(provider, key, b64, mime, prompt, forceModel) {
   return t;
 }
 
-async function callAnthropicCompat(provider, key, b64, mime, prompt, forceModel) {
-  const modelOverride = forceModel || cfg.models?.[cfg.prov];
+async function callAnthropicCompat(provider, key, b64, mime, prompt) {
+  const modelOverride = cfg.models?.[cfg.prov];
   const useModel = modelOverride || provider.model;
   
   const content = [
@@ -2931,7 +2925,7 @@ async function callAnthropicCompat(provider, key, b64, mime, prompt, forceModel)
     const m = er.error?.message || er.message || raw || `HTTP ${res.status}`;
     if (res.status === 401) throw new Error('API Key 无效（401）：' + m);
     if (res.status === 403) throw new Error('访问被拒绝（403）：' + m);
-    if (res.status === 429) throw new Error(`频率超限（429）：${(m||'').slice(0,120)}\n💡 已自动退避重试仍超限。免费额度通常按「每分钟 / 每天」限制：请稍等几分钟再点「↻ 重试失败项」，或换服务（智谱 glm-4v-flash、硅基流动额度更宽松）。`);
+    if (res.status === 429) throw new Error('频率超限（429），稍候');
     if (res.status === 400) throw new Error(`请求错误（400）：${m}\n💡 检查模型ID「${useModel}」是否正确`);
     throw new Error(`${m} (HTTP ${res.status})`);
   }
@@ -2947,7 +2941,7 @@ async function callAnthropicCompat(provider, key, b64, mime, prompt, forceModel)
   return textBlock.text;
 }
 
-async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
+async function callOpenAICompat(provider, key, b64, mime, prompt, useModel, _dropNoThink) {
   // Use provider-specific quirks: image order, max_tokens
   const content = provider.imageFirst
     ? [
@@ -2965,12 +2959,17 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
     useModel = modelOverride || provider.model;
   }
 
+  /* 关闭「思考模式」：思考模型会把 token 全烧在推理上，最后 content 为空 →
+     整页留白。provider.noThinkBody 里放各家的关闭参数；万一某家不认这个参数
+     （400 报 unknown field），下面会自动去掉再发一次，并记住这家不支持。 */
+  const useNoThink = !!provider.noThinkBody && provider._noThink !== false && !_dropNoThink;
   const body = {
     model: useModel,
     max_tokens: provider.maxTokens || 2000,
     temperature: 0,
     messages: [{ role:'user', content }],
-    ...(provider.extraBody || {})
+    ...(provider.extraBody || {}),
+    ...(useNoThink ? provider.noThinkBody : {})
   };
 
   // 组装请求头：自定义供应商可选鉴权方式 + 额外头
@@ -2986,7 +2985,7 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
   let res;
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), AI_TIMEOUT_MS); // 可配置超时
+    const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s timeout
     res = await fetch(epUrl, {
       method:'POST',
       headers,
@@ -2996,7 +2995,7 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
     clearTimeout(timeoutId);
   } catch(e) {
     if (e.name === 'AbortError') {
-      throw new Error(`请求超时（${Math.round(AI_TIMEOUT_MS/1000)}秒无响应）。\n💡 常见原因：模型排队/思考模式（glm-4.6v-flash、*-Thinking、Qwen3-VL-*-Thinking）、图片过大、网络不稳。\n建议：换更快的模型（glm-4v-flash、Qwen3-VL-8B、openrouter/free）；本条会自动重试，若持续失败请点「↻ 重试」。`);
+      throw new Error(`模型「${useModel}」请求超时（90秒无响应）。\n💡 常见原因：该模型正忙/排队（NVIDIA、OpenRouter 免费池尤其常见）、开了思考模式、网络不稳。\n建议：换更快的模型（glm-4v-flash、Qwen3-VL-8B），或用「🔍 自动挑选可用模型」。`);
     }
     throw new Error(`网络错误：无法连接 ${provider.fullName}\n请检查网络或换个服务\n💡 部分 API（如腾讯混元）可能存在浏览器 CORS 限制，建议改用智谱AI或硅基流动`);
   }
@@ -3013,12 +3012,19 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel) {
       else if (/region|区域|地域/i.test(m)) hint = '\n💡 提示：区域限制，请检查 API Key 对应的服务区域';
       throw new Error(`访问被拒绝（403 ${code}）：${m}${hint}`);
     }
-    if (res.status===429) throw new Error(`频率超限（429）：${(m||'').slice(0,120)}\n💡 已自动退避重试仍超限。请稍等几分钟再点「↻ 重试失败项」，或换到额度更宽松的服务（智谱 glm-4v-flash / 硅基流动）。`);
+    if (res.status===429) throw new Error(`频率/额度超限（429）：${m||''}\n💡 该模型此刻限流或今日额度用完了，系统会自动换备选模型；都不行就换服务（智谱/硅基/通义 国内直连）。`);
+    if (res.status===503||res.status===502||res.status===504) throw new Error(`模型「${useModel}」服务繁忙/排队中（HTTP ${res.status}）：${m||''}\n💡 NVIDIA NIM 等免费共享池高峰期经常如此，系统会自动换备选模型。`);
     if (res.status===413) throw new Error('图片过大（413），请降低渲染质量');
     if (res.status===404) throw new Error(`模型「${useModel}」不存在（404）。可能已下架，请在设置中切换其他模型`);
     if (res.status===400) {
+      /* 某些服务不认识「关闭思考」的参数 → 去掉它重发一次，并记住这家不支持 */
+      if (useNoThink && /unknown|unsupported|unrecogniz|unexpected|extra.*field|not.*(allowed|permitted)|invalid.*(parameter|field|argument)|enable_thinking|reasoning|thinking/i.test(m)) {
+        provider._noThink = false;
+        return callOpenAICompat(provider, key, b64, mime, prompt, useModel, true);
+      }
       let hint = '';
       const isModelErr = /not a valid model|model.*not found|invalid model|模型.*不存在/i.test(m);
+      if (/must be larger than|too small|尺寸|width|height/i.test(m)) hint = '\n💡 提示：图片尺寸过小/过大，若是「测试连接」报错说明本页版本过旧，请用最新版';
       if (isModelErr) hint = `\n💡 提示：模型「${useModel}」可能不可用，请在设置中切换其他模型`;
       else if (/image|图片|picture/i.test(m)) hint = '\n💡 提示：可能图片过大，建议「图片最大宽度」改 1200px';
       else if (/token|长度|length/i.test(m)) hint = '\n💡 提示：模板字段过多，请精简模板';
@@ -3081,6 +3087,67 @@ async function fetchProviderModels(provId){
     toast('已拉取 '+ids.length+' 个模型');
   }catch(e){ if(box)box.innerHTML='❌ 拉取失败：'+esc((e&&e.message)||e)+'（可能需 Key / 翻墙 / CORS 限制，可手填模型 ID）'; }
 }
+/* ══════════ 🔍 自动挑选可用模型 ══════════
+   免费模型天天换代、下架、排队，手抄的列表必然过期。这里直接拿 128×128 测试图
+   把候选模型一个个真的打一遍：谁能正确读出图里的 42，就选谁并存下来。 */
+async function listProviderModels(provId){
+  const p=PROVIDERS[provId];
+  const key=(p.useOpenRouterKey?cfg.keys.openrouter:cfg.keys[provId])||'';
+  let base=(provId==='custom')?(PROVIDERS.custom.endpoint||''):(p.endpoint||'');
+  let modelsUrl=base.replace(/\/(chat\/completions|messages|completions).*$/,'/models').replace(/\/models\/.*/,'/models');
+  if(!/\/models$/.test(modelsUrl))modelsUrl=base.replace(/\/[^/]*$/,'')+'/models';
+  modelsUrl=resolveEndpoint(p, modelsUrl);
+  const res=await fetch(modelsUrl,{headers:key?{'Authorization':'Bearer '+key}:{}});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  const d=await res.json();
+  let arr=(d.data||d.models||d||[]);
+  return arr.map(x=>(x&&(x.id||x.name))||x).filter(x=>typeof x==='string');
+}
+const VIS_RE=/vl|vision|gpt-4o|gpt-4\.1|omni|pixtral|gemma|llava|glm-4v|glm-4\.5v|glm-4\.6v|qwen.*vl|nemotron.*vl|internvl|claude|gemini|scout|maverick|phi-\d.*(vision|multimodal)|kimi|step-1[ov]|hunyuan.*vision|abab.*vl|minimax/i;
+const BAD_RE=/embed|rerank|whisper|tts|audio|speech|image-gen|flux|stable-?diffusion|kolors|bge-|reranker|coder|math|thinking|reasoner|-r1|deepseek-r/i;
+async function probeModel(id){
+  const old=cfg.models[cfg.prov];
+  cfg.models[cfg.prov]=id;
+  _noFallback=true;
+  try{ return await callAI(TEST_JPEG_B64,'image/jpeg',TEST_PROMPT); }
+  finally{ _noFallback=false; if(old===undefined)delete cfg.models[cfg.prov]; else cfg.models[cfg.prov]=old; }
+}
+async function autoPickModel(){
+  if(cfg.prov==='custom') syncCustomProvider();
+  const p=PROVIDERS[cfg.prov];
+  const typed=($('setKey')&&$('setKey').value||'').trim();
+  if(typed && typed!==getEffectiveKey()) saveKey();
+  if(!getEffectiveKey()){ setTestResult('请先填写 API Key 再自动挑选','bad'); return; }
+  const btn=$('setAutoBtn'), tb=$('setTestBtn');
+  if(btn)btn.disabled=true; if(tb)tb.disabled=true;
+  const cands=[];
+  const cur=getEffectiveModel(); if(cur)cands.push(cur);
+  (p.fallbackModels||[]).forEach(m=>cands.push(m));
+  (p.altModels||[]).forEach(m=>{ if(!/⛔|💰/.test(m.tag||'')) cands.push(m.id); });
+  setTestResult('⏳ 正在拉取该服务当前真实存在的模型列表…','run');
+  try{ (await listProviderModels(cfg.prov)).forEach(id=>cands.push(id)); }catch(e){ /* 拉不到就只试内置候选 */ }
+  let list=[...new Set(cands)].filter(id=>id && !BAD_RE.test(id));
+  list.sort((a,b)=>(VIS_RE.test(b)?1:0)-(VIS_RE.test(a)?1:0));
+  list=list.slice(0,8);
+  if(!list.length){ setTestResult('❌ 没找到可试的模型，请手动填模型 ID','bad'); if(btn)btn.disabled=false; if(tb)tb.disabled=false; return; }
+  const bad=[];
+  for(let i=0;i<list.length;i++){
+    const id=list[i];
+    setTestResult(`⏳ 实测第 ${i+1}/${list.length} 个：${id} …（每个约 3-15 秒，可读出测试图 42 才算通过）`,'run');
+    let t='';
+    try{ t=String(await probeModel(id)); }
+    catch(e){ bad.push(id+'（'+String((e&&e.message)||e).replace(/\s+/g,' ').slice(0,40)+'）'); continue; }
+    if(/42/.test(t)){
+      cfg.models[cfg.prov]=id; localStorage.setItem('phck_models',JSON.stringify(cfg.models));
+      renderModelOptions(); updateAiStatus();
+      setTestResult('✅ 实测通过，已选用「'+id+'」（能正确读出测试图里的 42，可以开始识别）'+(bad.length?('\n（跳过了不可用的：'+bad.slice(0,3).join('、')+'）'):''),'ok');
+      if(btn)btn.disabled=false; if(tb)tb.disabled=false; return;
+    }
+    bad.push(id+'（能连通但读不出图，多半不是视觉模型）');
+  }
+  setTestResult('❌ 这个服务下 '+list.length+' 个模型都没测通：\n'+bad.slice(0,5).join('\n')+'\n\n💡 多半是 Key 无效 / 额度用尽 / 需要翻墙 / 服务正忙。建议换国内直连服务：智谱 GLM-4V-Flash、硅基流动 Qwen3-VL、通义 Qwen-VL。','bad');
+  if(btn)btn.disabled=false; if(tb)tb.disabled=false;
+}
 function pickFetchedModel(id){ if($('setModelCustom')){$('setModelCustom').value=id;onSetModelCustom();} else {cfg.models[cfg.prov]=id;localStorage.setItem('phck_models',JSON.stringify(cfg.models));} toast('已选模型 '+id); updateAiStatus(); }
 async function fetchOpenRouterModels(){
   const box=$('orFetchResult'); if(box)box.innerHTML='⏳ 拉取免费视觉模型…';
@@ -3097,12 +3164,27 @@ async function fetchOpenRouterModels(){
 }
 
 /* ===== 设置弹窗（暖色风格，沿用本系统配色）===== */
-const TINY_JPEG_B64 = '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAEAAQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7LooooA//2Q==';
-function openSet(){ selectProv(cfg.prov); syncRetryUI(); $('setBg').classList.add('on'); }
+/* 连接测试图：128×128 白底黑框，框内数字 42。
+   旧版是 4×4 像素，Qwen3-VL 等模型会直接报 “height(4) or width(4) must be
+   larger than 28 for Qwen 3 VL models”；而且 4×4 图看不出模型到底能不能读图。
+   现在测试连接 = 让模型读出 42，能读对才算「视觉可用」。*/
+const TEST_JPEG_B64 = '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';
+const TINY_JPEG_B64 = TEST_JPEG_B64;   // 兼容旧引用
+const TEST_PROMPT = '这是连接测试。图片方框里有一个两位数，请只回复这个数字本身，不要输出任何其他内容。';
+function openSet(){ selectProv(cfg.prov); $('setBg').classList.add('on'); }
 function closeSet(){ $('setBg').classList.remove('on'); }
+/* 服务排序：国内直连、免费好用的排前面；常忙/需翻墙的排后面 */
+const PROV_ORDER=['zhipu','siliconcloud','dashscope','moonshot','stepfun','hunyuan','minimax',
+                  'openrouter','github','gemini','groq','nvidia','huggingface','together','fireworks',
+                  'openai','anthropic','xai','mistral','deepseek','custom'];
+function provOrder(){
+  const out=PROV_ORDER.filter(k=>PROVIDERS[k]);
+  Object.keys(PROVIDERS).forEach(k=>{ if(out.indexOf(k)<0) out.push(k); });
+  return out;
+}
 function renderSetTabs(){
   const host=$('setTabs'); if(!host) return; host.innerHTML='';
-  Object.keys(PROVIDERS).forEach(id=>{
+  provOrder().forEach(id=>{
     const p=PROVIDERS[id];
     const b=document.createElement('button'); b.className='set-tab'+(id===cfg.prov?' on':'');
     b.innerHTML=(p.emoji||'🔹')+' '+esc(p.name)+((p.badges&&p.badges[0])?('<span class="b">'+esc(p.badges[0])+'</span>'):'');
@@ -3124,13 +3206,8 @@ function renderModelOptions(){
 function onSetModel(){ const v=$('setModel').value; cfg.models[cfg.prov]=v; if($('setModelCustom'))$('setModelCustom').value=''; localStorage.setItem('phck_models',JSON.stringify(cfg.models)); updateAiStatus(); }
 function onSetModelCustom(){ const v=($('setModelCustom').value||'').trim(); if(v){cfg.models[cfg.prov]=v;}else{delete cfg.models[cfg.prov];} localStorage.setItem('phck_models',JSON.stringify(cfg.models)); updateAiStatus(); }
 function renderGuide(){ const g=$('setGuide'); if(g) g.innerHTML = PROVIDERS[cfg.prov].guide || '填入 API Key 后点「测试连接」。'; }
+function onSetSkipBlank(){ const el=$('setSkipBlank'); cfg.skipBlank=el?!!el.checked:true; localStorage.setItem('phck_skipblank',cfg.skipBlank?'1':'0'); toast(cfg.skipBlank?'空白页将自动跳过':'空白页也会送去识别'); }
 function onSetProxyMode(){ const v=$('setProxyMode')?$('setProxyMode').value:'auto'; cfg.proxy=v; localStorage.setItem('phck_proxy',v); updateProxyHint(); updateAiStatus(); }
-function onSetTimeout(){ const el=$('setTimeout'); if(el){ setTimeoutMs(el.value); toast('单次请求超时已设为 '+Math.round(AI_TIMEOUT_MS/1000)+' 秒'); } }
-function onSetMaxRetry(){ const el=$('setMaxRetry'); if(el){ setMaxRetry(el.value); toast(AI_MAX_RETRY?('失败最多自动重试 '+AI_MAX_RETRY+' 次'):'已关闭自动重试'); } }
-function syncRetryUI(){
-  const a=$('setTimeout'); if(a){ if(![...a.options].some(o=>+o.value===AI_TIMEOUT_MS)){const op=document.createElement('option');op.value=AI_TIMEOUT_MS;op.textContent=Math.round(AI_TIMEOUT_MS/1000)+' 秒（自定义）';a.appendChild(op);} a.value=String(AI_TIMEOUT_MS); }
-  const b=$('setMaxRetry'); if(b) b.value=String(AI_MAX_RETRY);
-}
 function updateProxyHint(){
   const el=$('setProxyHint'); if(!el)return;
   const p=PROVIDERS[cfg.prov]; const has=!!(p&&p.proxyPath);
@@ -3155,6 +3232,7 @@ function selectProv(id){
     if($('setCustomPreset'))$('setCustomPreset').value='';
   }
   renderModelOptions(); renderGuide(); setTestResult('',''); updateAiStatus();
+  if($('setSkipBlank'))$('setSkipBlank').checked=!!cfg.skipBlank;
   if($('setProxyMode'))$('setProxyMode').value=cfg.proxy||'auto';
   updateProxyHint();
 }
@@ -3213,10 +3291,12 @@ async function testConnection(){
   if(!key){ setTestResult('请先填写 API Key（会自动保存后再测试）',  'bad'); return; }
   if(cfg.prov==='custom' && !PROVIDERS.custom.endpoint){ setTestResult('请先填写并保存自定义 API 端点','bad'); return; }
   const btn=$('setTestBtn'); if(btn)btn.disabled=true;
-  setTestResult('⏳ 测试中…（发送一张极小测试图，约需 3-15 秒）','run');
+  setTestResult('⏳ 测试中…（发送一张 128×128 测试图，读图约需 3-15 秒）','run');
   try{
-    const t=await callAI(TINY_JPEG_B64,'image/jpeg','这是连接测试，请只回复两个字：可用');
-    setTestResult('✅ 连接成功 · 模型「'+getEffectiveModel()+'」已响应：'+String(t).replace(/\s+/g,' ').slice(0,40),'ok');
+    const t=await callAI(TEST_JPEG_B64,'image/jpeg',TEST_PROMPT);
+    const s0=String(t).replace(/\s+/g,' ').slice(0,60);
+    if(/42/.test(s0)) setTestResult('✅ 连接成功 · 模型「'+getEffectiveModel()+'」看图正常（正确读出测试图里的 42）','ok');
+    else setTestResult('⚠️ 能连通，但没读对测试图里的数字（模型回复：'+s0+'）。它可能不是视觉模型 / 读图能力很弱，建议点「🔍 自动挑选可用模型」换一个。','bad');
   }catch(e){
     let m=((e&&e.message)||String(e));
     let extra='';
@@ -3240,62 +3320,20 @@ function updateAiStatus(){
   el.innerHTML='AI 服务：<b>'+esc(p?p.name:'-')+'</b> · 模型 <b>'+esc(m)+'</b> · '+(hasKey?'<span style="color:var(--ok)">已配置 Key</span>':'<span style="color:var(--bad)">未配置 Key</span>')+proxyTxt+'<button class="gobtn" onclick="openSet()">⚙ 设置 / 测试连接</button>';
 }
 
-/* ════════ 超时与重试策略（可在设置面板调节） ════════
-   AI_TIMEOUT_MS：单次请求超时。思考模式模型（4.6v/Thinking）慢，默认放宽到 150s。
-   重试矩阵：超时 / 限频(429) / 服务端(5xx) / 空响应 都会重试；
-   Key 无效、模型不存在、欠费 → 立即抛出（重试无意义，需换配置）。 */
-let AI_TIMEOUT_MS = Number(localStorage.getItem('phck_timeout')||150000);
-let AI_MAX_RETRY  = Number(localStorage.getItem('phck_maxretry')||4);
-function setTimeoutMs(ms){AI_TIMEOUT_MS=Math.max(30000,Math.min(600000,Number(ms)||150000));localStorage.setItem('phck_timeout',AI_TIMEOUT_MS);}
-function setMaxRetry(n){AI_MAX_RETRY=Math.max(0,Math.min(8,Number(n)||4));localStorage.setItem('phck_maxretry',AI_MAX_RETRY);}
-
-/* 错误分类：决定「是否重试」「等多久」「要不要换模型」 */
-function classifyErr(msg){
-  msg=String(msg||'');
-  if(/401|invalid api key|api key 无效|unauthor/i.test(msg))            return {kind:'auth',  retry:false};
-  if(/balance|insufficient|欠费|余额不足|arrears/i.test(msg))            return {kind:'quota', retry:false};
-  if(/404|not found|模型.*不存在|model.*not.*exist|does not exist/i.test(msg))
-                                                                        return {kind:'model', retry:false, fallback:true};
-  if(/超时|timeout|timed out|aborted/i.test(msg))                       return {kind:'timeout',retry:true, wait:3000, fallback:true};
-  if(/rate|too many|429|频率|限流|quota.*exceed|overload|529/i.test(msg))return {kind:'rate',  retry:true, wait:8000};
-  if(/5\d\d|server error|bad gateway|unavailable|502|503|504/i.test(msg))return {kind:'server',retry:true, wait:3000};
-  if(/Failed to fetch|网络错误|CORS|NetworkError|Load failed/i.test(msg))return {kind:'net',   retry:true, wait:2000};
-  if(/无法解析|empty|空响应|no content|思考模式/i.test(msg))              return {kind:'empty', retry:true, wait:1500, fallback:true};
-  if(/403|forbidden|权限/i.test(msg))                                    return {kind:'forbid',retry:false};
-  return {kind:'other', retry:true, wait:2000};
-}
-
-/* 取当前服务的备用模型链：主模型失败(超时/不存在/空)时依次降级 */
-function fallbackChain(){
-  const p=PROVIDERS[cfg.prov]||{};
-  const cur=getEffectiveModel();
-  const list=[cur].concat((p.fallbackModels||[]).filter(m=>m&&m!==cur));
-  return list;
-}
-
-async function callWithRetry(prompt,b64,mime,onNote){
-  const chain=fallbackChain();
-  let last, mi=0;
-  for(let a=0;a<=AI_MAX_RETRY;a++){
-    const useModel=chain[Math.min(mi,chain.length-1)];
-    try{
-      return await callAI(b64,mime,prompt,useModel);
-    }
+async function callWithRetry(prompt,b64,mime){
+  let last;
+  for(let a=0;a<=3;a++){
+    try{return await callAI(b64,mime,prompt);}
     catch(e){
       last=e;
-      const msg=(e&&e.message)||String(e);
-      const c=classifyErr(msg);
-      /* 可降级错误：还有备用模型 → 换下一个模型再试（不消耗普通退避） */
-      if(c.fallback && mi<chain.length-1){
-        mi++;
-        if(onNote)onNote(`「${useModel}」${c.kind==='timeout'?'超时':c.kind==='model'?'不可用':'无有效返回'}，自动改用备用模型「${chain[mi]}」重试…`);
-        await sleep(800);
-        continue;
-      }
-      if(!c.retry || a>=AI_MAX_RETRY) throw e;
-      const wait=(c.wait||2000)*(a+1);            // 线性退避
-      if(onNote)onNote(`${c.kind==='rate'?'触发限频':c.kind==='timeout'?'请求超时':'请求失败'}，${Math.round(wait/1000)} 秒后第 ${a+1}/${AI_MAX_RETRY} 次重试…`);
-      await sleep(wait);
+      const msg=e.message||'';
+      if(e._noRetry)throw e;                     // callAI 已把所有备选模型试完了
+      if(errFatal(msg))throw e;                  // Key/权限/欠费：重试无意义
+      if(/balance|insufficient|不支持|invalid_request/i.test(msg))throw e;
+      const r=/rate|too many|429|overload|529|busy|繁忙|排队|503|502|504/i.test(msg);
+      const s=/5\d\d|server|timeout|超时/i.test(msg);
+      if((r||s)&&a<3){await sleep((r?5000:2500)*(a+1));continue;}
+      throw e;
     }
   }
   throw last;
@@ -3378,9 +3416,9 @@ function serializeRecords(){
     id:r.id,file:r.file,srcName:r.srcName,part:r.part,partCount:r.partCount,
     pages:(r.pages||[]).map(p=>({dataUrl:p.dataUrl,b64:p.b64,mime:p.mime})),
     data:r.data,filled:r.filled,status:(r.status==='running'?'pending':r.status),err:r.err,imported:r.imported,
-    pageErrs:r.pageErrs||[],pageErrMsg:r.pageErrMsg||'',
-    /* 保留分页缓存与空白页标记：刷新后「只补失败页」仍可跳过已识别成功的页 */
-    _parts:r._parts||null, blankPages:r.blankPages||[], allBlank:!!r.allBlank
+    pageErrs:r.pageErrs||[],pageErrMsg:r.pageErrMsg||'',blankPages:r.blankPages||[],
+    /* 逐页结果一起存：刷新/重开后「重试失败页」依然只补失败的那几页 */
+    pageState:(r.pageState||[]).map(ps=>({status:ps.status,data:ps.data,err:ps.err,ink:ps.ink}))
   }));
 }
 let _saveT=null;
@@ -3395,7 +3433,7 @@ function persistRecords(){
 async function restoreRecords(sysId){
   const box=await idbGet('sys_'+sysId);
   if(box&&Array.isArray(box.recs)&&box.recs.length){
-    records=box.recs.map(r=>{if(r.status==='running')r.status='pending';return r;});
+    records=box.recs.map(r=>{if(r.status==='running')r.status='pending';r._mode=null;return r;});
     return true;
   }
   return false;
@@ -3433,8 +3471,6 @@ function genericPrompt(sys,page){
 【字段】（key｜含义，键名必须原样使用）：
 ${list}
 
-${BLANK_RULE}
-
 【读取规则】
 - 方框/下划线/表格里手写或打印的内容 → 原样照抄。
 - 复选框 □ 内打了 ✓/√/对勾 = 选中（该项填 1）；空框 = 未选（填 0 或省略）。
@@ -3460,8 +3496,6 @@ function neuroPrompt(sys,page){
 【字段】（键名必须原样使用）：
 ${idn}${lines}
 
-${BLANK_RULE}
-
 【读取规则】
 ${neuroPageHint(page)}
 - 每个项目是一张 1~12 月龄表格：在某一月的格子内打 ✓/√ 表示该月做了此项检查 → 把该月数字(1-12)填入对应 *_m。
@@ -3477,8 +3511,6 @@ function screenPrompt(sys,page){
 【本页字段】（key｜含义，键名必须原样使用）：
 ${list}
 
-${BLANK_RULE}
-
 【读取规则】
 - 方框 □ 里手写的数字/字母/电话号码 → 原样照抄框内内容。
 - 复选框 □ 内打了 ✓/√ = 选中（该用途/该项填 1）；空框 = 未选（填 0 或省略）。
@@ -3491,54 +3523,24 @@ ${BLANK_RULE}
 
 【输出】只输出一个紧凑 JSON 对象：不换行、不缩进、无 Markdown、无注释。值用字符串，只输出本页确实填写了的字段。`;
 }
-/* ════════════════════════════════════════════════════════════════
-   空白页 / 未填写检测（核心：不许模型「自己填」）
-   —— 表单是印刷模板 + 手写作答。模型最常见的错误是把印刷的
-      示例文字、选项文字、甚至凭空想象的内容当成作答填进去。
-   —— 解决：让模型先做一次「是否有手写作答」的二值判断，
-      整页无手写 → 只回 {"__blank__":"1"}，绝不输出任何字段。
-      单个字段无手写 → 必须省略该键（而不是猜一个值）。
-════════════════════════════════════════════════════════════════ */
-const BLANK_RULE = `【⚠️ 最重要：先判断"有没有人填写过"】
-这张表是【印刷模板 + 人工填写】。你只负责抄"人填上去的内容"，绝不能把印刷内容当答案，更不能自己推理/补全/编造。
-1. 先整页扫一遍，找有没有【手写笔迹】（钢笔/圆珠笔/铅笔字迹、手画的 ✓ √ × ○ 圈、涂黑的圆点）或【后期打印填入的作答】。
-2. 如果整页【完全没有任何人工填写痕迹】（空白表、只有印刷的表格线/题目/选项/示例、或只有印刷页眉页脚）：
-   → 只输出：{"__blank__":"1"}
-   → 不要输出任何其他字段，不要试图"根据常理填一个合理值"。
-3. 如果有填写，则【只输出确实被人填过的字段】：
-   - 该空格是空的 → 省略这个键（不要输出 null 之外的任何猜测值，也不要输出印刷的示例值）。
-   - 印刷的题目文字、选项文字、单位、示例（如"例：2026.01.01"）→ 一律不是答案，不要抄。
-   - 你不确定是不是手写 → 宁可省略，也不要编。
-❌ 严禁：推断、估算、按常识补全、把上一份表的内容套过来、把印刷占位符当作答。
-✅ 记住：漏填一个字段可以人工补；编造一个字段会污染整份数据。`;
+/* 所有提示词共用的红线：只抄图上真有的东西，没填就别管，更不许自己作答 */
+const NO_GUESS_RULE = `
 
-/* 模型判定整页空白的标记键 */
-const BLANK_FLAG='__blank__';
-function isBlankResult(p){
-  if(!p||typeof p!=='object')return false;
-  if(p[BLANK_FLAG]&&String(p[BLANK_FLAG]).trim()!=='0'&&!/^(false|no|空|否)$/i.test(String(p[BLANK_FLAG])))return true;
-  return false;
-}
-/* 兜底：模型没用标记，但返回的字段全是空 → 也视作空白页 */
-function allEmpty(p){
-  if(!p||typeof p!=='object')return true;
-  const ks=Object.keys(p).filter(k=>k!==BLANK_FLAG);
-  if(!ks.length)return true;
-  return ks.every(k=>{
-    const v=p[k];
-    if(v==null)return true;
-    if(Array.isArray(v))return v.length===0||v.every(row=>!row||Object.values(row).every(x=>blank(x)));
-    return blank(v);
-  });
-}
-function stripBlankFlag(p){ if(p&&typeof p==='object')delete p[BLANK_FLAG]; return p; }
-
+【绝对红线 · 违反即作废】
+1. 只填「图上确实有手写字迹 / 打勾 / 圈选痕迹」的字段。
+2. 空着的、划掉的、看不清的 → 直接省略该键。不要填 0，不要填"无"、"未填"、"null"字样，不要留占位。
+3. 严禁替被调查者作答：不许按常识、按经验、按上下文、按其他题目的答案去推测或补全。你不是在做问卷，你只是照抄。
+4. 这一页若整页没有任何手写/勾选痕迹（空白表格或空白纸）→ 只输出 {} ，不要输出任何字段。
+5. 不要输出思考过程、分析、解释、Markdown 代码块，只输出一个 JSON 对象。
+少填不扣分，编造是严重错误——录入员会逐页核对，编的内容会被当成真数据用到研究里。`;
 function buildPromptFor(sys,page){
-  if(sys.reviewMode==='neuro') return neuroPrompt(sys,page);
-  if(sys.reviewMode==='screen') return screenPrompt(sys,page);
-  if(sys.reviewMode==='health') return healthPrompt(sys,page);
-  if(sys.reviewMode==='ddst') return ddstPrompt(sys,page);
-  return genericPrompt(sys,page);
+  let base;
+  if(sys.reviewMode==='neuro') base=neuroPrompt(sys,page);
+  else if(sys.reviewMode==='screen') base=screenPrompt(sys,page);
+  else if(sys.reviewMode==='health') base=healthPrompt(sys,page);
+  else if(sys.reviewMode==='ddst') base=ddstPrompt(sys,page);
+  else base=genericPrompt(sys,page);
+  return base + NO_GUESS_RULE;
 }
 
 /* ════════════ 上传 + 按「每人页数」自动拆分（PDF 并行拆分加速） ════════════ */
@@ -3619,17 +3621,111 @@ function maybeAutoRun(){
 }
 
 /* ════════════ 识别队列（可暂停 · 自动拾取新增/失败项） ════════════ */
-function setBusy(b){ $('runBtn').textContent=b?'识别中…':'▶ 开始识别'; refreshQueueUI(); }
+function setBusy(b){
+  const btn=$('runBtn');
+  const badPg=records.reduce((a,r)=>a+((r.pageErrs||[]).length),0);
+  btn.textContent = b ? '识别中…' : (badPg?('▶ 开始识别 / 补识别 '+badPg+' 个失败页'):'▶ 开始识别');
+  btn.title='已识别成功的页和空白页会自动跳过，不会重复消耗识别次数';
+  refreshQueueUI();
+}
 function setProg(frac,msg){const p=$('prog');if(frac<0){p.classList.remove('on');return;}p.classList.add('on');$('barFill').style.width=Math.round(Math.max(0,Math.min(1,frac))*100)+'%';$('progLbl').textContent=(msg||'');}
 
+/* ════════════════════════════════════════════════════════════════
+   逐页状态机：每一页单独记 状态 + 该页识别出的字段
+     pending 待识别 │ done 已识别 │ blank 整页空白已跳过 │ error 该页失败
+   规则：
+   · 已经 done / blank 的页，任何一次「开始识别」「重试」都不会再打一次 API；
+   · 「↻ 重试失败页」只补 error 的页，已识别的字段原样保留；
+   · 「⟳ 全部重识别」才会清空重来（会二次确认）。
+   ════════════════════════════════════════════════════════════════ */
+function ensurePageState(r){
+  const n=(r.pages||[]).length;
+  if(!Array.isArray(r.pageState) || r.pageState.length!==n){
+    const old=Array.isArray(r.pageState)?r.pageState:[];
+    r.pageState=[];
+    for(let i=0;i<n;i++) r.pageState.push(old[i]||{status:'pending',data:null,err:''});
+    /* 旧版本存下来的记录没有逐页状态：按 pageErrs 还原，
+       已识别的页标 done（字段已在 r.data 里，不会被重复识别） */
+    if(!old.length && r.data){
+      const errs=(r.pageErrs||[]).map(Number);
+      r.pageState.forEach((ps,i)=>{ ps.status = errs.indexOf(i+1)>=0 ? 'error' : 'done'; });
+    }
+  }
+  return r.pageState;
+}
+function syncPageMeta(r){
+  r.pageErrs=[]; r.blankPages=[];
+  (r.pageState||[]).forEach((ps,i)=>{
+    if(ps.status==='error') r.pageErrs.push(i+1);
+    else if(ps.status==='blank') r.blankPages.push(i+1);
+  });
+  const e=(r.pageState||[]).find(ps=>ps.status==='error');
+  r.pageErrMsg=e?e.err:'';
+}
+/* 合并：逐页结果 → r.data。只填空位，不覆盖已识别 / 已手工核对 / 已套对的值 */
+function rebuildData(r,fresh){
+  if(curSys.expandKey){
+    let rows=[];
+    (r.pageState||[]).forEach(ps=>{ const arr=ps&&ps.data&&ps.data[curSys.expandKey]; if(Array.isArray(arr))rows=rows.concat(arr); });
+    rows=rows.map(row=>{const o={};curSys._cols.forEach(k=>{o[k]=(row&&row[k]!=null)?String(row[k]).trim():'';});return o;})
+             .filter(o=>curSys._cols.some(k=>!blank(o[k])));
+    r.data={[curSys.expandKey]:rows};
+  }else{
+    const base = fresh ? {} : Object.assign({}, r.data||{});
+    (r.pageState||[]).forEach(ps=>{
+      const p=ps&&ps.data; if(!p)return;
+      for(const k of curSys._leafKeys){ if(blank(base[k]) && !blank(p[k])) base[k]=String(p[k]).trim(); }
+    });
+    r.data=base;
+  }
+  r.filled=countFilled(r);
+}
+
+/* ── 整页空白判定（纯本地，不花一次 API）──────────────────────
+   把页面缩到 180px 宽，数「深色像素」占比。印着表格线和题干的问卷页
+   墨迹占比通常 3%~15%；没扫上/纯白纸接近 0。低于阈值就判空白直接跳过。 */
+const BLANK_INK_TH = 0.0015;   /* 0.15%：整页只要有一行字/一个勾都远超这个值，判空只会保守不会激进 */
+const _inkCache = new Map();
+function pageInk(page){
+  const src = page.dataUrl || ('data:'+(page.mime||'image/jpeg')+';base64,'+page.b64);
+  if(_inkCache.has(src)) return Promise.resolve(_inkCache.get(src));
+  return new Promise(resolve=>{
+    const im=new Image();
+    im.onload=()=>{
+      let ratio=1;
+      try{
+        const w=180, h=Math.max(1,Math.round(im.height*(180/im.width)));
+        const c=document.createElement('canvas'); c.width=w; c.height=h;
+        const x=c.getContext('2d',{alpha:false});
+        x.fillStyle='#fff'; x.fillRect(0,0,w,h); x.drawImage(im,0,0,w,h);
+        const d=x.getImageData(0,0,w,h).data;
+        let n=0;
+        for(let i=0;i<d.length;i+=4){ if(0.299*d[i]+0.587*d[i+1]+0.114*d[i+2] < 170) n++; }   // 170：缩图后淡铅笔字也算数
+        ratio=n/(w*h);
+        c.width=0;c.height=0;
+      }catch(_){ ratio=1; }   // 判不了就当有内容，照常识别
+      if(_inkCache.size>400)_inkCache.clear();
+      _inkCache.set(src,ratio);
+      resolve(ratio);
+    };
+    im.onerror=()=>resolve(1);
+    im.src=src;
+  });
+}
+
 /* 队列只拾取 pending：失败的记录不再被自动反复重取（否则会卡在同一份文件上死循环）。
-   手动点「开始识别」时会把失败记录重新排队一次；也可对单条点「↻ 重试」。 */
+   手动点「开始识别」时会把失败记录重新排队一次；也可对单条点「↻ 重试失败页」。 */
 function nextPending(){return records.find(r=>r.status==='pending');}
 async function runAll(auto){
   if(running)return;
   if(!getEffectiveKey()){ if(!auto){toast('请先在 ⚙ 设置里配置并保存 API Key');openSet();} return; }
-  if(!auto&&!nextPending()){
-    records.forEach(r=>{if(r.status==='error'){r.status='pending';r.err='';}});
+  if(!auto){
+    /* 手动点「开始识别」：失败的记录、以及「部分完成（有失败页）」的记录都重新排队。
+       runRecord 是逐页的：已识别成功的页与空白页会被跳过，只补没成的页。 */
+    records.forEach(r=>{
+      if(r.status==='error'){r.status='pending';r.err='';}
+      else if(r.status==='done' && r.pageErrs && r.pageErrs.length){r.status='pending';}
+    });
     renderResults();
   }
   if(!nextPending()){ if(!auto)toast('没有待识别的记录'); return; }
@@ -3642,8 +3738,9 @@ async function runAll(auto){
     const remain=records.filter(x=>x.status==='pending').length;
     r.status='running';renderResults();refreshQueueUI();
     setProg(done/(done+remain||1),`识别中：${recLabel(r)}（剩 ${remain} 条）`);
-    try{ const only=r._only||null; r._only=null; await runRecord(r,only); r.status='done'; }
+    try{ await runRecord(r, r._mode||'auto'); r.status='done'; r.err=''; }
     catch(e){ r.status='error'; r.err=((e&&e.message)||String(e)).slice(0,240); }
+    r._mode=null;
     done++;renderResults();refreshQueueUI();persistRecords();
     await sleep(180);
   }
@@ -3653,11 +3750,11 @@ async function runAll(auto){
   running=false;setBusy(false);
   if(paused){ setProg(1,`已暂停 ⏸ 已完成 ${ok} 条，剩 ${records.filter(r=>r.status==='pending').length} 条待识别`); }
   else {
-    const blankN=records.filter(r=>r.status==='done'&&r.allBlank).length;
+    const blankN=records.reduce((a,r)=>a+((r.blankPages||[]).length),0);
     let msg=`识别完成 ✅ ${ok} 条`;
-    if(blankN)msg+=`（其中 ${blankN} 条为空白表·未填写，已跳过不编造）`;
-    if(partial)msg+=`（${partial} 条有失败页已留空）`;
-    if(bad)msg+=` · ${bad} 条失败（点「↻ 重试失败项」只补失败页）`;
+    if(partial)msg+=`（其中 ${partial} 条有失败页已留空，点「↻ 重试失败页」只补这些页）`;
+    if(blankN)msg+=` · 跳过 ${blankN} 个空白页（未消耗识别次数）`;
+    if(bad)msg+=` · ${bad} 条失败（点「↻ 重试失败页」或再点「开始识别」，已识别的页不会重复识别）`;
     setProg(1,msg);
     if(!partial&&!bad)setTimeout(()=>setProg(-1),1500);
   }
@@ -3665,63 +3762,53 @@ async function runAll(auto){
 }
 function pauseRun(){ if(running){paused=true;toast('将在当前记录完成后暂停');refreshQueueUI();} }
 function togglePause(){ if(running)pauseRun(); else runAll(false); }
-/* onlyPages：只识别这些页码（用于「只补失败页」重试，已识别成功的页不再重复调用 API） */
-async function runRecord(r,onlyPages){
-  const prev=(r._parts&&r._parts.length===r.pages.length)?r._parts:null;
-  const parts=prev?prev.slice():new Array(r.pages.length).fill(null);
-  const failPages=[];const blankPages=[];let lastErr='';
-  for(let i=0;i<r.pages.length;i++){
-    const page=i+1;
-    /* ── 跳过：本轮不需要重识别、且上轮已成功的页 ── */
-    if(onlyPages&&!onlyPages.includes(page)&&parts[i]!=null){
-      continue;
+/* mode: 'auto' = 只识别还没识别成功的页（默认，重试/继续都走这条）
+         'all'  = 全部重识别（清空重来） */
+async function runRecord(r, mode){
+  mode = mode || 'auto';
+  ensurePageState(r);
+  if(mode==='all'){ r.pageState.forEach(ps=>{ps.status='pending';ps.data=null;ps.err='';}); r.data=null; r.imported=null; }
+
+  const todo=[];
+  r.pageState.forEach((ps,i)=>{ if(ps.status!=='done' && ps.status!=='blank') todo.push(i); });
+  const skipN=r.pages.length-todo.length;
+
+  let lastErr='';
+  for(const i of todo){
+    const page=i+1, ps=r.pageState[i];
+    setProg(0,`${recLabel(r)}：第 ${page}/${r.pages.length} 页`+(skipN?`（已跳过 ${skipN} 页已识别/空白页）`:''));
+
+    /* ① 先本地判空白：整页没痕迹就不打 API，也就不给模型「自己填」的机会。
+          「⟳ 全部重识别」是强制档：不判空白，每页都真识别一次（万一判空判错了，这是后路）*/
+    if(cfg.skipBlank && mode!=='all'){
+      const ink=await pageInk(r.pages[i]);
+      if(ink < BLANK_INK_TH){ ps.status='blank'; ps.data=null; ps.err=''; ps.ink=ink; continue; }
     }
-    setProg(0,`${recLabel(r)}：第 ${page}/${r.pages.length} 页`);
+
+    /* ② 识别该页 */
     const prompt=buildPromptFor(curSys,page);
-    /* 逐页容错：某页识别失败 → 该页字段留空（绝不编造），继续识别下一页，不中断整条记录 */
-    let part=null;
     try{
-      const note=m=>setProg(0,`${recLabel(r)}：第 ${page}/${r.pages.length} 页 · ${m}`);
-      const txt=await callWithRetry(prompt,r.pages[i].b64,r.pages[i].mime||'image/jpeg',note);
+      const txt=await callWithRetry(prompt, r.pages[i].b64, r.pages[i].mime||'image/jpeg');
       const p=parseModelJSON(txt);
-      if(p){
-        /* ── 空白页判定：模型标记 __blank__，或返回内容全空 ── */
-        if(isBlankResult(p)||allEmpty(p)){
-          blankPages.push(page);
-          part={};                       // 空对象＝识别成功但本页无人填写
-        }else{
-          part=stripBlankFlag(p);
-        }
-      }else{
-        failPages.push(page);lastErr='模型返回内容无法解析为 JSON';
-      }
+      if(p){ ps.status='done'; ps.data=p; ps.err=''; }
+      else { ps.status='error'; ps.err='模型返回内容无法解析为 JSON'; lastErr=ps.err; }
     }catch(e){
-      failPages.push(page);
-      lastErr=((e&&e.message)||String(e)).slice(0,240);
+      ps.status='error'; ps.err=((e&&e.message)||String(e)).slice(0,240); lastErr=ps.err;
     }
-    parts[i]=part;
     await sleep(150);
   }
-  const doneParts=parts.map(x=>x||{});
-  /* 所有页全部失败（多为 Key/网络/模型配置问题）→ 整条标失败，可修好后点重试 */
-  if(failPages.length===r.pages.length){
-    throw new Error((r.pages.length>1?('全部 '+r.pages.length+' 页识别失败：'):'识别失败：')+(lastErr||'未知错误'));
+
+  syncPageMeta(r);
+  rebuildData(r, mode==='all');
+
+  const doneN=r.pageState.filter(ps=>ps.status==='done').length;
+  const errN=r.pageState.filter(ps=>ps.status==='error').length;
+  /* 一页都没成功（且不是整份都空白）→ 整条标失败，修好设置后可重试 */
+  if(doneN===0 && errN>0){
+    if(mode==='all' && (!r.data || !countFilled(r))) r.data=null;
+    throw new Error((errN>1?('全部 '+errN+' 页识别失败：'):'识别失败：')+(lastErr||'未知错误'));
   }
-  r._parts=parts;                        // 缓存成功页，供「只补失败页」重试复用
-  r.pageErrs=failPages;
-  r.pageErrMsg=failPages.length?lastErr:'';
-  r.blankPages=blankPages;
-  r.allBlank=(blankPages.length===r.pages.length);
-  if(curSys.expandKey){
-    let rows=[];
-    doneParts.forEach(p=>{const arr=p&&p[curSys.expandKey];if(Array.isArray(arr))rows=rows.concat(arr);});
-    rows=rows.map(row=>{const o={};curSys._cols.forEach(k=>{o[k]=(row&&row[k]!=null)?String(row[k]).trim():'';});return o;})
-             .filter(o=>curSys._cols.some(k=>!blank(o[k])));
-    r.data={[curSys.expandKey]:rows};
-  }else{
-    r.data=mergeLeaf(parts);
-  }
-  r.imported=null;
+  r.imported=r.imported||null;
   r.filled=countFilled(r);
   persistRecords();
 }
@@ -3737,60 +3824,35 @@ function countFilled(r){
   if(curSys.expandKey){const rows=r.data[curSys.expandKey]||[];let n=0;rows.forEach(o=>curSys._cols.forEach(k=>{if(!blank(o[k]))n++;}));return n;}
   return curSys._leafKeys.filter(k=>!blank(r.data[k])).length;
 }
-/* 计算某条记录「本次重试需要重跑哪些页」：
-   - 整条 error 且无任何缓存页 → 全部页
-   - 部分页失败(pageErrs) → 只跑失败页，已识别成功的页直接复用，不再消耗 API 配额 */
-function pagesToRetry(r){
-  const all=r.pages.map((_,i)=>i+1);
-  if(!r._parts||r._parts.length!==r.pages.length)return all;
-  const miss=all.filter(p=>r._parts[p-1]==null);
-  return miss.length?miss:all;
-}
-async function retryRecord(id,forceAll){
-  const r=records.find(x=>x.id===id);if(!r)return;
+/* mode: 'failed'（默认）只补识别失败的页，已识别的页与已核对的字段一律不动
+         'all' 全部重识别（二次确认） */
+async function retryRecord(id, mode){
+  mode = mode || 'failed';
+  const r=records.find(x=>x.id===id); if(!r)return;
   if(!getEffectiveKey()){toast('请先配置 API Key');openSet();return;}
-  if(forceAll)r._parts=null;                     // 「全部重识别」：丢弃缓存
-  const only=forceAll?null:pagesToRetry(r);
-  /* 若队列在跑：只把它标回 pending，交给运行中的队列自动拾取 */
-  if(running){ r.status='pending';r.err='';r.pageErrs=[];r.pageErrMsg='';r._only=only;renderResults();refreshQueueUI();persistRecords();toast('已重新排入识别队列');return; }
-  running=true;setBusy(true);r.status='running';r.pageErrs=[];r.pageErrMsg='';renderResults();
-  setProg(0,'重试：'+recLabel(r)+(only&&only.length<r.pages.length?`（只补第 ${only.join('、')} 页）`:''));
-  try{ await runRecord(r,only); r.status='done'; }catch(e){ r.status='error'; r.err=((e&&e.message)||String(e)).slice(0,240); }
-  running=false;setBusy(false);renderResults();refreshQueueUI();persistRecords();
-  setProg(1,'重试完成');setTimeout(()=>setProg(-1),1200);
-}
+  ensurePageState(r);
 
-/* ════════ 一键重试所有失败项（整条失败 + 部分页失败）════════
-   只补失败的页，已识别成功的记录/页面完全不动，不重复消耗额度。 */
-function failedRecords(){
-  return records.filter(r=>r.status==='error'||(r.status==='done'&&r.pageErrs&&r.pageErrs.length));
-}
-async function retryAllFailed(){
-  if(running){toast('识别进行中，请先暂停');return;}
-  const list=failedRecords();
-  if(!list.length){toast('没有失败的记录 ✅');return;}
-  if(!getEffectiveKey()){toast('请先配置 API Key');openSet();return;}
-  running=true;paused=false;setBusy(true);
-  let ok=0,still=0,n=0;
-  for(const r of list){
-    if(paused)break;
-    n++;
-    const only=pagesToRetry(r);
-    r.status='running';r.err='';renderResults();refreshQueueUI();
-    setProg((n-1)/list.length,`重试失败项 ${n}/${list.length}：${recLabel(r)}${only.length<r.pages.length?`（只补第 ${only.join('、')} 页）`:''}`);
-    try{
-      await runRecord(r,only);
-      r.status='done';
-      if(r.pageErrs&&r.pageErrs.length)still++; else ok++;
-    }catch(e){
-      r.status='error';r.err=((e&&e.message)||String(e)).slice(0,240);still++;
-    }
-    renderResults();refreshQueueUI();persistRecords();
-    await sleep(200);
+  if(mode==='all'){
+    if(!confirm('「全部重识别」会清空这条记录已识别的所有字段（含你手工核对改过的内容），并强制逐页重新识别（连判为空白的页也一起重识别）。\n\n只想补上失败的页 → 请点「↻ 重试失败页」，那样已识别的页一个都不会重跑。\n\n确定要全部重识别吗？'))return;
+  }else{
+    const n=r.pageState.filter(ps=>ps.status==='error').length;
+    if(!n){ toast('这条记录没有失败的页'); return; }
   }
-  running=false;setBusy(false);renderResults();refreshQueueUI();persistRecords();
-  setProg(1,`重试结束：${ok} 条已补全${still?` · 仍有 ${still} 条失败（可再次重试或换模型）`:' ✅'}`);
-  if(!still)setTimeout(()=>setProg(-1),1800);
+  r._mode = (mode==='all')?'all':'auto';
+
+  /* 队列正在跑：排回队列，由队列按同样规则处理（只补未完成的页） */
+  if(running){ r.status='pending'; r.err=''; renderResults(); refreshQueueUI(); persistRecords();
+    toast(mode==='all'?'已排入队列：将全部重识别':'已排入队列：只补识别失败的页'); return; }
+
+  running=true; setBusy(true); r.status='running'; r.err=''; renderResults();
+  setProg(0,(mode==='all'?'全部重识别：':'只补识别失败页：')+recLabel(r));
+  try{ await runRecord(r, r._mode); r.status='done'; r.err=''; }
+  catch(e){ r.status='error'; r.err=((e&&e.message)||String(e)).slice(0,240); }
+  r._mode=null;
+  running=false; setBusy(false); renderResults(); refreshQueueUI(); persistRecords();
+  const left=(r.pageErrs||[]).length;
+  setProg(1, left?('仍有 '+left+' 页失败：'+ (r.pageErrMsg||'').slice(0,60) ):'完成 ✅');
+  setTimeout(()=>setProg(-1), left?4000:1200);
 }
 function clearAll(){if(running){toast('识别中，请先暂停');return;}records=[];_impSnap=null;$('impStat').textContent='';$('impClearBtn').style.display='none';renderResults();refreshQueueUI();setProg(-1);if(curSys)idbDel('sys_'+curSys.id);updateStorageBadge();}
 function delRec(id){records=records.filter(r=>r.id!==id);renderResults();refreshQueueUI();persistRecords();}
@@ -3811,8 +3873,7 @@ function primaryId(r){
 function d_has(d,k){return d[k]!=null&&!blank(d[k]);}
 function statPill(r){
   if(r.status==='done'&&r.pageErrs&&r.pageErrs.length)return '<span class="pill warn">部分完成</span>';
-  if(r.status==='done'&&r.allBlank)return '<span class="pill" style="background:#8e8e93;color:#fff">空白表</span>';
-  if(r.status==='done')return '<span class="pill ok">完成</span>';
+  if(r.status==='done')return '<span class="pill ok">完成</span>'+((r.blankPages&&r.blankPages.length)?' <span class="pill" style="background:var(--paper);color:var(--ink3)">跳过'+r.blankPages.length+'空白页</span>':'');
   if(r.status==='running')return '<span class="pill run">识别中</span>';
   if(r.status==='error')return '<span class="pill bad">失败</span>';
   if(r.status==='imported')return '<span class="pill imp">导入</span>';
@@ -3829,15 +3890,15 @@ function renderResults(){
     const imp=r.imported?' <span class="pill imp">含套对</span>':'';
     const fillTxt=r.data?(curSys.expandKey?`${(r.data[curSys.expandKey]||[]).length} 样本`:`${countFilled(r)} / ${total}`):'—';
     h+=`<tr>
-      <td>${esc(recLabel(r))}${(r.status==='error'&&r.err)?`<div style="font-size:10px;color:var(--bad);margin-top:3px;max-width:340px;white-space:normal;line-height:1.35">⚠ ${esc(r.err)}</div>`:''}${(r.status==='done'&&r.pageErrs&&r.pageErrs.length)?`<div style="font-size:10px;color:var(--warn);margin-top:3px;max-width:340px;white-space:normal;line-height:1.35">⚠ 第 ${esc(r.pageErrs.join('、'))} 页识别失败，字段已留空${r.pageErrMsg?('：'+esc(r.pageErrMsg)):''}（点「↻ 重试」只补这几页）</div>`:''}${(r.status==='done'&&r.allBlank)?`<div style="font-size:10px;color:var(--muted);margin-top:3px;max-width:340px;white-space:normal;line-height:1.35">⬜ 整份表<b>无手写填写内容</b>，已按空白表处理（未编造任何字段）</div>`:((r.status==='done'&&r.blankPages&&r.blankPages.length)?`<div style="font-size:10px;color:var(--muted);margin-top:3px;max-width:340px;white-space:normal;line-height:1.35">⬜ 第 ${esc(r.blankPages.join('、'))} 页空白未填写，已跳过</div>`:'')}</td>
+      <td>${esc(recLabel(r))}${(r.status==='error'&&r.err)?`<div style="font-size:10px;color:var(--bad);margin-top:3px;max-width:360px;white-space:normal;line-height:1.35">⚠ ${esc(r.err)}</div>`:''}${(r.status==='done'&&r.pageErrs&&r.pageErrs.length)?`<div style="font-size:10px;color:var(--warn);margin-top:3px;max-width:360px;white-space:normal;line-height:1.35">⚠ 第 ${esc(r.pageErrs.join('、'))} 页识别失败，这几页的字段留空未编造${r.pageErrMsg?('：'+esc(r.pageErrMsg)):''}<br>👉 点「↻ 重试失败页」<b>只会重跑这 ${r.pageErrs.length} 页</b>，已识别的页不动、不再花识别次数</div>`:''}${(r.blankPages&&r.blankPages.length)?`<div style="font-size:10px;color:var(--ink3);margin-top:3px;max-width:360px;white-space:normal;line-height:1.35">📃 第 ${esc(r.blankPages.join('、'))} 页整页空白（没有任何手写/勾选痕迹），已跳过，未调用 AI</div>`:''}</td>
       <td class="k">${esc(primaryId(r))}</td>
       <td>${esc(primaryName(r))}${imp}</td>
       <td>${statPill(r)}</td>
       <td class="k">${fillTxt}</td>
       <td style="white-space:nowrap">
         ${r.data?`<button class="linkbtn" onclick="openReview('${r.id}')">🔍 点击核对</button>&nbsp;`:''}
-        ${(r.status==='error'||(r.status==='done'&&r.pageErrs&&r.pageErrs.length))?`<button class="linkbtn" style="color:var(--warn)" onclick="retryRecord('${r.id}')" title="只重新识别失败的页，已识别成功的页不动">↻ 重试</button>&nbsp;`:''}
-        ${(r.status==='done')?`<button class="linkbtn" style="color:var(--muted)" onclick="retryRecord('${r.id}',true)" title="丢弃已有结果，整条重新识别">⟳ 全部重识别</button>&nbsp;`:''}
+        ${(r.pageErrs&&r.pageErrs.length)?`<button class="linkbtn" style="color:var(--warn)" onclick="retryRecord('${r.id}','failed')" title="只重新识别失败的第 ${esc(r.pageErrs.join('、'))} 页，已识别出的字段保持不变">↻ 重试失败页 (${r.pageErrs.length})</button>&nbsp;`:(r.status==='error'?`<button class="linkbtn" style="color:var(--warn)" onclick="retryRecord('${r.id}','failed')">↻ 重试</button>&nbsp;`:'')}
+        ${(r.pages&&r.pages.length&&(r.data||r.status==='error'||r.status==='done'))?`<button class="linkbtn" style="color:var(--ink3)" onclick="retryRecord('${r.id}','all')" title="清空本条全部字段，逐页从头识别（会二次确认）">⟳ 全部重识别</button>&nbsp;`:''}
         <button class="linkbtn del" onclick="delRec('${r.id}')">删除</button>
       </td></tr>`;
   }
@@ -3845,13 +3906,11 @@ function renderResults(){
 }
 function refreshQueueUI(){
   $('qmeta').textContent=records.length?`${records.length} 条`:'—';
-  const hasTodo=records.some(r=>r.status==='pending'||r.status==='error');
+  const hasTodo=records.some(r=>r.status==='pending'||r.status==='error'||(r.status==='done'&&r.pageErrs&&r.pageErrs.length));
   $('runBtn').disabled=running||!hasTodo;
   $('runBtn').style.display=running?'none':'';
   const pb=$('pauseBtn');
   if(pb){ pb.style.display=running?'':'none'; pb.textContent=paused?'⏸ 暂停中…':'⏸ 暂停'; pb.disabled=paused; }
-  const rb=$('retryFailBtn');
-  if(rb){ const nf=failedRecords().length; rb.style.display=(!running&&nf)?'':'none'; rb.textContent=`↻ 重试失败项（${nf}）`; rb.disabled=running; }
   $('clearBtn').disabled=running||!records.length;
   const ok=records.some(r=>r.data&&countFilled(r)>0);
   $('xlsxBtn').disabled=!ok;$('tsvBtn').disabled=!ok;
@@ -4898,7 +4957,6 @@ $('drop').addEventListener('drop',e=>{e.preventDefault();$('drop').classList.rem
 $('file').addEventListener('change',e=>{addFiles(e.target.files);e.target.value='';});
 $('runBtn').addEventListener('click',()=>runAll(false));
 $('pauseBtn').addEventListener('click',pauseRun);
-$('retryFailBtn').addEventListener('click',retryAllFailed);
 $('clearBtn').addEventListener('click',clearAll);
 $('clearStoreBtn').addEventListener('click',clearStoredRecords);
 $('impBtn').addEventListener('click',()=>$('impFile').click());
