@@ -21,6 +21,7 @@ const ROUTES = {
   '/api/groq/':        'https://api.groq.com/',        // 修复：base 去掉 openai/，避免与前端路径的 openai/ 重复（原来会拼成 /openai/openai/ → 404）
   '/api/nvidia/':      'https://integrate.api.nvidia.com/',
   '/api/github/':      'https://models.github.ai/inference/',
+  '/api/github-catalog/': 'https://models.github.ai/catalog/',   // GitHub 的模型目录不在 /inference 下
   '/api/hunyuan/':     'https://api.hunyuan.cloud.tencent.com/',
   '/api/hf/':          'https://router.huggingface.co/',
   '/api/deepinfra/':   'https://api.deepinfra.com/v1/openai/',
@@ -39,6 +40,14 @@ const ROUTES = {
   '/api/deepseek/':    'https://api.deepseek.com/',
   '/api/zhipu/':       'https://open.bigmodel.cn/',
   '/api/siliconflow/': 'https://api.siliconflow.cn/',
+  '/api/modelscope/':  'https://api-inference.modelscope.cn/',
+  '/api/ark/':         'https://ark.cn-beijing.volces.com/',
+  '/api/qianfan/':     'https://qianfan.baidubce.com/',
+  '/api/ppio/':        'https://api.ppinfra.com/',
+  '/api/infini/':      'https://cloud.infini-ai.com/',
+  '/api/302/':         'https://api.302.ai/',
+  '/api/xunfei/':      'https://spark-api-open.xf-yun.com/',
+  '/api/cerebras/':    'https://api.cerebras.ai/',
 };
 
 const ALLOWED_HOSTS = [
@@ -68,6 +77,14 @@ const ALLOWED_HOSTS = [
   'api.deepseek.com',
   'open.bigmodel.cn',
   'api.siliconflow.cn',
+  'api-inference.modelscope.cn',
+  'ark.cn-beijing.volces.com',
+  'qianfan.baidubce.com',
+  'aip.baidubce.com',
+  'api.ppinfra.com',
+  'cloud.infini-ai.com',
+  'api.302.ai',
+  'spark-api-open.xf-yun.com',
 ];
 
 function corsHeaders() {
@@ -192,6 +209,10 @@ h1{color:#007AFF;margin:0 0 4px}h2{font-size:15px;margin:24px 0 8px;color:#1d1d1
 <code>/api/xai/v1/chat/completions</code> → xAI Grok<br>
 <code>/api/gemini/v1beta/models/...</code> → Google Gemini<br>
 <code>/api/dashscope/compatible-mode/v1/chat/completions</code> → 阿里百炼 Qwen-VL<br>
+<code>/api/modelscope/v1/chat/completions</code> → 魔搭 ModelScope（每天 2000 次免费）<br>
+<code>/api/ark/api/v3/chat/completions</code> → 火山方舟 · 豆包 Vision<br>
+<code>/api/qianfan/v2/chat/completions</code> → 百度千帆 · ERNIE-VL<br>
+<code>/api/ppio/v3/openai/chat/completions</code> → PPIO 派欧云 · <code>/api/infini/maas/v1/...</code> 无问芯穹 · <code>/api/302/v1/...</code> 302.AI<br>
 <code>/api/moonshot/v1/chat/completions</code> → Kimi · <code>/api/stepfun/...</code> 阶跃 · <code>/api/minimax/...</code> MiniMax · <code>/api/deepseek/...</code> · <code>/api/zhipu/...</code> 智谱 · <code>/api/siliconflow/...</code> 硅基
 </div>
 <h2>🔧 用法</h2>
