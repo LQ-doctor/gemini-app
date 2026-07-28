@@ -2322,6 +2322,10 @@ const PROVIDERS = {
     proxyPath: '/api/zhipu/api/paas/v4/chat/completions',
     placeholder: 'xxxxxxxx.xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: true,
+    /* 各模型允许的 max_tokens 上限不同：glm-4v-flash 只接受 [1,1024]，
+       发 8192 会直接被拒（400 1210）。没列出的模型走 maxTokens，
+       万一还是超限，下面的自动降级会读出真实上限并记住。*/
+    maxTokensByModel: { 'glm-4v-flash': 1024 },
     extraBody: { thinking: { type: 'disabled' } },
     guide: `<strong>🤖 智谱 GLM-4.6V-Flash · 完全免费旗舰</strong>
 注册：<a href="https://bigmodel.cn" target="_blank">bigmodel.cn</a> → 「API密钥」→ 新建<br>
@@ -2514,6 +2518,35 @@ function resolveEndpoint(provider, rawUrl){
   }
 }
 
+/* ── max_tokens 上限自适应 ────────────────────────────────────
+   各家各模型允许的 max_tokens 上限不一样，写死必然踩雷。
+   这里：先用预设值，被服务器拒绝时从报错里读出真实上限，
+   压到上限重发，并把上限记到 localStorage，下次直接用对的值。*/
+let MAXTOK_CACHE = {};
+try{ MAXTOK_CACHE = JSON.parse(localStorage.getItem('phck_maxtok')||'{}')||{}; }catch(_){ MAXTOK_CACHE={}; }
+function maxTokCapFor(provId, model){ return MAXTOK_CACHE[provId+'|'+model] || 0; }
+function saveMaxTokCap(provId, model, cap){
+  MAXTOK_CACHE[provId+'|'+model] = cap;
+  try{ localStorage.setItem('phck_maxtok', JSON.stringify(MAXTOK_CACHE)); }catch(_){ }
+}
+function effMaxTokens(provider, model){
+  const preset = (provider.maxTokensByModel && provider.maxTokensByModel[model])
+              || provider.maxTokens || 2000;
+  const learned = maxTokCapFor(cfg.prov, model);
+  return learned ? Math.min(preset, learned) : preset;
+}
+/* 从各家 400 报错里把「允许的最大值」抠出来，例如：
+   智谱  max_tokens参数非法：限制数值范围[1,1024]
+   英文  max_tokens must be less than or equal to 4096 */
+function parseMaxTokCap(msg){
+  if(!/max_?tokens/i.test(msg||'')) return 0;
+  let m = msg.match(/\[\s*\d+\s*[,，]\s*(\d+)\s*\]/);
+  if(m) return parseInt(m[1],10);
+  m = msg.match(/(?:最大|至多|不得超过|不能超过|maximum(?:\s+of)?|at most|less than or equal to|up to|<=)\D{0,12}(\d{2,7})/i);
+  if(m) return parseInt(m[1],10);
+  return 0;
+}
+
 function getEffectiveKey(){ const p=PROVIDERS[cfg.prov]; return (p && p.useOpenRouterKey) ? cfg.keys.openrouter : cfg.keys[cfg.prov]; }
 function getEffectiveModel(){ const p=PROVIDERS[cfg.prov]; return (cfg.models && cfg.models[cfg.prov]) || (p && p.model) || ''; }
 function syncCustomProvider(){ if(!PROVIDERS.custom) return; const c=cfg.custom||{}; PROVIDERS.custom.endpoint=(c.endpoint||'').trim(); PROVIDERS.custom.apiType=c.apiType||'openai'; PROVIDERS.custom.authStyle=c.authStyle||'bearer'; PROVIDERS.custom.extraHeaders=c.extraHeaders||''; PROVIDERS.custom.model=(cfg.models&&cfg.models.custom)||''; }
@@ -2701,7 +2734,7 @@ async function callAnthropicCompat(provider, key, b64, mime, prompt) {
   return textBlock.text;
 }
 
-async function callOpenAICompat(provider, key, b64, mime, prompt, useModel, _dropNoThink) {
+async function callOpenAICompat(provider, key, b64, mime, prompt, useModel, _dropNoThink, _mtFixed) {
   // Use provider-specific quirks: image order, max_tokens
   const content = provider.imageFirst
     ? [
@@ -2725,7 +2758,7 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel, _dro
   const useNoThink = !!provider.noThinkBody && provider._noThink !== false && !_dropNoThink;
   const body = {
     model: useModel,
-    max_tokens: provider.maxTokens || 2000,
+    max_tokens: effMaxTokens(provider, useModel),
     temperature: 0,
     messages: [{ role:'user', content }],
     ...(provider.extraBody || {}),
@@ -2780,7 +2813,17 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel, _dro
       /* 某些服务不认识「关闭思考」的参数 → 去掉它重发一次，并记住这家不支持 */
       if (useNoThink && /unknown|unsupported|unrecogniz|unexpected|extra.*field|not.*(allowed|permitted)|invalid.*(parameter|field|argument)|enable_thinking|reasoning|thinking/i.test(m)) {
         provider._noThink = false;
-        return callOpenAICompat(provider, key, b64, mime, prompt, useModel, true);
+        return callOpenAICompat(provider, key, b64, mime, prompt, useModel, true, _mtFixed);
+      }
+      /* max_tokens 超出该模型允许范围 → 读出上限、压下去重发一次并记住 */
+      if (!_mtFixed) {
+        const cap = parseMaxTokCap(m);
+        const used = effMaxTokens(provider, useModel);
+        if (cap > 0 && cap < used) {
+          saveMaxTokCap(cfg.prov, useModel, cap);
+          console.warn('max_tokens '+used+' 超出「'+useModel+'」上限，自动降到 '+cap+' 重发');
+          return callOpenAICompat(provider, key, b64, mime, prompt, useModel, _dropNoThink, true);
+        }
       }
       let hint = '';
       const isModelErr = /not a valid model|model.*not found|invalid model|模型.*不存在/i.test(m);
@@ -2812,7 +2855,7 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel, _dro
 
   if (!t) {
     if (finishReason === 'length') {
-      throw new Error(`输出被截断（max_tokens 不足）。可能是图片复杂或字段过多。\n💡 解决：精简模板字段，或切换到更简单的模型`);
+      throw new Error(`输出被截断：这一页要填的字段太多，超过了模型「${useModel}」单次最多能吐 ${effMaxTokens(provider, useModel)} 个 token 的上限。\n💡 解决：①换个输出上限更大的模型（如智谱 glm-4.5v）；②把这一页的模板字段拆少一点。`);
     }
     throw new Error('AI 未返回内容：' + JSON.stringify(d).slice(0,200));
   }
