@@ -550,7 +550,7 @@ select.set-key{font-family:var(--sans)}
     </div>
 
     <p style="font-size:11.5px;color:var(--ink3);text-align:center;line-height:1.7">
-      可选服务已精简为 7 家：<b>Agnes</b>（agnes-2.0-flash）· <b>Google Gemini</b> · <b>智谱 GLM-4V</b> · <b>NVIDIA NIM</b> · <b>OpenRouter</b> · <b>OpenAI</b> · 以及「<b>自定义</b>」（One-API / Ollama / LM Studio / vLLM / 硅基流动 / 通义 / 豆包 等任意 OpenAI·Anthropic·Gemini 兼容服务，可一键预设）。点右上角 ⚙ 选服务、填 API Key、测试连接。Key 只存在本机浏览器，不经任何中转。
+      可选服务已精简为 7 家：<b>Agnes</b>（agnes-2.0-flash）· <b>Google Gemini</b> · <b>智谱 GLM-4V</b> · <b>NVIDIA NIM</b> · <b>OpenRouter</b> · <b>OpenAI</b> · 以及「<b>自定义</b>」（One-API / Ollama / LM Studio / vLLM / 硅基流动 / 通义 / 豆包 等任意 OpenAI·Anthropic·Gemini 兼容服务，可一键预设）。点右上角 ⚙ 选服务、填 API Key、测试连接。Key 只存在本机浏览器，不经任何中转。本页为<b>单文件直连版</b>，无需部署任何后端函数。
     </p>
   </div>
 
@@ -663,6 +663,7 @@ select.set-key{font-family:var(--sans)}
       🥇 <b>批量跑问卷首选（国内直连、不用翻墙、不排队）</b>：智谱 <code>glm-4v-flash</code>——本页默认就是它。<br>
       ⚠️ <b>NVIDIA / OpenRouter / Gemini 的免费池经常忙、限额、模型下架</b>，报「不存在 / 非常忙 / 超限」是常态，本页会自动换备选模型；实在不行请切回智谱。<br>
       🧩 <b>想用硅基流动 / 通义 / 豆包 / Kimi 等已下架的服务？</b>选最后一个「自定义」，在「快速预设」里挑一个即可一键填好端点。<br>
+      🌐 <b>本页是单文件直连版</b>（没装同域代理）：<b>智谱 / OpenRouter</b> 浏览器能直接连；<b>英伟达 / OpenAI</b> 多半会被浏览器跨域拦住；<b>Gemini</b> 需要海外网络；<b>Agnes</b> 请点「测试连接」自己验一下。<br>
       🔍 <b>不确定填什么模型？点下面的「自动挑选可用模型」</b>，它会拿测试图把候选模型实打一遍，选出此刻真的能用的。</div>
       <div class="set-tabs" id="setTabs"></div>
       <div class="set-row"><input class="set-key" id="setKey" type="password" placeholder="粘贴 API Key …" autocomplete="off"><button class="set-save" onclick="saveKey()">保存</button></div>
@@ -732,9 +733,9 @@ select.set-key{font-family:var(--sans)}
       </div>
       <div class="set-crow" style="margin:6px 0"><label style="flex:0 0 auto">跨域代理</label>
         <select id="setProxyMode" onchange="onSetProxyMode()" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--line2);border-radius:8px;background:#fff">
-          <option value="auto">自动（部署到 Cloudflare Pages 后，被 CORS 拦的服务自动走同域 /api 代理）</option>
-          <option value="on">强制开启（始终走 /api 同域代理，需已部署 functions/api）</option>
-          <option value="off">关闭（浏览器直连，仅国内直连服务可用）</option>
+          <option value="auto">自动（本版没有部署代理文件 → 等同于直连）</option>
+          <option value="on">强制开启（仅当你已另外上传 functions/api/[[path]].js 才有用）</option>
+          <option value="off">关闭（浏览器直连）</option>
         </select>
       </div>
       <div id="setProxyHint" style="font-size:11px;color:var(--ink3);margin:-2px 0 10px;line-height:1.5"></div>
@@ -2301,6 +2302,7 @@ const PROVIDERS = {
     guide: `<strong>🅰️ Agnes AI · agnes-2.0-flash（OpenAI 兼容）</strong>
 请求地址 <code>https://apihub.agnes-ai.com/v1</code> · 接口格式 OpenAI chat completions · 模型 <code>agnes-2.0-flash</code>。<br>
 把在 Agnes 申请到的密钥粘进上面的输入框 → 「保存」→ 点「🔗 测试连接」，能读出测试图里的两位数才算真的能识别表单。<br>
+🌐 本页为直连版：若测试报「跨域/CORS/网络错误」，说明 Agnes 不允许网页直接调用，需要补代理文件或改走「自定义」里的自建网关。<br>
 ⚠️ <strong>历史实测提醒</strong>：本工具早前接入过 <code>agnes-2.0-flash</code>，跑表单图片时经常<strong>只输出思考过程、不给结果</strong>（token 全烧在思考上）。若测试连接读不出数字，说明它此刻仍不适合做表单识别，请改用「智谱 GLM-4V-Flash」。<br>
 <button onclick="fetchProviderModels('agnes')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
 <div id="providerFetchResult_agnes" style="margin-top:6px;font-size:11px"></div>`
@@ -2353,7 +2355,7 @@ const PROVIDERS = {
   },
   nvidia: {
     name: 'NVIDIA', fullName: 'NVIDIA NIM · 100+ 模型',
-    emoji: '🟢', badges: ['常忙·不推荐','需翻墙'],
+    emoji: '🟢', badges: ['直连常被CORS拦','需翻墙'],
     model: 'qwen/qwen2.5-vl-72b-instruct',
     fallbackModels: [
       'meta/llama-4-scout-17b-16e-instruct',
@@ -2383,7 +2385,7 @@ const PROVIDERS = {
 批量识别几百页问卷不建议用它</strong>，请优先 <strong>智谱 GLM-4V-Flash</strong>、<strong>硅基流动 Qwen3-VL</strong>、<strong>通义 Qwen-VL</strong>（国内直连、无需翻墙）。<br>
 本页已做兜底：遇到「忙/超限/模型不存在」会<strong>自动换到备选模型</strong>并记住可用的那个；仍全失败时请换服务。<br>
 想知道你的 Key 现在到底能用哪个模型，点 <strong>🔍 自动挑选可用模型</strong>（会拿测试图逐个实测）。<br>
-⚠️ 国内需翻墙；部署到 Cloudflare Pages 后，浏览器 CORS 会<strong>自动经同域 <code>/api/nvidia</code> 代理绕过</strong>（本地/直接打开 HTML 则不可用，请改国内直连服务）。<br>
+🚫 <strong>本页是直连版（没装代理）</strong>：NVIDIA 不给浏览器发 CORS 头，网页直接调用<strong>基本会被拦</strong>。想用它就得把 <code>functions/api/[[path]].js</code> 传到本站仓库并把「跨域代理」设为强制开启；否则请改用智谱 / OpenRouter。<br>
 <button onclick="fetchProviderModels('nvidia')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
 <div id="providerFetchResult_nvidia" style="margin-top:6px;font-size:11px"></div>
 <a href="https://build.nvidia.com/explore/vision" target="_blank">📖 视觉模型</a> · <a href="https://build.nvidia.com/models" target="_blank">📋 全部模型</a>`
@@ -2428,7 +2430,7 @@ const PROVIDERS = {
   },
   openai: {
     name: 'OpenAI', fullName: 'OpenAI 官方',
-    emoji: '⚫', badges: ['付费','需翻墙'],
+    emoji: '⚫', badges: ['付费','直连常被CORS拦'],
     model: 'gpt-4o',
     fallbackModels: ['gpt-4o-mini','gpt-4.1-mini'],
     altModels: [
@@ -2443,7 +2445,7 @@ const PROVIDERS = {
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>⚫ OpenAI 官方（付费）</strong>
-注册：<a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>。<br>⚠️ 国内需翻墙；浏览器直连有 CORS，建议部署到 Cloudflare Pages 走同域代理，或改用 OpenRouter。<br><button onclick="fetchProviderModels('openai')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_openai" style="margin-top:6px;font-size:11px"></div>`
+注册：<a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>。<br>🚫 <strong>本页是直连版（没装代理）</strong>：OpenAI 官方接口不允许网页直连，会被浏览器跨域拦住。要用它就得补上 <code>functions/api/[[path]].js</code> 代理，或改用 OpenRouter（OpenRouter 允许浏览器直连，也能调 GPT 系列）。<br><button onclick="fetchProviderModels('openai')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_openai" style="margin-top:6px;font-size:11px"></div>`
   }
 };
 
@@ -2469,9 +2471,13 @@ if (!PROVIDERS[cfg.prov]) cfg.prov = 'zhipu';
    many 供应商浏览器直连会被 CORS 拦截。若本页部署在带 functions/api/[[path]].js
    的域名下，则把 provider.endpoint 改写为同源相对路径 /api/*，浏览器不再跨域。
    proxy 模式：auto=非本地文件且非 localhost 时启用；on=强制；off=永远直连。 */
+/* 本版本为「单文件直连版」：仓库里没有 functions/api/[[path]].js。
+   若你以后把代理文件传上去了，把下面这行改成 true（或在设置里选「强制开启」）即可。*/
+const HAS_PROXY_FUNCTIONS = false;
 function proxyAvailable(){
   if(cfg.proxy==='off')return false;
   if(cfg.proxy==='on')return true;
+  if(!HAS_PROXY_FUNCTIONS)return false;   // 没部署代理，auto 等同于直连
   // auto：file:// 或 localhost 下无 Functions，直连；否则默认启用（部署到 Pages 即生效）
   try{
     if(location.protocol==='file:')return false;
@@ -3089,7 +3095,9 @@ function updateProxyHint(){
   const p=PROVIDERS[cfg.prov]; const has=!!(p&&p.proxyPath);
   const active=proxyAvailable()&&has;
   let base='';
-  try{ base=(location.protocol==='file:')?'当前以本地文件(file://)打开——代理不可用，只能用国内直连服务或翻墙直连。':((location.hostname==='localhost'||location.hostname==='127.0.0.1')?'当前在 localhost——本地一般无 Functions，代理不可用。':'当前域名下若已部署 functions/api/[[path]].js，代理可用。'); }catch(_){}
+  base = HAS_PROXY_FUNCTIONS ? '当前域名下若已部署 functions/api/[[path]].js，代理可用。'
+       : '本页为<b>单文件直连版</b>（仓库里没有代理文件），所有请求由浏览器直接发给各厂商。';
+  if(!HAS_PROXY_FUNCTIONS && cfg.proxy==='on') base += '<b style="color:var(--bad)">你选了「强制开启」，但本站没有代理文件，请求会 404——请改回「自动」或「关闭」。</b>';
   const cur = has ? (active?('本服务此刻<b style="color:var(--ok)">走同域代理</b>（'+esc(p.proxyPath)+'）'):'本服务此刻<b>直连</b>') : '本服务为国内直连/无代理路由，始终直连';
   el.innerHTML = base+' '+cur+'。';
 }
@@ -3185,7 +3193,7 @@ async function testConnection(){
     let extra='';
     if(/Failed to fetch|网络错误|CORS|NetworkError|Load failed/i.test(m)){
       const hasProxy=!!(p&&p.proxyPath);
-      if(hasProxy&&!proxyAvailable()) extra='\n💡 这是浏览器跨域(CORS)拦截。本服务支持<同域代理>：请把上方「跨域代理」设为「强制开启」（需已把 functions/api/[[path]].js 部署到本站 Cloudflare Pages），或改用国内直连服务（智谱/混元）。';
+      if(hasProxy&&!proxyAvailable()) extra='\n💡 这是浏览器跨域(CORS)拦截——该服务不允许网页直接调用。本页是直连版，解决办法二选一：①改用能直连的服务（智谱 / OpenRouter）；②把 functions/api/[[path]].js 传到本站仓库，再把上方「跨域代理」设为「强制开启」。';
       else if(hasProxy&&proxyAvailable()) extra='\n💡 已在走同域代理仍失败：确认本站已部署 functions/api/[[path]].js，且该服务域名在代理白名单内；或改用国内直连服务。';
       else extra='\n💡 多为浏览器跨域(CORS)或需翻墙。可换国内直连服务（智谱），或在「自定义」里走 One-API/自建代理。';
     }
