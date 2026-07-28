@@ -550,7 +550,7 @@ select.set-key{font-family:var(--sans)}
     </div>
 
     <p style="font-size:11.5px;color:var(--ink3);text-align:center;line-height:1.7">
-      多家视觉大模型可选：国内直连（智谱 GLM-4V · 硅基 Qwen3-VL · 通义 Qwen-VL · Kimi · 阶跃 · 混元 · MiniMax）· 聚合/免费（OpenRouter · GitHub GPT-4o · NVIDIA NIM · Hugging Face · Together · Fireworks）· 官方（OpenAI · Claude · Gemini · Grok · Mistral）· 以及「自定义」（One-API / Ollama / LM Studio / vLLM 等，支持多种鉴权与额外请求头）。点右上角 ⚙ 选服务、填 API Key、测试连接。Key 只存在本机浏览器，不经任何中转。
+      可选服务已精简为 7 家：<b>Agnes</b>（agnes-2.0-flash）· <b>Google Gemini</b> · <b>智谱 GLM-4V</b> · <b>NVIDIA NIM</b> · <b>OpenRouter</b> · <b>OpenAI</b> · 以及「<b>自定义</b>」（One-API / Ollama / LM Studio / vLLM / 硅基流动 / 通义 / 豆包 等任意 OpenAI·Anthropic·Gemini 兼容服务，可一键预设）。点右上角 ⚙ 选服务、填 API Key、测试连接。Key 只存在本机浏览器，不经任何中转。
     </p>
   </div>
 
@@ -660,19 +660,26 @@ select.set-key{font-family:var(--sans)}
     <div class="set-head"><div class="set-title">⚙ AI 服务设置</div><button class="set-x" onclick="closeSet()">✕</button></div>
     <div class="set-body">
       <div class="set-tip">🔐 <b>自带 Key · 只存在本机浏览器</b>，不经任何中转服务器。识别手写表单必须用<b>视觉模型</b>，纯文本模型读不了图。<br>
-      🥇 <b>批量跑问卷推荐（国内直连、不用翻墙、不排队）</b>：智谱 <code>glm-4v-flash</code>、硅基流动 <code>Qwen3-VL-30B</code>、通义 <code>qwen-vl-max-latest</code>。<br>
-      ⚠️ <b>NVIDIA / OpenRouter / GitHub / Gemini 的免费池经常忙、限额、模型下架</b>，报「不存在 / 非常忙 / 超限」是常态，本页会自动换备选模型；实在不行请换上面三家。<br>
+      🥇 <b>批量跑问卷首选（国内直连、不用翻墙、不排队）</b>：智谱 <code>glm-4v-flash</code>——本页默认就是它。<br>
+      ⚠️ <b>NVIDIA / OpenRouter / Gemini 的免费池经常忙、限额、模型下架</b>，报「不存在 / 非常忙 / 超限」是常态，本页会自动换备选模型；实在不行请切回智谱。<br>
+      🧩 <b>想用硅基流动 / 通义 / 豆包 / Kimi 等已下架的服务？</b>选最后一个「自定义」，在「快速预设」里挑一个即可一键填好端点。<br>
       🔍 <b>不确定填什么模型？点下面的「自动挑选可用模型」</b>，它会拿测试图把候选模型实打一遍，选出此刻真的能用的。</div>
       <div class="set-tabs" id="setTabs"></div>
       <div class="set-row"><input class="set-key" id="setKey" type="password" placeholder="粘贴 API Key …" autocomplete="off"><button class="set-save" onclick="saveKey()">保存</button></div>
       <div id="setCustomBox" class="set-custom" style="display:none">
         <div class="set-crow"><label>快速预设</label><select id="setCustomPreset" onchange="applyCustomPreset()">
           <option value="">— 选择常见服务自动填端点 —</option>
+          <option value="agnes">Agnes AI（apihub.agnes-ai.com/v1）</option>
           <option value="ollama">本地 Ollama（http://localhost:11434/v1）</option>
           <option value="lmstudio">LM Studio（http://localhost:1234/v1）</option>
           <option value="vllm">vLLM / OpenAI 兼容自建（http://IP:8000/v1）</option>
           <option value="oneapi">One-API / New-API 网关</option>
           <option value="hf">Hugging Face Router（router.huggingface.co/v1）</option>
+          <option value="modelscope">魔搭 ModelScope（每天 2000 次免费）</option>
+          <option value="ppio">PPIO 派欧云（国内·送额度）</option>
+          <option value="infini">无问芯穹 Infini-AI（国内）</option>
+          <option value="ai302">302.AI 聚合网关</option>
+          <option value="xunfei">讯飞星火（spark-api-open）</option>
           <option value="baidu">百度千帆 · ERNIE-VL</option>
           <option value="doubao">火山方舟 · 豆包视觉（doubao-vision）</option>
           <option value="zhipu">智谱 GLM-4V（open.bigmodel.cn/api/paas/v4）</option>
@@ -706,11 +713,15 @@ select.set-key{font-family:var(--sans)}
       <div class="set-testrow">
         <button class="btn" id="setTestBtn" onclick="testConnection()" style="border:1px solid var(--accent2);color:var(--accent2);font-weight:700">🔗 测试连接</button>
         <button class="btn" id="setAutoBtn" onclick="autoPickModel()" style="border:1px solid var(--accent);color:var(--accent);font-weight:700;margin-left:6px">🔍 自动挑选可用模型</button>
+        <button class="btn" id="setHealthBtn" onclick="healthCheckAll()" style="border:1px solid var(--ink3);color:var(--ink2);font-weight:700;margin-left:6px">🩺 全部服务体检</button>
         <span class="set-testres" id="setTestRes"></span>
       </div>
+      <div id="setHealthBox" style="margin:0 0 8px"></div>
       <div style="font-size:11px;color:var(--ink3);margin:-4px 0 8px;line-height:1.5">
         「自动挑选」= 先拉取该服务<b>此刻真实存在</b>的模型，再用一张 128×128 测试图<b>逐个实打</b>，
-        谁能读出图里的数字就选谁并记住。免费模型天天下架/换代/排队，<b>别再手抄模型名</b>，让它自己找。
+        谁能读出图里的数字就选谁并记住。免费模型天天下架/换代/排队，<b>别再手抄模型名</b>，让它自己找。<br>
+        「<b>全部服务体检</b>」= 把上面所有<b>已填 Key</b> 的服务一次跑完，列出此刻哪几家真的能用、能用哪个模型，
+        测通的模型会<b>自动记住并加进下拉框</b>（刷新后仍在）。
       </div>
       <div class="set-crow" style="margin:6px 0">
         <label style="flex:0 0 auto">空白页</label>
@@ -2272,6 +2283,28 @@ const SYS_BY={};SYSTEMS.forEach(s=>{SYS_BY[s.id]=s; s.fields.forEach(f=>{if(f.pa
    callWithRetry）—— 与原系统完全一致的稳定调用栈与错误处理。
 ════════════════════════════════════════════════════════════════ */
 const PROVIDERS = {
+  /* ═══ 供应商清单已按要求精简为 7 家：Agnes / Gemini / 智谱 / NVIDIA /
+     OpenRouter / OpenAI / 自定义。被删掉的国内外服务仍可在「自定义 →
+     快速预设」里一键填端点继续用。═══ */
+  agnes: {
+    name: 'Agnes', fullName: 'Agnes AI · apihub（OpenAI 兼容）',
+    emoji: '🅰️', badges: ['OpenAI兼容','自备Key'],
+    model: 'agnes-2.0-flash',
+    fallbackModels: [],
+    altModels: [
+      { id: 'agnes-2.0-flash', tag: '✅', desc: '默认 · agnes-2.0-flash' }
+    ],
+    endpoint: 'https://apihub.agnes-ai.com/v1/chat/completions',
+    proxyPath: '/api/agnes/v1/chat/completions',
+    placeholder: 'sk-xxxxxxxxxxxxxxxx',
+    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
+    guide: `<strong>🅰️ Agnes AI · agnes-2.0-flash（OpenAI 兼容）</strong>
+请求地址 <code>https://apihub.agnes-ai.com/v1</code> · 接口格式 OpenAI chat completions · 模型 <code>agnes-2.0-flash</code>。<br>
+把在 Agnes 申请到的密钥粘进上面的输入框 → 「保存」→ 点「🔗 测试连接」，能读出测试图里的两位数才算真的能识别表单。<br>
+⚠️ <strong>历史实测提醒</strong>：本工具早前接入过 <code>agnes-2.0-flash</code>，跑表单图片时经常<strong>只输出思考过程、不给结果</strong>（token 全烧在思考上）。若测试连接读不出数字，说明它此刻仍不适合做表单识别，请改用「智谱 GLM-4V-Flash」。<br>
+<button onclick="fetchProviderModels('agnes')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
+<div id="providerFetchResult_agnes" style="margin-top:6px;font-size:11px"></div>`
+  },
   zhipu: {
     name: '智谱AI', fullName: '智谱 GLM-4V-Flash',
     emoji: '🤖', badges: ['完全免费','推荐'],
@@ -2296,9 +2329,6 @@ const PROVIDERS = {
 <div id="providerFetchResult_zhipu" style="margin-top:6px;font-size:11px"></div>
 <a href="https://docs.bigmodel.cn/cn/guide/models/free/glm-4.6v-flash" target="_blank">📖 官方文档</a>`
   },
-  /* Agnes AI 已移除：实测 agnes-2.0-flash 对表单图片无法输出结果（token 全烧在思考上），
-     不是 OCR 视觉模型，留着只会浪费识别次数。需要时可在「自定义」里手填端点。*/
-  /* 通义/豆包/混元/百度 4 个国内服务已移到「自定义供应商 → 快速预设」中。 */
   gemini: {
     name: 'Gemini', fullName: 'Google Gemini',
     emoji: '✨', badges: ['免费','需翻墙'],
@@ -2320,57 +2350,6 @@ const PROVIDERS = {
 ⚠️ <strong>API 域名 generativelanguage.googleapis.com 对中国大陆 IP 严格封禁（403）</strong>，AI Studio 网页能用 ≠ API 能用。<br>
 👉 大陆用户改用「<strong>OpenRouter</strong>」走 Cloudflare 中转。<br>
 <a href="https://ai.google.dev/gemini-api/docs/rate-limits" target="_blank">📖 官方文档</a>`
-  },
-  groq: {
-    name: 'Groq', fullName: 'Groq · 极速推理',
-    emoji: '⚡', badges: ['免费','极速','需翻墙/中转'],
-    model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-    fallbackModels: [],
-    altModels: [
-      { id: 'meta-llama/llama-4-scout-17b-16e-instruct',     tag: '✅', desc: '默认 · Llama 4 Scout 17B/16E · 当前 Groq 唯一视觉模型 · 460+ t/s' }
-    ],
-    endpoint: 'https://api.groq.com/openai/v1/chat/completions',
-    proxyPath: '/api/groq/openai/v1/chat/completions',
-    placeholder: 'gsk_xxxxxxxxxxxxxxxx',
-    rateLimit: 6000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>⚡ Groq · 全球最快推理（免费）</strong>
-注册：<a href="https://console.groq.com" target="_blank">console.groq.com</a> → Google/GitHub 登录 → API Keys → 创建<br>
-<strong>视觉模型</strong>：Groq 目前<strong>仅 <code>llama-4-scout</code> 支持视觉</strong>（Maverick 已于 2026/02 下架，GPT-OSS 等文本模型不能识别图片）。<br>
-免费版限 1000次/天，<strong>无需信用卡</strong>。<br>
-⚠️ <strong>国内需翻墙</strong>。若本站部署在 Cloudflare Pages（含 functions/api/[[path]].js），CORS 会<strong>自动经同域 <code>/api/groq</code> 代理绕过</strong>；否则请在设置里把「跨域代理」设为强制开启或改用国内直连服务。<br>
-<button onclick="fetchProviderModels('groq')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
-<div id="providerFetchResult_groq" style="margin-top:6px;font-size:11px"></div>
-<a href="https://console.groq.com/docs/models" target="_blank">📖 模型列表</a> · <a href="https://console.groq.com/docs/vision" target="_blank">📖 视觉文档</a>`
-  },
-  github: {
-    name: 'GitHub', fullName: 'GitHub Models',
-    emoji: '🐙', badges: ['免费GPT-4o','需翻墙/中转'],
-    model: 'openai/gpt-4o',
-    fallbackModels: ['openai/gpt-4o-mini', 'openai/gpt-4.1-mini'],
-    altModels: [
-      { id: 'openai/gpt-4o',                            tag: '✅', desc: '默认 · GPT-4o · OCR 最强' },
-      { id: 'openai/gpt-4.1',                           tag: '💎', desc: 'GPT-4.1 · 更强（限额更少）' },
-      { id: 'openai/gpt-4.1-mini',                      tag: '⚡', desc: 'GPT-4.1 Mini · 性价比' },
-      { id: 'openai/gpt-4o-mini',                       tag: '⚡', desc: 'GPT-4o Mini · 更快' },
-      { id: 'meta/Llama-4-Scout-17B-16E-Instruct',      tag: '☑️', desc: 'Llama 4 Scout · 109B' },
-      { id: 'meta/Llama-4-Maverick-17B-128E-Instruct',  tag: '☑️', desc: 'Llama 4 Maverick · 400B 旗舰' },
-      { id: 'meta/Llama-3.2-90B-Vision-Instruct',       tag: '☑️', desc: 'Llama 3.2 90B Vision' },
-      { id: 'meta/Llama-3.2-11B-Vision-Instruct',       tag: '⚡', desc: 'Llama 3.2 11B Vision' },
-      { id: 'microsoft/Phi-4-multimodal-instruct',      tag: '☑️', desc: 'Phi-4 多模态 · 视觉+音频' },
-      { id: 'microsoft/Phi-3.5-vision-instruct',        tag: '⚡', desc: 'Phi-3.5 Vision · 轻量' }
-    ],
-    endpoint: 'https://models.github.ai/inference/chat/completions',
-    proxyPath: '/api/github/chat/completions',
-    placeholder: 'github_pat_xxxxxxxx',
-    rateLimit: 8000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🐙 GitHub Models · 免费 GPT-4o 视觉</strong>
-前往：<a href="https://github.com/marketplace/models" target="_blank">github.com/marketplace/models</a><br>
-使用 GitHub Personal Access Token（PAT）认证 → Settings → Developer settings → Personal access tokens → Generate<br>
-高级模型（GPT-4o）限 <strong>10次/分, 50次/天</strong>，低级模型 150次/天。<br>
-⚠️ <strong>国内需翻墙</strong>。部署到 Cloudflare Pages 后 CORS 会<strong>自动经同域 <code>/api/github</code> 代理绕过</strong>。GPT-4o 的 OCR 识别质量非常高。<br>
-<button onclick="fetchProviderModels('github')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
-<div id="providerFetchResult_github" style="margin-top:6px;font-size:11px"></div>
-<a href="https://docs.github.com/en/github-models" target="_blank">📖 官方文档</a>`
   },
   nvidia: {
     name: 'NVIDIA', fullName: 'NVIDIA NIM · 100+ 模型',
@@ -2447,142 +2426,6 @@ const PROVIDERS = {
 <div id="orFetchResult" style="margin-top:6px;font-size:11px"></div>
 <a href="https://openrouter.ai/models?max_price=0&modality=text%2Bimage-%3Etext" target="_blank">📖 在线查看免费视觉模型</a>`
   },
-  siliconcloud: {
-    name: '硅基流动', fullName: 'SiliconCloud',
-    emoji: '🔮', badges: ['完全免费','国内'],
-    model: 'Qwen/Qwen3-VL-30B-A3B-Instruct',
-    fallbackModels: [
-      'Qwen/Qwen3-VL-8B-Instruct',
-      'Qwen/Qwen2.5-VL-32B-Instruct',
-      'Pro/Qwen/Qwen2.5-VL-7B-Instruct',
-      'Qwen/Qwen3-VL-235B-A22B-Instruct'
-    ],
-    altModels: [
-      { id: 'Qwen/Qwen3-VL-30B-A3B-Instruct',  tag: '✅', desc: '默认 · Qwen3-VL 30B · 免费视觉 · 256K · 国内快' },
-      { id: 'Qwen/Qwen3-VL-8B-Instruct',         tag: '⚡', desc: 'Qwen3-VL 8B · 最快 · 表单够用' },
-      { id: 'Qwen/Qwen2.5-VL-32B-Instruct',      tag: '☑️', desc: 'Qwen2.5-VL 32B · 上一代 · 稳' },
-      { id: 'Pro/Qwen/Qwen2.5-VL-7B-Instruct',   tag: '⚡', desc: 'Qwen2.5-VL 7B Pro · 注意带 Pro/ 前缀' },
-      { id: 'Qwen/Qwen3-VL-235B-A22B-Instruct',   tag: '💎', desc: 'Qwen3-VL 235B · 旗舰大参数 · 慢' },
-      { id: 'Qwen/Qwen3-VL-30B-A3B-Thinking',   tag: '⛔', desc: '思考模式 · 不建议：token 常全烧在思考上、不出结果' }
-    ],
-    endpoint: 'https://api.siliconflow.cn/v1/chat/completions',
-    proxyPath: '/api/siliconflow/v1/chat/completions',
-    noThinkBody: { enable_thinking: false },
-    placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🔮 硅基流动 SiliconCloud · 完全免费</strong>
-注册：<a href="https://cloud.siliconflow.cn" target="_blank">cloud.siliconflow.cn</a> → 注册 → 「API 密钥」→ 创建<br>
-推荐 <strong>Qwen3-VL-30B</strong>（最新免费视觉模型），<strong>国内直连、速度快</strong>。<br>
-⚠️ <strong>注意</strong>：模型名称必须与平台完全一致（含大小写和前缀），可在 <a href="https://cloud.siliconflow.cn/models" target="_blank">模型广场</a> 搜索确认。<br>
-<button onclick="fetchProviderModels('siliconcloud')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button>
-<div id="providerFetchResult_siliconcloud" style="margin-top:6px;font-size:11px"></div>
-<a href="https://docs.siliconflow.cn/cn/userguide/capabilities/vision" target="_blank">📖 官方文档</a>`
-  },
-  dashscope: {
-    name: '通义千问', fullName: '阿里百炼 · Qwen-VL',
-    emoji: '🟠', badges: ['国内直连','视觉强'],
-    model: 'qwen-vl-max-latest',
-    fallbackModels: ['qwen-vl-plus-latest','qwen2.5-vl-72b-instruct','qwen-vl-max'],
-    altModels: [
-      { id: 'qwen-vl-max-latest',        tag: '✅', desc: '默认 · Qwen-VL-Max 最新 · OCR/手写强' },
-      { id: 'qwen-vl-plus-latest',       tag: '⚡', desc: 'Qwen-VL-Plus · 更快更省' },
-      { id: 'qwen3-vl-plus',             tag: '💎', desc: 'Qwen3-VL-Plus · 新一代视觉' },
-      { id: 'qwen2.5-vl-72b-instruct',   tag: '💎', desc: 'Qwen2.5-VL 72B · 开源旗舰' },
-      { id: 'qwen2.5-vl-32b-instruct',   tag: '☑️', desc: 'Qwen2.5-VL 32B' },
-      { id: 'qwen2.5-vl-7b-instruct',    tag: '⚡', desc: 'Qwen2.5-VL 7B · 最快' }
-    ],
-    endpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
-    proxyPath: '/api/dashscope/compatible-mode/v1/chat/completions',
-    noThinkBody: { enable_thinking: false },
-    placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🟠 阿里云百炼 · 通义千问 Qwen-VL（OpenAI 兼容）</strong>
-注册：<a href="https://bailian.console.aliyun.com" target="_blank">bailian.console.aliyun.com</a> → 开通 → 「API-KEY」→ 创建（<code>sk-</code> 开头）<br>
-新用户各模型均有免费额度；<strong>OCR / 手写识别是国产最强梯队之一</strong>，国内直连快。<br>
-⚠️ 浏览器直连可能遇 CORS，如失败请用「自定义」填百炼端点或走同域代理。<br><button onclick="fetchProviderModels('dashscope')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_dashscope" style="margin-top:6px;font-size:11px"></div>`
-  },
-  moonshot: {
-    name: 'Kimi', fullName: '月之暗面 · Kimi 视觉',
-    emoji: '🌙', badges: ['国内直连'],
-    model: 'moonshot-v1-8k-vision-preview',
-    fallbackModels: ['moonshot-v1-32k-vision-preview','kimi-latest'],
-    altModels: [
-      { id: 'moonshot-v1-8k-vision-preview',  tag: '✅', desc: '默认 · Kimi 视觉 8K' },
-      { id: 'moonshot-v1-32k-vision-preview', tag: '☑️', desc: 'Kimi 视觉 32K · 更长上下文' },
-      { id: 'kimi-latest',                    tag: '💎', desc: 'Kimi 最新（自动含视觉）' }
-    ],
-    endpoint: 'https://api.moonshot.cn/v1/chat/completions',
-    proxyPath: '/api/moonshot/v1/chat/completions',
-    placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🌙 Moonshot Kimi · 视觉（OpenAI 兼容）</strong>
-注册：<a href="https://platform.moonshot.cn" target="_blank">platform.moonshot.cn</a> → 「API Key 管理」→ 新建。国内直连。<br><button onclick="fetchProviderModels('moonshot')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_moonshot" style="margin-top:6px;font-size:11px"></div>`
-  },
-  stepfun: {
-    name: '阶跃星辰', fullName: 'StepFun · Step-1V',
-    emoji: '🪜', badges: ['国内直连','视觉'],
-    model: 'step-1v-8k',
-    fallbackModels: ['step-1o-turbo-vision','step-1v-32k'],
-    altModels: [
-      { id: 'step-1v-8k',            tag: '✅', desc: '默认 · Step-1V 视觉 8K' },
-      { id: 'step-1v-32k',           tag: '☑️', desc: 'Step-1V 视觉 32K' },
-      { id: 'step-1o-turbo-vision',  tag: '💎', desc: 'Step-1o Turbo 视觉 · 更强' }
-    ],
-    endpoint: 'https://api.stepfun.com/v1/chat/completions',
-    proxyPath: '/api/stepfun/v1/chat/completions',
-    placeholder: 'xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🪜 阶跃星辰 StepFun（OpenAI 兼容）</strong>
-注册：<a href="https://platform.stepfun.com" target="_blank">platform.stepfun.com</a> → 「接口密钥」→ 创建。Step-1V 视觉能力强，国内直连。<br><button onclick="fetchProviderModels('stepfun')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_stepfun" style="margin-top:6px;font-size:11px"></div>`
-  },
-  hunyuan: {
-    name: '腾讯混元', fullName: '腾讯混元 · Vision',
-    emoji: '🐧', badges: ['国内直连'],
-    model: 'hunyuan-vision',
-    fallbackModels: ['hunyuan-turbo-vision','hunyuan-large-vision'],
-    altModels: [
-      { id: 'hunyuan-vision',        tag: '✅', desc: '默认 · 混元视觉' },
-      { id: 'hunyuan-turbo-vision',  tag: '⚡', desc: '混元 Turbo 视觉 · 更快' },
-      { id: 'hunyuan-large-vision',  tag: '💎', desc: '混元 Large 视觉 · 更强' }
-    ],
-    endpoint: 'https://api.hunyuan.cloud.tencent.com/v1/chat/completions',
-    noThinkBody: { enable_thinking: false },
-    proxyPath: '/api/hunyuan/v1/chat/completions',
-    placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🐧 腾讯混元 Vision（OpenAI 兼容）</strong>
-注册：<a href="https://console.cloud.tencent.com/hunyuan" target="_blank">腾讯云混元控制台</a> → 开通 → API Key。国内直连。<br><button onclick="fetchProviderModels('hunyuan')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_hunyuan" style="margin-top:6px;font-size:11px"></div>`
-  },
-  minimax: {
-    name: 'MiniMax', fullName: 'MiniMax · abab 视觉',
-    emoji: '🟦', badges: ['国内直连'],
-    model: 'MiniMax-VL-01',
-    fallbackModels: ['abab6.5s-chat'],
-    altModels: [
-      { id: 'MiniMax-VL-01', tag: '✅', desc: '默认 · MiniMax 视觉 01' }
-    ],
-    endpoint: 'https://api.minimax.chat/v1/text/chatcompletion_v2',
-    proxyPath: '/api/minimax/v1/text/chatcompletion_v2',
-    placeholder: 'eyJ… (JWT)',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🟦 MiniMax（OpenAI 兼容 v2）</strong>
-注册：<a href="https://platform.minimaxi.com" target="_blank">platform.minimaxi.com</a> → 「接口密钥」。国内直连。<br><button onclick="fetchProviderModels('minimax')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_minimax" style="margin-top:6px;font-size:11px"></div>`
-  },
-  deepseek: {
-    name: 'DeepSeek', fullName: 'DeepSeek · VL2',
-    emoji: '🐳', badges: ['国内直连'],
-    model: 'deepseek-vl2',
-    fallbackModels: [],
-    altModels: [
-      { id: 'deepseek-vl2', tag: '✅', desc: 'DeepSeek-VL2（若开通视觉端点）' }
-    ],
-    endpoint: 'https://api.deepseek.com/v1/chat/completions',
-    proxyPath: '/api/deepseek/v1/chat/completions',
-    placeholder: 'sk-xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🐳 DeepSeek（OpenAI 兼容）</strong>
-注册：<a href="https://platform.deepseek.com" target="_blank">platform.deepseek.com</a>。<br>⚠️ DeepSeek 主力为文本模型；如无视觉端点，请改用 Qwen-VL / GLM-4V 等视觉模型。`
-  },
   openai: {
     name: 'OpenAI', fullName: 'OpenAI 官方',
     emoji: '⚫', badges: ['付费','需翻墙'],
@@ -2600,111 +2443,7 @@ const PROVIDERS = {
     placeholder: 'sk-xxxxxxxxxxxxxxxx',
     rateLimit: 3000, maxTokens: 8192, imageFirst: false,
     guide: `<strong>⚫ OpenAI 官方（付费）</strong>
-注册：<a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>。<br>⚠️ 国内需翻墙；浏览器直连有 CORS，建议自建代理或用 OpenRouter/GitHub Models。<br><button onclick="fetchProviderModels('openai')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_openai" style="margin-top:6px;font-size:11px"></div>`
-  },
-  anthropic: {
-    name: 'Claude', fullName: 'Anthropic Claude',
-    emoji: '🅰️', badges: ['付费','需翻墙'],
-    apiType: 'anthropic',
-    model: 'claude-sonnet-4-6',
-    fallbackModels: ['claude-3-5-sonnet-latest'],
-    altModels: [
-      { id: 'claude-sonnet-4-6',        tag: '✅', desc: '默认 · Claude Sonnet · OCR 强' },
-      { id: 'claude-opus-4-1',          tag: '💎', desc: 'Claude Opus · 最强' },
-      { id: 'claude-3-5-sonnet-latest', tag: '☑️', desc: 'Claude 3.5 Sonnet' },
-      { id: 'claude-3-5-haiku-latest',  tag: '⚡', desc: 'Claude 3.5 Haiku · 快' }
-    ],
-    endpoint: 'https://api.anthropic.com/v1/messages',
-    proxyPath: '/api/anthropic/v1/messages',
-    placeholder: 'sk-ant-xxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192,
-    guide: `<strong>🅰️ Anthropic Claude 官方（付费）</strong>
-注册：<a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys。<br>⚠️ 浏览器直连需开启 <code>anthropic-dangerous-direct-browser-access</code>（本工具已自动带上），国内需翻墙。`
-  },
-  xai: {
-    name: 'xAI Grok', fullName: 'xAI · Grok Vision',
-    emoji: '✖️', badges: ['付费','需翻墙'],
-    model: 'grok-2-vision-1212',
-    fallbackModels: ['grok-4'],
-    altModels: [
-      { id: 'grok-2-vision-1212', tag: '✅', desc: '默认 · Grok-2 Vision' },
-      { id: 'grok-4',             tag: '💎', desc: 'Grok-4（多模态）' }
-    ],
-    endpoint: 'https://api.x.ai/v1/chat/completions',
-    proxyPath: '/api/xai/v1/chat/completions',
-    placeholder: 'xai-xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>✖️ xAI Grok Vision（OpenAI 兼容）</strong>
-注册：<a href="https://console.x.ai" target="_blank">console.x.ai</a>。国内需翻墙。<br><button onclick="fetchProviderModels('xai')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_xai" style="margin-top:6px;font-size:11px"></div>`
-  },
-  mistral: {
-    name: 'Mistral', fullName: 'Mistral · Pixtral',
-    emoji: '🔶', badges: ['免费额度','需翻墙'],
-    model: 'pixtral-12b-2409',
-    fallbackModels: ['pixtral-large-latest'],
-    altModels: [
-      { id: 'pixtral-12b-2409',     tag: '✅', desc: '默认 · Pixtral 12B' },
-      { id: 'pixtral-large-latest', tag: '💎', desc: 'Pixtral Large · 124B 旗舰' },
-      { id: 'mistral-small-latest', tag: '⚡', desc: 'Mistral Small（含视觉）' }
-    ],
-    endpoint: 'https://api.mistral.ai/v1/chat/completions',
-    proxyPath: '/api/mistral/v1/chat/completions',
-    placeholder: 'xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🔶 Mistral Pixtral（OpenAI 兼容）</strong>
-注册：<a href="https://console.mistral.ai" target="_blank">console.mistral.ai</a> → API Keys（有免费额度）。国内需翻墙。<br><button onclick="fetchProviderModels('mistral')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_mistral" style="margin-top:6px;font-size:11px"></div>`
-  },
-  together: {
-    name: 'Together', fullName: 'Together AI',
-    emoji: '🤝', badges: ['需翻墙'],
-    model: 'meta-llama/Llama-4-Scout-17B-16E-Instruct',
-    fallbackModels: ['Qwen/Qwen2.5-VL-72B-Instruct'],
-    altModels: [
-      { id: 'meta-llama/Llama-4-Scout-17B-16E-Instruct', tag: '✅', desc: '默认 · Llama 4 Scout 视觉' },
-      { id: 'Qwen/Qwen2.5-VL-72B-Instruct',              tag: '💎', desc: 'Qwen2.5-VL 72B' }
-    ],
-    endpoint: 'https://api.together.xyz/v1/chat/completions',
-    proxyPath: '/api/together/v1/chat/completions',
-    placeholder: 'xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🤝 Together AI（OpenAI 兼容）</strong>
-注册：<a href="https://api.together.ai" target="_blank">api.together.ai</a>（新用户赠额度）。国内需翻墙。<br><button onclick="fetchProviderModels('together')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_together" style="margin-top:6px;font-size:11px"></div>`
-  },
-  fireworks: {
-    name: 'Fireworks', fullName: 'Fireworks AI',
-    emoji: '🎆', badges: ['需翻墙'],
-    model: 'accounts/fireworks/models/qwen2-vl-72b-instruct',
-    fallbackModels: ['accounts/fireworks/models/llama-v3p2-90b-vision-instruct'],
-    altModels: [
-      { id: 'accounts/fireworks/models/qwen2-vl-72b-instruct',            tag: '✅', desc: '默认 · Qwen2-VL 72B' },
-      { id: 'accounts/fireworks/models/llama-v3p2-90b-vision-instruct',   tag: '💎', desc: 'Llama 3.2 90B Vision' }
-    ],
-    endpoint: 'https://api.fireworks.ai/inference/v1/chat/completions',
-    proxyPath: '/api/fireworks/inference/v1/chat/completions',
-    placeholder: 'fw_xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🎆 Fireworks AI（OpenAI 兼容）</strong>
-注册：<a href="https://fireworks.ai" target="_blank">fireworks.ai</a>（赠额度）。国内需翻墙。<br><button onclick="fetchProviderModels('fireworks')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_fireworks" style="margin-top:6px;font-size:11px"></div>`
-  },
-  huggingface: {
-    name: 'HuggingFace', fullName: 'HF Router · 多家推理',
-    emoji: '🤗', badges: ['免费额度','需翻墙'],
-    model: 'Qwen/Qwen2.5-VL-72B-Instruct',
-    fallbackModels: ['meta-llama/Llama-3.2-11B-Vision-Instruct','google/gemma-3-27b-it'],
-    altModels: [
-      { id: 'Qwen/Qwen2.5-VL-72B-Instruct',                tag: '✅', desc: '默认 · Qwen2.5-VL 72B（HF Router）' },
-      { id: 'Qwen/Qwen2.5-VL-7B-Instruct',                 tag: '⚡', desc: 'Qwen2.5-VL 7B · 快' },
-      { id: 'meta-llama/Llama-3.2-11B-Vision-Instruct',    tag: '☑️', desc: 'Llama 3.2 11B Vision' },
-      { id: 'google/gemma-3-27b-it',                       tag: '☑️', desc: 'Gemma 3 27B' },
-      { id: 'zai-org/GLM-4.5V',                            tag: '💎', desc: 'GLM-4.5V（HF）' }
-    ],
-    endpoint: 'https://router.huggingface.co/v1/chat/completions',
-    proxyPath: '/api/hf/v1/chat/completions',
-    placeholder: 'hf_xxxxxxxxxxxxxxxx',
-    rateLimit: 3000, maxTokens: 8192, imageFirst: false,
-    guide: `<strong>🤗 Hugging Face Router（OpenAI 兼容）</strong>
-注册：<a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a> → 新建 <code>hf_</code> Token（勾选 Inference 权限）。<br>
-统一端点 <code>router.huggingface.co/v1</code> 自动路由到 Together/Novita/Fireworks 等提供方；模型 ID 用 HF 仓库名（如 <code>Qwen/Qwen2.5-VL-72B-Instruct</code>，可加 <code>:provider</code> 后缀指定提供方）。有免费额度，国内需翻墙。<br><button onclick="fetchProviderModels('huggingface')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_huggingface" style="margin-top:6px;font-size:11px"></div>`
+注册：<a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>。<br>⚠️ 国内需翻墙；浏览器直连有 CORS，建议部署到 Cloudflare Pages 走同域代理，或改用 OpenRouter。<br><button onclick="fetchProviderModels('openai')" class="hbtn hbtn-gray" style="margin-top:6px;height:28px;font-size:11px">🔄 获取最新模型列表（需Key）</button><div id="providerFetchResult_openai" style="margin-top:6px;font-size:11px"></div>`
   }
 };
 
@@ -2746,10 +2485,25 @@ function resolveEndpoint(provider, rawUrl){
   if(!provider||!provider.proxyPath)return rawUrl;
   if(!proxyAvailable())return rawUrl;
   try{
-    const u=new URL(rawUrl);
+    const u  = new URL(rawUrl, provider.endpoint||location.origin);
+    const ep = new URL(provider.endpoint||rawUrl);
+    // proxyPath 与真实端点路径的公共后缀 = 两边一致的那截；
+    // 前面剩下的分别是「同域前缀(/api/xxx)」和「代理已内置的 base(如 /inference)」。
+    // 按这个对应关系换算，/models、/v1beta/models/x:generateContent 等非 chat 路径
+    // 也能正确代理。（旧版把任何 URL 都拍成 chat/completions，
+    //   导致「获取最新模型列表」走代理时永远 404/405。）
+    if(u.host===ep.host){
+      const a=provider.proxyPath, b=ep.pathname;
+      let i=0; while(i<a.length && i<b.length && a[a.length-1-i]===b[b.length-1-i]) i++;
+      while(i>0 && a[a.length-i]!=='/') i--;          // 对齐到 / 边界
+      const prefix   = a.slice(0, a.length-i);        // 如 /api/github
+      const routeBase= b.slice(0, b.length-i);        // 如 /inference（代理 base 已含）
+      if(i>0 && u.pathname.indexOf(routeBase)===0){
+        return location.origin + prefix + u.pathname.slice(routeBase.length) + (u.search||'');
+      }
+    }
     return location.origin + provider.proxyPath + (u.search||'');
   }catch(_){
-    // rawUrl 可能已是相对路径
     return provider.proxyPath;
   }
 }
@@ -2997,7 +2751,7 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel, _dro
     if (e.name === 'AbortError') {
       throw new Error(`模型「${useModel}」请求超时（90秒无响应）。\n💡 常见原因：该模型正忙/排队（NVIDIA、OpenRouter 免费池尤其常见）、开了思考模式、网络不稳。\n建议：换更快的模型（glm-4v-flash、Qwen3-VL-8B），或用「🔍 自动挑选可用模型」。`);
     }
-    throw new Error(`网络错误：无法连接 ${provider.fullName}\n请检查网络或换个服务\n💡 部分 API（如腾讯混元）可能存在浏览器 CORS 限制，建议改用智谱AI或硅基流动`);
+    throw new Error(`网络错误：无法连接 ${provider.fullName}\n请检查网络或换个服务\n💡 浏览器跨域(CORS)限制常见于境外服务，建议改用「智谱AI」，或在「自定义」里走自建/国内网关`);
   }
   if (!res.ok) {
     let er = {}; let raw = '';
@@ -3012,7 +2766,7 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel, _dro
       else if (/region|区域|地域/i.test(m)) hint = '\n💡 提示：区域限制，请检查 API Key 对应的服务区域';
       throw new Error(`访问被拒绝（403 ${code}）：${m}${hint}`);
     }
-    if (res.status===429) throw new Error(`频率/额度超限（429）：${m||''}\n💡 该模型此刻限流或今日额度用完了，系统会自动换备选模型；都不行就换服务（智谱/硅基/通义 国内直连）。`);
+    if (res.status===429) throw new Error(`频率/额度超限（429）：${m||''}\n💡 该模型此刻限流或今日额度用完了，系统会自动换备选模型；都不行就换服务（智谱 国内直连最稳）。`);
     if (res.status===503||res.status===502||res.status===504) throw new Error(`模型「${useModel}」服务繁忙/排队中（HTTP ${res.status}）：${m||''}\n💡 NVIDIA NIM 等免费共享池高峰期经常如此，系统会自动换备选模型。`);
     if (res.status===413) throw new Error('图片过大（413），请降低渲染质量');
     if (res.status===404) throw new Error(`模型「${useModel}」不存在（404）。可能已下架，请在设置中切换其他模型`);
@@ -3059,7 +2813,50 @@ async function callOpenAICompat(provider, key, b64, mime, prompt, useModel, _dro
   return t;
 }
 
-/* 在线拉取模型（精简版未内置，给出提示）*/
+/* ══════════ 在线模型列表：统一地址推导 + 鉴权 + 本机缓存合并 ══════════
+   免费模型天天下架换代，写死在代码里的清单必然过期。这里把「实际拉到的模型」
+   缓存到 localStorage 并合并进下拉框，页面刷新后仍在，不用再手抄模型名。 */
+let MODEL_CACHE = {};
+try{ MODEL_CACHE = JSON.parse(localStorage.getItem('phck_modelcache')||'{}')||{}; }catch(_){ MODEL_CACHE={}; }
+function saveModelCache(){ try{ localStorage.setItem('phck_modelcache', JSON.stringify(MODEL_CACHE)); }catch(_){ } }
+
+function modelsUrlFor(provId){
+  const p=PROVIDERS[provId];
+  if(p.modelsUrl) return proxyAvailable()&&p.modelsProxyPath ? (location.origin+p.modelsProxyPath) : p.modelsUrl;
+  let base=(provId==='custom')?(PROVIDERS.custom.endpoint||''):(p.endpoint||'');
+  let u=base.replace(/\/(chat\/completions|messages|completions).*$/,'/models').replace(/\/models\/.*/,'/models');
+  if(!/\/models$/.test(u)) u=base.replace(/\/[^/]*$/,'')+'/models';
+  return resolveEndpoint(p, u);
+}
+function modelsHeadersFor(provId, key){
+  const p=PROVIDERS[provId]; const h={};
+  if(!key) return h;
+  const t=(provId==='custom')?(p.authStyle||'bearer'):(p.apiType==='anthropic'?'xapikey':'bearer');
+  if(t==='xapikey'){ h['x-api-key']=key; h['anthropic-version']='2023-06-01'; }
+  else if(t==='bearer'){ h['Authorization']='Bearer '+key; }
+  return h;
+}
+function keyOf(provId){ const p=PROVIDERS[provId]; return (p&&p.useOpenRouterKey)?(cfg.keys.openrouter||''):(cfg.keys[provId]||''); }
+
+/* 把拉到 / 实测过的模型合并进该供应商的下拉框（不覆盖内置项，只做补充） */
+function mergeModels(provId, ids, verified){
+  const p=PROVIDERS[provId]; if(!p) return;
+  const c=MODEL_CACHE[provId]||(MODEL_CACHE[provId]={ids:[],ok:[],ts:0});
+  (ids||[]).forEach(id=>{ if(id && c.ids.indexOf(id)<0) c.ids.push(id); });
+  if(verified && c.ok.indexOf(verified)<0) c.ok.push(verified);
+  c.ids=c.ids.slice(0,200); c.ts=Date.now(); saveModelCache();
+  applyModelCacheTo(provId);
+}
+function applyModelCacheTo(provId){
+  const p=PROVIDERS[provId], c=MODEL_CACHE[provId]; if(!p||!c) return;
+  const have={}; (p.altModels||[]).forEach(m=>have[m.id]=m);
+  (c.ok||[]).forEach(id=>{ if(have[id]){ if(!/实测/.test(have[id].desc||'')) have[id].desc=(have[id].desc||'')+' · ✔实测可用'; }
+    else { const m={id:id,tag:'✔',desc:'实测可用（本机记录）'}; p.altModels=p.altModels||[]; p.altModels.unshift(m); have[id]=m; } });
+  const extra=(c.ids||[]).filter(id=>!have[id] && VIS_RE.test(id) && !BAD_RE.test(id)).slice(0,25);
+  extra.forEach(id=>{ p.altModels=p.altModels||[]; p.altModels.push({id:id,tag:'🌐',desc:'该服务在线列表中的视觉模型'}); have[id]=1; });
+}
+function applyModelCacheAll(){ Object.keys(MODEL_CACHE).forEach(applyModelCacheTo); }
+
 /* 在线拉取模型列表（OpenAI 兼容 /models；OpenRouter 专用过滤免费视觉） */
 async function fetchProviderModels(provId){
   provId=provId||cfg.prov;
@@ -3067,13 +2864,10 @@ async function fetchProviderModels(provId){
   const box=$('providerFetchResult_'+provId);
   const key=(provId==='custom')?getEffectiveKey():(p.useOpenRouterKey?cfg.keys.openrouter:cfg.keys[provId]);
   if(box)box.innerHTML='⏳ 拉取中…';
-  // 由端点推出 /models 地址
-  let base=(provId==='custom')?(PROVIDERS.custom.endpoint||''):(p.endpoint||'');
-  let modelsUrl=base.replace(/\/(chat\/completions|messages|completions).*$/,'/models').replace(/\/models\/.*/,'/models');
-  if(!/\/models$/.test(modelsUrl))modelsUrl=base.replace(/\/[^/]*$/,'')+'/models';
-  modelsUrl=resolveEndpoint(p, modelsUrl);   // 有代理则走同源，避免 CORS
+  let modelsUrl=modelsUrlFor(provId);   // 有代理则走同源，避免 CORS
+  if(p.apiType==='gemini'&&key) modelsUrl+=(modelsUrl.includes('?')?'&':'?')+'key='+encodeURIComponent(key);
   try{
-    const res=await fetch(modelsUrl,{headers:key?{'Authorization':'Bearer '+key}:{}});
+    const res=await fetch(modelsUrl,{headers:modelsHeadersFor(provId,key)});
     if(!res.ok)throw new Error('HTTP '+res.status);
     const d=await res.json();
     let ids=(d.data||d.models||d||[]).map(x=>x.id||x.name||x).filter(Boolean);
@@ -3081,6 +2875,7 @@ async function fetchProviderModels(provId){
     const visRe=/vl|vision|gpt-4o|gpt-4\.1|omni|pixtral|gemma-3|gemma-4|llava|glm-4v|glm-4\.5v|glm-4\.6v|qwen.*vl|nemotron.*vl|internvl|claude|gemini/i;
     ids.sort((a,b)=>(visRe.test(b)?1:0)-(visRe.test(a)?1:0));
     if(!ids.length){if(box)box.innerHTML='（返回空列表）';return;}
+    mergeModels(provId, ids, null); renderModelOptions();   // 合并进下拉框并记住
     if(box){
       box.innerHTML='共 '+ids.length+' 个模型，点击填入：<br>'+ids.slice(0,60).map(id=>`<a href="#" onclick="pickFetchedModel('${esc(id).replace(/'/g,"\\'")}');return false" style="display:inline-block;margin:2px 4px 2px 0;padding:1px 6px;border:1px solid var(--line2);border-radius:5px;font-family:var(--mono);font-size:10px;${visRe.test(id)?'border-color:var(--accent2);color:var(--accent2)':''}">${esc(id)}</a>`).join('');
     }
@@ -3092,18 +2887,19 @@ async function fetchProviderModels(provId){
    把候选模型一个个真的打一遍：谁能正确读出图里的 42，就选谁并存下来。 */
 async function listProviderModels(provId){
   const p=PROVIDERS[provId];
-  const key=(p.useOpenRouterKey?cfg.keys.openrouter:cfg.keys[provId])||'';
-  let base=(provId==='custom')?(PROVIDERS.custom.endpoint||''):(p.endpoint||'');
-  let modelsUrl=base.replace(/\/(chat\/completions|messages|completions).*$/,'/models').replace(/\/models\/.*/,'/models');
-  if(!/\/models$/.test(modelsUrl))modelsUrl=base.replace(/\/[^/]*$/,'')+'/models';
-  modelsUrl=resolveEndpoint(p, modelsUrl);
-  const res=await fetch(modelsUrl,{headers:key?{'Authorization':'Bearer '+key}:{}});
+  const key=keyOf(provId);
+  let modelsUrl=modelsUrlFor(provId);
+  if(p.apiType==='gemini'&&key) modelsUrl+=(modelsUrl.includes('?')?'&':'?')+'key='+encodeURIComponent(key);
+  const res=await fetch(modelsUrl,{headers:modelsHeadersFor(provId,key)});
   if(!res.ok)throw new Error('HTTP '+res.status);
   const d=await res.json();
   let arr=(d.data||d.models||d||[]);
-  return arr.map(x=>(x&&(x.id||x.name))||x).filter(x=>typeof x==='string');
+  const ids=arr.map(x=>(x&&(x.id||x.name))||x).filter(x=>typeof x==='string')
+                .map(x=>x.replace(/^models\//,''));
+  mergeModels(provId, ids, null);
+  return ids;
 }
-const VIS_RE=/vl|vision|gpt-4o|gpt-4\.1|omni|pixtral|gemma|llava|glm-4v|glm-4\.5v|glm-4\.6v|qwen.*vl|nemotron.*vl|internvl|claude|gemini|scout|maverick|phi-\d.*(vision|multimodal)|kimi|step-1[ov]|hunyuan.*vision|abab.*vl|minimax/i;
+const VIS_RE=/agnes|vl|vision|gpt-4o|gpt-4\.1|omni|pixtral|gemma|llava|glm-4v|glm-4\.5v|glm-4\.6v|qwen.*vl|nemotron.*vl|internvl|claude|gemini|scout|maverick|phi-\d.*(vision|multimodal)|kimi|step-1[ov]|hunyuan.*vision|abab.*vl|minimax/i;
 const BAD_RE=/embed|rerank|whisper|tts|audio|speech|image-gen|flux|stable-?diffusion|kolors|bge-|reranker|coder|math|thinking|reasoner|-r1|deepseek-r/i;
 async function probeModel(id){
   const old=cfg.models[cfg.prov];
@@ -3139,16 +2935,98 @@ async function autoPickModel(){
     catch(e){ bad.push(id+'（'+String((e&&e.message)||e).replace(/\s+/g,' ').slice(0,40)+'）'); continue; }
     if(/42/.test(t)){
       cfg.models[cfg.prov]=id; localStorage.setItem('phck_models',JSON.stringify(cfg.models));
+      mergeModels(cfg.prov,[id],id);
       renderModelOptions(); updateAiStatus();
       setTestResult('✅ 实测通过，已选用「'+id+'」（能正确读出测试图里的 42，可以开始识别）'+(bad.length?('\n（跳过了不可用的：'+bad.slice(0,3).join('、')+'）'):''),'ok');
       if(btn)btn.disabled=false; if(tb)tb.disabled=false; return;
     }
     bad.push(id+'（能连通但读不出图，多半不是视觉模型）');
   }
-  setTestResult('❌ 这个服务下 '+list.length+' 个模型都没测通：\n'+bad.slice(0,5).join('\n')+'\n\n💡 多半是 Key 无效 / 额度用尽 / 需要翻墙 / 服务正忙。建议换国内直连服务：智谱 GLM-4V-Flash、硅基流动 Qwen3-VL、通义 Qwen-VL。','bad');
+  setTestResult('❌ 这个服务下 '+list.length+' 个模型都没测通：\n'+bad.slice(0,5).join('\n')+'\n\n💡 多半是 Key 无效 / 额度用尽 / 需要翻墙 / 服务正忙。建议换成国内直连的「智谱 GLM-4V-Flash」，或在「自定义」里填其它国内服务端点。','bad');
   if(btn)btn.disabled=false; if(tb)tb.disabled=false;
 }
-function pickFetchedModel(id){ if($('setModelCustom')){$('setModelCustom').value=id;onSetModelCustom();} else {cfg.models[cfg.prov]=id;localStorage.setItem('phck_models',JSON.stringify(cfg.models));} toast('已选模型 '+id); updateAiStatus(); }
+
+/* ══════════════════ 🩺 全部服务体检 ══════════════════
+   一次跑遍所有已填 Key 的服务：拉真实模型列表 → 过滤视觉模型 → 用 128×128
+   测试图逐个实打 → 谁能读出 42 就记下来并自动设为该服务的默认模型。
+   跑完给一张表：哪家现在能用、能用哪个模型、不能用是卡在哪一步。 */
+let _mcApplied=false;
+function ensureModelCacheApplied(){ if(_mcApplied)return; _mcApplied=true; try{applyModelCacheAll();}catch(_){}}
+
+const HEALTH_STATE = { running:false, abort:false };
+function hcBox(){ return $('setHealthBox'); }
+function hcRender(rows, note){
+  const el=hcBox(); if(!el)return;
+  const icon={ok:'✅',bad:'❌',skip:'⚪',run:'⏳'};
+  el.innerHTML =
+    '<div style="font-size:11px;color:var(--ink3);margin-bottom:6px">'+esc(note||'')+'</div>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:11px">'+
+    rows.map(r=>'<tr style="border-bottom:1px solid var(--line2)">'+
+      '<td style="padding:3px 4px;white-space:nowrap">'+(icon[r.st]||'·')+' <b>'+esc(r.name)+'</b></td>'+
+      '<td style="padding:3px 4px;font-family:var(--mono);font-size:10px;color:'+(r.st==='ok'?'var(--ok)':'var(--ink3)')+'">'+esc(r.model||'')+'</td>'+
+      '<td style="padding:3px 4px;color:var(--ink3)">'+esc(r.msg||'')+'</td>'+
+      '<td style="padding:3px 4px;text-align:right">'+(r.st==='ok'?('<a href="#" onclick="useHealthPick(\''+r.id+'\',\''+esc(r.model)+'\');return false" style="color:var(--accent2)">用它</a>'):'')+'</td>'+
+      '</tr>').join('')+'</table>';
+}
+function useHealthPick(provId, model){
+  cfg.prov=provId; localStorage.setItem('phck_prov',provId);
+  if(model){ cfg.models[provId]=model; localStorage.setItem('phck_models',JSON.stringify(cfg.models)); }
+  selectProv(provId); toast('已切换到 '+(PROVIDERS[provId]?PROVIDERS[provId].name:provId)+' · '+model);
+}
+async function healthCheckAll(){
+  ensureModelCacheApplied();
+  if(HEALTH_STATE.running){ HEALTH_STATE.abort=true; return; }
+  const btn=$('setHealthBtn');
+  HEALTH_STATE.running=true; HEALTH_STATE.abort=false;
+  if(btn){ btn.textContent='⏹ 停止体检'; }
+  const savedProv=cfg.prov, savedModels=JSON.parse(JSON.stringify(cfg.models||{}));
+  const ids=provOrder().filter(id=>id!=='custom');
+  const rows=[]; let okCount=0;
+  ids.forEach(id=>{ const p=PROVIDERS[id];
+    rows.push({id:id,name:p.name,st:keyOf(id)?'run':'skip',model:'',msg:keyOf(id)?'排队中':'未填 Key，跳过'}); });
+  hcRender(rows,'正在体检…（每家最多实测 4 个模型，整轮约 1-3 分钟，可随时停止）');
+  for(const row of rows){
+    if(HEALTH_STATE.abort){ row.msg='已停止'; break; }
+    if(row.st==='skip') continue;
+    const id=row.id, p=PROVIDERS[id];
+    cfg.prov=id;
+    row.msg='拉取模型列表…'; hcRender(rows,'体检中…');
+    let cands=[];
+    const cur=(savedModels&&savedModels[id])||p.model; if(cur)cands.push(cur);
+    (p.fallbackModels||[]).forEach(m=>cands.push(m));
+    (p.altModels||[]).forEach(m=>{ if(!/⛔|💰/.test(m.tag||'')) cands.push(m.id); });
+    try{ (await listProviderModels(id)).forEach(x=>cands.push(x)); }
+    catch(e){ row.msg='模型列表拉不到（'+String((e&&e.message)||e).slice(0,24)+'），只试内置候选'; }
+    let list=[...new Set(cands)].filter(x=>x&&!BAD_RE.test(x));
+    list.sort((a,b)=>(VIS_RE.test(b)?1:0)-(VIS_RE.test(a)?1:0));
+    list=list.slice(0,4);
+    let done=false, lastErr='';
+    for(let i=0;i<list.length;i++){
+      if(HEALTH_STATE.abort) break;
+      row.model=list[i]; row.msg='实测 '+(i+1)+'/'+list.length+'…'; hcRender(rows,'体检中…');
+      let t='';
+      try{ t=String(await probeModel(list[i])); }
+      catch(e){ lastErr=String((e&&e.message)||e).replace(/\s+/g,' ').slice(0,60); continue; }
+      if(/42/.test(t)){
+        row.st='ok'; row.msg='可用'; okCount++;
+        cfg.models[id]=list[i]; savedModels[id]=list[i];
+        mergeModels(id,[list[i]],list[i]);
+        done=true; break;
+      }
+      lastErr='能连通但读不出图（多半不是视觉模型）';
+    }
+    if(!done){ row.st='bad'; row.model=row.model||'—'; row.msg=lastErr||'该服务下没有可用视觉模型'; }
+    hcRender(rows,'体检中…');
+  }
+  cfg.prov=savedProv; cfg.models=savedModels;
+  localStorage.setItem('phck_models',JSON.stringify(cfg.models));
+  HEALTH_STATE.running=false; if(btn) btn.textContent='🩺 全部服务体检';
+  hcRender(rows, okCount? ('体检完成：'+okCount+' 家可用，点右侧「用它」即可切换（可用模型已自动记住）')
+                        : '体检完成：没有一家测通。多半是 Key 没填/失效、需要翻墙、或页面没部署在 Cloudflare Pages 上（代理不生效）。国内建议先用「智谱」，其它国内服务可在「自定义 → 快速预设」里选。');
+  selectProv(cfg.prov); updateAiStatus();
+}
+
+function pickFetchedModel(id){ if($('setModelCustom')){$('setModelCustom').value=id;onSetModelCustom();} else {cfg.models[cfg.prov]=id;localStorage.setItem('phck_models',JSON.stringify(cfg.models));} mergeModels(cfg.prov,[id],null); toast('已选模型 '+id); updateAiStatus(); }
 async function fetchOpenRouterModels(){
   const box=$('orFetchResult'); if(box)box.innerHTML='⏳ 拉取免费视觉模型…';
   try{
@@ -3174,9 +3052,7 @@ const TEST_PROMPT = '这是连接测试。图片方框里有一个两位数，�
 function openSet(){ selectProv(cfg.prov); $('setBg').classList.add('on'); }
 function closeSet(){ $('setBg').classList.remove('on'); }
 /* 服务排序：国内直连、免费好用的排前面；常忙/需翻墙的排后面 */
-const PROV_ORDER=['zhipu','siliconcloud','dashscope','moonshot','stepfun','hunyuan','minimax',
-                  'openrouter','github','gemini','groq','nvidia','huggingface','together','fireworks',
-                  'openai','anthropic','xai','mistral','deepseek','custom'];
+const PROV_ORDER=['agnes','gemini','zhipu','nvidia','openrouter','openai','custom'];
 function provOrder(){
   const out=PROV_ORDER.filter(k=>PROVIDERS[k]);
   Object.keys(PROVIDERS).forEach(k=>{ if(out.indexOf(k)<0) out.push(k); });
@@ -3219,6 +3095,7 @@ function updateProxyHint(){
 }
 function selectProv(id){
   if(!PROVIDERS[id]) id='zhipu';
+  ensureModelCacheApplied();
   cfg.prov=id; localStorage.setItem('phck_prov',id);
   renderSetTabs();
   const p=PROVIDERS[id];
@@ -3238,11 +3115,17 @@ function selectProv(id){
 }
 /* 快速预设：一键填端点 + 接口类型 + 鉴权方式 + 建议模型 */
 const CUSTOM_PRESETS={
+  agnes:       {endpoint:'https://apihub.agnes-ai.com/v1/chat/completions', type:'openai', auth:'bearer', model:'agnes-2.0-flash', hdr:''},
   ollama:      {endpoint:'http://localhost:11434/v1/chat/completions', type:'openai', auth:'none',   model:'llama3.2-vision', hdr:''},
   lmstudio:    {endpoint:'http://localhost:1234/v1/chat/completions',  type:'openai', auth:'none',   model:'qwen2-vl-7b-instruct', hdr:''},
   vllm:        {endpoint:'http://127.0.0.1:8000/v1/chat/completions',  type:'openai', auth:'bearer', model:'Qwen/Qwen2.5-VL-7B-Instruct', hdr:''},
   oneapi:      {endpoint:'https://你的网关域名/v1/chat/completions',    type:'openai', auth:'bearer', model:'gpt-4o', hdr:''},
   hf:          {endpoint:'https://router.huggingface.co/v1/chat/completions', type:'openai', auth:'bearer', model:'Qwen/Qwen2.5-VL-72B-Instruct', hdr:''},
+  modelscope:  {endpoint:'https://api-inference.modelscope.cn/v1/chat/completions', type:'openai', auth:'bearer', model:'Qwen/Qwen3-VL-30B-A3B-Instruct', hdr:''},
+  ppio:        {endpoint:'https://api.ppinfra.com/v3/openai/chat/completions', type:'openai', auth:'bearer', model:'qwen/qwen2.5-vl-72b-instruct', hdr:''},
+  infini:      {endpoint:'https://cloud.infini-ai.com/maas/v1/chat/completions', type:'openai', auth:'bearer', model:'qwen2.5-vl-72b-instruct', hdr:''},
+  ai302:       {endpoint:'https://api.302.ai/v1/chat/completions', type:'openai', auth:'bearer', model:'gpt-4o', hdr:''},
+  xunfei:      {endpoint:'https://spark-api-open.xf-yun.com/v1/chat/completions', type:'openai', auth:'bearer', model:'generalv3.5', hdr:''},
   baidu:       {endpoint:'https://qianfan.baidubce.com/v2/chat/completions', type:'openai', auth:'bearer', model:'ernie-4.5-turbo-vl-32k', hdr:''},
   doubao:      {endpoint:'https://ark.cn-beijing.volces.com/api/v3/chat/completions', type:'openai', auth:'bearer', model:'doubao-1.5-vision-pro-250328', hdr:''},
   zhipu:       {endpoint:'https://open.bigmodel.cn/api/paas/v4/chat/completions', type:'openai', auth:'bearer', model:'glm-4v-flash', hdr:''},
@@ -3302,9 +3185,9 @@ async function testConnection(){
     let extra='';
     if(/Failed to fetch|网络错误|CORS|NetworkError|Load failed/i.test(m)){
       const hasProxy=!!(p&&p.proxyPath);
-      if(hasProxy&&!proxyAvailable()) extra='\n💡 这是浏览器跨域(CORS)拦截。本服务支持<同域代理>：请把上方「跨域代理」设为「强制开启」（需已把 functions/api/[[path]].js 部署到本站 Cloudflare Pages），或改用国内直连服务（智谱/硅基/通义/Kimi/阶跃/混元）。';
+      if(hasProxy&&!proxyAvailable()) extra='\n💡 这是浏览器跨域(CORS)拦截。本服务支持<同域代理>：请把上方「跨域代理」设为「强制开启」（需已把 functions/api/[[path]].js 部署到本站 Cloudflare Pages），或改用国内直连服务（智谱/混元）。';
       else if(hasProxy&&proxyAvailable()) extra='\n💡 已在走同域代理仍失败：确认本站已部署 functions/api/[[path]].js，且该服务域名在代理白名单内；或改用国内直连服务。';
-      else extra='\n💡 多为浏览器跨域(CORS)或需翻墙。可换国内直连服务（智谱/硅基/通义/Kimi/阶跃/混元），或在「自定义」里走 One-API/自建代理。';
+      else extra='\n💡 多为浏览器跨域(CORS)或需翻墙。可换国内直连服务（智谱），或在「自定义」里走 One-API/自建代理。';
     }
     else if(/401|invalid|无效/i.test(m)) extra='\n💡 Key 不正确或未保存成功，请重新粘贴后再测。';
     else if(/404|not found|模型.*不存在/i.test(m)) extra='\n💡 该模型 ID 在此服务不存在，请在上方下拉换一个，或核对官方模型名。';
